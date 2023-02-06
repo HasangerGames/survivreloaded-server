@@ -1,5 +1,5 @@
 {
-  "name": "survivserver",
+  "name": "survivreloaded",
   "version": "1.0.0",
   "description": "An open source server for the online game surviv.io.",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/hasanger/survivserver.git"
+    "url": "git+https://gitlab.com/hasanger/survivreloaded.git"
   },
   "author": "Henry Sanger",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://gitlab.com/hasanger/survivserver/issues"
+    "url": "https://gitlab.com/hasanger/survivreloaded/issues"
   },
-  "homepage": "https://gitlab.com/hasanger/survivserver#readme",
+  "homepage": "https://gitlab.com/hasanger/survivreloaded#readme",
   "dependencies": {
     "bit-buffer": "^0.2.5",
     "ws": "^8.12.0"

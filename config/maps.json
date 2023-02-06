@@ -1,0 +1,71 @@
+{
+  "main": {
+    "width": 720,
+    "height": 720,
+    "objects": {
+      "tree_01": 420,
+      "stone_01": 420,
+      "barrel_01": 100,
+      "crate_01": 118,
+      "crate_02": 3,
+      "crate_03": 35,
+      "mil_crate_02": 1,
+      "bush_01": 100,
+      "bush_07": 32,
+      "silo_01": 11,
+      "container_01": 9,
+      "container_02": 9,
+      "container_03": 9,
+      "container_04": 15,
+      "outhouse_01": 7,
+      "shack_01": 10,
+      "house_red_01": 3,
+      "house_red_02": 2,
+      "barn_01": 1,
+      "barn_02": 1,
+      "warehouse_01": 2
+    },
+    "places": [
+      {
+        "name": "The Killpit",
+        "x": 0.53,
+        "y": 0.64
+      },
+      {
+        "name": "Sweatbath",
+        "x": 0.84,
+        "y": 0.19
+      },
+      {
+        "name": "Tarkhany",
+        "x": 0.16,
+        "y": 0.11
+      },
+      {
+        "name": "Ytyk-Kyuyol",
+        "x": 0.25,
+        "y": 0.42
+      },
+      {
+        "name": "Todesfelde",
+        "x": 0.81,
+        "y": 0.84
+      },
+      {
+        "name": "Pineapple",
+        "x": 0.20,
+        "y": 0.80
+      },
+      {
+        "name": "Fowl Forest",
+        "x": 0.73,
+        "y": 0.47
+      },
+      {
+        "name": "Ranchito Pollo",
+        "x": 0.53,
+        "y": 0.25
+      }
+    ]
+  }
+}

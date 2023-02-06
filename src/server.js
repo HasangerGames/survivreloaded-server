@@ -20,6 +20,12 @@ server.on('connection', socket => {
     socket.on('close', () => game.removePlayer(p));
 });
 
-console.log('SurvivReborn Server v1.0.0');
+console.log('SurvivReloaded Server v1.0.0');
 console.log('Listening on 0.0.0.0:8001');
 console.log('Press Ctrl+C to exit.');
+
+process.on('SIGINT', function() {
+    console.log("Shutting down...");
+    game.end();
+    process.exit();
+});

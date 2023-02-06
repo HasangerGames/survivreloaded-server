@@ -1,99 +1,183 @@
-const {Utils, Vector, ObjectKind} = require('../utils.js');
+const {Objects, ObjectKind, GameOptions, Utils, Vector} = require("../utils.js");
+const {River, Place, Obstacle, Building, GroundPatch} = require("./miscObjects.js");
 
 class Map {
 
-    constructor() {
-        this.name = "main";
-        this.seed = Math.floor(Math.random() * 2147483647);
-        this.width = 720;
-        this.height = 720;
+    constructor(mapId) {
+        this.name = mapId;
+        this.seed = Utils.random(0, 2147483647);
+
+        const mapInfo = GameOptions.maps[mapId];
+
+        this.width = mapInfo.width;
+        this.height = mapInfo.height;
         this.shoreInset = 48;
         this.grassInset = 18;
 
         this.rivers = [];
-        //const riverCount = Utils.random(1, 3);
-        //for(let i = 0; i < riverCount; i++) {}
+        let x = 0, y = 0;
         const points = [];
-        points.push(new Vector(0, 0));
-        points.push(new Vector(150, 150));
-        points.push(new Vector(300, 350));
-        points.push(new Vector(600, 600));
-        points.push(new Vector(720, 720));
-        this.rivers.push(new River(32, 0, points));
-
-        // RIVER GENERATION IDEA: Diagonal line, with random fluctuations in x and y
+        while(x < 720 && y < 720) {
+            x += 10 + Utils.random(-6, 6);
+            y += 10 + Utils.random(-6, 6);
+            points.push(new Vector(x, y));
+        }
+        this.rivers.push(new River(8, 0, points));
 
         this.places = [];
-        this.places.push(new Place("Ytyk-Kyuyol", new Vector(160, 160)));
+        for(const place of mapInfo.places) {
+            this.places.push(new Place(place.name, new Vector(place.x, place.y)));
+        }
+        
 
         this.objects = [];
 
-        const treeCount = 430;
-        for(let i = 0; i < treeCount; i++) {
-            let foundPos = false;
-            let pos;
-            while(!foundPos) {
-                pos = Utils.randomVec(75, this.width - 75, 75, this.height - 75);
-                foundPos = true;
+        if(!global.DEBUG_MODE) {
+            for(const type in mapInfo.objects) {
+                const data = Objects[type];
+                const count = mapInfo.objects[type];
+                switch(data.type) {
+                    case "obstacle":
+                        this.#genObstacles(count, type, data);
+                        break;
+                    case "building":
+                        this.#genBuildings(count, type, data);
+                        break;
+                }
             }
-            this.objects.push(new Object(this.objects.length, pos, 0, 1.0, 'tree_01', ObjectKind.Obstacle));
+            // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
+        } else {
+            this.#genBuildingTest("house_red_01");
         }
     
         this.groundPatches = [];
+        //this.groundPatches = JSON.parse(require('fs').readFileSync("groundPatchesTest.json"));
     }
 
-}
-
-class River {
-    constructor(width, looped, points) {
-        this.width = width;
-        this.looped = looped;
-        this.points = points;
+    #genBuildings(count, type, building) {
+        for(let i = 0; i < count; i++) {
+            this.#genBuilding(type, building);
+        }
     }
-}
 
-class Place {
-    constructor(name, pos) {
-        this.name = name;
-        this.pos = pos;
+    #genBuildingTest(type) {
+        this.#genBuilding(type, Objects[type]);
     }
-}
 
-class Object {
-    constructor(id, pos, ori, scale, type, kind, layer) {
-        this.isPlayer = false;
-        this.id = id;
-        this.pos = pos;
-        this.ori = ori;
-        this.scale = scale; // Min: 0.125, max: 2.5
+    #genBuilding(type, building, setPos, setOri) {
+        let pos;
+        if(setPos) pos = setPos;
+        else if(global.DEBUG_MODE) pos = new Vector(450, 150);
+        else pos = this.#getSafeObstaclePos();
 
-        this.healthT = 1;
+        let ori;
+        if(setOri) ori = setOri;
+        else if(global.DEBUG_MODE) ori = 0;
+        else ori = Utils.random(0, 3);
 
-        this.type = Utils.mapTypeToId(type);
-        this.obstacleType = type;
+        for(const mapObject of building.mapObjects) {
+            const partType = mapObject.type;
+            if(!partType || partType == "") {
+                console.warn(`${type}: Missing object at ${mapObject.pos.x}, ${mapObject.pos.y}`);
+                continue;
+            }
+            const part = Objects[partType];
 
-        this.kind = kind;
+            let xOffset, yOffset;
+            let partOri;
+            if(mapObject.inheritOri == false) partOri = mapObject.ori;
+            else partOri = mapObject.ori + ori;
+            let partPos = Utils.addAdjust(pos, mapObject.pos, ori);
 
-        this.layer = layer ? layer : 0;
-        this.dead = false;
-        this.isDoor = false;
-        this.teamId = 0;
-        this.isButton = false;
-        this.isPuzzlePiece = false;
-        this.isSkin = false;
+            if(part.type == "building") {
+                this.#genBuilding(partType, part, partPos);
+            } else if(part.type == "obstacle") {
+                this.#genObstacle(
+                    partType,
+                    part,
+                    partPos,
+                    partOri,
+                    mapObject.scale
+                );
+            } else if(part.type == "random") {
+                const items = Object.keys(part.weights), weights = Object.values(part.weights);
+                const randType = Utils.weightedRandom(items, weights);
+                this.#genObstacle(
+                    randType,
+                    Objects[randType],
+                    partPos,
+                    partOri,
+                    mapObject.scale
+                );
+            } else {
+                console.warn(`Unknown object type: ${part.type}`);
+            }
+        }
+        this.objects.push(new Building(this.objects.length, pos, type, ori, 0, building.map ? building.map.display : false));
     }
-}
 
-class GroundPatch {
-    constructor(min, max, color, roughness, offsetDist, order, useAsMapShape) {
-        this.min = min; // vector
-        this.max = max; // vector
-        this.color = color; // uint32
-        this.roughness = roughness; // float32
-        this.offsetDist = offsetDist; // float32
-        this.order = order; // 7-bit integer
-        this.useAsMapShape = useAsMapShape; // boolean (1 bit)
+    #genObstacleTest(type) {
+        this.#genObstacle(type, Objects[type], new Vector(452, 152), 0, 1);
     }
+
+    #genObstacle(type, obstacle, pos, ori, scale) {
+        this.objects.push(new Obstacle(
+            this.objects.length,
+            obstacle,
+            type,
+            pos,
+            ori,
+            scale,
+            0 // layer
+        ));
+    }
+
+    #genObstacles(count, type, obstacle) {
+        const createMin = obstacle.scale.createMin,
+              createMax = obstacle.scale.createMax;
+        for(let i = 0; i < count; i++) {
+            this.objects.push(new Obstacle(
+                this.objects.length,
+                obstacle,
+                type,
+                this.#getSafeObstaclePos(),
+                0,
+                Utils.randomFloat(createMin, createMax),
+                0
+            ));
+        }
+    }
+
+    #getSafeObstaclePos() {
+        let foundPos = false;
+        let pos;
+        while(!foundPos) {
+            pos = Utils.randomVec(75, this.width - 75, 75, this.height - 75);
+            let shouldContinue = false;
+
+            for(const river of this.rivers) {
+                for(const point of river.points) {
+                    if(Utils.distanceBetween(pos, point) < river.width + (river.width / 1.5)) {
+                        shouldContinue = true;
+                        break;
+                    }
+                }
+            }
+            if(shouldContinue) continue;
+
+            for(const object of this.objects) {
+                if(Utils.distanceBetween(object.pos, pos) < 5) {
+                    shouldContinue = true;
+                    break;
+                }
+            }
+            if(shouldContinue) continue;
+
+            foundPos = true;
+        }
+        return pos;
+    }
+
 }
 
 module.exports.Map = Map;

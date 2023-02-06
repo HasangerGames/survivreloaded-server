@@ -1,0 +1,1 @@
+- Cabins should be near rivers

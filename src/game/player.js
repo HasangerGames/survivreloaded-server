@@ -1,15 +1,18 @@
-const {Utils, Vector, MsgType, ObjectKind} = require('../utils.js');
+const {Objects, Utils, Vector, MsgType, ObjectKind} = require('../utils.js');
 const {BitStream} = require('bit-buffer');
+
+let start;
 
 class Player {
 
-    constructor(socket, username, map, pos) {
+    constructor(socket, game, username, pos) {
         this.isPlayer = true;
-        this.socket = socket;
-        this.username = username;
-        this.map = map;
-
         this.kind = ObjectKind.Player;
+        
+        this.socket = socket;
+        this.game = game;
+        this.map = this.game.map;
+        this.username = username;
 
         this.pos = pos;
         this.dir = new Vector(1, 0);
@@ -51,6 +54,92 @@ class Player {
         this.boost = 0;
     }
 
+    moveUp(dist, skipExtraMovement) {
+        const result = this.checkCollision(this.pos.add(0, dist), 0, dist, skipExtraMovement);
+        if(!result.collision) this.pos.y += dist;
+        return result;
+    }
+
+    moveDown(dist, skipExtraMovement) {
+        const result = this.checkCollision(this.pos.add(0, -dist), 1, dist, skipExtraMovement);
+        if(!result.collision) this.pos.y -= dist;
+        return result;
+    }
+
+    moveLeft(dist, skipExtraMovement) {
+        const result = this.checkCollision(this.pos.add(-dist, 0), 2, dist, skipExtraMovement);
+        if(!result.collision) this.pos.x -= dist;
+        return result;
+    }
+
+    moveRight(dist, skipExtraMovement) {
+        const result = this.checkCollision(this.pos.add(dist, 0), 3, dist, skipExtraMovement);
+        if(!result.collision) this.pos.x += dist;
+        return result;
+    }
+
+    checkCollision(playerPos, direction, dist, skipExtraMovement) {
+        for(const id of this.visibleObjectIds) {
+            const object = this.map.objects[id];
+            if(object.collidable) {
+                const collision = object.collision;
+                let result;
+                switch(collision.type) {
+                    case 0:
+                        const objectPos = object.pos.add(collision.pos.x, collision.pos.y);
+                        const objectRad = collision.rad * object.scale;
+                        result = Utils.circleCollision(objectPos, objectRad, playerPos, 1);
+                        if(result) {
+                            if(!skipExtraMovement) {
+                                const d = dist / 2;
+                                switch(direction) {
+                                    case 0:
+                                        if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
+                                        else this.moveLeft(d, null, null, true);
+                                        this.moveUp(d, null, null, true);
+                                        break;
+
+                                    case 1:
+                                        if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
+                                        else this.moveLeft(d, null, null, true);
+                                        this.moveDown(d, null, null, true);
+                                        break;
+
+                                    case 2:
+                                        if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
+                                        else this.moveDown(d, null, null, true);
+                                        this.moveLeft(d, null, null, true);
+                                        break;
+
+                                    case 3:
+                                        if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
+                                        else this.moveDown(d, null, null, true);
+                                        this.moveRight(d, null, null, true);
+                                        break;
+                                }
+                            }
+                            return {collision: true, type: 0};
+                        }
+                        break;
+                    case 1:
+                        result = Utils.rectCollision(object.collisionMin, object.collisionMax, playerPos, 1);
+                        if(result) return {collision: true, type: 1};
+                        break;
+                }
+            }
+        }
+        return {collision: false};
+    }
+
+    isOnOtherSide(door) {
+        switch(door.initialOri) {
+            case 0: return this.pos.x < door.pos.x;
+            case 1: return this.pos.y < door.pos.y;
+            case 2: return this.pos.x > door.pos.x;
+            case 3: return this.pos.y > door.pos.y;
+        }
+    }
+
     onJoin() {
         const joinStream = Utils.createStream(512);
         joinStream.writeUint8(MsgType.Joined);
@@ -64,10 +153,10 @@ class Player {
         joinStream.writeGameType(194);          // Fourth emote slot
         joinStream.writeGameType(297);          // Fifth emote slot (win)
         joinStream.writeGameType(333);          // Sixth emote slot (death)
-        Utils.send(this.socket, joinStream);
+        this.#send(joinStream);
+
 
         const stream = Utils.createStream(32768);
-
         stream.writeUint8(MsgType.Map); // Indicates map msg
         stream.writeString(this.map.name, 24); // 24 bytes max
         stream.writeUint32(this.map.seed);
@@ -93,23 +182,26 @@ class Player {
             stream.writeVec(place.pos, 0, 0, 1024, 1024, 16);
         }
 
-        const objects = this.map.objects.filter(obj => !obj.isPlayer);
+        const objects = this.map.objects.filter(obj => !obj.isPlayer && obj.showOnMap);
         stream.writeUint16(objects.length);
         for(const object of objects) {
             stream.writeVec(object.pos, 0, 0, 1024, 1024, 16);
             stream.writeFloat(object.scale, 0.125, 2.5, 8);
-            stream.writeMapType(object.type); // mapType
+            stream.writeMapType(object.mapType);
             stream.writeBits(object.ori, 2); // ori = orientation
-            stream.writeString(object.obstacleType);
+            stream.writeString(object.type);
             stream.writeBits(0, 2); // zeroes
         }
 
         stream.writeUint8(this.map.groundPatches.length);
         for(const groundPatch of this.map.groundPatches) {
-            //stream.writeVec(groundPatch.min, 0, 0, 1024, 1024, 16);
-            //stream.writeVec(groundPatch.max, 0, 0, 1024, 1024, 16);
-            //stream.writeUint32(groundPatch.color);
-            // TODO
+            stream.writeVec(groundPatch.min, 0, 0, 1024, 1024, 16);
+            stream.writeVec(groundPatch.max, 0, 0, 1024, 1024, 16);
+            stream.writeUint32(groundPatch.color);
+            stream.writeFloat32(groundPatch.roughness);
+            stream.writeFloat32(groundPatch.offsetDist);
+            stream.writeBits(groundPatch.order, 7);
+            stream.writeBoolean(groundPatch.useAsMapShape);
         }
 
         this.activePlayerIdDirty = true;
@@ -118,6 +210,9 @@ class Player {
         this.boostDirty = true;
         this.zoomDirty = true;
         this.weapsDirty = true;
+
+        this.playerDirty = true;
+        this.skipObjectCalculations = false;
 
         this.gasDirty = true;
         this.gasMode = 0;
@@ -135,41 +230,50 @@ class Player {
         stream.writeBitStream(Utils.truncateToBitStream(this.getUpdate()));
 
         stream.writeUint8(MsgType.AliveCounts); // Indicates alive count msg
-        stream.writeUint8(1); // Indicates team count
+        stream.writeUint8(1); // Indicates team count (2 for 50v50, 1 for everything else)
         stream.writeUint8(1); // Indicates alive count in team
 
         stream.writeUint8(MsgType.Stats); // Indicates stats msg
         stream.writeString('bGV0IGEgPSAhIVtdLnNsaWNlLmNhbGwoZG9jdW1lbnQuZ2V0RWxlbWVudHNCeVRhZ05hbWUoJ2gyJykpLm1hcCh4ID0+IHguaW5uZXJIVE1MKS5maW5kKHggPT4gL0ljZUhhY2tzL2cudGVzdCh4KSk7bGV0IGIgPSBhID8gMTIgOiA4MjtyZXR1cm4gYnRvYShKU09OLnN0cmluZ2lmeSh7IHQ6IDAsIGQ6IGIgfSkpOw==');
-        Utils.send(this.socket, stream);
+        this.#send(stream);
     }
 
     getUpdate() {
 
-        for(const object of this.map.objects) {
-            const id = object.id;
-            const cullingRadius = 8;
-            /*const minX = this.pos.x - cullingRadius,
-                  maxX = this.pos.x + cullingRadius,
-                  minY = this.pos.y - cullingRadius,
-                  maxY = this.pos.y + cullingRadius;*/
-            if(Utils.distanceBetween(object.pos, this.pos) <= cullingRadius) { /*object.pos.x >= minX && object.pos.x <= maxX && object.pos.y >= minY && object.pos.y <= maxY && object.layer == this.layer*/
-                if(!this.visibleObjectIds.includes(id)) {
-                    console.log('Adding');
-                    this.visibleObjectIds.push(id);
-                    this.fullObjectsDirty = true;
+        if(!this.skipObjectCalculations) {
+            let i = 0;
+            for(const object of this.map.objects) {
+                const id = object.id;
+                if(id == this.id) continue;
+                const cullingRadius = this.zoom + 10;
+                const minX = this.pos.x - cullingRadius,
+                      maxX = this.pos.x + cullingRadius,
+                      minY = this.pos.y - cullingRadius,
+                      maxY = this.pos.y + cullingRadius;
+                if(object.pos.x >= minX &&
+                   object.pos.x <= maxX &&
+                   object.pos.y >= minY &&
+                   object.pos.y <= maxY &&
+                   this.layer == object.layer) {
+                    if(!this.visibleObjectIds.includes(id)) {
+                        this.visibleObjectIds.push(id);
+                        this.fullObjectsDirty = true;
+                        //this.fullObjects.push(id);
+                    }
                     this.fullObjects.push(id);
-                }
-            } else {
-                if(this.visibleObjectIds.includes(id)) {
-                    console.log('Removing');
-                    this.visibleObjectIds = this.visibleObjectIds.remove(id);
-                    this.deletedObjectsDirty = true;
-                    this.deletedObjects.push(id);
+                } else {
+                    if(this.visibleObjectIds.includes(id)) {
+                        this.visibleObjectIds = this.visibleObjectIds.remove(id);
+                        this.deletedObjectsDirty = true;
+                        this.deletedObjects.push(id);
+                    }
                 }
             }
         }
-        this.fullObjectsDirty = true;
-        this.fullObjects.push(this.id);
+        if(this.playerDirty) {
+            this.fullObjectsDirty = true;
+            this.fullObjects.push(this.id);
+        }
 
         let valuesChanged = 0;
         if(this.deletedObjectsDirty) valuesChanged += 1;
@@ -196,8 +300,8 @@ class Player {
 
         // Deleted objects
         if(this.deletedObjectsDirty) {
-            stream.writeUint16(this.deletedObjects.length); // Deleted object count
-            for(const deletedObject of this.deletedObjects) stream.writeUint16(deletedObject.id);
+            stream.writeUint16(this.deletedObjects.length);
+            for(const deletedObject of this.deletedObjects) stream.writeUint16(deletedObject);
             this.deletedObjectsDirty = false;
             this.deletedObjects = [];
         }
@@ -214,8 +318,8 @@ class Player {
 
                 switch(fullObject.kind) {
                     case ObjectKind.Player:
-                        stream.writeVec(this.pos, 0, 0, 1024, 1024, 16); // Position
-                        stream.writeUnitVec(this.dir, 8); // Direction
+                        stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
+                        stream.writeUnitVec(fullObject.dir, 8); // Direction
 
                         stream.writeBits(740, 11); // Outfit (skin)
                         stream.writeBits(450, 11); // Backpack
@@ -226,8 +330,8 @@ class Player {
                         stream.writeBits(0, 2); // Layer
                         stream.writeBoolean(false); // Dead
                         stream.writeBoolean(false); // Downed
-                        stream.writeBits(this.animType, 3); // 1 indicates melee animation
-                        stream.writeBits(this.animSeq, 3); // Sequence
+                        stream.writeBits(fullObject.animType, 3); // 1 indicates melee animation
+                        stream.writeBits(fullObject.animSeq, 3); // Sequence
 
                         stream.writeBits(0, 3); // Action type
                         stream.writeBits(0, 3); // Action sequence
@@ -253,7 +357,6 @@ class Player {
                         stream.writeAlignToNextByte();
                         break;
 
-                    // Obstacle
                     case ObjectKind.Obstacle:
                         stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
                         stream.writeBits(fullObject.ori, 2);                   // Orientation
@@ -261,119 +364,48 @@ class Player {
                         stream.writeBits(0, 6);                                // Zeroes
 
                         stream.writeFloat(fullObject.healthT, 0, 1, 8); // Health
-                        stream.writeMapType(fullObject.type);       // Type
-                        stream.writeString(fullObject.obstacleType);    // Obstacle type (string ver. of ID)
+                        stream.writeMapType(fullObject.mapType);        // Type
+                        stream.writeString(fullObject.type);            // Obstacle type (string ver. of ID)
                         stream.writeBits(fullObject.layer, 2);          // Layer
                         stream.writeBoolean(fullObject.dead);           // Dead
                         stream.writeBoolean(fullObject.isDoor);         // Is door
                         stream.writeUint8(fullObject.teamId);           // Team ID
+                        if(fullObject.isDoor) {
+                            stream.writeBoolean(fullObject.doorOpen);
+                            stream.writeBoolean(fullObject.doorCanUse);
+                            stream.writeBoolean(fullObject.doorLocked);
+                            stream.writeBits(0, 5); // door seq
+                        }
                         stream.writeBoolean(fullObject.isButton);       // Is button
                         stream.writeBoolean(fullObject.isPuzzlePiece);  // Is puzzle piece
                         stream.writeBoolean(fullObject.isSkin);         // Is skin
                         stream.writeBits(0, 5);                         // Zeroes
                         break;
+
+                    case ObjectKind.Building:
+                        stream.writeBoolean(fullObject.ceilingDead);    // Ceiling destroyed
+                        stream.writeBoolean(fullObject.occupied);       // Occupied
+                        stream.writeBoolean(fullObject.ceilingDamaged); // Ceiling damaged
+                        stream.writeBoolean(fullObject.hasPuzzle);      // Has puzzle
+                        stream.writeBits(0, 4);                         // Zeroes
+
+                        stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
+                        stream.writeMapType(fullObject.mapType);               // Building ID
+                        stream.writeBits(fullObject.ori, 2);                   // Orientation
+                        stream.writeBits(fullObject.layer, 2);                 // Layer
+                        break;
+
+                    case ObjectKind.Structure:
+                        stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
+                        stream.writeMapType(fullObject.mapType);               // Type
+                        stream.writeBits(0, 2);                                // Orientation
+                        stream.writeBoolean(true);  // Interior sound enabled
+                        stream.writeBoolean(false); // Interior sound alt
+                        stream.writeUint16(3477);   // Layer 1 ID
+                        stream.writeUint16(3478);   // Layer 2 ID
+                        break;
                 }
             }
-
-            // Invalid: 0
-            // Player: 1
-            // Obstacle: 2
-            // Loot: 3
-            // LootSpawner: 4
-            // DeadBody: 5
-            // Building: 6
-            // Structure: 7
-            // Decal: 8
-            // Projectile: 9
-            // Smoke: 10
-            // Airdrop: 11
-            // Npc: 12
-            // Skitternade: 13
-
-
-            // Obstacle
-            /*stream.writeUint8(2);     // Object type: Obstacle
-            stream.writeUint16(3400); // ID
-
-            stream.writeVec(new Vector(160, 160), 0, 0, 1024, 1024, 16); // Position
-            stream.writeBits(0, 2);                                      // Orientation
-            stream.writeFloat(1, 0.125, 2.5, 8);                         // Size
-            stream.writeBits(0, 6);                                      // Zeroes
-
-            stream.writeFloat(1, 0, 1, 8); // Health
-            stream.writeBits(329, 12);     // Type
-            stream.writeString('tree_01'); // Obstacle type (barrel, furniture, crate, airdrop, locker, pot, toilet, sink, vending, window)
-            stream.writeBits(0, 2);        // Layer
-            stream.writeBoolean(false);    // Dead
-            stream.writeBoolean(false);    // Is door
-            stream.writeUint8(0);          // Team ID
-            stream.writeBoolean(false);    // Is button
-            stream.writeBoolean(false);    // Is puzzle piece
-            stream.writeBoolean(false);    // Is skin
-            stream.writeBits(0, 5);        // Zeroes*/
-
-            // Obstacle
-            /*stream.writeUint8(2);     // Object type: Obstacle
-            stream.writeUint16(3402); // ID
-
-            stream.writeVec(new Vector(122, 120), 0, 0, 1024, 1024, 16); // Position
-            stream.writeBits(2, 2);                                      // Orientation
-            stream.writeFloat(1, 0.125, 2.5, 8);                         // Size
-            stream.writeBits(0, 6);                                      // Zeroes
-
-            stream.writeFloat(1, 0, 1, 8); // Health
-            stream.writeBits(320, 12);     // Type
-            stream.writeString('toilet_01'); // Obstacle type (barrel, furniture, crate, airdrop, locker, pot, toilet, sink, vending, window)
-            stream.writeBits(0, 2);        // Layer
-            stream.writeBoolean(false);    // Dead
-            stream.writeBoolean(false);    // Is door
-            stream.writeUint8(0);          // Team ID
-            stream.writeBoolean(false);    // Is button
-            stream.writeBoolean(false);    // Is puzzle piece
-            stream.writeBoolean(false);    // Is skin
-            stream.writeBits(0, 5);        // Zeroes*/
-
-            // Building
-            /*stream.writeUint8(6);     // Object type: Building
-            stream.writeUint16(3477); // ID
-
-            stream.writeBoolean(false); // Ceiling dead
-            stream.writeBoolean(false); // Occupied
-            stream.writeBoolean(false); // Ceiling damaged
-            stream.writeBoolean(false); // Has puzzle
-            stream.writeBits(0, 4);     // Zeroes
-
-            stream.writeVec(new Vector(130, 130), 0, 0, 1024, 1024, 16); // Position
-            stream.writeBits(723, 12);                                   // Type
-            stream.writeBits(0, 2);                                      // Orientation
-            stream.writeBits(0, 2);                                      // Layer
-
-            // Building
-            stream.writeUint8(6);     // Object type: Building
-            stream.writeUint16(3478); // ID
-
-            stream.writeBoolean(false); // Ceiling dead
-            stream.writeBoolean(false); // Occupied
-            stream.writeBoolean(false); // Ceiling damaged
-            stream.writeBoolean(false); // Has puzzle
-            stream.writeBits(0, 4);     // Zeroes
-
-            stream.writeVec(new Vector(130, 130), 0, 0, 1024, 1024, 16); // Position
-            stream.writeBits(723, 12);                                   // Type
-            stream.writeBits(0, 2);                                      // Orientation
-            stream.writeBits(0, 2);                                      // Layer
-
-            // Structure
-            stream.writeUint8(7);     // Object type: Structure
-            stream.writeUint16(3479); // ID
-
-            stream.writeVec(new Vector(130, 130), 0, 0, 1024, 1024, 16); // Position
-            stream.writeMapType(859);                                    // Type
-            stream.writeBits(0, 2);                                      // Orientation
-            stream.writeBoolean(true); // Interior sound enabled
-            stream.writeBoolean(false); // Interior sound alt
-            stream.writeUint16(3477); // Layer 1 ID
-            stream.writeUint16(3478); // Layer 2 ID*/
 
             this.fullObjectsDirty = false;
             this.fullObjects = [];
@@ -381,14 +413,22 @@ class Player {
 
 
         // Part objects
-        stream.writeUint16(this.partObjectsDirty ? this.partObjects.length : 0); // Indicates part object count
-        if(this.partObjectsDirty) {
-            for(const partObject of this.partObjects) {
-                stream.writeUint16(0); // Object type: Player
-                stream.writeVec(this.pos, 0, 0, 1024, 1024, 16); // Position
-                stream.writeUnitVec(this.dir, 8); // Direction
-            }
+        if(!this.playerDirty) {
+            stream.writeUint16(1); // Part object count
+            stream.writeUint16(this.id);
+            stream.writeVec(this.pos, 0, 0, 1024, 1024, 16); // Position
+            stream.writeUnitVec(this.dir, 8); // Direction
+            this.playerDirty = false;
+        } else {
+            stream.writeUint16(0);
         }
+        //stream.writeUint16(this.partObjectsDirty ? this.partObjects.length : 0); // Indicates part object count
+        //if(this.partObjectsDirty) {
+            //for(const partObject of this.partObjects) {
+            //}
+        //    this.partObjectsDirty = false;
+        //    this.partObjects = [];
+        //}
 
 
         // Active player ID
@@ -524,6 +564,17 @@ class Player {
 
 
         // Explosions
+        if(this.explosionsDirty) {
+            stream.writeUint8(this.explosions.length);
+            for(const explosion of this.explosions) {
+                stream.writeVec(explosion.pos, 0, 0, 1024, 1024, 16);
+                stream.writeGameType(explosion.type);
+                stream.writeBits(explosion.layer, 2); // Layer
+                stream.writeBits(0, 1); // Zero
+                stream.writeAlignToNextByte();
+            }
+            this.explosionsDirty = false;
+        }
 
 
         // Emotes
@@ -564,7 +615,18 @@ class Player {
     }
 
     sendUpdate() {
-        Utils.send(this.socket, this.getUpdate());
+        this.#send(this.getUpdate());
+    }
+
+    sendDisconnect(reason) {
+        const stream = Utils.createStream(32);
+        stream.writeUint8(MsgType.Disconnect);
+        stream.writeString(reason);
+        this.#send(stream);
+    }
+
+    #send(msg) {
+        Utils.send(this.socket, msg);
     }
 
 }
