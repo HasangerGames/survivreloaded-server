@@ -1,6 +1,5 @@
-<img src="logo/surviv.png" width="250" height="250">
-<h1>Surviv Reloaded</h1>
-
+<img src="logo/banner.png" alt="Surviv Reloaded">
+<hr>
 An open-source server for the online game surviv.io. Work in progress.
 
 ## Why this project?
