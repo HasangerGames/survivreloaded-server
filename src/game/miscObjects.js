@@ -1,4 +1,4 @@
-const {Objects, ObjectKind, GameOptions, Utils, Vector} = require("../utils.js");
+const {Objects, ObjectKind, CollisionType, GameOptions, Utils, Vector} = require("../utils.js");
 
 class River {
     constructor(width, looped, points) {
@@ -27,6 +27,8 @@ class Obstacle {
         this.ori = ori;
         this.initialOri = ori;
         this.scale = scale; // Min: 0.125, max: 2.5
+        this.minScale = data.scale.destroy;
+        this.maxScale = this.scale;
 
         this.health = data.health;
         this.maxHealth = data.health;
@@ -47,17 +49,11 @@ class Obstacle {
         this.reflectBullets = data.reflectBullets;
         this.destructible = data.destructible;
         this.collision = JSON.parse(JSON.stringify(data.collision));
-        if(this.collision.type == 1) {
-            const rotated = Utils.rotateRect(
-                this.pos,
-                this.collision.min,
-                this.collision.max,
-                this.scale,
-                this.ori
-            );
-            this.collisionMin = this.collision.min = rotated.min;
-            this.collisionMax = this.collision.max = rotated.max;
+        if(this.collision.type == CollisionType.Rectangle) {
+            this.collision.initialMin = this.collision.min;
+            this.collision.initialMax = this.collision.max;
         }
+        this.recalculateCollisionPos();
 
         this.isDoor = data.door != undefined;
         if(this.isDoor) {
@@ -108,17 +104,22 @@ class Obstacle {
     damage(amount) {
         this.health -= amount;
         if(this.health <= 0) {
-            this.health = 0;
+            this.health = this.healthT = 0;
             this.dead = true;
             this.collidable = false;
             this.doorCanUse = false;
+        } else {
+            this.healthT = this.health / this.maxHealth;
+            if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
+            this.recalculateCollisionPos();
         }
-        this.healthT = this.health / this.maxHealth;
     }
 
     interact(p) {
         this.doorOpen = !this.doorOpen;
         // TODO Make the door push players out of the way when opened, not just when closed
+        // When pushing, ensure that they won't get stuck in anything.
+        // If they do, move them to the opposite side regardless of their current position.
         if(this.doorOpen) {
             if(p.isOnOtherSide(this)) {
                 this.ori = this.doorOpenAltOri;
@@ -166,6 +167,23 @@ class Obstacle {
                     }
                 }
             }
+        }
+    }
+
+    recalculateCollisionPos() {
+        if(this.collision.type == CollisionType.Circle) {
+            this.collisionPos = Vector.add(this.pos, this.collision.pos);
+            this.collisionRad = this.collision.rad * this.scale;
+        } else if(this.collision.type == CollisionType.Rectangle) {
+            const rotated = Utils.rotateRect(
+                this.pos,
+                this.collision.initialMin,
+                this.collision.initialMax,
+                this.scale,
+                this.ori
+            );
+            this.collisionMin = this.collision.min = rotated.min;
+            this.collisionMax = this.collision.max = rotated.max;
         }
     }
 

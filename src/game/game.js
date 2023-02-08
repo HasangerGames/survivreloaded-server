@@ -65,10 +65,25 @@ class Game {
 
             if(p.shootStart) {
                 p.shootStart = false;
-                if(!p.animActive) {
-                    p.animActive = true;
-                    p.animType = 1;
-                    p.animTime = 0;
+                if(Date.now() - p.meleeCooldown >= 250) {
+                    p.meleeCooldown = Date.now();
+
+                    // Start punching animation
+                    if(!p.animActive) {
+                        p.animActive = true;
+                        p.animType = 1;
+                        p.animTime = 0;
+                    }
+
+                    // Check if the player is punching anything
+                    for(const id of p.visibleObjectIds) {
+                        const object = this.map.objects[id];
+                        if(object.destructible && p.canMelee(object)) {
+                            object.damage(24);
+                            if(object.isDoor) object.interact(p);
+                            this.dirtyObjects.push(id);
+                        }
+                    }
                 }
             }
 
@@ -94,11 +109,9 @@ class Game {
 
             if(this.dirtyObjects.length > 0) {
                 p.fullObjectsDirty = true;
-                for(const id of this.dirtyObjects) p.fullObjects.push(id);
-            }
-
-            for(const id of p.visibleObjectIds) {
-                if(this.map.objects[id].damage) this.map.objects[id].damage(1);
+                for(const id of this.dirtyObjects) {
+                    if(p.visibleObjectIds.includes(id)) p.fullObjects.push(id);
+                }
             }
 
             p.sendUpdate();
@@ -179,7 +192,7 @@ class Game {
 
     addPlayer(socket, username) {
         let spawnPos;
-        if(global.DEBUG_MODE) spawnPos = new Vector(450, 150);
+        if(global.DEBUG_MODE) spawnPos = Vector.create(450, 150);
         else spawnPos = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
         
         const p = new Player(socket, this, username, spawnPos);

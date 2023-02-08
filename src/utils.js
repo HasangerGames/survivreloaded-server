@@ -1,11 +1,21 @@
-global.DEBUG_MODE = true;
+global.DEBUG_MODE = false;
 
 const fs = require('fs');
 const BitStream = require('bit-buffer').BitStream;
 
-const Objects = JSON.parse(fs.readFileSync('data/objects.json'));
-const GameOptions = JSON.parse(fs.readFileSync('data/gameOptions.json'));
-const typeToId = JSON.parse(fs.readFileSync('data/ids.json'));
+function readJSON(path) {
+    return JSON.parse(fs.readFileSync(path));
+}
+
+const Objects = readJSON("data/objects.json");
+const Maps = readJSON("data/maps.json");
+const Items = readJSON("data/items.json");
+const Melees = readJSON("data/melee.json");
+const Guns = readJSON("data/guns.json");
+const Bullets = readJSON("data/bullets.json");
+
+const GameOptions = readJSON("data/game.json");
+const typeToId = readJSON("data/ids.json");
 
 const ObjectKind = {
     Invalid: 0,
@@ -92,6 +102,8 @@ const InputType = {
     Count: 37
 };
 
+const CollisionType = {Circle: 0, Rectangle: 1};
+
 class Utils {
 
     static createStream(length) {
@@ -123,7 +135,7 @@ class Utils {
     }
 
     static randomVec(minX, maxX, minY, maxY) {
-        return new Vector(Utils.random(minX, maxX), Utils.random(minY, maxY));
+        return Vector.create(Utils.random(minX, maxX), Utils.random(minY, maxY));
     }
 
     static randomFloat(min, max) {
@@ -161,27 +173,27 @@ class Utils {
     }
 
     static intersectSegmentCircle(pos1, pos2, pos3, rad) {
-        var lengthVec = Vector.subtract(pos2, pos1),
+        var lengthVec = Vector.sub(pos2, pos1),
             length = Math.max(Vector.length(lengthVec), 0);
         lengthVec = Vector.div(lengthVec, length);
 
         var distToCircleCenter = Vector.sub(pos1, pos3);
-        var _0x4c24fb = Vector.dot(distToCircleCenter, lengthVec);
-        var _0x2dfa3a = Vector.dot(distToCircleCenter, distToCircleCenter) - rad * rad;
+        var dot1 = Vector.dot(distToCircleCenter, lengthVec);
+        var dot2 = Vector.dot(distToCircleCenter, distToCircleCenter) - rad * rad;
 
-        if(_0x2dfa3a > 0 && _0x4c24fb > 0) return null;
+        if(dot2 > 0 && dot1 > 0) return null;
 
-        var _0x2ce48e = _0x4c24fb * _0x4c24fb - _0x2dfa3a;
-        if(_0x2ce48e < 0) return null;
+        var dot3 = dot1 * dot1 - dot2;
+        if(dot3 < 0) return null;
 
-        var _0x1bbd11 = Math.sqrt(_0x2ce48e),
-            _0x1a85fe = -_0x4c24fb - _0x1bbd11;
+        var dot4 = Math.sqrt(dot3),
+            dot5 = -dot1 - dot4;
 
-        if(_0x1a85fe < 0) _0x1a85fe = -_0x4c24fb + _0x1bbd11;
+        if(dot5 < 0) dot5 = -dot1 + dot4;
 
-        if(_0x1a85fe <= length) {
-            var _0x5a7184 = Vector.add(pos1, Vector.mul(lengthVec, _0x1a85fe));
-            return {point: _0x5a7184, normal: Vector.normalize(Vector.sub(_0x5a7184, pos3))};
+        if(dot5 <= length) {
+            var point = Vector.add(pos1, Vector.mul(lengthVec, dot5));
+            return {point: point, normal: Vector.normalize(Vector.sub(point, pos3))};
         }
 
         return null;
@@ -223,7 +235,7 @@ class Utils {
         // TODO Replace this collision detection function with a more efficient one from the surviv code
         var rectWidth = max.x - min.x - 0.1;
         var rectHeight = max.y - min.y - 0.2;
-        min = min.add(rectWidth/2, rectHeight/2);
+        min = Vector.add2(min, rectWidth/2, rectHeight/2);
         var distx = Math.abs(circlePos.x - min.x);
         var disty = Math.abs(circlePos.y - min.y);
 
@@ -240,8 +252,7 @@ class Utils {
     }
 
     static addAdjust(pos1, pos2, ori) {
-        if(ori == 0) return pos1.addVec(pos2);
-
+        if(ori == 0) return Vector.add(pos1, pos2);
         let xOffset, yOffset;
         switch(ori) {
             case 1:
@@ -257,28 +268,28 @@ class Utils {
                 yOffset = -pos2.x;
                 break;
         }
-        return pos1.add(xOffset, yOffset);
+        return Vector.add2(pos1, xOffset, yOffset);
     }
 
     static rotateRect(pos, min, max, scale, ori) {
-        min = Vector.mult(min, scale);
-        max = Vector.mult(max, scale);
+        min = Vector.mul(min, scale);
+        max = Vector.mul(max, scale);
 
         if(ori != 0) {
             const minX = min.x, minY = min.y,
                   maxX = max.x, maxY = max.y;
             switch(ori) {
                 case 1:
-                    min = new Vector(minX, maxY);
-                    max = new Vector(maxX, minY);
+                    min = Vector.create(minX, maxY);
+                    max = Vector.create(maxX, minY);
                     break;
                 case 2:
-                    min = new Vector(maxX, maxY);
-                    max = new Vector(minX, minY);
+                    min = Vector.create(maxX, maxY);
+                    max = Vector.create(minX, minY);
                     break;
                 case 3:
-                    min = new Vector(maxX, minY);
-                    max = new Vector(minX, maxY);
+                    min = Vector.create(maxX, minY);
+                    max = Vector.create(minX, maxY);
                     break;
             }
         }
@@ -296,38 +307,58 @@ class Vector {
         return {x: x, y: y};
     }
 
-    static add2(vec1, vec2) {
-        return new Vector(vec1.x + vec2.x, vec1.y + vec2.y);
-        //return {x: vec1.x + vec2.x, y: vec1.y + vec2.y};
+    static add(v1, v2) {
+        return Vector.create(v1.x + v2.x, v1.y + v2.y);
     }
 
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+    static add2(v, x, y) {
+        return Vector.create(v.x + x, v.y + y);
     }
 
-    add(x, y) {
-        return new Vector(this.x + x, this.y + y);
+    static sub(v1, v2) {
+        return Vector.create(v1.x - v2.x, v1.y - v2.y);
     }
 
-    subtract(x, y) {
-        return new Vector(this.x - x, this.y - y);
+    static mul(v, n) {
+        return Vector.create(v.x * n, v.y * n);
     }
 
-    addVec(vec) {
-        return new Vector(this.x + vec.x, this.y + vec.y);
+    static div(v, n) {
+        return Vector.create(v.x / n, v.y / n);
     }
 
-    static mult(vec, n) {
-        return new Vector(vec.x * n, vec.y * n);
+    static mul2(v1, v2) {
+        return Vector.create(v1.x * v2.x, v1.y * v2.y);
+    }
+
+    static div2(v1, v2) {
+        return Vector.create(v1.x / v2.x, v1.y / v2.y);
     }
 
     static dot(v1, v2) {
         return v1.x * v2.x + v1.y * v2.y;
     }
 
-    static unitVecToRadians(vec) {
-        return Math.atan2(vec.y, vec.x);
+    static length(v) {
+        return Math.sqrt(Vector.lengthSqr(v));
+    }
+
+    static lengthSqr(v) {
+        return v.x * v.x + v.y * v.y;
+    }
+
+    static rotate(v, angle) {
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        return Vector.create(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
+    }
+
+    static normalize(v) {
+        var len = Vector.length(v);
+        return Vector.create(len > 0 ? v.x / len : v.x, len > 0 ? v.y / len : v.y);
+    }
+
+    static unitVecToRadians(v) {
+        return Math.atan2(v.y, v.x);
     }
 
 }
@@ -357,7 +388,7 @@ BitStream.prototype.writeVec = function(vec, minX, minY, maxX, maxY, bitCount) {
     this.writeFloat(vec.x, minX, maxX, bitCount), this.writeFloat(vec.y, minY, maxY, bitCount);
 };
 BitStream.prototype.readVec = function(minX, minY, maxX, maxY, bitCount) {
-    return new Vector(this.readFloat(minX, maxX, bitCount), this.readFloat(minY, maxY, bitCount));
+    return Vector.create(this.readFloat(minX, maxX, bitCount), this.readFloat(minY, maxY, bitCount));
 };
 BitStream.prototype.writeUnitVec = function(vec, bitCount) {
     this.writeVec(vec, -1, -1, 1, 1, bitCount);
@@ -370,7 +401,7 @@ BitStream.prototype.writeVec32 = function(vec) {
     this.writeFloat32(vec.y);
 };
 BitStream.prototype.readVec32 = function() {
-    return new Vector(this.readFloat32(), this.readFloat32());
+    return Vector.create(this.readFloat32(), this.readFloat32());
 };
 BitStream.prototype.writeAlignToNextByte = function() {
     var offset = 8 - this.index % 8;
@@ -398,9 +429,15 @@ Array.prototype.remove = function(o) {
 };
 
 module.exports.Objects = Objects;
+module.exports.Maps = Maps;
+module.exports.Items = Items;
+module.exports.Melees = Melees;
+module.exports.Guns = Guns;
+module.exports.Bullets = Bullets;
 module.exports.GameOptions = GameOptions;
 module.exports.ObjectKind = ObjectKind;
 module.exports.MsgType = MsgType;
 module.exports.InputType = InputType;
+module.exports.CollisionType = CollisionType;
 module.exports.Utils = Utils;
 module.exports.Vector = Vector;

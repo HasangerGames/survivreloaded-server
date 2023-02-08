@@ -1,4 +1,4 @@
-const {Objects, ObjectKind, GameOptions, Utils, Vector} = require("../utils.js");
+const {Objects, ObjectKind, GameOptions, Maps, Utils, Vector} = require("../utils.js");
 const {River, Place, Obstacle, Building, GroundPatch} = require("./miscObjects.js");
 
 class Map {
@@ -7,7 +7,7 @@ class Map {
         this.name = mapId;
         this.seed = Utils.random(0, 2147483647);
 
-        const mapInfo = GameOptions.maps[mapId];
+        const mapInfo = Maps[mapId];
 
         this.width = mapInfo.width;
         this.height = mapInfo.height;
@@ -20,13 +20,13 @@ class Map {
         while(x < 720 && y < 720) {
             x += 10 + Utils.random(-6, 6);
             y += 10 + Utils.random(-6, 6);
-            points.push(new Vector(x, y));
+            points.push(Vector.create(x, y));
         }
         this.rivers.push(new River(8, 0, points));
 
         this.places = [];
         for(const place of mapInfo.places) {
-            this.places.push(new Place(place.name, new Vector(place.x, place.y)));
+            this.places.push(new Place(place.name, Vector.create(place.x, place.y)));
         }
         
 
@@ -67,7 +67,7 @@ class Map {
     #genBuilding(type, building, setPos, setOri) {
         let pos;
         if(setPos) pos = setPos;
-        else if(global.DEBUG_MODE) pos = new Vector(450, 150);
+        else if(global.DEBUG_MODE) pos = Vector.create(450, 150);
         else pos = this.#getSafeObstaclePos();
 
         let ori;
@@ -109,6 +109,8 @@ class Map {
                     partOri,
                     mapObject.scale
                 );
+            } else if(part.type == "ignored") {
+                // Ignored
             } else {
                 console.warn(`Unknown object type: ${part.type}`);
             }
@@ -117,7 +119,7 @@ class Map {
     }
 
     #genObstacleTest(type) {
-        this.#genObstacle(type, Objects[type], new Vector(452, 152), 0, 1);
+        this.#genObstacle(type, Objects[type], Vector.create(452, 152), 0, 1);
     }
 
     #genObstacle(type, obstacle, pos, ori, scale) {

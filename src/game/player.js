@@ -1,4 +1,4 @@
-const {Objects, Utils, Vector, MsgType, ObjectKind} = require('../utils.js');
+const {Objects, Melees, Utils, Vector, MsgType, CollisionType, ObjectKind} = require('../utils.js');
 const {BitStream} = require('bit-buffer');
 
 let start;
@@ -15,7 +15,8 @@ class Player {
         this.username = username;
 
         this.pos = pos;
-        this.dir = new Vector(1, 0);
+        this.dir = Vector.create(1, 0);
+        this.scale = 1;
         this.zoom = 28; // 1x scope
         this.layer = 0;
         this.visibleObjectIds = [];
@@ -50,30 +51,32 @@ class Player {
         this.animType = 0;
         this.animSeq = 0;
 
+        this.meleeCooldown = Date.now();
+
         this.health = 100;
         this.boost = 0;
     }
 
     moveUp(dist, skipExtraMovement) {
-        const result = this.checkCollision(this.pos.add(0, dist), 0, dist, skipExtraMovement);
+        const result = this.checkCollision(Vector.add2(this.pos, 0, dist), 0, dist, skipExtraMovement);
         if(!result.collision) this.pos.y += dist;
         return result;
     }
 
     moveDown(dist, skipExtraMovement) {
-        const result = this.checkCollision(this.pos.add(0, -dist), 1, dist, skipExtraMovement);
+        const result = this.checkCollision(Vector.add2(this.pos, 0, -dist), 1, dist, skipExtraMovement);
         if(!result.collision) this.pos.y -= dist;
         return result;
     }
 
     moveLeft(dist, skipExtraMovement) {
-        const result = this.checkCollision(this.pos.add(-dist, 0), 2, dist, skipExtraMovement);
+        const result = this.checkCollision(Vector.add2(this.pos, -dist, 0), 2, dist, skipExtraMovement);
         if(!result.collision) this.pos.x -= dist;
         return result;
     }
 
     moveRight(dist, skipExtraMovement) {
-        const result = this.checkCollision(this.pos.add(dist, 0), 3, dist, skipExtraMovement);
+        const result = this.checkCollision(Vector.add2(this.pos, dist, 0), 3, dist, skipExtraMovement);
         if(!result.collision) this.pos.x += dist;
         return result;
     }
@@ -82,53 +85,62 @@ class Player {
         for(const id of this.visibleObjectIds) {
             const object = this.map.objects[id];
             if(object.collidable) {
-                const collision = object.collision;
                 let result;
-                switch(collision.type) {
-                    case 0:
-                        const objectPos = object.pos.add(collision.pos.x, collision.pos.y);
-                        const objectRad = collision.rad * object.scale;
-                        result = Utils.circleCollision(objectPos, objectRad, playerPos, 1);
-                        if(result) {
-                            if(!skipExtraMovement) {
-                                const d = dist / 2;
-                                switch(direction) {
-                                    case 0:
-                                        if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
-                                        else this.moveLeft(d, null, null, true);
-                                        this.moveUp(d, null, null, true);
-                                        break;
+                if(object.collision.type == CollisionType.Circle) {
+                    const objectPos = object.collisionPos;
+                    result = Utils.circleCollision(objectPos, object.collisionRad, playerPos, 1);
+                    if(result) {
+                        if(!skipExtraMovement) {
+                            const d = dist / 2;
+                            switch(direction) {
+                                case 0:
+                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
+                                    else this.moveLeft(d, null, null, true);
+                                    this.moveUp(d, null, null, true);
+                                    break;
 
-                                    case 1:
-                                        if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
-                                        else this.moveLeft(d, null, null, true);
-                                        this.moveDown(d, null, null, true);
-                                        break;
+                                case 1:
+                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
+                                    else this.moveLeft(d, null, null, true);
+                                    this.moveDown(d, null, null, true);
+                                    break;
 
-                                    case 2:
-                                        if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
-                                        else this.moveDown(d, null, null, true);
-                                        this.moveLeft(d, null, null, true);
-                                        break;
+                                case 2:
+                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
+                                    else this.moveDown(d, null, null, true);
+                                    this.moveLeft(d, null, null, true);
+                                    break;
 
-                                    case 3:
-                                        if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
-                                        else this.moveDown(d, null, null, true);
-                                        this.moveRight(d, null, null, true);
-                                        break;
-                                }
+                                case 3:
+                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
+                                    else this.moveDown(d, null, null, true);
+                                    this.moveRight(d, null, null, true);
+                                    break;
                             }
-                            return {collision: true, type: 0};
                         }
-                        break;
-                    case 1:
-                        result = Utils.rectCollision(object.collisionMin, object.collisionMax, playerPos, 1);
-                        if(result) return {collision: true, type: 1};
-                        break;
+                        return {collision: true, type: 0};
+                    }
+                } else if(object.collision.type == CollisionType.Rectangle) {
+                    result = Utils.rectCollision(object.collisionMin, object.collisionMax, playerPos, 1);
+                    if(result) return {collision: true, type: 1};
                 }
             }
         }
         return {collision: false};
+    }
+
+    canMelee(object) {
+        var weap = Melees["fists"], // TODO
+            angle = Vector.unitVecToRadians(this.dir),
+            offset = Vector.add(weap.attack.offset, Vector.mul(Vector.create(1, 0), this.scale - 1)),
+            position = Vector.add(this.pos, Vector.rotate(offset, angle)),
+            radius = weap.attack.rad;
+
+        if(object.collision.type == CollisionType.Circle) {
+            return Utils.circleCollision(position, radius, object.collisionPos, object.collisionRad);
+        } else if(object.collision.type == CollisionType.Rectangle) {
+            return Utils.rectCollision(object.collisionMin, object.collisionMax, position, radius);
+        }
     }
 
     isOnOtherSide(door) {
@@ -217,8 +229,8 @@ class Player {
         this.gasDirty = true;
         this.gasMode = 0;
         this.initialGasDuration = 0;
-        this.oldGasPos = new Vector(360, 360);
-        this.newGasPos = new Vector(360, 360);
+        this.oldGasPos = Vector.create(360, 360);
+        this.newGasPos = Vector.create(360, 360);
         this.oldGasRad = 2048;
         this.newGasRad = 2048;
 

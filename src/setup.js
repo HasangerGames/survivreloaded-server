@@ -1,0 +1,1 @@
+console.log('Welcome to Surviv Reloaded! In the future, this script will automatically download and patch the surviv.io client.');

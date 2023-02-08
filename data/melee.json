@@ -1,0 +1,7262 @@
+{
+  "fists": {
+    "name": "Fists",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-weapon-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 0,
+    "lore": "The old one-two.",
+    "isSkin": true
+  },
+  "knuckles": {
+    "name": "Knuckles",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1,
+      "attack": 0
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists",
+        "fists"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "punch_swing_01",
+      "deploy": "knuckles_deploy_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-knuckles-rusted.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rad": 25,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-knuckles-rusted.img",
+      "pos": {
+        "x": 0,
+        "y": -27
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.2,
+        "y": 0.2
+      },
+      "tint": 16777215
+    }
+  },
+  "karambit": {
+    "name": "Karambit",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "slash",
+      "attackAnims": [
+        "slash",
+        "fists"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-karambit-rugged.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-karambit-rugged.img",
+      "pos": {
+        "x": 15.5,
+        "y": -5
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "bayonet": {
+    "name": "Bayonet",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bayonet-rugged.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bayonet-rugged.img",
+      "pos": {
+        "x": -0.5,
+        "y": -32.5
+      },
+      "rot": 0.785,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "huntsman": {
+    "name": "Huntsman",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-huntsman-rugged.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-huntsman-rugged.img",
+      "pos": {
+        "x": 2.5,
+        "y": -35.5
+      },
+      "rot": 0.82,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "bowie": {
+    "name": "Bowie",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bowie-vintage.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bowie-vintage.img",
+      "pos": {
+        "x": -0.5,
+        "y": -32.5
+      },
+      "rot": 0.785,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "machete": {
+    "name": "Machete",
+    "type": "melee",
+    "quality": 1,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 33,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "attack": {
+      "offset": {
+        "x": 1.5,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.3
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "machete",
+      "attackAnims": [
+        "cutReverse"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-machete-taiga.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-machete-taiga.img",
+      "pos": {
+        "x": -2.5,
+        "y": -48.5
+      },
+      "rot": 1.885,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "saw": {
+    "name": "Saw",
+    "type": "melee",
+    "quality": 1,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 44,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "attack": {
+      "offset": {
+        "x": 2,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.1,
+        0.5
+      ],
+      "cooldownTime": 0.7
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "machete",
+      "attackAnims": [
+        "sawSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01",
+      "playerHit2": "saw_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bonesaw-rusted.img",
+      "mirror": true,
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bonesaw-rusted.img",
+      "pos": {
+        "x": -2.5,
+        "y": -48.5
+      },
+      "rot": 1.885,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "woodaxe": {
+    "name": "Wood Axe",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 36,
+    "obstacleDamage": 1.92,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 1,
+      "damageTimes": [
+        0.18
+      ],
+      "cooldownTime": 0.36
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeTwoHanded",
+      "attackAnims": [
+        "axeSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "axe_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-woodaxe.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-woodaxe.img",
+      "pos": {
+        "x": -12.5,
+        "y": -16
+      },
+      "rot": 1.2,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    }
+  },
+  "fireaxe": {
+    "name": "Fire Axe",
+    "type": "melee",
+    "quality": 1,
+    "armorPiercing": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 44,
+    "obstacleDamage": 2.4,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 1,
+      "damageTimes": [
+        0.21
+      ],
+      "cooldownTime": 0.42
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeTwoHanded",
+      "attackAnims": [
+        "axeSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "axe_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-fireaxe.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-fireaxe.img",
+      "pos": {
+        "x": -12.5,
+        "y": -4
+      },
+      "rot": 1.2,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    }
+  },
+  "icePick": {
+    "name": "Ice Pick",
+    "type": "melee",
+    "quality": 1,
+    "armorPiercing": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 52,
+    "noPotatoSwap": true,
+    "obstacleDamage": 2.8,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 1,
+      "damageTimes": [
+        0.21
+      ],
+      "cooldownTime": 0.42
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeTwoHanded",
+      "attackAnims": [
+        "axeSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "axe_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-icepick.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-icepick.img",
+      "pos": {
+        "x": -12.5,
+        "y": -4
+      },
+      "rot": 1.2,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    }
+  },
+  "lasr_swrd": {
+    "name": "Lasr Swrd",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "cleave": true,
+    "autoAttack": false,
+    "noPotatoSwap": true,
+    "switchDelay": 0.25,
+    "damage": 60,
+    "obstacleDamage": 1.5,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 2.1,
+      "damageTimes": [
+        0.3
+      ],
+      "cooldownTime": 0.6,
+      "poseTime": 0.2
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeLasrSwrd",
+      "attackAnims": [
+        "lasrSwrdSwing"
+      ],
+      "poseAnims": [
+        "lasrSwrd_pose_1",
+        "lasrSwrd_pose_2",
+        "lasrSwrd_pose_3"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "lasr_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "lasr_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-lasr-sword-01.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 0
+    },
+    "worldImg": {
+      "sprite": "lasr-sword-01.img",
+      "pos": {
+        "x": 110,
+        "y": -2
+      },
+      "rot": 0,
+      "scale": {
+        "x": 0.15,
+        "y": 0.15
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "reflectArea": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 1.1
+    }
+  },
+  "lasr_swrd_02": {
+    "name": "Lasr Swrd",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "cleave": true,
+    "autoAttack": false,
+    "noPotatoSwap": true,
+    "switchDelay": 0.25,
+    "damage": 60,
+    "obstacleDamage": 1.5,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 2.1,
+      "damageTimes": [
+        0.3
+      ],
+      "cooldownTime": 0.6,
+      "poseTime": 0.2
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeLasrSwrd",
+      "attackAnims": [
+        "lasrSwrdSwing"
+      ],
+      "poseAnims": [
+        "lasrSwrd_pose_1",
+        "lasrSwrd_pose_2",
+        "lasrSwrd_pose_3"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "lasr_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "lasr_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-lasr-sword-02.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 0
+    },
+    "worldImg": {
+      "sprite": "lasr-sword-02.img",
+      "pos": {
+        "x": 110,
+        "y": -2
+      },
+      "rot": 0,
+      "scale": {
+        "x": 0.15,
+        "y": 0.15
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "reflectArea": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 1.1
+    }
+  },
+  "lasr_swrd_03": {
+    "name": "Lasr Swrd",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "noPotatoSwap": true,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 60,
+    "obstacleDamage": 1.5,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 2.1,
+      "damageTimes": [
+        0.3
+      ],
+      "cooldownTime": 0.6,
+      "poseTime": 0.2
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeLasrSwrd",
+      "attackAnims": [
+        "lasrSwrdSwing"
+      ],
+      "poseAnims": [
+        "lasrSwrd_pose_1",
+        "lasrSwrd_pose_2",
+        "lasrSwrd_pose_3"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "lasr_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "lasr_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-lasr-sword-03.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 0
+    },
+    "worldImg": {
+      "sprite": "lasr-sword-03.img",
+      "pos": {
+        "x": 110,
+        "y": -2
+      },
+      "rot": 0,
+      "scale": {
+        "x": 0.15,
+        "y": 0.15
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "reflectArea": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 1.1
+    }
+  },
+  "katana": {
+    "name": "Katana",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 40,
+    "obstacleDamage": 1.5,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 2,
+      "damageTimes": [
+        0.2
+      ],
+      "cooldownTime": 0.4
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeKatana",
+      "attackAnims": [
+        "katanaSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "medium_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-katana.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-katana.img",
+      "pos": {
+        "x": 52.5,
+        "y": -2
+      },
+      "rot": 3,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    }
+  },
+  "naginata": {
+    "name": "Naginata",
+    "type": "melee",
+    "quality": 1,
+    "armorPiercing": true,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 56,
+    "obstacleDamage": 1.92,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 3.5,
+        "y": 0
+      },
+      "rad": 2,
+      "damageTimes": [
+        0.27
+      ],
+      "cooldownTime": 0.54
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeNaginata",
+      "attackAnims": [
+        "naginataSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "axe_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-naginata.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-naginata.img",
+      "pos": {
+        "x": 42.5,
+        "y": -3
+      },
+      "rot": 1.9,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    }
+  },
+  "stonehammer": {
+    "name": "Stone Hammer",
+    "type": "melee",
+    "quality": 1,
+    "armorPiercing": true,
+    "stonePiercing": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 60,
+    "obstacleDamage": 1.92,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 1.25,
+      "damageTimes": [
+        0.25
+      ],
+      "cooldownTime": 0.5
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeTwoHanded",
+      "attackAnims": [
+        "hammerSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "hammer_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-stonehammer.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-stonehammer.img",
+      "pos": {
+        "x": -12.5,
+        "y": -4
+      },
+      "rot": 1.2,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    }
+  },
+  "hook": {
+    "name": "Hook",
+    "type": "melee",
+    "quality": 1,
+    "autoAttack": true,
+    "switchDelay": 0.25,
+    "damage": 18,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.5,
+        "y": 0
+      },
+      "rad": 1,
+      "damageTimes": [
+        0.075
+      ],
+      "cooldownTime": 0.175
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "hook"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "hook_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-hook-silver.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-hook-silver.img",
+      "pos": {
+        "x": 0,
+        "y": -27
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "renderOnHand": true
+    }
+  },
+  "pan": {
+    "name": "Pan",
+    "type": "melee",
+    "quality": 1,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 60,
+    "obstacleDamage": 0.8,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 2,
+        "y": 0
+      },
+      "rad": 1.5,
+      "damageTimes": [
+        0.15
+      ],
+      "cooldownTime": 0.5
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "pan"
+      ]
+    },
+    "sound": {
+      "pickup": "pan_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "pan_pickup_01",
+      "playerHit": "pan_hit_01",
+      "bullet": "pan_bullet"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-pan-black.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": -0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-pan-black-side.img",
+      "pos": {
+        "x": 0,
+        "y": -40
+      },
+      "rot": 1.125,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "hipImg": {
+      "sprite": "loot-melee-pan-black-side.img",
+      "pos": {
+        "x": -17.25,
+        "y": 7.5
+      },
+      "rot": 2.4504,
+      "scale": {
+        "x": 0.3,
+        "y": 0.3
+      },
+      "tint": 16777215
+    },
+    "reflectSurface": {
+      "equipped": {
+        "p0": {
+          "x": 2.65,
+          "y": -0.125
+        },
+        "p1": {
+          "x": 1.35,
+          "y": -0.74
+        }
+      },
+      "unequipped": {
+        "p0": {
+          "x": -0.625,
+          "y": -1.2
+        },
+        "p1": {
+          "x": -1.4,
+          "y": -0.25
+        }
+      }
+    }
+  },
+  "spade": {
+    "name": "Spade",
+    "type": "melee",
+    "quality": 1,
+    "cleave": false,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 40,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 1.5,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.35
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "spade_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-spade-assault.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-spade-assault.img",
+      "pos": {
+        "x": -0.5,
+        "y": -41.5
+      },
+      "rot": 1,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "crowbar": {
+    "name": "Crowbar",
+    "type": "melee",
+    "quality": 1,
+    "cleave": false,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 33,
+    "obstacleDamage": 1.4,
+    "headshotMult": 1,
+    "noPotatoSwap": true,
+    "attack": {
+      "offset": {
+        "x": 1.25,
+        "y": 0
+      },
+      "rad": 1.25,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.3
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "cutReverseShort"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "frag_pickup_01",
+      "playerHit": "crowbar_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-crowbar-scout.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-crowbar-scout.img",
+      "pos": {
+        "x": -1,
+        "y": -10
+      },
+      "rot": 1,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    }
+  },
+  "red_gloves": {
+    "name": "Red Gloves",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-red-gloves.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 0,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-gloves-01.img",
+      "spriteR": "player-fists-gloves-02.img"
+    },
+    "scale": {
+      "x": 0.185,
+      "y": 0.185
+    },
+    "isSkin": true
+  },
+  "feral_gloves": {
+    "name": "Feral Claws",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-feral-claws.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 0,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-feral-claws.img",
+      "spriteR": "player-fists-feral-claws.img"
+    },
+    "scale": {
+      "x": 0.19,
+      "y": 0.19
+    },
+    "isSkin": true
+  },
+  "crab_gloves": {
+    "name": "Crab Claws",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-crab-tongs.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 0,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-crab-tongs-01.img",
+      "spriteR": "player-fists-crab-tongs-02.img"
+    },
+    "scale": {
+      "x": 0.185,
+      "y": 0.185
+    },
+    "isSkin": true
+  },
+  "fist_split": {
+    "name": "Split the diff",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-SpliTheDiff.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-SpliTheDiff.img",
+      "spriteR": "player-hands-SpliTheDiff.img"
+    },
+    "isSkin": true
+  },
+  "fist_blueVelvet": {
+    "name": "Blue Velvet",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-BlueVelvet.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-BlueVelvet.img",
+      "spriteR": "player-hands-BlueVelvet.img"
+    },
+    "isSkin": true
+  },
+  "fist_frostpunch": {
+    "name": "Frostpunch",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-FrostPunch.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-FrostPunch.img",
+      "spriteR": "player-hands-FrostPunch.img"
+    },
+    "scale": {
+      "x": 0.19,
+      "y": 0.19
+    },
+    "isSkin": true
+  },
+  "fist_immolate": {
+    "name": "Immolate",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-immolate.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-immolate.img",
+      "spriteR": "player-hands-immolate.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_bulletbills": {
+    "name": "Bullet Bills",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bulletbills.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-bulletbills.img",
+      "spriteR": "player-hands-bulletbills.img"
+    },
+    "isSkin": true
+  },
+  "fist_moss": {
+    "name": "Moss",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-moss.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-moss.img",
+      "spriteR": "player-hands-moss.img"
+    },
+    "isSkin": true
+  },
+  "fist_blackholes": {
+    "name": "Black Holes",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-blackholes.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-blackholes.img",
+      "spriteR": "player-hands-blackholes.img"
+    },
+    "isSkin": true,
+    "lore": "Created by Shad0wy_F1gure"
+  },
+  "fist_rainbowhands": {
+    "name": "Rainbow Hands",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-rainbowhands.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-rainbowhands.img",
+      "spriteR": "player-hands-rainbowhands.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_darklets": {
+    "name": "Darklets",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-darklets.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-darklets.img",
+      "spriteR": "player-hands-darklets.img"
+    },
+    "isSkin": true
+  },
+  "fist_scifi": {
+    "name": "Scifi",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-scifi.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-scifi.img",
+      "spriteR": "player-hands-scifi.img"
+    },
+    "isSkin": true
+  },
+  "fist_poke": {
+    "name": "Poke",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-poke.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-poke.img",
+      "spriteR": "player-hands-poke.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_paws": {
+    "name": "Paws",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-paws.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-paws.img",
+      "spriteR": "player-hands-paws.img"
+    },
+    "isSkin": true
+  },
+  "fist_dinoclaws": {
+    "name": "Dino Claws",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-dinoclaws.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-dinoclaws.img",
+      "spriteR": "player-hands-dinoclaws.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_leaf": {
+    "name": "Leaf",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-leaf.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-leaf-left.img",
+      "spriteR": "player-hands-leaf-right.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_ranger": {
+    "name": "Ranger",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-ranger.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-ranger.img",
+      "spriteR": "player-hands-ranger.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_linedUp": {
+    "name": "Lined Up",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-linedUp.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-linedUp.img",
+      "spriteR": "player-hands-linedUp.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_lit": {
+    "name": "Lit",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-lit.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-lit-left.img",
+      "spriteR": "player-hands-lit-right.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_gift_punch": {
+    "name": "Gift Punch",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-gift-punch-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-gift-puch.img",
+      "spriteR": "player-fists-gift-puch.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_ember": {
+    "name": "Ember",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-ember-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-ember-l.img",
+      "spriteR": "player-fists-ember-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_santa": {
+    "name": "Santa Mittens",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-santa-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-santa-l.img",
+      "spriteR": "player-fists-santa-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_purptog": {
+    "name": "Purptog",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-purptog-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-purptog.img",
+      "spriteR": "player-fists-purptog.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_golden_lobster": {
+    "name": "Golden Lobster",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-golden-lobster-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-golden-lobster-l.img",
+      "spriteR": "player-fists-golden-lobster-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_pineFury": {
+    "name": "Pine Fury",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-pineFury.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-pineFury-left.img",
+      "spriteR": "player-hands-pineFury-right.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_dreidel": {
+    "name": "Dreidel",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-dreidel.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-dreidel-left.img",
+      "spriteR": "player-hands-dreidel-right.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_bePresent": {
+    "name": "Be Present",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bePresent.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-hands-bePresent-left.img",
+      "spriteR": "player-hands-bePresent-right.img"
+    },
+    "flip": true,
+    "isSkin": true
+  },
+  "fist_tropicana": {
+    "name": "Tropicana",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-tropicana-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-tropicana-l.img",
+      "spriteR": "player-fists-tropicana-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_spongeguy": {
+    "name": "Sponge Guy",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-sponge-guy-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-sponge-guy-l.img",
+      "spriteR": "player-fists-sponge-guy-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_rafflesia": {
+    "name": "Rafflesia",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-rafflesia-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-rafflesia-l.img",
+      "spriteR": "player-fists-rafflesia-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_golddrops": {
+    "name": "Drops of Gold",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-gold-drops-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-gold-drops-l.img",
+      "spriteR": "player-fists-gold-drops-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_grizzly": {
+    "name": "Grizzly",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-grizzly-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-grizzly-l.img",
+      "spriteR": "player-fists-grizzly-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_coco_nut": {
+    "name": "Coco Nut",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-coco-nut-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-coco-nut-l.img",
+      "spriteR": "player-fists-coco-nut-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_101Spots": {
+    "name": "101 Spots",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-101-spots-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-101-spots-l.img",
+      "spriteR": "player-fists-101-spots-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_atnet": {
+    "name": "At Net",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-at-net-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-at-net-l.img",
+      "spriteR": "player-fists-at-net-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_vitaminc": {
+    "name": "Vitamin C",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-vitamin-c-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-vitamin-c-l.img",
+      "spriteR": "player-fists-vitamin-c-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_marblerun2": {
+    "name": "Marble Run",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-marble-run-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-marble-run-l.img",
+      "spriteR": "player-fists-marble-run-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_beachballin": {
+    "name": "Beach Ballin",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-beach-ballin-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-beach-ballin-l.img",
+      "spriteR": "player-fists-beach-ballin-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_fritterpunch": {
+    "name": "Fritter Punch",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-fritter-punch-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-fritter-punch-l.img",
+      "spriteR": "player-fists-fritter-punch-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_dishsoap": {
+    "name": "Dish Soap",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-dish-soap-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-dish-soap-l.img",
+      "spriteR": "player-fists-dish-soap-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_watermelon": {
+    "name": "Watermelon",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-watermelon-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-watermelon-l.img",
+      "spriteR": "player-fists-watermelon-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_bloody": {
+    "name": "Bloody",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-bloody-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-bloody-l.img",
+      "spriteR": "player-fists-bloody-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_makeachoice": {
+    "name": "Make a Choice",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-make-a-choice-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-make-a-choice-l.img",
+      "spriteR": "player-fists-make-a-choice-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_bologna": {
+    "name": "Bologna",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-bologna-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-bologna-l.img",
+      "spriteR": "player-fists-bologna-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_flashy": {
+    "name": "Flashy",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-flashy-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-flashy-l.img",
+      "spriteR": "player-fists-flashy-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_tigerseed": {
+    "name": "Tiger Seed",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-tiger-seed-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-tiger-seed-l.img",
+      "spriteR": "player-fists-tiger-seed-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_paddle": {
+    "name": "Paddle",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-paddle-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-paddle-l.img",
+      "spriteR": "player-fists-paddle-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_inkybusiness": {
+    "name": "Inky Business",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-inky-business-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-inky-business-l.img",
+      "spriteR": "player-fists-inky-business-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_theotherpong": {
+    "name": "The Other Pong",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-the-other-pong-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-the-other-pong-l.img",
+      "spriteR": "player-fists-the-other-pong-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_getdowntonite": {
+    "name": "Getdowntonite",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-getdowntonite-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 5,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-getdowntonite-l.img",
+      "spriteR": "player-fists-getdowntonite-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_milestones": {
+    "name": "MileStones",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-milestones-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-milestones-l.img",
+      "spriteR": "player-fists-milestones-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_washilamps": {
+    "name": "Washi Lamps",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-washi-lamps-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-washi-lamps-l.img",
+      "spriteR": "player-fists-washi-lamps-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_ghostpoke": {
+    "name": "Ghost Poke",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-ghost-poke-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-ghost-poke-l.img",
+      "spriteR": "player-fists-ghost-poke-r.img"
+    },
+    "isSkin": true,
+    "lore": "Created by skumzeninguem"
+  },
+  "fist_condimentium": {
+    "name": "Condimentium",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-condimentium-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-condimentium-l.img",
+      "spriteR": "player-fists-condimentium-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_shinyjello": {
+    "name": "Shiny Jello",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-shiny-jello-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-shiny-jello-l.img",
+      "spriteR": "player-fists-shiny-jello-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_graphbars": {
+    "name": "GraphBars",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-graphbars-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-graphbars-l.img",
+      "spriteR": "player-fists-graphbars-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_purpleshutter": {
+    "name": "Purple Shutter",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-purple-shutter-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-purple-shutter-l.img",
+      "spriteR": "player-fists-purple-shutter-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_orangeandlime": {
+    "name": "Orange and Lime",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-orange-lime-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-orange-lime-l.img",
+      "spriteR": "player-fists-orange-lime-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_nopinenogain": {
+    "name": "No Pine No Gain",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-no-pine-no-gain-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-no-pine-no-gain-l.img",
+      "spriteR": "player-fists-no-pine-no-gain-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_bullseye": {
+    "name": "Bulls Eye",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-bulls-eye-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-bulls-eye-l.img",
+      "spriteR": "player-fists-bulls-eye-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_flamingnucleus": {
+    "name": "Flaming Nucleus",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-flaming-nucleus-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-flaming-nucleus-l.img",
+      "spriteR": "player-fists-flaming-nucleus-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_meteornite": {
+    "name": "Meteor Nite",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-meteor-nite-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-meteor-nite-l.img",
+      "spriteR": "player-fists-meteor-nite-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_orangemintstones": {
+    "name": "Orange Mintstones",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-orange-mintstones-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-orange-mintstones-l.img",
+      "spriteR": "player-fists-orange-mintstones-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_firsttool": {
+    "name": "First Tool",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-first-tool-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-first-tool-l.img",
+      "spriteR": "player-fists-first-tool-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_stonedgy": {
+    "name": "Stonedgy",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-stonedgy-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-stonedgy-l.img",
+      "spriteR": "player-fists-stonedgy-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_bonkbonk": {
+    "name": "BonkBonk",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-bonkbonk-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-bonkbonk-l.img",
+      "spriteR": "player-fists-bonkbonk-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_fuzzyhooves": {
+    "name": "Fuzzy Hooves",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-fuzzy-hooves-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 5,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-fuzzy-hooves-l.img",
+      "spriteR": "player-fists-fuzzy-hooves-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_retrhorizon": {
+    "name": "Retrhorizon",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-retrhorizon-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-retrhorizon-l.img",
+      "spriteR": "player-fists-retrhorizon-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_pixeldots": {
+    "name": "Pixel Dots",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-pixel-dots-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-pixel-dots-l.img",
+      "spriteR": "player-fists-pixel-dots-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_ranchchips": {
+    "name": "Ranch Chips",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-ranch-chips-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-ranch-chips-l.img",
+      "spriteR": "player-fists-ranch-chips-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_lolitapop": {
+    "name": "Lolita Pop",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-lolita-pop-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-lolita-pop-l.img",
+      "spriteR": "player-fists-lolita-pop-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_dizzielocs": {
+    "name": "Dizzie Locs",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-dizzie-locs-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-dizzie-locs-l.img",
+      "spriteR": "player-fists-dizzie-locs-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_q-fist": {
+    "name": "Q-Fist",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-q-fist-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-q-fist-l.img",
+      "spriteR": "player-fists-q-fist-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_d-punch-pad": {
+    "name": "D-punch-pad",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-d-punch-pad-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-d-punch-pad-l.img",
+      "spriteR": "player-fists-d-punch-pad-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_developtheserolls": {
+    "name": "Develop These Rolls",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-develop-these-rolls-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 5,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-develop-these-rolls-l.img",
+      "spriteR": "player-fists-develop-these-rolls-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_squareycherry": {
+    "name": "Squarey Cherry",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-squarey-cherry-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 5,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-squarey-cherry-l.img",
+      "spriteR": "player-fists-squarey-cherry-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_tawget": {
+    "name": "Tawget",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-tawget-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-tawget-l.img",
+      "spriteR": "player-fists-tawget-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_boogiestripes": {
+    "name": "Boogie Stripes",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-boogie-stripes-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 1,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-boogie-stripes-l.img",
+      "spriteR": "player-fists-boogie-stripes-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_garbanjo": {
+    "name": "Garbanjo",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-garbanjo-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-garbanjo-l.img",
+      "spriteR": "player-fists-garbanjo-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_wreckedangle": {
+    "name": "Wrecked Angle",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-wrecked-angle-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 2,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-wrecked-angle-l.img",
+      "spriteR": "player-fists-wrecked-angle-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_woodyallan": {
+    "name": "Woody Allan",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-woody-allan-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-woody-allan-l.img",
+      "spriteR": "player-fists-woody-allan-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_cattlebattle": {
+    "name": "Cattle Battle",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-cattle-battle-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-cattle-battle-l.img",
+      "spriteR": "player-fists-cattle-battle-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_badmitten": {
+    "name": "Bad Mitten",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-bad-mitten-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 4,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-bad-mitten-l.img",
+      "spriteR": "player-fists-bad-mitten-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_milkshaked": {
+    "name": "Milkshaked",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-milkshaked-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 5,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-milkshaked-l.img",
+      "spriteR": "player-fists-milkshaked-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_horsepower": {
+    "name": "Horsepower",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-horsepower-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 5,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-horsepower-l.img",
+      "spriteR": "player-fists-horsepower-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "fist_upandatom": {
+    "name": "Up and atom",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists"
+      ]
+    },
+    "sound": {
+      "swing": "punch_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-up-and-atom-fists.img",
+      "scale": 0.3,
+      "rad": 25,
+      "tint": 65280
+    },
+    "baseType": "fists",
+    "rarity": 3,
+    "noPotatoSwap": true,
+    "handSprites": {
+      "spriteL": "player-fists-up-and-atom-l.img",
+      "spriteR": "player-fists-up-and-atom-r.img"
+    },
+    "isSkin": true,
+    "lore": ""
+  },
+  "knuckles_rusted": {
+    "name": "Knuckles Rusted",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1,
+      "attack": 0
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists",
+        "fists"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "punch_swing_01",
+      "deploy": "knuckles_deploy_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-knuckles-rusted.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rad": 25,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-knuckles-rusted.img",
+      "pos": {
+        "x": 0,
+        "y": -27
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.2,
+        "y": 0.2
+      },
+      "tint": 16777215
+    },
+    "baseType": "knuckles",
+    "rarity": 1,
+    "lore": "Rust up for the dust up.",
+    "isSkin": true
+  },
+  "knuckles_heroic": {
+    "name": "Knuckles Heroic",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1,
+      "attack": 0
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "fists",
+        "fists"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "punch_swing_01",
+      "deploy": "knuckles_deploy_01",
+      "playerHit": "punch_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-knuckles-heroic.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rad": 25,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-knuckles-heroic.img",
+      "pos": {
+        "x": 0,
+        "y": -27
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.2,
+        "y": 0.2
+      },
+      "tint": 16777215
+    },
+    "baseType": "knuckles",
+    "rarity": 4,
+    "lore": "Give 'em a hero sandwich.",
+    "isSkin": true
+  },
+  "karambit_rugged": {
+    "name": "Karambit Rugged",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "slash",
+      "attackAnims": [
+        "slash",
+        "fists"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-karambit-rugged.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-karambit-rugged.img",
+      "pos": {
+        "x": 15.5,
+        "y": -5
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "karambit",
+    "rarity": 3,
+    "isSkin": true
+  },
+  "karambit_prismatic": {
+    "name": "Karambit Prismatic",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "slash",
+      "attackAnims": [
+        "slash",
+        "fists"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-karambit-prismatic.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-karambit-prismatic.img",
+      "pos": {
+        "x": 15.5,
+        "y": -5
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "karambit",
+    "rarity": 4,
+    "isSkin": true
+  },
+  "karambit_drowned": {
+    "name": "Karambit Drowned",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "slash",
+      "attackAnims": [
+        "slash",
+        "fists"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-karambit-drowned.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-karambit-drowned.img",
+      "pos": {
+        "x": 15.5,
+        "y": -5
+      },
+      "rot": 1.5708,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "karambit",
+    "rarity": 4,
+    "isSkin": true
+  },
+  "bayonet_rugged": {
+    "name": "Bayonet Rugged",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bayonet-rugged.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bayonet-rugged.img",
+      "pos": {
+        "x": -0.5,
+        "y": -32.5
+      },
+      "rot": 0.785,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "bayonet",
+    "rarity": 3,
+    "isSkin": true
+  },
+  "bayonet_woodland": {
+    "name": "Bayonet Woodland",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bayonet-woodland.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bayonet-woodland.img",
+      "pos": {
+        "x": -0.5,
+        "y": -32.5
+      },
+      "rot": 0.785,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "bayonet",
+    "rarity": 5,
+    "isSkin": true
+  },
+  "huntsman_rugged": {
+    "name": "Huntsman Rugged",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-huntsman-rugged.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-huntsman-rugged.img",
+      "pos": {
+        "x": 2.5,
+        "y": -35.5
+      },
+      "rot": 0.82,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "huntsman",
+    "rarity": 3,
+    "isSkin": true
+  },
+  "huntsman_burnished": {
+    "name": "Huntsman Burnished",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-huntsman-burnished.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-huntsman-burnished.img",
+      "pos": {
+        "x": 2.5,
+        "y": -35.5
+      },
+      "rot": 0.82,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "huntsman",
+    "rarity": 4,
+    "isSkin": true
+  },
+  "bowie_vintage": {
+    "name": "Bowie Vintage",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bowie-vintage.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bowie-vintage.img",
+      "pos": {
+        "x": -0.5,
+        "y": -32.5
+      },
+      "rot": 0.785,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "bowie",
+    "rarity": 3,
+    "isSkin": true
+  },
+  "bowie_frontier": {
+    "name": "Bowie Frontier",
+    "type": "melee",
+    "quality": 0,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 24,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "noDropOnDeath": true,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 0.9,
+      "damageTimes": [
+        0.1
+      ],
+      "cooldownTime": 0.25
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bowie-frontier.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bowie-frontier.img",
+      "pos": {
+        "x": -0.5,
+        "y": -32.5
+      },
+      "rot": 0.785,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "bowie",
+    "rarity": 4,
+    "isSkin": true
+  },
+  "machete_taiga": {
+    "name": "UVSR Taiga",
+    "type": "melee",
+    "quality": 1,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 33,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 1.5,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.3
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "machete",
+      "attackAnims": [
+        "cutReverse"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-machete-taiga.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-machete-taiga.img",
+      "pos": {
+        "x": -2.5,
+        "y": -48.5
+      },
+      "rot": 1.885,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "machete",
+    "isSkin": true
+  },
+  "kukri_trad": {
+    "name": "Tallow's Kukri",
+    "type": "melee",
+    "quality": 1,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 33,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 1.5,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.3
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "machete",
+      "attackAnims": [
+        "cutReverse"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-kukri-trad.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-kukri-trad.img",
+      "pos": {
+        "x": -0.5,
+        "y": -46.5
+      },
+      "rot": 1.885,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "machete",
+    "isSkin": true
+  },
+  "bonesaw_rusted": {
+    "name": "Bonesaw Rusted",
+    "type": "melee",
+    "quality": 1,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 44,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 2,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.1,
+        0.5
+      ],
+      "cooldownTime": 0.7
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "machete",
+      "attackAnims": [
+        "sawSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01",
+      "playerHit2": "saw_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bonesaw-rusted.img",
+      "mirror": true,
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bonesaw-rusted.img",
+      "pos": {
+        "x": -2.5,
+        "y": -48.5
+      },
+      "rot": 1.885,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "saw",
+    "isSkin": true
+  },
+  "woodaxe_bloody": {
+    "name": "Axe Bloodstained",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 36,
+    "obstacleDamage": 1.92,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 1,
+      "damageTimes": [
+        0.18
+      ],
+      "cooldownTime": 0.36
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeTwoHanded",
+      "attackAnims": [
+        "axeSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "axe_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-woodaxe-bloody.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-woodaxe-bloody.img",
+      "pos": {
+        "x": -12.5,
+        "y": -16
+      },
+      "rot": 1.2,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "baseType": "woodaxe",
+    "isSkin": true
+  },
+  "katana_rusted": {
+    "name": "Katana Rusted",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 40,
+    "obstacleDamage": 1.5,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 2,
+      "damageTimes": [
+        0.2
+      ],
+      "cooldownTime": 0.4
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeKatana",
+      "attackAnims": [
+        "katanaSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "medium_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-katana-rusted.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-katana-rusted.img",
+      "pos": {
+        "x": 52.5,
+        "y": -2
+      },
+      "rot": 3,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "baseType": "katana",
+    "isSkin": true
+  },
+  "katana_orchid": {
+    "name": "Katana Orchid",
+    "type": "melee",
+    "quality": 1,
+    "armorPiercing": true,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 40,
+    "obstacleDamage": 1.5,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 2,
+      "damageTimes": [
+        0.2
+      ],
+      "cooldownTime": 0.4
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeKatana",
+      "attackAnims": [
+        "katanaSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "medium_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-katana-orchid.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-katana-orchid.img",
+      "pos": {
+        "x": 52.5,
+        "y": -2
+      },
+      "rot": 3,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "baseType": "katana",
+    "isSkin": true
+  },
+  "sledgehammer": {
+    "name": "Sledgehammer",
+    "type": "melee",
+    "quality": 1,
+    "armorPiercing": true,
+    "stonePiercing": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 60,
+    "obstacleDamage": 1.92,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.35,
+        "y": 0
+      },
+      "rad": 1.25,
+      "damageTimes": [
+        0.25
+      ],
+      "cooldownTime": 0.5
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeTwoHanded",
+      "attackAnims": [
+        "hammerSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "hammer_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-sledgehammer.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-sledgehammer.img",
+      "pos": {
+        "x": -12.5,
+        "y": -3.5
+      },
+      "rot": 1.2,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "baseType": "stonehammer",
+    "isSkin": true
+  },
+  "crowbar_scout": {
+    "name": "Scouting Crowbar",
+    "type": "melee",
+    "quality": 1,
+    "cleave": false,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 33,
+    "obstacleDamage": 1.4,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 1.25,
+        "y": 0
+      },
+      "rad": 1.25,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.3
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "cutReverseShort"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "frag_pickup_01",
+      "playerHit": "crowbar_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-crowbar-scout.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-crowbar-scout.img",
+      "pos": {
+        "x": -1,
+        "y": -10
+      },
+      "rot": 1,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "crowbar",
+    "isSkin": true
+  },
+  "crowbar_recon": {
+    "name": "Crowbar Carbon",
+    "type": "melee",
+    "quality": 1,
+    "cleave": false,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 33,
+    "obstacleDamage": 1.4,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 1.25,
+        "y": 0
+      },
+      "rad": 1.25,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.3
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "cutReverseShort"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "frag_pickup_01",
+      "playerHit": "crowbar_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-crowbar-recon.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-crowbar-recon.img",
+      "pos": {
+        "x": -1,
+        "y": -10
+      },
+      "rot": 1,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "crowbar",
+    "isSkin": true
+  },
+  "kukri_sniper": {
+    "name": "Marksman's Recurve",
+    "type": "melee",
+    "quality": 1,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 33,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 1.5,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.3
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "machete",
+      "attackAnims": [
+        "cutReverse"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-kukri-sniper.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-kukri-sniper.img",
+      "pos": {
+        "x": -0.5,
+        "y": -46.5
+      },
+      "rot": 1.885,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "machete",
+    "isSkin": true
+  },
+  "bonesaw_healer": {
+    "name": "The Separator",
+    "type": "melee",
+    "quality": 1,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 44,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 2,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.1,
+        0.5
+      ],
+      "cooldownTime": 0.7
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "machete",
+      "attackAnims": [
+        "sawSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "knife_deploy_01",
+      "playerHit": "knife_hit_01",
+      "playerHit2": "saw_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-bonesaw-healer.img",
+      "mirror": true,
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-bonesaw-healer.img",
+      "pos": {
+        "x": -2.5,
+        "y": -48.5
+      },
+      "rot": 1.885,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "saw",
+    "isSkin": true
+  },
+  "katana_demo": {
+    "name": "Hakai no Katana",
+    "type": "melee",
+    "quality": 0,
+    "armorPiercing": true,
+    "cleave": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 40,
+    "obstacleDamage": 1.5,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 2,
+      "damageTimes": [
+        0.2
+      ],
+      "cooldownTime": 0.4
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeKatana",
+      "attackAnims": [
+        "katanaSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "frag_pickup_01",
+      "swing": "medium_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "knife_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-katana-demo.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-katana-demo.img",
+      "pos": {
+        "x": 52.5,
+        "y": -2
+      },
+      "rot": 3,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "baseType": "katana",
+    "isSkin": true
+  },
+  "spade_assault": {
+    "name": "Trench Spade",
+    "type": "melee",
+    "quality": 1,
+    "cleave": false,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 40,
+    "obstacleDamage": 1,
+    "headshotMult": 1,
+    "noPotatoSwap": false,
+    "attack": {
+      "offset": {
+        "x": 1.75,
+        "y": 0
+      },
+      "rad": 1.5,
+      "damageTimes": [
+        0.12
+      ],
+      "cooldownTime": 0.35
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "fists",
+      "attackAnims": [
+        "cut",
+        "thrust"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "knife_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "spade_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-spade-assault.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "rot": 0.785
+    },
+    "worldImg": {
+      "sprite": "loot-melee-spade-assault.img",
+      "pos": {
+        "x": -0.5,
+        "y": -41.5
+      },
+      "rot": 1,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215
+    },
+    "baseType": "spade",
+    "isSkin": true
+  },
+  "warhammer_tank": {
+    "name": "Panzerhammer",
+    "type": "melee",
+    "quality": 1,
+    "armorPiercing": true,
+    "stonePiercing": true,
+    "autoAttack": false,
+    "switchDelay": 0.25,
+    "damage": 64,
+    "obstacleDamage": 1.92,
+    "headshotMult": 1,
+    "attack": {
+      "offset": {
+        "x": 1.5,
+        "y": 0
+      },
+      "rad": 1.75,
+      "damageTimes": [
+        0.3
+      ],
+      "cooldownTime": 0.6
+    },
+    "speed": {
+      "equip": 1
+    },
+    "anim": {
+      "idlePose": "meleeTwoHanded",
+      "attackAnims": [
+        "hammerSwing"
+      ]
+    },
+    "sound": {
+      "pickup": "heavy_pickup_01",
+      "swing": "heavy_swing_01",
+      "deploy": "stow_weapon_01",
+      "playerHit": "hammer_hit_01"
+    },
+    "lootImg": {
+      "sprite": "loot-melee-warhammer-tank.img",
+      "tint": 16777215,
+      "border": "loot-circle-outer-02.img",
+      "borderTint": 16777215,
+      "scale": 0.3,
+      "mirror": true,
+      "rot": 2.3562
+    },
+    "worldImg": {
+      "sprite": "loot-melee-warhammer-tank.img",
+      "pos": {
+        "x": -10.5,
+        "y": -3
+      },
+      "rot": 1.2,
+      "scale": {
+        "x": 0.35,
+        "y": 0.35
+      },
+      "tint": 16777215,
+      "leftHandOntop": true
+    },
+    "baseType": "stonehammer",
+    "isSkin": true
+  }
+}
