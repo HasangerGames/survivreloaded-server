@@ -28,7 +28,7 @@ For now, to download the client for yourself, you can use a resource extractor l
 
 Alternatively, I have included a list of URLs under `reference/urls.txt`. You could write a simple script to download all of the files in said list, or use an existing tool.
 
-Whichever method you choose, put the extracted files under `/public` in the repo.
+Whichever method you choose, put the extracted files under `/public` in the repo folder.
 
 The modification that needs to be made to the client is very simple. In the extracted files, go to `js/app.<some hex digits>.js`. Replace all occurrences of `wss:` with `ws:`. This will allow the client to connect to insecure WebSocket servers.
 
