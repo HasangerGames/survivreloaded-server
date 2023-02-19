@@ -1,0 +1,59 @@
+{
+  "success": true,
+  "pass": {
+    "type": "pass_survivr1",
+    "level": 9,
+    "xp": 24,
+    "unlocks": {},
+    "newItems": false,
+    "newGP": false,
+    "items": [],
+    "lvlUpItems": [],
+    "gbpUnlock": false,
+    "newPass": false,
+    "gpChange": 0,
+    "premium": false,
+    "xp_rewards": false,
+    "xp_reward_timestamp": null,
+    "newDiscount": false,
+    "discount_level": null,
+    "discount_time": null,
+    "team_members": 0,
+    "newItemsData": null,
+    "endDate": "2023-02-13T17:29:41.576Z"
+  },
+  "quests": [
+    {
+      "idx": 0,
+      "type": "quest_damage_grenade",
+      "args": {
+        "xp": 38,
+        "random": 0.7049048031526606
+      },
+      "progress": 189,
+      "target": 191,
+      "complete": false,
+      "rerolled": false,
+      "timeToRefresh": -249633823,
+      "xpReward": 38,
+      "timeAcquired": 1673888684000
+    },
+    {
+      "idx": 1,
+      "type": "quest_heal",
+      "args": {
+        "xp": 20,
+        "random": 0.304629189847903
+      },
+      "progress": 7,
+      "target": 14,
+      "complete": false,
+      "rerolled": false,
+      "timeToRefresh": -91233823,
+      "xpReward": 20,
+      "timeAcquired": 1674048171000
+    }
+  ],
+  "questPriv": "",
+  "refreshPrice": 75
+}

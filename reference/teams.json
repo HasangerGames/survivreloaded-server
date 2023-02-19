@@ -1,0 +1,81 @@
+{
+    "type": "state",
+    "data": {
+        "localPlayerId": 1,
+        "room": {
+            "roomUrl": "#u5fM",
+            "findingGame": false,
+            "lastError": "",
+            "region": "na",
+            "autoFill": false,
+            "enabledGameModeIdxs": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "gameModeIdx": 2,
+            "maxPlayers": 4,
+            "gameModeSelected": [
+                0,
+                1,
+                2
+            ],
+            "customGame": false
+        },
+        "players": [
+            {
+                "playerId": 1,
+                "name": "Kris Kringle",
+                "isLeader": true,
+                "inGame": false,
+                "loadout": {
+                    "melee": "knuckles_heroic",
+                    "outfit": "outfitRed"
+                },
+                "unlinked": false
+            }
+        ]
+    }
+}
+
+{
+    "type": "state",
+    "data": {
+        "localPlayerId": 1,
+        "room": {
+            "roomUrl": "#Z8t6",
+            "findingGame": false,
+            "lastError": "",
+            "region": "na",
+            "autoFill": false,
+            "enabledGameModeIdxs": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "gameModeIdx": 2,
+            "maxPlayers": 4,
+            "gameModeSelected": [
+                0,
+                0,
+                1
+            ],
+            "customGame": false
+        },
+        "players": [
+            {
+                "playerId": 1,
+                "name": "Kris Kringle",
+                "isLeader": true,
+                "inGame": false,
+                "loadout": {
+                    "melee": "knuckles_heroic",
+                    "outfit": "outfitRed"
+                },
+                "unlinked": false
+            }
+        ]
+    }
+}

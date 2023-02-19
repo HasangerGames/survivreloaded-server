@@ -1,0 +1,2107 @@
+{
+  "success": true,
+  "profile": {
+    "userID": "3751363",
+    "errorFlash": [],
+    "id": "3751363",
+    "slug": "kris-kringle",
+    "battletagDisplay": "Kris Kringle",
+    "kpg": "0.9",
+    "wins": 440,
+    "games": 11831,
+    "username": "Kris Kringle",
+    "usernameSet": true,
+    "usernameChangeTime": -79842908871,
+    "userCreated": "2020-05-26T16:41:38.000Z",
+    "linkedFacebook": false,
+    "linkedGoogle": true,
+    "linkedTwitch": false,
+    "linkedDiscord": false,
+    "linkedApple": false,
+    "linkedSteam": false,
+    "gpTotal": 8673,
+    "linked": false,
+    "offerwallGpWon": null,
+    "forteUserId": "a828b4eb-5513-4d10-af36-b0427c3357db",
+    "prestige": "0",
+    "prestigeChangeTime": "2022-05-03T12:58:00.432Z",
+    "prestigeChangeTimeReport": "2023-01-18T13:40:52.687Z",
+    "endorsePoints": 2,
+    "reportPoints": 3,
+    "unlinked": false,
+    "gift": {
+      "hasPendingGift": false,
+      "gp": 0,
+      "description": null
+    },
+    "prestigeResetTime": "2023-01-16T16:43:10.384Z",
+    "banInfo": null,
+    "banStrikes": 0,
+    "stimEvents": [],
+    "massiveGift": false,
+    "reactivate": false,
+    "walletCreated": false,
+    "tournamentReward": null,
+    "rewardAmount": 0
+  },
+  "loadout": {
+    "outfit": "outfitRed",
+    "melee": "knuckles_heroic",
+    "heal": "heal_patch",
+    "boost": "boost_atomic",
+    "player_icon": "",
+    "crosshair": {
+      "type": "crosshair_default",
+      "color": 16777215,
+      "size": "1.00",
+      "stroke": "0.00"
+    },
+    "emotes": [
+      "emote_happyface",
+      "emote_picassoface",
+      "emote_trollface",
+      "emote_sadface",
+      "emote_chickendinner",
+      "emote_oof"
+    ],
+    "deathEffect": "toonBlastDeath"
+  },
+  "loadoutIds": {
+    "heal": "1495730153",
+    "boost": "1623660014",
+    "melee": "1603262616",
+    "emotes": [
+      "0",
+      "1620875278",
+      "1658967039",
+      "0",
+      "0",
+      "1586013922"
+    ],
+    "outfit": "1328604610",
+    "deathEffect": "1654436056"
+  },
+  "loadoutPriv": "",
+  "loadoutStats": "",
+  "items": [
+    {
+      "type": "heal_moon",
+      "source": "pass_survivr1",
+      "timeAcquired": 1673978493000,
+      "status": 0,
+      "id": "1675287424",
+      "sourceRef": "9",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitRed",
+      "source": "pass_survivr1",
+      "timeAcquired": 1673978493000,
+      "status": 0,
+      "id": "1675287423",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_ok",
+      "source": "pass_survivr1",
+      "timeAcquired": 1673888680000,
+      "status": 0,
+      "id": "1675275940",
+      "sourceRef": "7",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_star",
+      "source": "pass_survivr1",
+      "timeAcquired": 1673887700000,
+      "status": 0,
+      "id": "1675275771",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_picassoface",
+      "source": "loot_box_02",
+      "timeAcquired": 1602932965000,
+      "status": 2,
+      "id": "1620875278",
+      "sourceRef": "53",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 5345,
+        "levels": 166,
+        "wins": 154
+      }
+    },
+    {
+      "type": "outfitWhite",
+      "source": "pass_survivr1",
+      "timeAcquired": 1672540982000,
+      "status": 0,
+      "id": "1675104853",
+      "sourceRef": "5",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_oof",
+      "source": "loot_box_01",
+      "timeAcquired": 1593439250000,
+      "status": 2,
+      "id": "1586013922",
+      "sourceRef": "27",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 5345,
+        "levels": 166,
+        "wins": 154
+      }
+    },
+    {
+      "type": "emote_bandagedface",
+      "source": "pass_survivr1",
+      "timeAcquired": 1671884811000,
+      "status": 0,
+      "id": "1674999488",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "heal_heart",
+      "source": "pass_survivr1",
+      "timeAcquired": 1669841457000,
+      "status": 0,
+      "id": "1674705146",
+      "sourceRef": "3",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitParma",
+      "source": "pass_survivr1",
+      "timeAcquired": 1669841457000,
+      "status": 0,
+      "id": "1674705145",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitDarkShirt",
+      "source": "unlock_new_account",
+      "timeAcquired": 1662331404000,
+      "status": 2,
+      "id": "1673433034",
+      "sourceRef": "0",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "unlock_new_account",
+      "source": "unlock_new_account",
+      "timeAcquired": 1662331404000,
+      "status": 2,
+      "id": "1673433033",
+      "sourceRef": "0",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitSunset",
+      "source": "item-source-exclusive-offers",
+      "timeAcquired": 1607174335000,
+      "status": 2,
+      "id": "1635445783",
+      "sourceRef": "71533",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_bandagedface",
+      "source": "loot_box_01",
+      "timeAcquired": 1607174574000,
+      "status": 2,
+      "id": "1635446355",
+      "sourceRef": "62",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_its_ok",
+      "source": "pass_survivr4",
+      "timeAcquired": 1606770929000,
+      "status": 2,
+      "id": "1634131887",
+      "sourceRef": "28",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 341,
+        "levels": 1,
+        "wins": 4
+      }
+    },
+    {
+      "type": "fist_gift_punch",
+      "source": "pass_survivr5",
+      "timeAcquired": 1608895692000,
+      "status": 2,
+      "id": "1642818317",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_frustration",
+      "source": "pass_survivr5",
+      "timeAcquired": 1608586045000,
+      "status": 2,
+      "id": "1640055348",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_qq",
+      "source": "pass_survivr5",
+      "timeAcquired": 1608586045000,
+      "status": 2,
+      "id": "1640055349",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitAstronaut",
+      "source": "pass_survivr4",
+      "timeAcquired": 1607343797000,
+      "status": 2,
+      "id": "1635923666",
+      "sourceRef": "30",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_ember",
+      "source": "pass_survivr5",
+      "timeAcquired": 1614947606000,
+      "status": 2,
+      "id": "1654078440",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_bloodbath",
+      "source": "pass_survivr5",
+      "timeAcquired": 1609174704000,
+      "status": 2,
+      "id": "1644920733",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_nutz",
+      "source": "pass_survivr6",
+      "timeAcquired": 1616240923000,
+      "status": 2,
+      "id": "1654876033",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitBeachCamo",
+      "source": "pass_survivr5",
+      "timeAcquired": 1611767763000,
+      "status": 2,
+      "id": "1652255982",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitMellow",
+      "source": "pass_survivr6",
+      "timeAcquired": 1617107678000,
+      "status": 2,
+      "id": "1655442098",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_golddrops",
+      "source": "pass_survivr6",
+      "timeAcquired": 1618749792000,
+      "status": 2,
+      "id": "1656302776",
+      "sourceRef": "18",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_three_ways",
+      "source": "pass_survivr6",
+      "timeAcquired": 1616846181000,
+      "status": 2,
+      "id": "1655296125",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_bologna",
+      "source": "pass_survivr8",
+      "timeAcquired": 1631295305000,
+      "status": 2,
+      "id": "1661595073",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitYinYang",
+      "source": "one_time_offer_1",
+      "timeAcquired": 1614720368000,
+      "status": 2,
+      "id": "1653926437",
+      "sourceRef": "3751363",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_hi5",
+      "source": "pass_survivr7",
+      "timeAcquired": 1623496861000,
+      "status": 2,
+      "id": "1658483938",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_tropicana",
+      "source": "pass_survivr6",
+      "timeAcquired": 1617639137000,
+      "status": 2,
+      "id": "1655716704",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_pwn",
+      "source": "pass_survivr6",
+      "timeAcquired": 1616791812000,
+      "status": 2,
+      "id": "1655268764",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_spongeguy",
+      "source": "pass_survivr6",
+      "timeAcquired": 1616804619000,
+      "status": 2,
+      "id": "1655277047",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "peelOutDeath",
+      "source": "pass_survivr6",
+      "timeAcquired": 1618014695000,
+      "status": 2,
+      "id": "1655917666",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "heal_canceller",
+      "source": "pass_survivr6",
+      "timeAcquired": 1619975707000,
+      "status": 2,
+      "id": "1656851454",
+      "sourceRef": "20",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_marblerun2",
+      "source": "pass_survivr7",
+      "timeAcquired": 1626461971000,
+      "status": 2,
+      "id": "1659778716",
+      "sourceRef": "26",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitTiki",
+      "source": "one_time_offer_2",
+      "timeAcquired": 1618433665000,
+      "status": 2,
+      "id": "1656120525",
+      "sourceRef": "3751363",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 3,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitRosePetals",
+      "source": "pass_survivr6",
+      "timeAcquired": 1618506275000,
+      "status": 2,
+      "id": "1656175802",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitSunburn",
+      "source": "pass_survivr8",
+      "timeAcquired": 1631364034000,
+      "status": 2,
+      "id": "1661633535",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitMachoLucha2",
+      "source": "one_time_offer_4",
+      "timeAcquired": 1620435798000,
+      "status": 2,
+      "id": "1657078571",
+      "sourceRef": "3751363",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_vitaminc",
+      "source": "pass_survivr7",
+      "timeAcquired": 1623603378000,
+      "status": 2,
+      "id": "1658550046",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_just_dial_star",
+      "source": "pass_survivr6",
+      "timeAcquired": 1621255394000,
+      "status": 2,
+      "id": "1657413008",
+      "sourceRef": "22",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitSortaBlue",
+      "source": "pass_survivr6",
+      "timeAcquired": 1622288328000,
+      "status": 2,
+      "id": "1657865713",
+      "sourceRef": "24",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_slacker",
+      "source": "pass_survivr7",
+      "timeAcquired": 1623712190000,
+      "status": 2,
+      "id": "1658618300",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_angry_blob",
+      "source": "pass_survivr7",
+      "timeAcquired": 1623328987000,
+      "status": 2,
+      "id": "1658360242",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitOldKumo",
+      "source": "pass_survivr7",
+      "timeAcquired": 1625243984000,
+      "status": 2,
+      "id": "1659351642",
+      "sourceRef": "22",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitBoet",
+      "source": "pass_survivr7",
+      "timeAcquired": 1623877648000,
+      "status": 2,
+      "id": "1658714627",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_pooface",
+      "source": "item-source-exclusive-offers",
+      "timeAcquired": 1607174335000,
+      "status": 2,
+      "id": "1635445782",
+      "sourceRef": "71533",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 1574,
+        "levels": 50,
+        "wins": 35
+      }
+    },
+    {
+      "type": "fist_coco_nut",
+      "source": "pass_survivr7",
+      "timeAcquired": 1624145000000,
+      "status": 2,
+      "id": "1658859741",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitInfernoCamo",
+      "source": "loot_box_03",
+      "timeAcquired": 1624366772000,
+      "status": 2,
+      "id": "1658967028",
+      "sourceRef": "64",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_ghost_base",
+      "source": "item-source-exclusive-offers",
+      "timeAcquired": 1624366788000,
+      "status": 2,
+      "id": "1658967040",
+      "sourceRef": "128276",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_puke",
+      "source": "item-source-exclusive-offers",
+      "timeAcquired": 1624366788000,
+      "status": 2,
+      "id": "1658967041",
+      "sourceRef": "128276",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_too_close",
+      "source": "item-source-exclusive-offers",
+      "timeAcquired": 1624366788000,
+      "status": 2,
+      "id": "1658967042",
+      "sourceRef": "128276",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitFullCircle",
+      "source": "pass_survivr7",
+      "timeAcquired": 1624562800000,
+      "status": 2,
+      "id": "1659064902",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_beachballin",
+      "source": "pass_survivr7",
+      "timeAcquired": 1624744658000,
+      "status": 2,
+      "id": "1659145180",
+      "sourceRef": "18",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitPleasingPart",
+      "source": "pass_survivr7",
+      "timeAcquired": 1625701945000,
+      "status": 2,
+      "id": "1659508043",
+      "sourceRef": "24",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitStarflag",
+      "source": "pass_survivr8",
+      "timeAcquired": 1631544668000,
+      "status": 2,
+      "id": "1661727755",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_nooblet",
+      "source": "pass_survivr7",
+      "timeAcquired": 1627934148000,
+      "status": 2,
+      "id": "1660244591",
+      "sourceRef": "28",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitTipTheScales",
+      "source": "pass_survivr7",
+      "timeAcquired": 1628868591000,
+      "status": 2,
+      "id": "1660540352",
+      "sourceRef": "30",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boltsNNutsDeath",
+      "source": "pass_survivr7",
+      "timeAcquired": 1624311539000,
+      "status": 2,
+      "id": "1658940320",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 1513,
+        "levels": 27,
+        "wins": 34
+      }
+    },
+    {
+      "type": "outfitBubblegum",
+      "source": "pass_survivr8",
+      "timeAcquired": 1631707706000,
+      "status": 2,
+      "id": "1661807727",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "espressoDeath",
+      "source": "pass_survivr8",
+      "timeAcquired": 1631840830000,
+      "status": 2,
+      "id": "1661872966",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_bullseye",
+      "source": "pass_survivr10",
+      "timeAcquired": 1651769130000,
+      "status": 2,
+      "id": "1668472015",
+      "sourceRef": "20",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_bloody",
+      "source": "pass_survivr8",
+      "timeAcquired": 1637006828000,
+      "status": 2,
+      "id": "1663759248",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 29,
+        "levels": 0,
+        "wins": 2
+      }
+    },
+    {
+      "type": "outfitElectricIce",
+      "source": "pass_survivr8",
+      "timeAcquired": 1632099936000,
+      "status": 2,
+      "id": "1661990924",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "toonBlastDeath",
+      "source": "pass_survivr5",
+      "timeAcquired": 1615667020000,
+      "status": 2,
+      "id": "1654436056",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 1511,
+        "levels": 85,
+        "wins": 38
+      }
+    },
+    {
+      "type": "outfitToxicBarrel",
+      "source": "pass_survivr8",
+      "timeAcquired": 1633877223000,
+      "status": 2,
+      "id": "1662688390",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_condimentium",
+      "source": "pass_survivr9",
+      "timeAcquired": 1638823376000,
+      "status": 2,
+      "id": "1664406348",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitChromaticCTR",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639400961000,
+      "status": 2,
+      "id": "1664628560",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitSoapPods",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774265",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_wth",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774270",
+      "sourceRef": "20",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitH2Oh",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774271",
+      "sourceRef": "20",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitScarween",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774273",
+      "sourceRef": "22",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitSwords",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774274",
+      "sourceRef": "24",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "heal_prsmd",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774276",
+      "sourceRef": "26",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitHopelessRamen-tic",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774278",
+      "sourceRef": "28",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_getdowntonite",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774279",
+      "sourceRef": "28",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_milestones",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774280",
+      "sourceRef": "30",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitChewieCheese",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774281",
+      "sourceRef": "30",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitColorPalette",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774254",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitHowPita-ful",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774263",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitTomatoandCheese",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774268",
+      "sourceRef": "18",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitTurtleSweater",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774256",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_spinner",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774257",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_to_the_bone",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774260",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_ghostpoke",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774266",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_orangeandlime",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774258",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "basicPuffDeath",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774272",
+      "sourceRef": "22",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "waterBendedDeath",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774261",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_buuurn",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774267",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_golden_bullet",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774269",
+      "sourceRef": "18",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_lootloot",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774259",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_puke_rainbow",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774255",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_purpleshutter",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774262",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_shinyjello",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774264",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_washilamps",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774275",
+      "sourceRef": "24",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_tonguesout",
+      "source": "pass_survivr11",
+      "timeAcquired": 1654222087000,
+      "status": 2,
+      "id": "1669263798",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "knuckles_heroic",
+      "source": "loot_box_03",
+      "timeAcquired": 1599095756000,
+      "status": 2,
+      "id": "1603262616",
+      "sourceRef": "47",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 5316,
+        "levels": 166,
+        "wins": 152
+      }
+    },
+    {
+      "type": "emote_trollface",
+      "source": "item-source-exclusive-offers",
+      "timeAcquired": 1624366788000,
+      "status": 2,
+      "id": "1658967039",
+      "sourceRef": "128276",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 3084,
+        "levels": 112,
+        "wins": 103
+      }
+    },
+    {
+      "type": "heal_pacing_pack",
+      "source": "pass_survivr10",
+      "timeAcquired": 1645643802000,
+      "status": 2,
+      "id": "1666537268",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_meteornite",
+      "source": "pass_survivr10",
+      "timeAcquired": 1646075320000,
+      "status": 2,
+      "id": "1666750718",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_rawr",
+      "source": "pass_survivr10",
+      "timeAcquired": 1646154587000,
+      "status": 2,
+      "id": "1666784518",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_flamingnucleus",
+      "source": "pass_survivr10",
+      "timeAcquired": 1649453553000,
+      "status": 2,
+      "id": "1667876893",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_bonkbonk",
+      "source": "pass_survivr10",
+      "timeAcquired": 1647729590000,
+      "status": 2,
+      "id": "1667349323",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "cotton-explosionDeath",
+      "source": "gift",
+      "timeAcquired": 1660853387000,
+      "status": 2,
+      "id": "1671333003",
+      "sourceRef": "0",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "comicFxDeath",
+      "source": "pass_survivr9",
+      "timeAcquired": 1639764458000,
+      "status": 2,
+      "id": "1664774277",
+      "sourceRef": "26",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 1348,
+        "levels": 37,
+        "wins": 51
+      }
+    },
+    {
+      "type": "heal_family_hut",
+      "source": "pass_survivr10",
+      "timeAcquired": 1652613114000,
+      "status": 2,
+      "id": "1668680672",
+      "sourceRef": "22",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitBluntRazor",
+      "source": "pass_survivr10",
+      "timeAcquired": 1649760550000,
+      "status": 2,
+      "id": "1667960230",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitTunelSun",
+      "source": "pass_survivr11",
+      "timeAcquired": 1652828526000,
+      "status": 2,
+      "id": "1668733398",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_bandagedface",
+      "source": "loot_box_01",
+      "timeAcquired": 1595768168000,
+      "status": 2,
+      "id": "1592248429",
+      "sourceRef": "35",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitDeepPurple",
+      "source": "loot_box_01",
+      "timeAcquired": 1596542935000,
+      "status": 2,
+      "id": "1594960370",
+      "sourceRef": "38",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_skull",
+      "source": "loot_box_01",
+      "timeAcquired": 1597081503000,
+      "status": 2,
+      "id": "1596884065",
+      "sourceRef": "39",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_panned",
+      "source": "pass_survivr3",
+      "timeAcquired": 1598903556000,
+      "status": 2,
+      "id": "1602630457",
+      "sourceRef": "28",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_eye",
+      "source": "pass_survivr4",
+      "timeAcquired": 1599653208000,
+      "status": 2,
+      "id": "1605020896",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_ranger",
+      "source": "pass_survivr4",
+      "timeAcquired": 1599691419000,
+      "status": 2,
+      "id": "1605223610",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_lit",
+      "source": "pass_survivr4",
+      "timeAcquired": 1600203863000,
+      "status": 2,
+      "id": "1607457916",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_shroomcloud",
+      "source": "loot_box_03",
+      "timeAcquired": 1600284409000,
+      "status": 2,
+      "id": "1607769910",
+      "sourceRef": "49",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_relief",
+      "source": "pass_survivr4",
+      "timeAcquired": 1600635659000,
+      "status": 2,
+      "id": "1609153948",
+      "sourceRef": "14",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_greedy",
+      "source": "loot_box_01",
+      "timeAcquired": 1602850265000,
+      "status": 2,
+      "id": "1620327463",
+      "sourceRef": "52",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_greedy",
+      "source": "loot_box_01",
+      "timeAcquired": 1605717416000,
+      "status": 2,
+      "id": "1630637959",
+      "sourceRef": "57",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_deadface",
+      "source": "loot_box_03",
+      "timeAcquired": 1605717433000,
+      "status": 2,
+      "id": "1630638022",
+      "sourceRef": "58",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_lies",
+      "source": "pass_survivr3",
+      "timeAcquired": 1596843093000,
+      "status": 2,
+      "id": "1596139015",
+      "sourceRef": "22",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_easy",
+      "source": "pass_survivr3",
+      "timeAcquired": 1595938886000,
+      "status": 2,
+      "id": "1592647970",
+      "sourceRef": "20",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_greedy",
+      "source": "pass_survivr3",
+      "timeAcquired": 1594560363000,
+      "status": 2,
+      "id": "1589263992",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "fist_split",
+      "source": "pass_survivr2",
+      "timeAcquired": 1591627377000,
+      "status": 2,
+      "id": "947635102",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_shuriken",
+      "source": "loot_box_02",
+      "timeAcquired": 1593948563000,
+      "status": 2,
+      "id": "1587526740",
+      "sourceRef": "30",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "heal_hexa",
+      "source": "pass_survivr2",
+      "timeAcquired": 1590794095000,
+      "status": 2,
+      "id": "519851732",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitDarkGloves",
+      "source": "loot_box_01",
+      "timeAcquired": 1592830606000,
+      "status": 2,
+      "id": "1570059447",
+      "sourceRef": "23",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_energel",
+      "source": "pass_survivr2",
+      "timeAcquired": 1590758693000,
+      "status": 2,
+      "id": "492340459",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 282,
+        "levels": 9,
+        "wins": 7
+      }
+    },
+    {
+      "type": "outfitSpeedoSunburn",
+      "source": "pass_survivr4",
+      "timeAcquired": 1604834915000,
+      "status": 2,
+      "id": "1627812680",
+      "sourceRef": "24",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitClaymore",
+      "source": "loot_box_01",
+      "timeAcquired": 1594813763000,
+      "status": 2,
+      "id": "1589988710",
+      "sourceRef": "33",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitWhite",
+      "source": "loot_box_01",
+      "timeAcquired": 1591218030000,
+      "status": 2,
+      "id": "750965261",
+      "sourceRef": "5",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_ok",
+      "source": "loot_box_01",
+      "timeAcquired": 1592830624000,
+      "status": 2,
+      "id": "1570068616",
+      "sourceRef": "24",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_boffy",
+      "source": "pass_survivr4",
+      "timeAcquired": 1599597404000,
+      "status": 2,
+      "id": "1604860259",
+      "sourceRef": "2",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 260,
+        "levels": 2,
+        "wins": 11
+      }
+    },
+    {
+      "type": "emote_rad",
+      "source": "pass_survivr11",
+      "timeAcquired": 1653049255000,
+      "status": 2,
+      "id": "1668854767",
+      "sourceRef": "4",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "pixie-dustDeath",
+      "source": "pass_survivr11",
+      "timeAcquired": 1653058805000,
+      "status": 2,
+      "id": "1668861134",
+      "sourceRef": "6",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitRed",
+      "source": "loot_box_02",
+      "timeAcquired": 1592313604000,
+      "status": 2,
+      "id": "1328604610",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 5341,
+        "levels": 166,
+        "wins": 154
+      }
+    },
+    {
+      "type": "heal_patch",
+      "source": "pass_survivr2",
+      "timeAcquired": 1592652786000,
+      "status": 2,
+      "id": "1495730153",
+      "sourceRef": "20",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 5332,
+        "levels": 166,
+        "wins": 154
+      }
+    },
+    {
+      "type": "fist_retrhorizon",
+      "source": "pass_survivr11",
+      "timeAcquired": 1653175653000,
+      "status": 2,
+      "id": "1668913404",
+      "sourceRef": "8",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_i-heart-you",
+      "source": "pass_survivr11",
+      "timeAcquired": 1654867434000,
+      "status": 2,
+      "id": "1669442832",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitRuppert",
+      "source": "pass_survivr10",
+      "timeAcquired": 1650567332000,
+      "status": 2,
+      "id": "1668165260",
+      "sourceRef": "16",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "emote_radical-ray",
+      "source": "pass_survivr11",
+      "timeAcquired": 1653319613000,
+      "status": 2,
+      "id": "1668967733",
+      "sourceRef": "10",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "outfitSunriseBlvd",
+      "source": "pass_survivr11",
+      "timeAcquired": 1653652776000,
+      "status": 2,
+      "id": "1669088226",
+      "sourceRef": "12",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    },
+    {
+      "type": "boost_atomic",
+      "source": "loot_box_02",
+      "timeAcquired": 1603713687000,
+      "status": 2,
+      "id": "1623660014",
+      "sourceRef": "55",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 3385,
+        "levels": 119,
+        "wins": 106
+      }
+    },
+    {
+      "type": "emote_clown",
+      "source": "pass_survivr10",
+      "timeAcquired": 1651231354000,
+      "status": 2,
+      "id": "1668329978",
+      "sourceRef": "18",
+      "stats": {
+        "makr": "Kris Kringle",
+        "kills": 0,
+        "levels": 0,
+        "wins": 0
+      }
+    }
+  ],
+  "userAdmin": false,
+  "ip": "0.0.0.0",
+  "hasClan": false
+}

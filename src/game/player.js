@@ -84,7 +84,7 @@ class Player {
     checkCollision(playerPos, direction, dist, skipExtraMovement) {
         for(const id of this.visibleObjectIds) {
             const object = this.map.objects[id];
-            if(object.collidable) {
+            if(object.layer == this.layer && object.collidable) {
                 let result;
                 if(object.collision.type == CollisionType.Circle) {
                     const objectPos = object.collisionPos;
@@ -194,7 +194,7 @@ class Player {
             stream.writeVec(place.pos, 0, 0, 1024, 1024, 16);
         }
 
-        const objects = this.map.objects.filter(obj => !obj.isPlayer && obj.showOnMap);
+        const objects = this.map.objects.filter(obj => obj.showOnMap);
         stream.writeUint16(objects.length);
         for(const object of objects) {
             stream.writeVec(object.pos, 0, 0, 1024, 1024, 16);
@@ -265,8 +265,7 @@ class Player {
                 if(object.pos.x >= minX &&
                    object.pos.x <= maxX &&
                    object.pos.y >= minY &&
-                   object.pos.y <= maxY &&
-                   this.layer == object.layer) {
+                   object.pos.y <= maxY) {
                     if(!this.visibleObjectIds.includes(id)) {
                         this.visibleObjectIds.push(id);
                         this.fullObjectsDirty = true;
@@ -339,7 +338,7 @@ class Player {
                         stream.writeBits(0, 11); // Chest (vest?)
                         stream.writeBits(666, 11); // Weapon
 
-                        stream.writeBits(0, 2); // Layer
+                        stream.writeBits(fullObject.layer, 2); // Layer
                         stream.writeBoolean(false); // Dead
                         stream.writeBoolean(false); // Downed
                         stream.writeBits(fullObject.animType, 3); // 1 indicates melee animation
@@ -389,6 +388,11 @@ class Player {
                             stream.writeBits(0, 5); // door seq
                         }
                         stream.writeBoolean(fullObject.isButton);       // Is button
+                        if(fullObject.isButton) {
+                            stream.writeBoolean(fullObject.buttonOnOff);
+                            stream.writeBoolean(fullObject.buttonCanUse);
+                            stream.writeBits(0, 6); // button seq
+                        }
                         stream.writeBoolean(fullObject.isPuzzlePiece);  // Is puzzle piece
                         stream.writeBoolean(fullObject.isSkin);         // Is skin
                         stream.writeBits(0, 5);                         // Zeroes
@@ -411,10 +415,10 @@ class Player {
                         stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
                         stream.writeMapType(fullObject.mapType);               // Type
                         stream.writeBits(0, 2);                                // Orientation
-                        stream.writeBoolean(true);  // Interior sound enabled
-                        stream.writeBoolean(false); // Interior sound alt
-                        stream.writeUint16(3477);   // Layer 1 ID
-                        stream.writeUint16(3478);   // Layer 2 ID
+                        stream.writeBoolean(true);                             // Interior sound enabled
+                        stream.writeBoolean(false);                            // Interior sound alt
+                        stream.writeUint16(fullObject.layerObjIds[0]);         // Layer 1 ID
+                        stream.writeUint16(fullObject.layerObjIds[1]);         // Layer 2 ID
                         break;
                 }
             }

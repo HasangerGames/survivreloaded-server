@@ -99,6 +99,12 @@ class Obstacle {
             );
             this.collision.doorOpenAlt = rotatedAlt;
         }
+
+        this.isButton = data.button != undefined;
+        if(this.isButton) {
+            this.buttonOnOff = false;
+            this.buttonCanUse = data.button.canUse;
+        }
     }
 
     damage(amount) {
@@ -210,6 +216,22 @@ class Building {
     }
 }
 
+class Structure {
+    constructor(id, pos, type, ori, layerObjIds) {
+        this.isPlayer = false;
+        this.showOnMap = false;
+        this.kind = ObjectKind.Structure;
+
+        this.id = id;
+        this.mapType = Utils.typeToId(type);
+        this.pos = pos;
+        this.type = type;
+        this.ori = ori;
+        this.scale = 1;
+        this.layerObjIds = layerObjIds;
+    }
+}
+
 class GroundPatch {
     constructor(min, max, color, roughness, offsetDist, order, useAsMapShape) {
         this.min = min; // vector
@@ -222,8 +244,11 @@ class GroundPatch {
     }
 }
 
-module.exports.River = River;
+module.exports = { River, Place, Obstacle, Building, Structure, GroundPatch };
+/*module.exports.River = River;
 module.exports.Place = Place;
 module.exports.Obstacle = Obstacle;
 module.exports.Building = Building;
+module.exports.Structure = Structure;
 module.exports.GroundPatch = GroundPatch;
+*/

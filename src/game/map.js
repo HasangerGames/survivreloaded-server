@@ -1,5 +1,5 @@
 const {Objects, ObjectKind, GameOptions, Maps, Utils, Vector} = require("../utils.js");
-const {River, Place, Obstacle, Building, GroundPatch} = require("./miscObjects.js");
+const {River, Place, Obstacle, Building, Structure, GroundPatch} = require("./miscObjects.js");
 
 class Map {
 
@@ -47,11 +47,52 @@ class Map {
             }
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
-            this.#genBuildingTest("house_red_01");
+            this.#genStructure("club_structure_01", Objects["club_structure_01"]);
         }
     
         this.groundPatches = [];
         //this.groundPatches = JSON.parse(require('fs').readFileSync("groundPatchesTest.json"));
+    }
+
+    #genStructure(type, structure, setPos, setOri, setLayer) {
+        let pos;
+        if(setPos) pos = setPos;
+        else if(global.DEBUG_MODE) pos = Vector.create(450, 150);
+        else pos = this.#getSafeObstaclePos();
+
+        let ori;
+        if(setOri != undefined) ori = setOri;
+        else if(global.DEBUG_MODE) ori = 0;
+        else ori = Utils.random(0, 3);
+
+        let layer;
+        if(setLayer != undefined) layer = setLayer;
+        else layer = 0;
+
+        const layerObjIds = [];
+
+        for(let layerId = 0; layerId < structure.layers.length; layerId++) {
+            const layerObj = structure.layers[layerId];
+            const layerType = layerObj.type;
+            const layer = Objects[layerType];
+
+            layerObjIds.push(Utils.typeToId(layerType));
+
+            let xOffset, yOffset;
+            let layerOri;
+            if(layerObj.inheritOri == false) layerOri = layerObj.ori;
+            else layerOri = layerObj.ori + ori;
+            let layerPos = Utils.addAdjust(pos, layerObj.pos, ori);
+
+            if(layer.type == "structure") {
+                this.#genStructure(layerType, layer, layerPos, layerOri);
+            } else if(layer.type == "building") {
+                this.#genBuilding(layerType, layer, layerPos, layerOri, layerId);
+            } else {
+                console.warn(`Unsupported object type: ${layer.type}`);
+            }
+        }
+        this.objects.push(new Structure(this.objects.length, pos, type, ori, layerObjIds));
     }
 
     #genBuildings(count, type, building) {
@@ -64,16 +105,20 @@ class Map {
         this.#genBuilding(type, Objects[type]);
     }
 
-    #genBuilding(type, building, setPos, setOri) {
+    #genBuilding(type, building, setPos, setOri, setLayer) {
         let pos;
         if(setPos) pos = setPos;
         else if(global.DEBUG_MODE) pos = Vector.create(450, 150);
         else pos = this.#getSafeObstaclePos();
 
         let ori;
-        if(setOri) ori = setOri;
+        if(setOri != undefined) ori = setOri;
         else if(global.DEBUG_MODE) ori = 0;
         else ori = Utils.random(0, 3);
+
+        let layer;
+        if(setLayer != undefined) layer = setLayer;
+        else layer = 0;
 
         for(const mapObject of building.mapObjects) {
             const partType = mapObject.type;
@@ -89,15 +134,18 @@ class Map {
             else partOri = mapObject.ori + ori;
             let partPos = Utils.addAdjust(pos, mapObject.pos, ori);
 
-            if(part.type == "building") {
-                this.#genBuilding(partType, part, partPos);
+            if(part.type == "structure") {
+                this.#genStructure(partType, part, partPos, partOri, layer);
+            } else if(part.type == "building") {
+                this.#genBuilding(partType, part, partPos, partOri, layer);
             } else if(part.type == "obstacle") {
                 this.#genObstacle(
                     partType,
                     part,
                     partPos,
                     partOri,
-                    mapObject.scale
+                    mapObject.scale,
+                    layer
                 );
             } else if(part.type == "random") {
                 const items = Object.keys(part.weights), weights = Object.values(part.weights);
@@ -107,7 +155,8 @@ class Map {
                     Objects[randType],
                     partPos,
                     partOri,
-                    mapObject.scale
+                    mapObject.scale,
+                    layer
                 );
             } else if(part.type == "ignored") {
                 // Ignored
@@ -115,14 +164,21 @@ class Map {
                 console.warn(`Unknown object type: ${part.type}`);
             }
         }
-        this.objects.push(new Building(this.objects.length, pos, type, ori, 0, building.map ? building.map.display : false));
+        this.objects.push(new Building(
+            this.objects.length,
+            pos,
+            type,
+            ori,
+            setLayer != undefined ? setLayer : 0,
+            building.map ? building.map.display : false
+        ));
     }
 
     #genObstacleTest(type) {
         this.#genObstacle(type, Objects[type], Vector.create(452, 152), 0, 1);
     }
 
-    #genObstacle(type, obstacle, pos, ori, scale) {
+    #genObstacle(type, obstacle, pos, ori, scale, layer) {
         this.objects.push(new Obstacle(
             this.objects.length,
             obstacle,
@@ -130,7 +186,7 @@ class Map {
             pos,
             ori,
             scale,
-            0 // layer
+            layer != undefined ? layer : 0
         ));
     }
 
@@ -182,4 +238,4 @@ class Map {
 
 }
 
-module.exports.Map = Map;
+module.exports = { Map };

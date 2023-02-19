@@ -1,4 +1,4 @@
-global.DEBUG_MODE = false;
+global.DEBUG_MODE = true;
 
 const fs = require('fs');
 const BitStream = require('bit-buffer').BitStream;
