@@ -11,7 +11,7 @@ On February 13, 2023, Kongregate announced that they were shutting down surviv.i
 
 A similar project to this one already exists: [Open Surviv.io](https://github.com/North-West-Wind/opensurviv-server), which is essentially an open source surviv.io clone. It's a great project, but to me, it's just not the same. I want to preserve the original game as much as possible.
 
-## Setup
+## Try it out!
 
 ### Step 1: Clone the repo
 
