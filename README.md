@@ -34,9 +34,11 @@ The modification that needs to be made to the client is very simple. In the extr
 
 ### Step 3: Run the server
 
-To run the server, a modern version of Node.js is required.
+To run the server, a modern version of Node.js is required. Open a terminal or command prompt in the repo folder, and run the following commands:
 
 ```
 npm install
 npm start
 ```
+
+To open the game, go to `http://0.0.0.0:8000` in your browser.
