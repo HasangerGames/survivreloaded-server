@@ -15,10 +15,7 @@ A similar project to this one already exists: [Open Surviv.io](https://github.co
 
 ### Step 1: Clone the repo
 
-Click the download button in the top right, or run this command in a terminal or command prompt (Git required):
-```
-git clone https://gitlab.com/hasanger/survivreloaded.git
-```
+[Click here to download](https://gitlab.com/hasanger/survivreloaded/-/archive/main/survivreloaded-main.zip). Extract the zip. When I say "repo folder" later in the tutorial, I'm referring to the folder you just extracted.
 
 ### Step 2: Download and patch the client
 
@@ -28,9 +25,9 @@ For now, to download the client for yourself, you can use a resource extractor l
 
 Alternatively, I have included a list of URLs under `reference/urls.txt`. You could write a simple script to download all of the files in said list, or use an existing tool.
 
-Whichever method you choose, put the extracted files under `/public` in the repo folder.
+Whichever method you choose, put the extracted files under `/public` in the repo folder. If you did it right, `index.html` should be here: `survivreloaded-main/public/index.html`
 
-The modification that needs to be made to the client is very simple. In the extracted files, go to `js/app.<some hex digits>.js`. Replace all occurrences of `wss:` with `ws:`. This will allow the client to connect to insecure WebSocket servers.
+The modification that needs to be made to the client is very simple. Open `js/app.<some hex digits>.js` in your favorite text editor. Replace (Ctrl+H) all occurrences of `wss:` with `ws:`. This will allow the client to connect to insecure WebSocket servers.
 
 ### Step 3: Run the server
 
