@@ -15,7 +15,7 @@ A similar project to this one already exists: [Open Surviv.io](https://github.co
 
 ### Step 1: Clone the repo
 
-Click the download button in the top right, or run this command:
+Click the download button in the top right, or run this command in a terminal or command prompt (Git required):
 ```
 git clone https://gitlab.com/hasanger/survivreloaded.git
 ```
@@ -41,4 +41,4 @@ npm install
 npm start
 ```
 
-To open the game, go to `http://0.0.0.0:8000` in your browser.
+To open the game, go to http://0.0.0.0:8000 in your browser.
