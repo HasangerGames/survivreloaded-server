@@ -31,7 +31,7 @@ The modification that needs to be made to the client is very simple. Open `js/ap
 
 ### Step 3: Run the server
 
-To run the server, a modern version of Node.js is required. Open a terminal or command prompt in the repo folder, and run the following commands:
+To run the server, a modern version of Node.js is required ([click here to download](https://nodejs.org/en/download/)). Open a terminal or command prompt in the repo folder, and run the following commands:
 
 ```
 npm install
