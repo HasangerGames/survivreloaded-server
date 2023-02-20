@@ -2,6 +2,10 @@
 <hr>
 An open-source server for the online game surviv.io. Work in progress.
 
+## Join the Discord!
+
+https://discord.gg/K97hwBtwdm
+
 ## Why this project?
 I have played surviv.io since 2020, the year it was acquired by Kongregate. This is when it began to die. Unlike the original developers, Kongregate put little thought into the game itself, instead filling it with useless microtransactions. Their efforts to combat hackers with the prestige system were largely unsuccessful. As a result, fewer and fewer people played the game every day.
 
