@@ -1,4 +1,4 @@
-global.DEBUG_MODE = true;
+global.DEBUG_MODE = false;
 
 const fs = require('fs');
 const BitStream = require('bit-buffer').BitStream;
@@ -10,12 +10,12 @@ function readJSON(path) {
 const Objects = readJSON("data/objects.json");
 const Maps = readJSON("data/maps.json");
 const Items = readJSON("data/items.json");
-const Melees = readJSON("data/melee.json");
-const Guns = readJSON("data/guns.json");
+const Weapons = readJSON("data/weapons.json");
 const Bullets = readJSON("data/bullets.json");
-
-const GameOptions = readJSON("data/game.json");
 const typeToId = readJSON("data/ids.json");
+
+const ServerOptions = readJSON("config/server.json");
+const GameOptions = readJSON("config/game.json");
 
 const ObjectKind = {
     Invalid: 0,
@@ -428,16 +428,9 @@ Array.prototype.remove = function(o) {
     return this.filter(o2 => o2 !== o);
 };
 
-module.exports.Objects = Objects;
-module.exports.Maps = Maps;
-module.exports.Items = Items;
-module.exports.Melees = Melees;
-module.exports.Guns = Guns;
-module.exports.Bullets = Bullets;
-module.exports.GameOptions = GameOptions;
-module.exports.ObjectKind = ObjectKind;
-module.exports.MsgType = MsgType;
-module.exports.InputType = InputType;
-module.exports.CollisionType = CollisionType;
-module.exports.Utils = Utils;
-module.exports.Vector = Vector;
+module.exports = {
+    Objects, Maps, Items, Weapons, Bullets,
+    ServerOptions, GameOptions,
+    ObjectKind, MsgType, InputType, CollisionType,
+    Utils, Vector
+};

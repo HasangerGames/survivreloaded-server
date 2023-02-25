@@ -4,8 +4,8 @@
     "userID": "3751363",
     "errorFlash": [],
     "id": "3751363",
-    "slug": "kris-kringle",
-    "battletagDisplay": "Kris Kringle",
+    "slug": "player",
+    "battletagDisplay": "Player",
     "kpg": "0.9",
     "wins": 440,
     "games": 11831,
@@ -45,10 +45,10 @@
     "rewardAmount": 0
   },
   "loadout": {
-    "outfit": "outfitRed",
-    "melee": "knuckles_heroic",
-    "heal": "heal_patch",
-    "boost": "boost_atomic",
+    "outfit": "outfitBase",
+    "melee": "fists",
+    "heal": "heal_basic",
+    "boost": "boost_basic",
     "player_icon": "",
     "crosshair": {
       "type": "crosshair_default",

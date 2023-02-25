@@ -21,6 +21,7 @@ class Game {
 
     tick() {
         for(const p of this.players) {
+            p.playerInfos = this.players;
 
             // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
             // TODO: If collision is detected, move player as far as possible in the desired direction.
@@ -91,7 +92,7 @@ class Game {
                 p.playerDirty = true;
                 p.animTime++;
                 p.animSeq = 1;
-                if(p.animTime > 16) {
+                if(p.animTime > 8) {
                     p.animActive = false;
                     p.animType = p.animSeq = p.animTime = 0;
                 }
@@ -182,7 +183,7 @@ class Game {
 
             case MsgType.Emote:
                 const pos = stream.readVec(0, 0, 1024, 1024, 16);
-                const type = stream.readBits(11);
+                const type = stream.readGameType();
                 const isPing = stream.readBoolean();
                 stream.readBits(4); // Zeroes
                 this.emotes.push(new Emote(p.id, pos, type, isPing));

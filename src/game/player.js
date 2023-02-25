@@ -1,4 +1,4 @@
-const {Objects, Melees, Utils, Vector, MsgType, CollisionType, ObjectKind} = require('../utils.js');
+const {Objects, Weapons, Utils, Vector, MsgType, CollisionType, ObjectKind} = require('../utils.js');
 const {BitStream} = require('bit-buffer');
 
 let start;
@@ -29,6 +29,7 @@ class Player {
         this.gasDirty = false;
         this.gasCircleDirty = false;
         this.playerInfosDirty = false;
+        this.playerInfos = [];
         this.deletePlayerIdsDirty = false;
         this.playerStatusDirty = false;
         this.groupStatusDirty = false;
@@ -130,7 +131,7 @@ class Player {
     }
 
     canMelee(object) {
-        var weap = Melees["fists"], // TODO
+        var weap = Weapons["fists"], // TODO
             angle = Vector.unitVecToRadians(this.dir),
             offset = Vector.add(weap.attack.offset, Vector.mul(Vector.create(1, 0), this.scale - 1)),
             position = Vector.add(this.pos, Vector.rotate(offset, angle)),
@@ -160,11 +161,11 @@ class Player {
         joinStream.writeBoolean(false); // Game started
         joinStream.writeUint8(6); // Emote count
         joinStream.writeGameType(195);          // First emote slot
-        joinStream.writeGameType(328);          // Second emote slot
-        joinStream.writeGameType(336);          // Third emote slot
+        joinStream.writeGameType(193);          // Second emote slot
+        joinStream.writeGameType(196);          // Third emote slot
         joinStream.writeGameType(194);          // Fourth emote slot
-        joinStream.writeGameType(297);          // Fifth emote slot (win)
-        joinStream.writeGameType(333);          // Sixth emote slot (death)
+        joinStream.writeGameType(0);          // Fifth emote slot (win)
+        joinStream.writeGameType(0);          // Sixth emote slot (death)
         this.#send(joinStream);
 
 
@@ -236,6 +237,7 @@ class Player {
 
         this.gasCircleDirty = true;
         this.playerInfosDirty = true;
+        this.playerInfos = this.game.players;
         this.playerStatusDirty = true;
         this.killLeaderDirty = true;
 
@@ -251,6 +253,8 @@ class Player {
     }
 
     getUpdate() {
+
+        this.playerInfosDirty = true;
 
         if(!this.skipObjectCalculations) {
             let i = 0;
@@ -332,11 +336,11 @@ class Player {
                         stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
                         stream.writeUnitVec(fullObject.dir, 8); // Direction
 
-                        stream.writeBits(740, 11); // Outfit (skin)
+                        stream.writeBits(690, 11); // Outfit (skin)
                         stream.writeBits(450, 11); // Backpack
                         stream.writeBits(0, 11); // Helmet
                         stream.writeBits(0, 11); // Chest (vest?)
-                        stream.writeBits(666, 11); // Weapon
+                        stream.writeBits(557, 11); // Weapon
 
                         stream.writeBits(fullObject.layer, 2); // Layer
                         stream.writeBoolean(false); // Dead
@@ -485,7 +489,7 @@ class Player {
             stream.writeGameType(0); // Secondary
             stream.writeUint8(0); // Ammo
 
-            stream.writeGameType(666); // Melee
+            stream.writeGameType(557); // Melee
             stream.writeUint8(0); // Ammo
 
             stream.writeGameType(0); // Throwable
@@ -517,32 +521,35 @@ class Player {
 
         // Player info
         if(this.playerInfosDirty) {
-            stream.writeUint8(1); // Player info count
+            stream.writeUint8(this.playerInfos.length); // Player info count
 
-            // Basic info
-            stream.writeUint16(this.id);           // Player ID
-            stream.writeUint8(0);               // Team ID
-            stream.writeUint8(0);               // Group ID
-            stream.writeString('Kris Kringle'); // Name
+            for(const player of this.playerInfos) {
+                // Basic info
+                stream.writeUint16(player.id);           // Player ID
+                stream.writeUint8(0);               // Team ID
+                stream.writeUint8(0);               // Group ID
+                stream.writeString('Player'); // Name
 
-            // Loadout
-            stream.writeGameType(740);          // Outfit (skin)
-            stream.writeGameType(114);          // Healing particles
-            stream.writeGameType(145);          // Adrenaline particles
-            stream.writeGameType(666);          // Melee
-            stream.writeGameType(1060);         // Death effect
+                // Loadout
+                stream.writeGameType(690);          // Outfit (skin)
+                stream.writeGameType(109);          // Healing particles
+                stream.writeGameType(138);          // Adrenaline particles
+                stream.writeGameType(557);          // Melee
+                stream.writeGameType(0);         // Death effect
 
-            stream.writeGameType(195);          // First emote slot
-            stream.writeGameType(328);          // Second emote slot
-            stream.writeGameType(336);          // Third emote slot
-            stream.writeGameType(194);          // Fourth emote slot
-            stream.writeGameType(297);          // Fifth emote slot (win)
-            stream.writeGameType(333);          // Sixth emote slot (death)
+                stream.writeGameType(195);          // First emote slot
+                stream.writeGameType(196);          // Second emote slot
+                stream.writeGameType(197);          // Third emote slot
+                stream.writeGameType(194);          // Fourth emote slot
+                stream.writeGameType(0);          // Fifth emote slot (win)
+                stream.writeGameType(0);          // Sixth emote slot (death)
 
-            // Misc
-            stream.writeUint32(0);              // User ID
-            stream.writeBoolean(false);         // Is unlinked (doesn't have account)
-            stream.writeAlignToNextByte();
+                // Misc
+                stream.writeUint32(player.id);              // User ID
+                stream.writeBoolean(false);         // Is unlinked (doesn't have account)
+                stream.writeAlignToNextByte();
+            }
+
             this.playerInfosDirty = false;
         }
 
