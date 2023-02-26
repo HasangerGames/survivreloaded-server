@@ -75,7 +75,7 @@ if(ServerOptions.https) {
 } else {
     server = http.createServer(app);
 }
-server.listen(ServerOptions.port);
+server.listen(ServerOptions.port, ServerOptions.host);
 
 server.on("upgrade", (request, socket, head) => {
     wsServer.handleUpgrade(request, socket, head, socket => {
