@@ -1,3 +1,4 @@
+# This repository is no longer in use. For the latest version, see https://github.com/hsanger/survivreloaded
 <img src="logo/banner.png" alt="Surviv Reloaded">
 <hr>
 Surviv Reloaded is an open-source server for the online game surviv.io. Work in progress.<br><br>
