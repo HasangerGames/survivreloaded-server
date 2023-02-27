@@ -47,4 +47,4 @@ npm install
 npm start
 ```
 
-To open the game, go to http://0.0.0.0:8000 in your browser.
+To open the game, go to http://127.0.0.1:8000 in your browser.
