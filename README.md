@@ -12,7 +12,7 @@ https://discord.gg/K97hwBtwdm
 No. It's an open-source server hosting the original client. In other words, it's the original surviv.io, just hosted by a different server.
 
 ### Why this project?
-I've played surviv.io since 2020, the year it was acquired by Kongregate. This is when it began to die. Unlike the original developers, Kongregate put little thought into the game itself, instead filling it with useless microtransactions. Their efforts to combat hackers with the prestige system were largely unsuccessful. As a result, fewer and fewer people played the game every day.
+I've played surviv.io since 2020, around the time it was acquired by Kongregate. This is when it began to die. Unlike the original developers, Kongregate put little thought into the game itself, instead filling it with useless microtransactions. Their efforts to combat hackers with the prestige system were largely unsuccessful. As a result, fewer and fewer people played the game every day.
 
 
 On February 13, 2023, Kongregate announced that they were shutting down surviv.io. I started this project to preserve it. When the original site is shut down, I will publish all of its assets here, so people can continue to enjoy the game.
