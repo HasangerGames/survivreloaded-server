@@ -24,7 +24,7 @@ A similar project to this one already exists: [Open Surviv.io](https://github.co
 
 ### Step 1: Clone the repo
 
-[Click here to download]([[https://gitlab.com/hasanger/survivreloaded/-/archive/main/survivreloaded-main.zip](https://github.com/hsanger/survivreloaded/archive/refs/heads/main.zip)](https://github.com/hsanger/survivreloaded/archive/refs/heads/main.zip)). Extract the zip. When I say "repo folder" later in the tutorial, I'm referring to the folder you just extracted.
+[Click here to download](https://github.com/hsanger/survivreloaded/archive/refs/heads/main.zip). Extract the zip. When I say "repo folder" later in the tutorial, I'm referring to the folder you just extracted.
 
 ### Step 2: Download and patch the client
 
