@@ -1,10 +1,14 @@
 <img src="logo/banner.png" alt="Surviv Reloaded">
 <hr>
-Surviv Reloaded is an open-source server for the online game surviv.io. Work in progress.<br><br>
+Surviv Reloaded is an open-source server for the defunct online game surviv.io. Work in progress.<br><br>
 
 ## Join the Discord!
 
 https://discord.gg/K97hwBtwdm
+
+## Try it out!
+
+https://taskjourney.org:449
 
 ## FAQ
 
@@ -20,7 +24,7 @@ On February 13, 2023, Kongregate announced that they were shutting down surviv.i
 
 A similar project to this one already exists: [Open Surviv.io](https://github.com/North-West-Wind/opensurviv-server), which is essentially an open source surviv.io clone. It's a great project, but to me, it's just not the same. I want to preserve the original game as much as possible.
 
-## Try it out!
+## Install it
 
 ### Step 1: Clone the repo
 
