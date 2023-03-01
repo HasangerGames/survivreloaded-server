@@ -203,7 +203,7 @@ class Player {
 
         const stream = Utils.createStream(32768);
         stream.writeUint8(MsgType.Map); // Indicates map msg
-        stream.writeString(this.map.name); // 24 bytes max TODO: ACTUALLY LIMIT THIS IN THE STREAM CLASS (THANKS COPILOT FOR WRITING THIS)
+        stream.writeStringFixedLength(this.map.name, 24); // 24 bytes max
         stream.writeUint32(this.map.seed);
         stream.writeUint16(this.map.width);
         stream.writeUint16(this.map.height);
@@ -229,6 +229,7 @@ class Player {
 
         const objects = this.map.objects.filter(obj => obj.showOnMap);
         stream.writeUint16(objects.length);
+        console.log(objects.length);
         for(const object of objects) {
             stream.writeVec(object.pos, 0, 0, 1024, 1024, 16);
             stream.writeFloat(object.scale, 0.125, 2.5, 8);
@@ -341,7 +342,7 @@ class Player {
         if(this.killLeaderDirty) valuesChanged += 32768;
 
 
-        const stream = Utils.createStream(16384);
+        const stream = Utils.createStream(32768);
         stream.writeUint8(6);  // Indicates update msg
         stream.writeUint16(valuesChanged);
 

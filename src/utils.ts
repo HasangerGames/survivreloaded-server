@@ -318,6 +318,7 @@ class SurvivBitStream extends BitStream {
     }
 
     writeString(str) { this.writeASCIIString(str); }
+    writeStringFixedLength(str, len) { this.writeASCIIString(str, len); }
     readString() { return this.readASCIIString(); }
     // writeBytes(_0x10f494, _0x214f81, _0x22472f) {
     //     let arr = new Uint8Array(_0x10f494._view._view.buffer, _0x214f81, _0x22472f);
