@@ -1,6 +1,11 @@
-const {Objects, ObjectKind, CollisionType, GameOptions, Utils, Vector} = require("../utils.js");
+import { Objects, ObjectKind, CollisionType, GameOptions, Utils, Vector } from "../utils";
+import { Point } from "../utils";
 
 class River {
+    width: number;
+    looped: boolean;
+    points: Point[];
+
     constructor(width, looped, points) {
         this.width = width;
         this.looped = looped;
@@ -9,6 +14,9 @@ class River {
 }
 
 class Place {
+    name: string;
+    pos: Point;
+
     constructor(name, pos) {
         this.name = name;
         this.pos = pos;
@@ -16,11 +24,79 @@ class Place {
 }
 
 class Obstacle {
+    readonly isPlayer: boolean = false;
+    kind: ObjectKind = ObjectKind.Obstacle;
+
+    id: number;
+
+    pos: Point;
+    initialPos: Point;
+
+    ori: number;
+    initialOri: number;
+
+    scale: number;
+    minScale: number;
+    maxScale: number;
+
+    health: number;
+    maxHealth: number;
+    healthT: number = 1;
+
+    type: string;
+
+    layer: number;
+    dead: boolean = false;
+    teamId: number = 0;
+
+    mapType: number;
+    isPuzzlePiece: boolean = false;
+    isSkin: boolean = false;
+
+    isButton: boolean = false;
+    buttonOnOff?: boolean;
+    buttonCanUse?: boolean;
+
+    isDoor: boolean = false;
+    doorOpen?: boolean;
+    doorCanUse?: boolean;
+    doorLocked?: boolean;
+    interactionRad?: number;
+
+    showOnMap: boolean;
+
+    collidable: boolean;
+    reflectBullets: boolean;
+    destructible: boolean;
+
+    collisionMin?: Point;
+    collisionMax?: Point;
+    collisionPos?: Point;
+    collisionRad?: number;
+    collision: {
+        type: CollisionType;
+        initialMin: Point;
+        initialMax: Point;
+        min: Point;
+        max: Point;
+        rad?: number;
+        pos?: Point;
+
+        doorOpen?: {
+            min: Point;
+            max: Point;
+        }
+
+        doorOpenAlt?: {
+            min: Point;
+            max: Point;
+        }
+    };
+
+    doorOpenOri: number;
+    doorOpenAltOri: number;
 
     constructor(id, data, type, pos, ori, scale, layer) {
-        this.isPlayer = false;
-        this.kind = ObjectKind.Obstacle;
-
         this.id = id;
         this.pos = pos;
         this.initialPos = pos;
@@ -32,14 +108,11 @@ class Obstacle {
 
         this.health = data.health;
         this.maxHealth = data.health;
-        this.healthT = 1;
 
         this.type = type;
         this.mapType = Utils.typeToId(type);
 
         this.layer = layer ? layer : 0;
-        this.dead = false;
-        this.teamId = 0;
         this.isButton = false;
         this.isPuzzlePiece = false;
         this.isSkin = false;
@@ -196,43 +269,70 @@ class Obstacle {
 }
 
 class Building {
-    constructor(id, pos, type, ori, layer, showOnMap) {
-        this.isPlayer = false;
+    readonly isPlayer = false;
+    readonly kind: ObjectKind.Building;
+
+    showOnMap: boolean;
+
+    id: any;
+    layer: number;
+    mapType: number;
+
+    pos: Point;
+    type: string;
+    ori: number;
+    scale: number = 1;
+
+    ceilingDead: boolean = false;
+    occupied: boolean = false;
+    ceilingDamaged: boolean = false;
+    hasPuzzle: boolean = false;
+
+
+    constructor(id: any, pos: Point, type: string, ori, layer: number, showOnMap: boolean) {
         this.showOnMap = showOnMap;
-        this.kind = ObjectKind.Building;
 
         this.id = id;
         this.mapType = Utils.typeToId(type);
         this.pos = pos;
         this.type = type;
         this.ori = ori;
-        this.scale = 1;
         this.layer = layer;
-
-        this.ceilingDead = false;
-        this.occupied = false;
-        this.ceilingDamaged = false;
-        this.hasPuzzle = false;
     }
 }
 
 class Structure {
-    constructor(id, pos, type, ori, layerObjIds) {
-        this.isPlayer = false;
-        this.showOnMap = false;
-        this.kind = ObjectKind.Structure;
+    readonly isPlayer: boolean = false;
+    readonly kind: ObjectKind.Structure;
+    showOnMap: boolean = false;
 
+    id: any;
+    mapType: number;
+    pos: Point;
+    type: string;
+    ori: number;
+    scale: number = 1;
+    layerObjIds: any[];
+
+    constructor(id: any, pos: Point, type, ori, layerObjIds) {
         this.id = id;
         this.mapType = Utils.typeToId(type);
         this.pos = pos;
         this.type = type;
         this.ori = ori;
-        this.scale = 1;
         this.layerObjIds = layerObjIds;
     }
 }
 
 class GroundPatch {
+    min: Point;
+    max: Point;
+    color: number;
+    roughness: number;
+    offsetDist: number;
+    order: number;
+    useAsMapShape: boolean;
+
     constructor(min, max, color, roughness, offsetDist, order, useAsMapShape) {
         this.min = min; // vector
         this.max = max; // vector
@@ -244,11 +344,4 @@ class GroundPatch {
     }
 }
 
-module.exports = { River, Place, Obstacle, Building, Structure, GroundPatch };
-/*module.exports.River = River;
-module.exports.Place = Place;
-module.exports.Obstacle = Obstacle;
-module.exports.Building = Building;
-module.exports.Structure = Structure;
-module.exports.GroundPatch = GroundPatch;
-*/
+export { River, Place, Obstacle, Building, Structure, GroundPatch };

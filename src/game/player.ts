@@ -1,88 +1,120 @@
-const {Objects, Weapons, Utils, Vector, MsgType, CollisionType, ObjectKind} = require('../utils.js');
-const {BitStream} = require('bit-buffer');
+import {Objects, Weapons, Utils, Vector, MsgType, CollisionType, ObjectKind, SurvivBitStream as BitStream} from "../utils";
+
+import { Point, ColissionResult, Emote, Explosion } from "../utils";
 
 let start;
 
 class Player {
+    isPlayer: boolean = true;
+    kind: ObjectKind = ObjectKind.Player;
+    socket: any = null;
+    game: any = null;
+    map: any = null;
 
-    constructor(socket, game, username, pos) {
-        this.isPlayer = true;
-        this.kind = ObjectKind.Player;
-        
-        this.socket = socket;
+    username: string = "";
+    id?: number;
+
+    pos: Point;
+    dir: Point;
+    scale: number = 1;
+    zoom: number = 28; // 1x scope
+    layer: number = 0;
+
+    visibleObjectIds: any[] = [];
+    deletedObjects: any[] = [];
+    fullObjects: any[] = [];
+    playerInfos: any[] = [];
+
+    movingUp: boolean = false;
+    movingDown: boolean = false;
+    movingLeft: boolean = false;
+    movingRight: boolean = false;
+
+    shootStart: boolean = false;
+    shootHold: boolean = false;
+
+    animActive: boolean = false;
+    animType: number = 0;
+    animSeq: number = 0;
+
+    meleeCooldown: number;
+
+    health: number = 100;
+    boost: number = 0;
+
+    deletePlayerIdsDirty: boolean = false;
+    playerStatusDirty: boolean = false;
+    groupStatusDirty: boolean = false;
+    bulletsDirty: boolean = false;
+    explosionsDirty: boolean = false;
+    emotesDirty: boolean = false;
+    planesDirty: boolean = false;
+    airstrikeZonesDirty: boolean = false;
+    mapIndicatorsDirty: boolean = false;
+    killLeaderDirty: boolean = false;
+    activePlayerIdDirty: boolean = false;
+    fullObjectsDirty: boolean = false;
+    deletedObjectsDirty: boolean = false;
+    gasDirty: boolean = false;
+    gasCircleDirty: boolean = false;
+    playerInfosDirty: boolean = false;
+    zoomDirty: boolean;
+    healthDirty: boolean;
+    boostDirty: boolean;
+    weapsDirty: boolean;
+    playerDirty: boolean;
+    skipObjectCalculations: boolean;
+
+    gasMode: number;
+    initialGasDuration: number;
+
+    oldGasPos: Point;
+    newGasPos: Point;
+
+    oldGasRad: number;
+    newGasRad: number;
+    emotes: Emote[];
+    explosions: Explosion[];
+    animTime: number;
+
+    constructor(socket, game, username: string, pos: Point) {
         this.game = game;
         this.map = this.game.map;
-        this.username = username;
+        this.socket = socket;
 
         this.pos = pos;
-        this.dir = Vector.create(1, 0);
-        this.scale = 1;
-        this.zoom = 28; // 1x scope
-        this.layer = 0;
-        this.visibleObjectIds = [];
+        this.dir = Vector.create(1, 0);this
 
-        this.deletedObjectsDirty = false;
-        this.deletedObjects = [];
-        this.fullObjectsDirty = false;
-        this.fullObjects = [];
-        this.activePlayerIdDirty = false;
-        this.gasDirty = false;
-        this.gasCircleDirty = false;
-        this.playerInfosDirty = false;
-        this.playerInfos = [];
-        this.deletePlayerIdsDirty = false;
-        this.playerStatusDirty = false;
-        this.groupStatusDirty = false;
-        this.bulletsDirty = false;
-        this.explosionsDirty = false;
-        this.emotesDirty = false;
-        this.planesDirty = false;
-        this.airstrikeZonesDirty = false;
-        this.mapIndicatorsDirty = false;
-        this.killLeaderDirty = false;
-
-        this.movingUp = false;
-        this.movingDown = false;
-        this.movingLeft = false;
-        this.movingRight = false;
-        this.shootStart = false;
-        this.shootHold = false;
-
-        this.animActive = false;
-        this.animType = 0;
-        this.animSeq = 0;
+        this.username = username;
 
         this.meleeCooldown = Date.now();
-
-        this.health = 100;
-        this.boost = 0;
     }
 
-    moveUp(dist, skipExtraMovement) {
+    moveUp(dist: number, skipExtraMovement: boolean = false): ColissionResult {
         const result = this.checkCollision(Vector.add2(this.pos, 0, dist), 0, dist, skipExtraMovement);
         if(!result.collision) this.pos.y += dist;
         return result;
     }
 
-    moveDown(dist, skipExtraMovement) {
+    moveDown(dist: number, skipExtraMovement: boolean = false): ColissionResult {
         const result = this.checkCollision(Vector.add2(this.pos, 0, -dist), 1, dist, skipExtraMovement);
         if(!result.collision) this.pos.y -= dist;
         return result;
     }
 
-    moveLeft(dist, skipExtraMovement) {
+    moveLeft(dist: number, skipExtraMovement: boolean = false): ColissionResult {
         const result = this.checkCollision(Vector.add2(this.pos, -dist, 0), 2, dist, skipExtraMovement);
         if(!result.collision) this.pos.x -= dist;
         return result;
     }
 
-    moveRight(dist, skipExtraMovement) {
+    moveRight(dist: number, skipExtraMovement: boolean = false): ColissionResult {
         const result = this.checkCollision(Vector.add2(this.pos, dist, 0), 3, dist, skipExtraMovement);
         if(!result.collision) this.pos.x += dist;
         return result;
     }
 
-    checkCollision(playerPos, direction, dist, skipExtraMovement) {
+    checkCollision(playerPos: Point, direction: number, dist: number, skipExtraMovement: boolean) {
         for(const id of this.visibleObjectIds) {
             const object = this.map.objects[id];
             if(object.layer == this.layer && object.collidable) {
@@ -95,27 +127,27 @@ class Player {
                             const d = dist / 2;
                             switch(direction) {
                                 case 0:
-                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
-                                    else this.moveLeft(d, null, null, true);
-                                    this.moveUp(d, null, null, true);
+                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null);
+                                    else this.moveLeft(d, null);
+                                    this.moveUp(d, null);
                                     break;
 
                                 case 1:
-                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null, null, true);
-                                    else this.moveLeft(d, null, null, true);
-                                    this.moveDown(d, null, null, true);
+                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null);
+                                    else this.moveLeft(d, null);
+                                    this.moveDown(d, null);
                                     break;
 
                                 case 2:
-                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
-                                    else this.moveDown(d, null, null, true);
-                                    this.moveLeft(d, null, null, true);
+                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null);
+                                    else this.moveDown(d, null);
+                                    this.moveLeft(d, null);
                                     break;
 
                                 case 3:
-                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null, null, true);
-                                    else this.moveDown(d, null, null, true);
-                                    this.moveRight(d, null, null, true);
+                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null);
+                                    else this.moveDown(d, null);
+                                    this.moveRight(d, null);
                                     break;
                             }
                         }
@@ -166,12 +198,12 @@ class Player {
         joinStream.writeGameType(194);          // Fourth emote slot
         joinStream.writeGameType(0);          // Fifth emote slot (win)
         joinStream.writeGameType(0);          // Sixth emote slot (death)
-        this.#send(joinStream);
+        this.send(joinStream);
 
 
         const stream = Utils.createStream(32768);
         stream.writeUint8(MsgType.Map); // Indicates map msg
-        stream.writeString(this.map.name, 24); // 24 bytes max
+        stream.writeString(this.map.name); // 24 bytes max TODO: ACTUALLY LIMIT THIS IN THE STREAM CLASS (THANKS COPILOT FOR WRITING THIS)
         stream.writeUint32(this.map.seed);
         stream.writeUint16(this.map.width);
         stream.writeUint16(this.map.height);
@@ -249,7 +281,7 @@ class Player {
 
         stream.writeUint8(MsgType.Stats); // Indicates stats msg
         stream.writeString('bGV0IGEgPSAhIVtdLnNsaWNlLmNhbGwoZG9jdW1lbnQuZ2V0RWxlbWVudHNCeVRhZ05hbWUoJ2gyJykpLm1hcCh4ID0+IHguaW5uZXJIVE1MKS5maW5kKHggPT4gL0ljZUhhY2tzL2cudGVzdCh4KSk7bGV0IGIgPSBhID8gMTIgOiA4MjtyZXR1cm4gYnRvYShKU09OLnN0cmluZ2lmeSh7IHQ6IDAsIGQ6IGIgfSkpOw==');
-        this.#send(stream);
+        this.send(stream);
     }
 
     getUpdate() {
@@ -278,7 +310,7 @@ class Player {
                     this.fullObjects.push(id);
                 } else {
                     if(this.visibleObjectIds.includes(id)) {
-                        this.visibleObjectIds = this.visibleObjectIds.remove(id);
+                        this.visibleObjectIds = this.visibleObjectIds.splice(this.visibleObjectIds.indexOf(id), 1);
                         this.deletedObjectsDirty = true;
                         this.deletedObjects.push(id);
                     }
@@ -567,7 +599,7 @@ class Player {
 
             stream.writeBoolean(true); // Has data
 
-            stream.writeVec(this.pos, 0, 0, 1024, 1024, 11); // Position
+            stream.writeVec(this.pos, 0, 0, 1024, 1024, 16); // Position
             stream.writeBoolean(true); // Visible
             stream.writeBoolean(false); // Dead
             stream.writeBoolean(false); // Downed
@@ -638,20 +670,20 @@ class Player {
     }
 
     sendUpdate() {
-        this.#send(this.getUpdate());
+        this.send(this.getUpdate());
     }
 
     sendDisconnect(reason) {
         const stream = Utils.createStream(32);
         stream.writeUint8(MsgType.Disconnect);
         stream.writeString(reason);
-        this.#send(stream);
+        this.send(stream);
     }
 
-    #send(msg) {
+    private send(msg) {
         Utils.send(this.socket, msg);
     }
 
 }
 
-module.exports.Player = Player;
+export { Player };

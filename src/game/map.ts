@@ -1,7 +1,20 @@
-const {Objects, ObjectKind, GameOptions, Maps, Utils, Vector} = require("../utils.js");
-const {River, Place, Obstacle, Building, Structure, GroundPatch} = require("./miscObjects.js");
+import {Objects, ObjectKind, GameOptions, Maps, Utils, Vector, Point} from "../utils";
+import {River, Place, Obstacle, Building, Structure, GroundPatch} from "./miscObjects";
+import {Player} from "./player";
 
 class Map {
+    name: string;
+    seed: number;
+
+    width: number;
+    height: number;
+    shoreInset: number;
+    grassInset: number;
+
+    rivers: River[];
+    places: Place[];
+    objects: (Obstacle | Building | Structure | Player )[];
+    groundPatches: GroundPatch[];
 
     constructor(mapId) {
         this.name = mapId;
@@ -38,27 +51,27 @@ class Map {
                 const count = mapInfo.objects[type];
                 switch(data.type) {
                     case "obstacle":
-                        this.#genObstacles(count, type, data);
+                        this.genObstacles(count, type, data);
                         break;
                     case "building":
-                        this.#genBuildings(count, type, data);
+                        this.genBuildings(count, type, data);
                         break;
                 }
             }
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
-            this.#genStructure("club_structure_01", Objects["club_structure_01"]);
+            this.genStructure("club_structure_01", Objects["club_structure_01"]);
         }
     
         this.groundPatches = [];
         //this.groundPatches = JSON.parse(require('fs').readFileSync("groundPatchesTest.json"));
     }
 
-    #genStructure(type, structure, setPos, setOri, setLayer) {
+    private genStructure(type: any, structure: any, setPos: Point | null = null, setOri: number | null = null, setLayer: number | null = null) {
         let pos;
         if(setPos) pos = setPos;
         else if(global.DEBUG_MODE) pos = Vector.create(450, 150);
-        else pos = this.#getSafeObstaclePos();
+        else pos = this.getSafeObstaclePos();
 
         let ori;
         if(setOri != undefined) ori = setOri;
@@ -85,9 +98,9 @@ class Map {
             let layerPos = Utils.addAdjust(pos, layerObj.pos, ori);
 
             if(layer.type == "structure") {
-                this.#genStructure(layerType, layer, layerPos, layerOri);
+                this.genStructure(layerType, layer, layerPos, layerOri);
             } else if(layer.type == "building") {
-                this.#genBuilding(layerType, layer, layerPos, layerOri, layerId);
+                this.genBuilding(layerType, layer, layerPos, layerOri, layerId);
             } else {
                 console.warn(`Unsupported object type: ${layer.type}`);
             }
@@ -95,21 +108,21 @@ class Map {
         this.objects.push(new Structure(this.objects.length, pos, type, ori, layerObjIds));
     }
 
-    #genBuildings(count, type, building) {
+    private genBuildings(count, type, building) {
         for(let i = 0; i < count; i++) {
-            this.#genBuilding(type, building);
+            this.genBuilding(type, building);
         }
     }
 
-    #genBuildingTest(type) {
-        this.#genBuilding(type, Objects[type]);
+    private genBuildingTest(type) {
+        this.genBuilding(type, Objects[type]);
     }
 
-    #genBuilding(type, building, setPos, setOri, setLayer) {
+    private genBuilding(type, building, setPos: Point | null = null, setOri: number | null = null, setLayer: number | null = null) {
         let pos;
         if(setPos) pos = setPos;
         else if(global.DEBUG_MODE) pos = Vector.create(450, 150);
-        else pos = this.#getSafeObstaclePos();
+        else pos = this.getSafeObstaclePos();
 
         let ori;
         if(setOri != undefined) ori = setOri;
@@ -135,11 +148,11 @@ class Map {
             let partPos = Utils.addAdjust(pos, mapObject.pos, ori);
 
             if(part.type == "structure") {
-                this.#genStructure(partType, part, partPos, partOri, layer);
+                this.genStructure(partType, part, partPos, partOri, layer);
             } else if(part.type == "building") {
-                this.#genBuilding(partType, part, partPos, partOri, layer);
+                this.genBuilding(partType, part, partPos, partOri, layer);
             } else if(part.type == "obstacle") {
-                this.#genObstacle(
+                this.genObstacle(
                     partType,
                     part,
                     partPos,
@@ -149,8 +162,8 @@ class Map {
                 );
             } else if(part.type == "random") {
                 const items = Object.keys(part.weights), weights = Object.values(part.weights);
-                const randType = Utils.weightedRandom(items, weights);
-                this.#genObstacle(
+                const randType = Utils.weightedRandom(items, weights as number[]);
+                this.genObstacle(
                     randType,
                     Objects[randType],
                     partPos,
@@ -174,11 +187,11 @@ class Map {
         ));
     }
 
-    #genObstacleTest(type) {
-        this.#genObstacle(type, Objects[type], Vector.create(452, 152), 0, 1);
+    private genObstacleTest(type) {
+        this.genObstacle(type, Objects[type], Vector.create(452, 152), 0, 1);
     }
 
-    #genObstacle(type, obstacle, pos, ori, scale, layer) {
+    private genObstacle(type, obstacle, pos, ori, scale, layer = 0) {
         this.objects.push(new Obstacle(
             this.objects.length,
             obstacle,
@@ -190,7 +203,7 @@ class Map {
         ));
     }
 
-    #genObstacles(count, type, obstacle) {
+    private genObstacles(count, type, obstacle) {
         const createMin = obstacle.scale.createMin,
               createMax = obstacle.scale.createMax;
         for(let i = 0; i < count; i++) {
@@ -198,7 +211,7 @@ class Map {
                 this.objects.length,
                 obstacle,
                 type,
-                this.#getSafeObstaclePos(),
+                this.getSafeObstaclePos(),
                 0,
                 Utils.randomFloat(createMin, createMax),
                 0
@@ -206,7 +219,7 @@ class Map {
         }
     }
 
-    #getSafeObstaclePos() {
+    private getSafeObstaclePos() {
         let foundPos = false;
         let pos;
         while(!foundPos) {
@@ -238,4 +251,4 @@ class Map {
 
 }
 
-module.exports = { Map };
+export { Map };
