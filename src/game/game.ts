@@ -1,9 +1,22 @@
-const crypto = require('crypto');
-const {GameOptions, Objects, MsgType, InputType, Utils, Vector} = require('../utils.js');
-const {Map} = require('./map.js');
-const {Player} = require('./player.js');
+import crypto from "crypto";
+
+import { GameOptions, Objects, MsgType, InputType, Utils, Vector, Emote, Explosion } from "../utils";
+import { Point } from "../utils";
+
+import { Map } from "./map";
+import { Player } from "./player";
+import {Obstacle} from "./miscObjects";
 
 class Game {
+    id: string;
+    map: Map;
+
+    players: Player[];
+    emotes: Emote[];
+    explosions: Explosion[];
+    dirtyObjects: number[];
+
+    timer: NodeJS.Timer;
 
     constructor() {
         this.id = crypto.createHash('md5').update(crypto.randomBytes(512)).digest('hex');
@@ -79,7 +92,7 @@ class Game {
                     // Check if the player is punching anything
                     for(const id of p.visibleObjectIds) {
                         const object = this.map.objects[id];
-                        if(object.destructible && p.canMelee(object)) {
+                        if(object instanceof Obstacle && object.destructible && p.canMelee(object)) {
                             object.damage(24);
                             if(object.isDoor) object.interact(p);
                             this.dirtyObjects.push(id);
@@ -161,7 +174,8 @@ class Game {
                             //let minDist = Number.MAX_SAFE_INTEGER, minDistId = -1;
                             for(const id of p.visibleObjectIds) {
                                 const object = this.map.objects[id];
-                                if(object.isDoor && !object.dead && Utils.rectCollision(object.collisionMin, object.collisionMax, p.pos, 1 + object.interactionRad)) {
+                                if(object instanceof Obstacle && object.isDoor
+                                    && !object.dead && Utils.rectCollision(object.collisionMin, object.collisionMax, p.pos, 1 + object.interactionRad)) {
                                     object.interact(p);
                                     this.dirtyObjects.push(id);
                                     //const dist = Utils.distanceBetween(p.pos, object.doorHinge);
@@ -182,7 +196,7 @@ class Game {
                 break;
 
             case MsgType.Emote:
-                const pos = stream.readVec(0, 0, 1024, 1024, 16);
+                const pos = stream.readVec(Vector.create(0, 0), Vector.create(1024, 1024), 16);
                 const type = stream.readGameType();
                 const isPing = stream.readBoolean();
                 stream.readBits(4); // Zeroes
@@ -206,35 +220,18 @@ class Game {
     }
 
     removePlayer(p) {
-        this.players = this.players.remove(p);
+        this.players = this.players.splice(this.players.indexOf(p), 1);
     }
+
 
     end() {
         for(const p of this.players) {
             //p.sendDisconnect("Disconnected");
-            this.players.remove(p);
+            this.players.splice(this.players.indexOf(p), 1);
         }
         clearInterval(this.timer);
     }
 
 }
 
-class Emote {
-    constructor(playerId, pos, type, isPing) {
-        this.playerId = playerId;
-        this.pos = pos;
-        this.type = type;
-        this.isPing = isPing;
-    }
-}
-
-class Explosion {
-    constructor(pos, type, layer) {
-        this.pos = pos;
-        this.type = type;
-        this.layer = layer;
-    }
-}
-
-module.exports.Game = Game;
-module.exports.Emote = Emote;
+export { Game };

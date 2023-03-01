@@ -4,8 +4,9 @@
   "description": "An open source server for the online game surviv.io.",
   "main": "index.js",
   "scripts": {
-    "setup": "node src/setup.js",
-    "start": "node src/server.js"
+    "build": "tsc",
+    "setup": "node .built/setup.js",
+    "start": "node .built/server.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,9 @@
     "compression": "^1.7.4",
     "express": "^4.18.2",
     "ws": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.2",
+    "typescript": "^4.9.5"
   }
 }

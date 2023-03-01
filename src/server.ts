@@ -1,13 +1,15 @@
-const express = require("express");
-const http = require("http");
-const https = require("https");
-const compression = require("compression");
-const ws = require("ws");
-const fs = require("fs");
-const BitStream = require("bit-buffer").BitStream;
+import express from "express";
+import http from "http";
+import https from "https";
+import compression from "compression";
 
-const {Vector, Utils, MsgType, ServerOptions} = require("./utils.js");
-const {Game, Emote} = require("./game/game.js");
+import ws from "ws";
+import fs from "fs";
+
+import { SurvivBitStream as BitStream } from "./utils";
+
+import {Vector, Utils, MsgType, ServerOptions} from "./utils";
+import {Game} from"./game/game.js";
 
 
 const wsServer = new ws.Server({ noServer: true });
@@ -20,7 +22,7 @@ app.use(compression());
 
 app.get("/api/site_info", (req, res) => {
     res.type("application/json");
-    res.send(JSON.parse(fs.readFileSync("json/site_info.json")));
+    res.send(JSON.parse(fs.readFileSync("json/site_info.json") as unknown as string));
 });
 
 app.get("/api/games_modes", (req, res) => {
@@ -31,7 +33,7 @@ app.get("/api/games_modes", (req, res) => {
 
 app.get("/api/prestige_battle_modes", (req, res) => {
     res.type("application/json");
-    res.send(JSON.parse(fs.readFileSync("json/prestige_battle_modes.json")));
+    res.send(JSON.parse(fs.readFileSync("json/prestige_battle_modes.json") as unknown as string));
 });
 
 app.post("/api/user/get_user_prestige", (req, res) => {
@@ -48,7 +50,7 @@ app.post("/api/find_game", (req, res) => {
 
 app.post("/api/user/profile", (req, res) => {
     res.type("application/json");
-    res.send(JSON.parse(fs.readFileSync("json/profile.json")));
+    res.send(JSON.parse(fs.readFileSync("json/profile.json") as unknown as string));
 });
 
 app.post("/api/user/load_exclusive_offers", (req, res) => {
@@ -63,7 +65,7 @@ app.post("/api/user/load_previous_offers", (req, res) => {
 
 app.post("/api/user/get_pass", (req, res) => {
     res.type("application/json");
-    res.send(JSON.parse(fs.readFileSync("json/get_pass.json")));
+    res.send(JSON.parse(fs.readFileSync("json/get_pass.json") as unknown as string));
 });
 
 let server;
