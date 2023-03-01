@@ -25,7 +25,7 @@ class Place {
 
 class Obstacle {
     readonly isPlayer: boolean = false;
-    kind: ObjectKind = ObjectKind.Obstacle;
+    readonly kind: ObjectKind = ObjectKind.Obstacle;
 
     id: number;
 
@@ -270,7 +270,7 @@ class Obstacle {
 
 class Building {
     readonly isPlayer = false;
-    readonly kind: ObjectKind.Building;
+    readonly kind: ObjectKind = ObjectKind.Building;
 
     showOnMap: boolean;
 
@@ -303,7 +303,7 @@ class Building {
 
 class Structure {
     readonly isPlayer: boolean = false;
-    readonly kind: ObjectKind.Structure;
+    readonly kind: ObjectKind = ObjectKind.Structure;
     showOnMap: boolean = false;
 
     id: any;

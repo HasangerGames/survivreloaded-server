@@ -83,7 +83,7 @@ class Player {
         this.socket = socket;
 
         this.pos = pos;
-        this.dir = Vector.create(1, 0);this
+        this.dir = Vector.create(1, 0);
 
         this.username = username;
 
@@ -229,7 +229,6 @@ class Player {
 
         const objects = this.map.objects.filter(obj => obj.showOnMap);
         stream.writeUint16(objects.length);
-        console.log(objects.length);
         for(const object of objects) {
             stream.writeVec(object.pos, 0, 0, 1024, 1024, 16);
             stream.writeFloat(object.scale, 0.125, 2.5, 8);
@@ -559,8 +558,8 @@ class Player {
             for(const player of this.playerInfos) {
                 // Basic info
                 stream.writeUint16(player.id);           // Player ID
-                stream.writeUint8(0);               // Team ID
-                stream.writeUint8(0);               // Group ID
+                stream.writeUint8(0);                    // Team ID
+                stream.writeUint8(0);                    // Group ID
                 stream.writeString('Player'); // Name
 
                 // Loadout
@@ -600,7 +599,7 @@ class Player {
 
             stream.writeBoolean(true); // Has data
 
-            stream.writeVec(this.pos, 0, 0, 1024, 1024, 16); // Position
+            stream.writeVec(this.pos, 0, 0, 1024, 1024, 11); // Position
             stream.writeBoolean(true); // Visible
             stream.writeBoolean(false); // Dead
             stream.writeBoolean(false); // Downed
