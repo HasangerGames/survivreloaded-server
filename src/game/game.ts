@@ -196,7 +196,7 @@ class Game {
                 break;
 
             case MsgType.Emote:
-                const pos = stream.readVec(0, 0, 1024, 1024, 16);
+                const pos = stream.readVec(Vector.create(0, 0), Vector.create(1024, 1024), 16);
                 const type = stream.readGameType();
                 const isPing = stream.readBoolean();
                 stream.readBits(4); // Zeroes
