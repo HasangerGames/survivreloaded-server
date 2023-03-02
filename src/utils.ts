@@ -24,7 +24,7 @@ const GameOptions = readJSON("config/game.json");
 
 type Point = { x: number, y: number };
 type IntersectResult = { point: Point, normal: Point };
-type ColissionResult = { collision: boolean, type?: number | undefined };
+type CollisionResult = { collision: boolean, type?: number | undefined };
 
 class Emote {
     playerId: number;
@@ -155,6 +155,14 @@ class Utils {
         const x = pos1.x - pos2.x;
         const y = pos1.y - pos2.y;
         return a > Math.sqrt((x * x) + (y * y));
+    }
+
+    static resolveCircle(player, circle) {
+        let vecBetweenX = circle.pos.x - player.pos.x;
+        let vecBetweenY = circle.pos.y - player.pos.y;
+        let heading = Math.atan2(vecBetweenY, vecBetweenX);
+        let newPosition = Utils.getLine(player.pos, 0.4, heading - Math.PI);
+        player.pos = newPosition;
     }
 
     // static intersectSegmentAabb(_0x23ceb6, _0x59a5d7, _0x4f0246, _0x5a5053) {
@@ -394,5 +402,5 @@ export {
 };
 
 export {
-    Point, IntersectResult, ColissionResult, Emote, Explosion
+    Point, IntersectResult, CollisionResult, Emote, Explosion
 }

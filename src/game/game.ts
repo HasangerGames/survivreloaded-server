@@ -5,13 +5,15 @@ import { Point } from "../utils";
 
 import { Map } from "./map";
 import { Player } from "./player";
-import {Obstacle} from "./miscObjects";
+import { Obstacle } from "./miscObjects";
 
 class Game {
     id: string;
     map: Map;
 
     players: Player[];
+    aliveCount: number = 0;
+    playerInfosDirty: boolean = false;
     emotes: Emote[];
     explosions: Explosion[];
     dirtyObjects: number[];
@@ -214,6 +216,8 @@ class Game {
         p.id = this.map.objects.length;
         this.map.objects.push(p);
         this.players.push(p);
+        this.aliveCount++;
+        this.playerInfosDirty = true;
         p.onJoin();
 
         return p;

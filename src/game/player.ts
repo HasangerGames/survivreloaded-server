@@ -1,6 +1,6 @@
 import {Objects, Weapons, Utils, Vector, MsgType, CollisionType, ObjectKind, SurvivBitStream as BitStream} from "../utils";
 
-import { Point, ColissionResult, Emote, Explosion } from "../utils";
+import { Point, CollisionResult, Emote, Explosion } from "../utils";
 
 let start;
 
@@ -13,6 +13,7 @@ class Player {
 
     username: string = "";
     id?: number;
+    teamId: number;
 
     pos: Point;
     dir: Point;
@@ -81,6 +82,7 @@ class Player {
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
+        this.teamId = this.game.players.length - 1;
 
         this.pos = pos;
         this.dir = Vector.create(1, 0);
@@ -90,26 +92,26 @@ class Player {
         this.meleeCooldown = Date.now();
     }
 
-    moveUp(dist: number, skipExtraMovement: boolean = false): ColissionResult {
+    moveUp(dist: number, skipExtraMovement: boolean = false): CollisionResult {
         const result = this.checkCollision(Vector.add2(this.pos, 0, dist), 0, dist, skipExtraMovement);
         if(!result.collision) this.pos.y += dist;
         return result;
     }
 
-    moveDown(dist: number, skipExtraMovement: boolean = false): ColissionResult {
+    moveDown(dist: number, skipExtraMovement: boolean = false): CollisionResult {
         const result = this.checkCollision(Vector.add2(this.pos, 0, -dist), 1, dist, skipExtraMovement);
         if(!result.collision) this.pos.y -= dist;
         return result;
     }
 
-    moveLeft(dist: number, skipExtraMovement: boolean = false): ColissionResult {
+    moveLeft(dist: number, skipExtraMovement: boolean = false): CollisionResult {
         const result = this.checkCollision(Vector.add2(this.pos, -dist, 0), 2, dist, skipExtraMovement);
         if(!result.collision) this.pos.x -= dist;
         return result;
     }
 
-    moveRight(dist: number, skipExtraMovement: boolean = false): ColissionResult {
-        const result = this.checkCollision(Vector.add2(this.pos, dist, 0), 3, dist, skipExtraMovement);
+    moveRight(dist: number, skipExtraMovement: boolean = false): CollisionResult {
+        const result = this.checkCollision(Vector.add2(this.pos, dist, 0), 3, dist, false);
         if(!result.collision) this.pos.x += dist;
         return result;
     }
@@ -124,32 +126,7 @@ class Player {
                     result = Utils.circleCollision(objectPos, object.collisionRad, playerPos, 1);
                     if(result) {
                         if(!skipExtraMovement) {
-                            const d = dist / 2;
-                            switch(direction) {
-                                case 0:
-                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null);
-                                    else this.moveLeft(d, null);
-                                    this.moveUp(d, null);
-                                    break;
-
-                                case 1:
-                                    if(objectPos.x <= this.pos.x) this.moveRight(d, null);
-                                    else this.moveLeft(d, null);
-                                    this.moveDown(d, null);
-                                    break;
-
-                                case 2:
-                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null);
-                                    else this.moveDown(d, null);
-                                    this.moveLeft(d, null);
-                                    break;
-
-                                case 3:
-                                    if(objectPos.y <= this.pos.y) this.moveUp(d, null);
-                                    else this.moveDown(d, null);
-                                    this.moveRight(d, null);
-                                    break;
-                            }
+                            Utils.resolveCircle(this, object);
                         }
                         return {collision: true, type: 0};
                     }
@@ -235,7 +212,7 @@ class Player {
             stream.writeMapType(object.mapType);
             stream.writeBits(object.ori, 2); // ori = orientation
             stream.writeString(object.type);
-            stream.writeBits(0, 2); // zeroes
+            stream.writeBits(0, 2); // Padding
         }
 
         stream.writeUint8(this.map.groundPatches.length);
@@ -275,9 +252,9 @@ class Player {
 
         stream.writeBitStream(Utils.truncateToBitStream(this.getUpdate()));
 
-        stream.writeUint8(MsgType.AliveCounts); // Indicates alive count msg
-        stream.writeUint8(1); // Indicates team count (2 for 50v50, 1 for everything else)
-        stream.writeUint8(1); // Indicates alive count in team
+        stream.writeUint8(MsgType.AliveCounts);  // Indicates alive count msg
+        stream.writeUint8(1);                    // Indicates team count (2 for 50v50, 1 for everything else)
+        stream.writeUint8(this.game.aliveCount); // Indicates alive count in team
 
         stream.writeUint8(MsgType.Stats); // Indicates stats msg
         stream.writeString('bGV0IGEgPSAhIVtdLnNsaWNlLmNhbGwoZG9jdW1lbnQuZ2V0RWxlbWVudHNCeVRhZ05hbWUoJ2gyJykpLm1hcCh4ID0+IHguaW5uZXJIVE1MKS5maW5kKHggPT4gL0ljZUhhY2tzL2cudGVzdCh4KSk7bGV0IGIgPSBhID8gMTIgOiA4MjtyZXR1cm4gYnRvYShKU09OLnN0cmluZ2lmeSh7IHQ6IDAsIGQ6IGIgfSkpOw==');
@@ -285,9 +262,6 @@ class Player {
     }
 
     getUpdate() {
-
-        this.playerInfosDirty = true;
-
         if(!this.skipObjectCalculations) {
             let i = 0;
             for(const object of this.map.objects) {
@@ -305,9 +279,8 @@ class Player {
                     if(!this.visibleObjectIds.includes(id)) {
                         this.visibleObjectIds.push(id);
                         this.fullObjectsDirty = true;
-                        //this.fullObjects.push(id);
+                        this.fullObjects.push(id);
                     }
-                    this.fullObjects.push(id);
                 } else {
                     if(this.visibleObjectIds.includes(id)) {
                         this.visibleObjectIds = this.visibleObjectIds.splice(this.visibleObjectIds.indexOf(id), 1);
@@ -328,7 +301,7 @@ class Player {
         if(this.activePlayerIdDirty) valuesChanged += 4;
         if(this.gasDirty) valuesChanged += 8;
         if(this.gasCircleDirty) valuesChanged += 16;
-        if(this.playerInfosDirty) valuesChanged += 32;
+        if(this.game.playerInfosDirty) valuesChanged += 32;
         if(this.deletePlayerIdsDirty) valuesChanged += 64;
         if(this.playerStatusDirty) valuesChanged += 128;
         if(this.groupStatusDirty) valuesChanged += 256;
@@ -342,7 +315,7 @@ class Player {
 
 
         const stream = Utils.createStream(32768);
-        stream.writeUint8(6);  // Indicates update msg
+        stream.writeUint8(MsgType.Update);
         stream.writeUint16(valuesChanged);
 
         // Deleted objects
@@ -408,7 +381,7 @@ class Player {
                         stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
                         stream.writeBits(fullObject.ori, 2);                   // Orientation
                         stream.writeFloat(fullObject.scale, 0.125, 2.5, 8);    // Size
-                        stream.writeBits(0, 6);                                // Zeroes
+                        stream.writeBits(0, 6);                                // Padding
 
                         stream.writeFloat(fullObject.healthT, 0, 1, 8); // Health
                         stream.writeMapType(fullObject.mapType);        // Type
@@ -431,7 +404,7 @@ class Player {
                         }
                         stream.writeBoolean(fullObject.isPuzzlePiece);  // Is puzzle piece
                         stream.writeBoolean(fullObject.isSkin);         // Is skin
-                        stream.writeBits(0, 5);                         // Zeroes
+                        stream.writeBits(0, 5);                         // Padding
                         break;
 
                     case ObjectKind.Building:
@@ -439,7 +412,7 @@ class Player {
                         stream.writeBoolean(fullObject.occupied);       // Occupied
                         stream.writeBoolean(fullObject.ceilingDamaged); // Ceiling damaged
                         stream.writeBoolean(fullObject.hasPuzzle);      // Has puzzle
-                        stream.writeBits(0, 4);                         // Zeroes
+                        stream.writeBits(0, 4);                         // Padding
 
                         stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
                         stream.writeMapType(fullObject.mapType);               // Building ID
@@ -474,7 +447,7 @@ class Player {
         } else {
             stream.writeUint16(0);
         }
-        //stream.writeUint16(this.partObjectsDirty ? this.partObjects.length : 0); // Indicates part object count
+        //stream.writeUint16(this.partObjectsDirty ? this.partObjects.length : 0); // Indicates partial object count
         //if(this.partObjectsDirty) {
             //for(const partObject of this.partObjects) {
             //}
@@ -552,33 +525,33 @@ class Player {
 
 
         // Player info
-        if(this.playerInfosDirty) {
-            stream.writeUint8(this.playerInfos.length); // Player info count
+        if(this.game.playerInfosDirty) {
+            stream.writeUint8(this.game.players.length); // Player info count
 
-            for(const player of this.playerInfos) {
+            for(const player of this.game.players) {
                 // Basic info
-                stream.writeUint16(player.id);           // Player ID
-                stream.writeUint8(0);                    // Team ID
-                stream.writeUint8(0);                    // Group ID
-                stream.writeString('Player'); // Name
+                stream.writeUint16(player.id);    // Player ID
+                stream.writeUint8(player.teamId); // Team ID
+                stream.writeUint8(0);             // Group ID
+                stream.writeString('Player');     // Name
 
                 // Loadout
-                stream.writeGameType(690);          // Outfit (skin)
-                stream.writeGameType(109);          // Healing particles
-                stream.writeGameType(138);          // Adrenaline particles
-                stream.writeGameType(557);          // Melee
-                stream.writeGameType(0);         // Death effect
+                stream.writeGameType(690); // Outfit (skin)
+                stream.writeGameType(109); // Healing particles
+                stream.writeGameType(138); // Adrenaline particles
+                stream.writeGameType(557); // Melee
+                stream.writeGameType(0);   // Death effect
 
-                stream.writeGameType(195);          // First emote slot
-                stream.writeGameType(196);          // Second emote slot
-                stream.writeGameType(197);          // Third emote slot
-                stream.writeGameType(194);          // Fourth emote slot
-                stream.writeGameType(0);          // Fifth emote slot (win)
-                stream.writeGameType(0);          // Sixth emote slot (death)
+                stream.writeGameType(195); // First emote slot
+                stream.writeGameType(196); // Second emote slot
+                stream.writeGameType(197); // Third emote slot
+                stream.writeGameType(194); // Fourth emote slot
+                stream.writeGameType(0);   // Fifth emote slot (win)
+                stream.writeGameType(0);   // Sixth emote slot (death)
 
                 // Misc
-                stream.writeUint32(player.id);              // User ID
-                stream.writeBoolean(false);         // Is unlinked (doesn't have account)
+                stream.writeUint32(player.id); // User ID
+                stream.writeBoolean(false);    // Is unlinked (doesn't have account)
                 stream.writeAlignToNextByte();
             }
 
@@ -625,7 +598,7 @@ class Player {
                 stream.writeVec(explosion.pos, 0, 0, 1024, 1024, 16);
                 stream.writeGameType(explosion.type);
                 stream.writeBits(explosion.layer, 2); // Layer
-                stream.writeBits(0, 1); // Zero
+                stream.writeBits(0, 1); // Padding
                 stream.writeAlignToNextByte();
             }
             this.explosionsDirty = false;
@@ -641,7 +614,7 @@ class Player {
                 stream.writeGameType(0); // Item type
                 stream.writeBoolean(emote.isPing);
                 if(emote.isPing) stream.writeVec(emote.pos, 0, 0, 1024, 1024, 16);
-                stream.writeBits(0, 1); // Zero
+                stream.writeBits(0, 1); // Padding
             }
             this.emotesDirty = false;
         }
