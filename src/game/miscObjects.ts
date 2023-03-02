@@ -4,6 +4,13 @@ import { Objects, ObjectKind, CollisionType, GameOptions, Utils, Vector } from "
 import { Point } from "../utils";
 import { Game } from "./game";
 
+class GameObject {
+    id: number;
+    game: Game;
+
+    body?: Matter.Body;
+}
+
 class River {
     width: number;
     looped: boolean;
@@ -129,15 +136,20 @@ class Obstacle {
         this.reflectBullets = data.reflectBullets;
         this.destructible = data.destructible;
         this.collision = JSON.parse(JSON.stringify(data.collision));
-        if(this.collision.type == CollisionType.Rectangle) {
+        /*if(this.collision.type == CollisionType.Rectangle) {
             this.collision.initialMin = this.collision.min;
             this.collision.initialMax = this.collision.max;
-        }
+        }*/
         if(this.collision.type == CollisionType.Circle) {
             this.body = Matter.Bodies.circle(this.pos.x, this.pos.y, this.collision.rad, { isStatic: true });
-            this.game.addBody(this.body);
+        } else if(this.collision.type == CollisionType.Rectangle) {
+            let collisionPos = Vector.add(this.pos, this.collision.min);
+            const width = this.collision.max.x - this.collision.min.x, height = this.collision.max.y - this.collision.min.y;
+            collisionPos = Vector.add2(collisionPos, width / 2, height / 2);
+            this.body = Matter.Bodies.rectangle(collisionPos.x, collisionPos.y, width, height, { isStatic: true });
         }
-        this.recalculateCollisionPos();
+        this.game.addBody(this.body);
+        //this.recalculateCollisionPos();
 
         this.isDoor = data.door != undefined;
         if(this.isDoor) {

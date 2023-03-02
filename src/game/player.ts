@@ -2,7 +2,7 @@ import Matter from "matter-js";
 
 import {Objects, Weapons, Utils, Vector, MsgType, CollisionType, ObjectKind, SurvivBitStream as BitStream} from "../utils";
 
-import { Point, CollisionResult, Emote, Explosion } from "../utils";
+import { Point, Emote, Explosion } from "../utils";
 
 let start;
 
@@ -13,11 +13,10 @@ class Player {
     game: any = null;
     map: any = null;
 
-    username: string = "";
-    id?: number;
+    username: string = "Player";
+    id: number;
     teamId: number;
 
-    pos: Point;
     dir: Point;
     scale: number = 1;
     zoom: number = 28; // 1x scope
@@ -39,6 +38,7 @@ class Player {
     animActive: boolean = false;
     animType: number = 0;
     animSeq: number = 0;
+    animTime: number = 0;
 
     meleeCooldown: number;
 
@@ -78,9 +78,10 @@ class Player {
     newGasRad: number;
     emotes: Emote[];
     explosions: Explosion[];
-    animTime: number;
 
     body: Matter.Body;
+    meleeCollider: Matter.Body;
+    meleeOffset: Point;
 
     constructor(socket, game, username: string, pos: Point) {
         this.game = game;
@@ -88,92 +89,66 @@ class Player {
         this.socket = socket;
         this.teamId = this.game.players.length - 1;
 
-        this.pos = pos;
         this.dir = Vector.create(1, 0);
 
         this.username = username;
 
         this.meleeCooldown = Date.now();
 
-        this.body = Matter.Bodies.circle(this.pos.x, this.pos.y, 1);
+        this.body = Matter.Bodies.circle(pos.x, pos.y, 1);
+        this.meleeCollider = Matter.Bodies.circle(this.x() + 1.35, this.y(), 0.9);
+        this.meleeCollider.isSensor = true;
         this.game.addBody(this.body);
+        this.game.addBody(this.meleeCollider);
     }
 
-    moveUp(dist: number, skipExtraMovement: boolean = false) {
-        //const result = this.checkCollision(Vector.add2(this.pos, 0, dist), 0, dist, skipExtraMovement);
-        //if(!result.collision) this.pos.y += dist;
-        //return result;
+    moveUp(dist: number) {
         this.move(0, dist);
     }
 
-    moveDown(dist: number, skipExtraMovement: boolean = false) {
-        //const result = this.checkCollision(Vector.add2(this.pos, 0, -dist), 1, dist, skipExtraMovement);
-        //if(!result.collision) this.pos.y -= dist;
-        //return result;
+    moveDown(dist: number) {
         this.move(0, -dist);
     }
 
-    moveLeft(dist: number, skipExtraMovement: boolean = false) {
-        //const result = this.checkCollision(Vector.add2(this.pos, -dist, 0), 2, dist, skipExtraMovement);
-        //if(!result.collision) this.pos.x -= dist;
-        //return result;
+    moveLeft(dist: number) {
         this.move(-dist, 0);
     }
 
-    moveRight(dist: number, skipExtraMovement: boolean = false) {
-        //const result = this.checkCollision(Vector.add2(this.pos, dist, 0), 3, dist, false);
-        //if(!result.collision) this.pos.x += dist;
-        //return result;
+    moveRight(dist: number) {
         this.move(dist, 0);
     }
 
     move(x: number, y: number) {
-        Matter.Body.setPosition(this.body, {x: this.body.position.x + x, y: this.body.position.y + y});
+        Matter.Body.setPosition(this.body, { x: this.body.position.x + x, y: this.body.position.y + y });
     }
 
-    checkCollision(playerPos: Point, direction: number, dist: number, skipExtraMovement: boolean) {
-        for(const id of this.visibleObjectIds) {
-            const object = this.map.objects[id];
-            if(object.layer == this.layer && object.collidable) {
-                let result;
-                if(object.collision.type == CollisionType.Circle) {
-                    const objectPos = object.collisionPos;
-                    result = Utils.circleCollision(objectPos, object.collisionRad, playerPos, 1);
-                    if(result) {
-                        if(!skipExtraMovement) {
-                            Utils.resolveCircle(this, object);
-                        }
-                        return {collision: true, type: 0};
-                    }
-                } else if(object.collision.type == CollisionType.Rectangle) {
-                    result = Utils.rectCollision(object.collisionMin, object.collisionMax, playerPos, 1);
-                    if(result) return {collision: true, type: 1};
-                }
-            }
-        }
-        return {collision: false};
+    x(): number {
+        return this.body.position.x;
+    }
+
+    y(): number {
+        return this.body.position.y;
+    }
+
+    pos(): Point {
+        return this.body.position;
     }
 
     canMelee(object) {
         var weap = Weapons["fists"], // TODO
             angle = Vector.unitVecToRadians(this.dir),
             offset = Vector.add(weap.attack.offset, Vector.mul(Vector.create(1, 0), this.scale - 1)),
-            position = Vector.add(this.pos, Vector.rotate(offset, angle)),
-            radius = weap.attack.rad;
-
-        if(object.collision.type == CollisionType.Circle) {
-            return Utils.circleCollision(position, radius, object.collisionPos, object.collisionRad);
-        } else if(object.collision.type == CollisionType.Rectangle) {
-            return Utils.rectCollision(object.collisionMin, object.collisionMax, position, radius);
-        }
+            position = Vector.add(this.pos(), Vector.rotate(offset, angle));
+        Matter.Body.setPosition(this.meleeCollider, position);
+        return Matter.Collision.collides(this.meleeCollider, object.body);
     }
 
     isOnOtherSide(door) {
         switch(door.initialOri) {
-            case 0: return this.pos.x < door.pos.x;
-            case 1: return this.pos.y < door.pos.y;
-            case 2: return this.pos.x > door.pos.x;
-            case 3: return this.pos.y > door.pos.y;
+            case 0: return this.x() < door.pos.x;
+            case 1: return this.y() < door.pos.y;
+            case 2: return this.x() > door.pos.x;
+            case 3: return this.y() > door.pos.y;
         }
     }
 
@@ -283,10 +258,10 @@ class Player {
                 const id = object.id;
                 if(id == this.id) continue;
                 const cullingRadius = this.zoom + 10;
-                const minX = this.pos.x - cullingRadius,
-                      maxX = this.pos.x + cullingRadius,
-                      minY = this.pos.y - cullingRadius,
-                      maxY = this.pos.y + cullingRadius;
+                const minX = this.x() - cullingRadius,
+                      maxX = this.x() + cullingRadius,
+                      minY = this.y() - cullingRadius,
+                      maxY = this.y() + cullingRadius;
                 if(object.pos.x >= minX &&
                    object.pos.x <= maxX &&
                    object.pos.y >= minY &&

@@ -24,7 +24,6 @@ const GameOptions = readJSON("config/game.json");
 
 type Point = { x: number, y: number };
 type IntersectResult = { point: Point, normal: Point };
-type CollisionResult = { collision: boolean, type?: number | undefined };
 
 class Emote {
     playerId: number;
@@ -274,6 +273,10 @@ class Vector {
         return Vector.create(v1.x - v2.x, v1.y - v2.y);
     }
 
+    static sub2(v: Point, x: number, y: number): Point {
+        return Vector.create(v.x - x, v.y - y);
+    }
+
     static mul(v: Point, n: number): Point {
         return Vector.create(v.x * n, v.y * n);
     }
@@ -398,9 +401,6 @@ export {
     Objects, Maps, Items, Weapons, Bullets,
     ServerOptions, GameOptions,
     ObjectKind, MsgType, InputType, CollisionType,
-    Utils, Vector, SurvivBitStream
+    Utils, Vector, SurvivBitStream,
+    Point, IntersectResult, Emote, Explosion
 };
-
-export {
-    Point, IntersectResult, CollisionResult, Emote, Explosion
-}

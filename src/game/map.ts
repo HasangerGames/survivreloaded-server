@@ -65,7 +65,7 @@ class Map {
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             //this.genStructure("club_structure_01", Objects["club_structure_01"]);
-            this.genObstacleTest("stone_01");
+            this.genObstacleTest("crate_01");
         }
     
         this.groundPatches = [];
@@ -243,12 +243,12 @@ class Map {
             }
             if(shouldContinue) continue;
 
-            for(const object of this.objects) {
+            /*for(const object of this.objects) {
                 if(Utils.distanceBetween(object.pos, pos) < 5) {
                     shouldContinue = true;
                     break;
                 }
-            }
+            }*/
             if(shouldContinue) continue;
 
             foundPos = true;

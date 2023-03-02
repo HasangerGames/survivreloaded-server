@@ -76,10 +76,10 @@ class Game {
                 p.skipObjectCalculations = false;
 
                 // Collision detection w/ edges of map
-                if(p.pos.x < 0) p.pos.x = 0;
-                else if(p.pos.x > this.map.width) p.pos.x = this.map.width;
+                /*if(p.x() < 0) p.x() = 0;
+                else if(p.x() > this.map.width) p.x() = this.map.width;
                 if(p.pos.y < 0) p.pos.y = 0;
-                else if(p.pos.y > this.map.height) p.pos.y = this.map.height;
+                else if(p.pos.y > this.map.height) p.pos.y = this.map.height;*/
             }
 
             // Send update
