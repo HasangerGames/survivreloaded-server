@@ -1,3 +1,5 @@
+import Matter from "matter-js";
+
 import {Objects, Weapons, Utils, Vector, MsgType, CollisionType, ObjectKind, SurvivBitStream as BitStream} from "../utils";
 
 import { Point, CollisionResult, Emote, Explosion } from "../utils";
@@ -78,6 +80,8 @@ class Player {
     explosions: Explosion[];
     animTime: number;
 
+    body: Matter.Body;
+
     constructor(socket, game, username: string, pos: Point) {
         this.game = game;
         this.map = this.game.map;
@@ -90,30 +94,41 @@ class Player {
         this.username = username;
 
         this.meleeCooldown = Date.now();
+
+        this.body = Matter.Bodies.circle(this.pos.x, this.pos.y, 1);
+        this.game.addBody(this.body);
     }
 
-    moveUp(dist: number, skipExtraMovement: boolean = false): CollisionResult {
-        const result = this.checkCollision(Vector.add2(this.pos, 0, dist), 0, dist, skipExtraMovement);
-        if(!result.collision) this.pos.y += dist;
-        return result;
+    moveUp(dist: number, skipExtraMovement: boolean = false) {
+        //const result = this.checkCollision(Vector.add2(this.pos, 0, dist), 0, dist, skipExtraMovement);
+        //if(!result.collision) this.pos.y += dist;
+        //return result;
+        this.move(0, dist);
     }
 
-    moveDown(dist: number, skipExtraMovement: boolean = false): CollisionResult {
-        const result = this.checkCollision(Vector.add2(this.pos, 0, -dist), 1, dist, skipExtraMovement);
-        if(!result.collision) this.pos.y -= dist;
-        return result;
+    moveDown(dist: number, skipExtraMovement: boolean = false) {
+        //const result = this.checkCollision(Vector.add2(this.pos, 0, -dist), 1, dist, skipExtraMovement);
+        //if(!result.collision) this.pos.y -= dist;
+        //return result;
+        this.move(0, -dist);
     }
 
-    moveLeft(dist: number, skipExtraMovement: boolean = false): CollisionResult {
-        const result = this.checkCollision(Vector.add2(this.pos, -dist, 0), 2, dist, skipExtraMovement);
-        if(!result.collision) this.pos.x -= dist;
-        return result;
+    moveLeft(dist: number, skipExtraMovement: boolean = false) {
+        //const result = this.checkCollision(Vector.add2(this.pos, -dist, 0), 2, dist, skipExtraMovement);
+        //if(!result.collision) this.pos.x -= dist;
+        //return result;
+        this.move(-dist, 0);
     }
 
-    moveRight(dist: number, skipExtraMovement: boolean = false): CollisionResult {
-        const result = this.checkCollision(Vector.add2(this.pos, dist, 0), 3, dist, false);
-        if(!result.collision) this.pos.x += dist;
-        return result;
+    moveRight(dist: number, skipExtraMovement: boolean = false) {
+        //const result = this.checkCollision(Vector.add2(this.pos, dist, 0), 3, dist, false);
+        //if(!result.collision) this.pos.x += dist;
+        //return result;
+        this.move(dist, 0);
+    }
+
+    move(x: number, y: number) {
+        Matter.Body.setPosition(this.body, {x: this.body.position.x + x, y: this.body.position.y + y});
     }
 
     checkCollision(playerPos: Point, direction: number, dist: number, skipExtraMovement: boolean) {
@@ -338,7 +353,7 @@ class Player {
 
                 switch(fullObject.kind) {
                     case ObjectKind.Player:
-                        stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
+                        stream.writeVec(fullObject.body.position, 0, 0, 1024, 1024, 16); // Position
                         stream.writeUnitVec(fullObject.dir, 8); // Direction
 
                         stream.writeBits(690, 11); // Outfit (skin)

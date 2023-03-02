@@ -1,5 +1,8 @@
+import Matter from "matter-js";
+
 import { Objects, ObjectKind, CollisionType, GameOptions, Utils, Vector } from "../utils";
 import { Point } from "../utils";
+import { Game } from "./game";
 
 class River {
     width: number;
@@ -28,6 +31,8 @@ class Obstacle {
     readonly kind: ObjectKind = ObjectKind.Obstacle;
 
     id: number;
+
+    game: Game;
 
     pos: Point;
     initialPos: Point;
@@ -92,12 +97,14 @@ class Obstacle {
             max: Point;
         }
     };
+    body: Matter.Body;
 
     doorOpenOri: number;
     doorOpenAltOri: number;
 
-    constructor(id, data, type, pos, ori, scale, layer) {
+    constructor(id, game, data, type, pos, ori, scale, layer) {
         this.id = id;
+        this.game = game;
         this.pos = pos;
         this.initialPos = pos;
         this.ori = ori;
@@ -125,6 +132,10 @@ class Obstacle {
         if(this.collision.type == CollisionType.Rectangle) {
             this.collision.initialMin = this.collision.min;
             this.collision.initialMax = this.collision.max;
+        }
+        if(this.collision.type == CollisionType.Circle) {
+            this.body = Matter.Bodies.circle(this.pos.x, this.pos.y, this.collision.rad, { isStatic: true });
+            this.game.addBody(this.body);
         }
         this.recalculateCollisionPos();
 

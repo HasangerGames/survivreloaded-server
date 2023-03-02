@@ -3,7 +3,7 @@ declare global {
     var Buildings: any[];
 }
 
-global.DEBUG_MODE = false;
+global.DEBUG_MODE = true;
 
 import fs from "fs";
 import { BitStream } from "bit-buffer";
@@ -161,7 +161,7 @@ class Utils {
         let vecBetweenX = circle.pos.x - player.pos.x;
         let vecBetweenY = circle.pos.y - player.pos.y;
         let heading = Math.atan2(vecBetweenY, vecBetweenX);
-        let newPosition = Utils.getLine(player.pos, 0.4, heading - Math.PI);
+        let newPosition = Utils.getLine(player.pos, 0.4, heading + 2 * Math.PI);
         player.pos = newPosition;
     }
 

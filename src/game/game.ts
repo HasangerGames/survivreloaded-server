@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import Matter from "matter-js";
 
 import { GameOptions, Objects, MsgType, InputType, Utils, Vector, Emote, Explosion } from "../utils";
 import { Point } from "../utils";
@@ -20,10 +21,10 @@ class Game {
 
     timer: NodeJS.Timer;
 
+    engine: Matter.Engine;
+
     constructor() {
         this.id = crypto.createHash('md5').update(crypto.randomBytes(512)).digest('hex');
-
-        this.map = new Map("main");
 
         this.players = [];
 
@@ -32,9 +33,14 @@ class Game {
         this.dirtyObjects = [];
 
         this.timer = setInterval(() => this.tick(), GameOptions.tickDelta);
+        this.engine = Matter.Engine.create();
+        this.engine.gravity.scale = 0;
+
+        this.map = new Map(this, "main");
     }
 
     tick() {
+        Matter.Engine.update(this.engine, GameOptions.tickDelta);
         for(const p of this.players) {
             p.playerInfos = this.players;
 
@@ -46,19 +52,19 @@ class Game {
             const oldPos = p.pos;
             if(p.movingLeft && p.movingUp) {
                 const result = p.moveUp(diagonalSpeed);
-                if(!(result.collision && result.type == 0))
+                //if(!(result.collision && result.type == 0))
                     p.moveLeft(diagonalSpeed);
             } else if(p.movingRight && p.movingUp) {
                 const result = p.moveUp(diagonalSpeed);
-                if(!(result.collision && result.type == 0))
+                //if(!(result.collision && result.type == 0))
                     p.moveRight(diagonalSpeed);
             } else if(p.movingLeft && p.movingDown) {
                 const result = p.moveDown(diagonalSpeed);
-                if(!(result.collision && result.type == 0))
+                //if(!(result.collision && result.type == 0))
                     p.moveLeft(diagonalSpeed);
             } else if(p.movingRight && p.movingDown) {
                 const result = p.moveDown(diagonalSpeed);
-                if(!(result.collision && result.type == 0))
+                //if(!(result.collision && result.type == 0))
                     p.moveRight(diagonalSpeed);
             } else {
                 if(p.movingLeft) p.moveLeft(speed);
@@ -227,7 +233,10 @@ class Game {
         this.players = this.players.splice(this.players.indexOf(p), 1);
     }
 
-
+    addBody(body) {
+        Matter.Composite.add(this.engine.world, body);
+    }
+    
     end() {
         for(const p of this.players) {
             //p.sendDisconnect("Disconnected");

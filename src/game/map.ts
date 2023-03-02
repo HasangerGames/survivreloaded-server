@@ -1,10 +1,13 @@
 import {Objects, ObjectKind, GameOptions, Maps, Utils, Vector, Point} from "../utils";
 import {River, Place, Obstacle, Building, Structure, GroundPatch} from "./miscObjects";
 import {Player} from "./player";
+import {Game} from "./game";
 
 class Map {
     name: string;
     seed: number;
+
+    game: Game;
 
     width: number;
     height: number;
@@ -13,12 +16,13 @@ class Map {
 
     rivers: River[];
     places: Place[];
-    objects: (Obstacle | Building | Structure | Player )[];
+    objects: (Obstacle | Building | Structure | Player)[];
     groundPatches: GroundPatch[];
 
-    constructor(mapId) {
+    constructor(game, mapId) {
         this.name = mapId;
         this.seed = Utils.random(0, 2147483647);
+        this.game = game;
 
         const mapInfo = Maps[mapId];
 
@@ -60,7 +64,8 @@ class Map {
             }
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
-            this.genStructure("club_structure_01", Objects["club_structure_01"]);
+            //this.genStructure("club_structure_01", Objects["club_structure_01"]);
+            this.genObstacleTest("stone_01");
         }
     
         this.groundPatches = [];
@@ -194,6 +199,7 @@ class Map {
     private genObstacle(type, obstacle, pos, ori, scale, layer = 0) {
         this.objects.push(new Obstacle(
             this.objects.length,
+            this.game,
             obstacle,
             type,
             pos,
@@ -209,6 +215,7 @@ class Map {
         for(let i = 0; i < count; i++) {
             this.objects.push(new Obstacle(
                 this.objects.length,
+                this.game,
                 obstacle,
                 type,
                 this.getSafeObstaclePos(),
