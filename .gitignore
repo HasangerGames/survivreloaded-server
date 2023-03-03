@@ -1,7 +1,24 @@
+# Node modules
 node_modules/
+
+# Public directory
 public/
+
+# Compiled source
 .built/
-package-lock.json
+
 surviv.js
 bitheroes.js
 *.json.hidden
+
+# Package managers
+# NPM
+package-lock.json
+
+# Yarn v3
+.pnp.*
+.yarn/*
+yarn.lock
+
+# pNPM
+pnpm-lock.yaml
