@@ -48,7 +48,10 @@ To run the server, a modern version of Node.js is required ([click here to downl
 
 ```
 npm install
+npm run build
 npm start
 ```
+
+To build and run the project in 1 command, type `npm run br`.
 
 To open the game, go to http://127.0.0.1:8000 in your browser.
