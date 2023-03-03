@@ -48,7 +48,6 @@ To run the server, a modern version of Node.js is required ([click here to downl
 
 ```
 npm install
-npm run build
 npm start
 ```
 
