@@ -3,7 +3,7 @@ declare global {
     var Buildings: any[];
 }
 
-global.DEBUG_MODE = true;
+global.DEBUG_MODE = false;
 
 import fs from "fs";
 import { BitStream } from "bit-buffer";
@@ -54,7 +54,7 @@ enum ObjectKind {
     LootSpawner, DeadBody, Building, Structure,
     Decal, Projectile, Smoke, Airdrop, Npc,
     Skitternade
-};
+}
 
 enum MsgType {
     None, Join, Disconnect, Input, Edit,
@@ -156,35 +156,6 @@ class Utils {
         return a > Math.sqrt((x * x) + (y * y));
     }
 
-    static resolveCircle(player, circle) {
-        let vecBetweenX = circle.pos.x - player.pos.x;
-        let vecBetweenY = circle.pos.y - player.pos.y;
-        let heading = Math.atan2(vecBetweenY, vecBetweenX);
-        let newPosition = Utils.getLine(player.pos, 0.4, heading + 2 * Math.PI);
-        player.pos = newPosition;
-    }
-
-    // static intersectSegmentAabb(_0x23ceb6, _0x59a5d7, _0x4f0246, _0x5a5053) {
-    //     var _0x43f30b = 0, _0x18dcc1 = Number.MAX_VALUE, _0x8d825d = 0.000009999999974752427, _0x5380e0 = _0x23ceb6, _0x975673 = Vector.sub(_0x59a5d7, _0x23ceb6), _0x227528 = Vector.length(_0x975673);
-    //     _0x975673 = _0x227528 > _0x8d825d ? Vector.div(_0x975673, _0x227528) : Vector.create(1, 0);
-    //     var _0x28a8a0 = Math.abs(_0x975673.x), _0x102e1e = Math.abs(_0x975673.y);
-    //     _0x28a8a0 < _0x8d825d && (_0x975673.x = _0x8d825d * 2, _0x28a8a0 = _0x975673.x);
-    //     _0x102e1e < _0x8d825d && (_0x975673.y = _0x8d825d * 2, _0x102e1e = _0x975673.y);
-    //     if (_0x28a8a0 > _0x8d825d) {
-    //         var _0x195ecd = (_0x4f0246.x - _0x5380e0.x) / _0x975673.x, _0x3ab551 = (_0x5a5053.x - _0x5380e0.x) / _0x975673.x;
-    //         _0x43f30b = _0x32d8cb.max(_0x43f30b, _0x32d8cb.min(_0x195ecd, _0x3ab551)), _0x18dcc1 = _0x32d8cb.min(_0x18dcc1, _0x32d8cb.max(_0x195ecd, _0x3ab551));
-    //         if (_0x43f30b > _0x18dcc1) return null;
-    //     }
-    //     if (_0x102e1e > _0x8d825d) {
-    //         var _0x3e33f4 = (_0x4f0246.y - _0x5380e0.y) / _0x975673.y, _0x3a1fad = (_0x5a5053.y - _0x5380e0.y) / _0x975673.y;
-    //         _0x43f30b = _0x32d8cb.max(_0x43f30b, _0x32d8cb.min(_0x3e33f4, _0x3a1fad)), _0x18dcc1 = _0x32d8cb.min(_0x18dcc1, _0x32d8cb.max(_0x3e33f4, _0x3a1fad));
-    //         if (_0x43f30b > _0x18dcc1) return null;
-    //     }
-    //     if (_0x43f30b > _0x227528) return null;
-    //     var _0x38d1b4 = Vector.add(_0x23ceb6, Vector.mul(_0x975673, _0x43f30b)), _0x6fd575 = Vector.add(_0x4f0246, Vector.mul(Vector.sub(_0x5a5053, _0x4f0246), 0.5)), _0x3bce35 = Vector.sub(_0x38d1b4, _0x6fd575), _0x4903d4 = Vector.mul(Vector.sub(_0x4f0246, _0x5a5053), 0.5), _0x4dc6ec = _0x3bce35.x / Math.abs(_0x4903d4.x) * 1.0010000000002037, _0x41741c = _0x3bce35.y / Math.abs(_0x4903d4.y) * 1.0010000000002037, _0x5691aa = Vector.normalizeSafe(Vector.create(_0x4dc6ec < 0 ? Math.ceil(_0x4dc6ec) : Math.floor(_0x4dc6ec), _0x41741c < 0 ? Math.ceil(_0x41741c) : Math.floor(_0x41741c)), Vector.create(1, 0));
-    //     return {point: _0x38d1b4, normal: _0x5691aa};
-    // } TODO: What the hell does this do?
-
     static rectCollision(min: Point, max: Point, circlePos: Point, circleRad: number): boolean {
         // TODO Replace this collision detection function with a more efficient one from the surviv code
         const rectWidth = max.x - min.x - 0.1;
@@ -211,6 +182,7 @@ class Utils {
         switch(ori) {
             case 1:
                 xOffset = -pos2.y;
+                // noinspection JSSuspiciousNameCombination
                 yOffset = pos2.x;
                 break;
             case 2:
@@ -218,6 +190,7 @@ class Utils {
                 yOffset = -pos2.y;
                 break;
             case 3:
+                // noinspection JSSuspiciousNameCombination
                 xOffset = pos2.y;
                 yOffset = -pos2.x;
                 break;

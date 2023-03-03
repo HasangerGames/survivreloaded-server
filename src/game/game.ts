@@ -1,9 +1,7 @@
 import crypto from "crypto";
 import Matter from "matter-js";
 
-import { GameOptions, Objects, MsgType, InputType, Utils, Vector, Emote, Explosion } from "../utils";
-import { Point } from "../utils";
-
+import { Emote, Explosion, GameOptions, InputType, MsgType, Utils, Vector } from "../utils";
 import { Map } from "./map";
 import { Player } from "./player";
 import { Obstacle } from "./miscObjects";
@@ -45,7 +43,6 @@ class Game {
             p.playerInfos = this.players;
 
             // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
-            // TODO: If collision is detected, move player as far as possible in the desired direction.
 
             // Movement
             const speed = GameOptions.movementSpeed, diagonalSpeed = speed / Math.sqrt(2);
@@ -136,9 +133,12 @@ class Game {
                 }
             }
 
-            p.sendUpdate();
+            if(isNaN(p.x()) || isNaN(p.y())) {
+                console.log("oopsie");
+                Matter.Body.set(p.body, "position", { x: 360, y: 360 });
+            }
 
-            p.skipObjectCalculations = true;
+            p.sendUpdate();
         }
         this.emotes = [];
         this.explosions = [];
@@ -179,18 +179,12 @@ class Game {
                     const input = stream.readUint8();
                     switch(input) {
                         case InputType.Interact:
-                            //let minDist = Number.MAX_SAFE_INTEGER, minDistId = -1;
                             for(const id of p.visibleObjectIds) {
                                 const object = this.map.objects[id];
                                 if(object instanceof Obstacle && object.isDoor
                                     && !object.dead && Utils.rectCollision(object.collisionMin, object.collisionMax, p.pos, 1 + object.interactionRad)) {
                                     object.interact(p);
                                     this.dirtyObjects.push(id);
-                                    //const dist = Utils.distanceBetween(p.pos, object.doorHinge);
-                                    //if( && dist < minDist) {
-                                    //    minDist = dist;
-                                    //    minDistId = id;
-                                    //}
                                 }
                             }
                             break;
@@ -207,7 +201,7 @@ class Game {
                 const pos = stream.readVec(Vector.create(0, 0), Vector.create(1024, 1024), 16);
                 const type = stream.readGameType();
                 const isPing = stream.readBoolean();
-                stream.readBits(4); // Zeroes
+                stream.readBits(4); // Padding
                 this.emotes.push(new Emote(p.id, pos, type, isPing));
                 break;
         }
@@ -236,6 +230,10 @@ class Game {
     addBody(body) {
         Matter.Composite.add(this.engine.world, body);
     }
+
+    removeBody(body) {
+        Matter.Composite.remove(this.engine.world, body);
+    }
     
     end() {
         for(const p of this.players) {
@@ -247,4 +245,5 @@ class Game {
 
 }
 
+// @ts-ignore
 export { Game };

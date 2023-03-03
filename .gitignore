@@ -3,5 +3,6 @@ public/
 .built/
 package-lock.json
 surviv.js
+surviv2.js
 bitheroes.js
 *.json.hidden

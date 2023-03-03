@@ -95,7 +95,7 @@ class Player {
 
         this.meleeCooldown = Date.now();
 
-        this.body = Matter.Bodies.circle(pos.x, pos.y, 1);
+        this.body = Matter.Bodies.circle(pos.x, pos.y, 1, { mass: Infinity, restitution: 0 });
         this.meleeCollider = Matter.Bodies.circle(this.x() + 1.35, this.y(), 0.9);
         this.meleeCollider.isSensor = true;
         this.game.addBody(this.body);
