@@ -1,13 +1,10 @@
 import Matter from "matter-js";
 
-import {Objects, Weapons, Utils, Vector, MsgType, CollisionType, ObjectKind, SurvivBitStream as BitStream} from "../utils";
-
-import { Point, Emote, Explosion } from "../utils";
+import { Emote, Explosion, MsgType, ObjectKind, Point, Utils, Vector, Weapons } from "../utils";
 
 let start;
 
 class Player {
-    isPlayer: boolean = true;
     kind: ObjectKind = ObjectKind.Player;
     socket: any = null;
     game: any = null;
@@ -31,6 +28,7 @@ class Player {
     movingDown: boolean = false;
     movingLeft: boolean = false;
     movingRight: boolean = false;
+    notMoving: boolean = true;
 
     shootStart: boolean = false;
     shootHold: boolean = false;
@@ -95,31 +93,16 @@ class Player {
 
         this.meleeCooldown = Date.now();
 
-        this.body = Matter.Bodies.circle(pos.x, pos.y, 1, { mass: Infinity, restitution: 0 });
+        this.body = Matter.Bodies.circle(pos.x, pos.y, 1, { mass: Infinity });
         this.meleeCollider = Matter.Bodies.circle(this.x() + 1.35, this.y(), 0.9);
         this.meleeCollider.isSensor = true;
         this.game.addBody(this.body);
         this.game.addBody(this.meleeCollider);
     }
 
-    moveUp(dist: number) {
-        this.move(0, dist);
-    }
 
-    moveDown(dist: number) {
-        this.move(0, -dist);
-    }
-
-    moveLeft(dist: number) {
-        this.move(-dist, 0);
-    }
-
-    moveRight(dist: number) {
-        this.move(dist, 0);
-    }
-
-    move(x: number, y: number) {
-        Matter.Body.setPosition(this.body, { x: this.body.position.x + x, y: this.body.position.y + y });
+    setVelocity(xVel: number, yVel: number) {
+        Matter.Body.setVelocity(this.body, { x: xVel, y: yVel });
     }
 
     x(): number {

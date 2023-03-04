@@ -1,7 +1,6 @@
 import Matter from "matter-js";
 
-import { Objects, ObjectKind, CollisionType, GameOptions, Utils, Vector } from "../utils";
-import { Point } from "../utils";
+import { CollisionType, ObjectKind, Point, Utils, Vector } from "../utils";
 import { Game } from "./game";
 
 class GameObject {
@@ -34,7 +33,6 @@ class Place {
 }
 
 class Obstacle {
-    readonly isPlayer: boolean = false;
     readonly kind: ObjectKind = ObjectKind.Obstacle;
 
     id: number;
@@ -213,8 +211,9 @@ class Obstacle {
             this.game.removeBody(this.body);
         } else {
             this.healthT = this.health / this.maxHealth;
+            const oldScale = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
-            Matter.Body.scale(this.body, this.scale + (this.scale / 4), this.scale + (this.scale / 4));
+            Matter.Body.scale(this.body, this.scale / oldScale, this.scale / oldScale);
             if(this.isDoor) this.recalculateCollisionPos();
         }
     }
@@ -294,7 +293,6 @@ class Obstacle {
 }
 
 class Building {
-    readonly isPlayer = false;
     readonly kind: ObjectKind = ObjectKind.Building;
 
     showOnMap: boolean;
@@ -327,7 +325,6 @@ class Building {
 }
 
 class Structure {
-    readonly isPlayer: boolean = false;
     readonly kind: ObjectKind = ObjectKind.Structure;
     showOnMap: boolean = false;
 

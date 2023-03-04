@@ -1,7 +1,7 @@
-import {Objects, ObjectKind, GameOptions, Maps, Utils, Vector, Point} from "../utils";
-import {River, Place, Obstacle, Building, Structure, GroundPatch} from "./miscObjects";
-import {Player} from "./player";
-import {Game} from "./game";
+import { Maps, Objects, Point, Utils, Vector } from "../utils";
+import { Building, GroundPatch, Obstacle, Place, River, Structure } from "./miscObjects";
+import { Player } from "./player";
+import { Game } from "./game";
 
 class Map {
     name: string;
@@ -65,7 +65,7 @@ class Map {
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             //this.genStructure("club_structure_01", Objects["club_structure_01"]);
-            this.genObstacleTest("crate_01");
+            this.genObstacleTest("crate_02");
         }
     
         this.groundPatches = [];

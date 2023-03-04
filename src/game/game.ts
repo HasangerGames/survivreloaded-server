@@ -38,46 +38,27 @@ class Game {
     }
 
     tick() {
-        Matter.Engine.update(this.engine, GameOptions.tickDelta);
         for(const p of this.players) {
             p.playerInfos = this.players;
 
             // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
 
             // Movement
-            const speed = GameOptions.movementSpeed, diagonalSpeed = speed / Math.sqrt(2);
-            const oldPos = p.pos;
-            if(p.movingLeft && p.movingUp) {
-                const result = p.moveUp(diagonalSpeed);
-                //if(!(result.collision && result.type == 0))
-                    p.moveLeft(diagonalSpeed);
-            } else if(p.movingRight && p.movingUp) {
-                const result = p.moveUp(diagonalSpeed);
-                //if(!(result.collision && result.type == 0))
-                    p.moveRight(diagonalSpeed);
-            } else if(p.movingLeft && p.movingDown) {
-                const result = p.moveDown(diagonalSpeed);
-                //if(!(result.collision && result.type == 0))
-                    p.moveLeft(diagonalSpeed);
-            } else if(p.movingRight && p.movingDown) {
-                const result = p.moveDown(diagonalSpeed);
-                //if(!(result.collision && result.type == 0))
-                    p.moveRight(diagonalSpeed);
-            } else {
-                if(p.movingLeft) p.moveLeft(speed);
-                if(p.movingRight) p.moveRight(speed);
-                if(p.movingUp) p.moveUp(speed);
-                if(p.movingDown) p.moveDown(speed);
+            const s = GameOptions.movementSpeed, ds = GameOptions.diagonalSpeed;
+            if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
+            else if(p.movingUp && p.movingRight) p.setVelocity(ds, ds);
+            else if(p.movingDown && p.movingLeft) p.setVelocity(-ds, -ds);
+            else if(p.movingDown && p.movingRight) p.setVelocity(ds, -ds);
+            else if(p.movingUp) p.setVelocity(0, s);
+            else if(p.movingDown) p.setVelocity(0, -s);
+            else if(p.movingLeft) p.setVelocity(-s, 0);
+            else if(p.movingRight) p.setVelocity(s, 0);
+            else {
+                p.setVelocity(0, 0);
+                if(!p.notMoving) p.setVelocity(0, 0);
+                p.notMoving = true;
             }
-            if(p.movingUp || p.movingDown || p.movingLeft || p.movingRight) {
-                p.skipObjectCalculations = false;
-
-                // Collision detection w/ edges of map
-                /*if(p.x() < 0) p.x() = 0;
-                else if(p.x() > this.map.width) p.x() = this.map.width;
-                if(p.pos.y < 0) p.pos.y = 0;
-                else if(p.pos.y > this.map.height) p.pos.y = this.map.height;*/
-            }
+            if(p.notMoving) p.skipObjectCalculations = false;
 
             // Send update
             p.playerDirty = true; // REMOVE ME LATER
@@ -133,13 +114,9 @@ class Game {
                 }
             }
 
-            if(isNaN(p.x()) || isNaN(p.y())) {
-                console.log("oopsie");
-                Matter.Body.set(p.body, "position", { x: 360, y: 360 });
-            }
-
             p.sendUpdate();
         }
+        Matter.Engine.update(this.engine, GameOptions.tickDelta);
         this.emotes = [];
         this.explosions = [];
         this.dirtyObjects = [];

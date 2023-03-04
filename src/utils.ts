@@ -21,6 +21,7 @@ const typeToId = readJSON("data/ids.json");
 
 const ServerOptions = readJSON("config/server.json");
 const GameOptions = readJSON("config/game.json");
+GameOptions.diagonalSpeed = GameOptions.movementSpeed / Math.SQRT2;
 
 type Point = { x: number, y: number };
 type IntersectResult = { point: Point, normal: Point };
