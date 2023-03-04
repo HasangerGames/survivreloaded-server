@@ -227,12 +227,12 @@ class Obstacle {
         if(this.doorOpen) {
             if(p.isOnOtherSide(this)) {
                 this.ori = this.doorOpenAltOri;
-                this.collisionMin = this.collision.doorOpenAlt.min;
-                this.collisionMax = this.collision.doorOpenAlt.max;
+                this.collisionMin = this.collision.doorOpenAlt?.min;
+                this.collisionMax = this.collision.doorOpenAlt?.max;
             } else {
                 this.ori = this.doorOpenOri;
-                this.collisionMin = this.collision.doorOpen.min;
-                this.collisionMax = this.collision.doorOpen.max;
+                this.collisionMin = this.collision.doorOpen?.min;
+                this.collisionMax = this.collision.doorOpen?.max;
             }
         } else {
             this.ori = this.initialOri;
@@ -276,8 +276,8 @@ class Obstacle {
 
     recalculateCollisionPos() {
         if(this.collision.type == CollisionType.Circle) {
-            this.collisionPos = Vector.add(this.pos, this.collision.pos);
-            this.collisionRad = this.collision.rad * this.scale;
+            if (this.collision.pos !== undefined) this.collisionPos = Vector.add(this.pos, this.collision.pos);
+            this.collisionRad = (this.collision.rad ?? 0) * this.scale;
         } else if(this.collision.type == CollisionType.Rectangle) {
             const rotated = Utils.rotateRect(
                 this.pos,

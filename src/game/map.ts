@@ -33,7 +33,7 @@ class Map {
 
         this.rivers = [];
         let x = 0, y = 0;
-        const points = [];
+        const points: Point[] = [];
         while(x < 720 && y < 720) {
             x += 10 + Utils.random(-6, 6);
             y += 10 + Utils.random(-6, 6);
@@ -87,7 +87,7 @@ class Map {
         if(setLayer != undefined) layer = setLayer;
         else layer = 0;
 
-        const layerObjIds = [];
+        const layerObjIds: number[] = [];
 
         for(let layerId = 0; layerId < structure.layers.length; layerId++) {
             const layerObj = structure.layers[layerId];

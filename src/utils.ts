@@ -297,8 +297,8 @@ class Vector {
 // TODO: Add writeTruncatedBitStream(stream), sendTo(socket), alloc(length)
 
 class SurvivBitStream extends BitStream {
-    constructor(source, byteOffset: number = 0, byteLength: number = null) {
-        super(source, byteOffset, byteLength);
+    constructor(source, byteOffset: number = 0, byteLength: number | null = null) {
+        super(source, byteOffset, byteLength as number);
     }
 
     writeString(str) { this.writeASCIIString(str); }

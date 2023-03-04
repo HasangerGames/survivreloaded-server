@@ -181,8 +181,10 @@ class Game {
                         case InputType.Interact:
                             for(const id of p.visibleObjectIds) {
                                 const object = this.map.objects[id];
-                                if(object instanceof Obstacle && object.isDoor
-                                    && !object.dead && Utils.rectCollision(object.collisionMin, object.collisionMax, p.pos, 1 + object.interactionRad)) {
+                                if (object instanceof Obstacle && object.isDoor && !object.dead &&
+                                    object.collisionMin !== undefined && object.collisionMax !== undefined && object.interactionRad !== undefined &&
+                                    Utils.rectCollision(object.collisionMin, object.collisionMax, p.pos, 1 + object.interactionRad)
+                                ) {
                                     object.interact(p);
                                     this.dirtyObjects.push(id);
                                 }
