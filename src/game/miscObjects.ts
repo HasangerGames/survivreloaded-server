@@ -210,10 +210,12 @@ class Obstacle {
             this.dead = true;
             this.collidable = false;
             this.doorCanUse = false;
+            this.game.removeBody(this.body);
         } else {
             this.healthT = this.health / this.maxHealth;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
-            this.recalculateCollisionPos();
+            Matter.Body.scale(this.body, this.scale + (this.scale / 4), this.scale + (this.scale / 4));
+            if(this.isDoor) this.recalculateCollisionPos();
         }
     }
 

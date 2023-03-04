@@ -6,10 +6,8 @@ import compression from "compression";
 import ws from "ws";
 import fs from "fs";
 
-import { SurvivBitStream as BitStream } from "./utils";
-
-import {Vector, Utils, MsgType, ServerOptions} from "./utils";
-import {Game} from"./game/game.js";
+import { ServerOptions, SurvivBitStream as BitStream } from "./utils";
+import { Game } from "./game/game.js";
 
 
 const wsServer = new ws.Server({ noServer: true });

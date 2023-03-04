@@ -8,6 +8,7 @@ public/
 .built/
 
 surviv.js
+surviv2.js
 bitheroes.js
 *.json.hidden
 
