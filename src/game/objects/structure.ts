@@ -1,5 +1,4 @@
 import { ObjectKind, Point, TypeToId } from "../../utils";
-import Matter from "matter-js";
 
 export class Structure {
     readonly kind: ObjectKind = ObjectKind.Structure;
@@ -14,7 +13,7 @@ export class Structure {
     layerObjIds: any[];
     dead: boolean = false;
 
-    body: Matter.Body = null;
+    body: Body = null;
 
     constructor(id: any, position: Point, type, orientation, layerObjIds) {
         this.id = id;

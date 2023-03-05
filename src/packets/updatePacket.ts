@@ -81,7 +81,7 @@ export class UpdatePacket extends Packet {
                 switch(fullObject.kind) {
                     case ObjectKind.Player:
                         stream.writeVec(fullObject.position, 0, 0, 1024, 1024, 16); // Position
-                        stream.writeUnitVec(fullObject.dir, 8); // Direction
+                        stream.writeUnitVec(fullObject.direction, 8); // Direction
 
                         stream.writeGameType(690); // Outfit (skin)
                         stream.writeGameType(450); // Backpack
@@ -191,7 +191,7 @@ export class UpdatePacket extends Packet {
             switch(partialObject.kind) {
                 case ObjectKind.Player:
                     stream.writeVec(partialObject.position, 0, 0, 1024, 1024, 16);
-                    stream.writeUnitVec(partialObject.dir, 8);
+                    stream.writeUnitVec(partialObject.direction, 8);
                     break;
                 case ObjectKind.Obstacle:
                     stream.writeVec(partialObject.position, 0, 0, 1024, 1024, 16);

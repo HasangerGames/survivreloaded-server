@@ -1,17 +1,16 @@
 // noinspection TypeScriptValidateJSTypes
 
-import Matter from "matter-js";
+import { Bodies, Body, Collision, Vector } from "matter-js";
 import { Socket } from "ws";
 
 import {
     CollisionCategory,
     Emote,
     Explosion,
-    MsgType,
     ObjectKind,
     Point,
     SurvivBitStream as BitStream,
-    Vector,
+    Utils,
     Weapons
 } from "../../utils";
 import { DeadBody } from "./deadBody";
@@ -35,7 +34,7 @@ export class Player {
     //teamId: number = 0; // For 50v50?
     groupId: number;
 
-    dir: Point;
+    direction: Point;
     scale: number = 1;
     zoom: number = 28; // 1x scope
     layer: number = 0;
@@ -90,7 +89,7 @@ export class Player {
     emotes: Emote[];
     explosions: Explosion[];
 
-    body: Matter.Body;
+    body: Body;
     deadBody: DeadBody;
 
     quit: boolean = false;
@@ -101,13 +100,13 @@ export class Player {
         this.socket = socket;
         this.groupId = this.game.players.length - 1;
 
-        this.dir = Vector.create(1, 0);
+        this.direction = Vector.create(1, 0);
 
         this.username = username;
 
         this.meleeCooldown = Date.now();
 
-        this.body = Matter.Bodies.circle(position.x, position.y, 1, { restitution: 0, friction: 0, frictionAir: 0, inertia: Infinity });
+        this.body = Bodies.circle(position.x, position.y, 1, { restitution: 0, friction: 0, frictionAir: 0, inertia: Infinity });
         this.body.collisionFilter.category = CollisionCategory.Player;
         this.body.collisionFilter.mask = CollisionCategory.Obstacle;
         this.game.addBody(this.body);
@@ -115,7 +114,7 @@ export class Player {
 
 
     setVelocity(xVel: number, yVel: number) {
-        Matter.Body.setVelocity(this.body, { x: xVel, y: yVel });
+        Body.setVelocity(this.body, { x: xVel, y: yVel });
     }
 
     get position(): Point {
@@ -147,19 +146,19 @@ export class Player {
         }
     }
 
-    meleeCollisionWith(gameObject): Matter.Collision {
+    meleeCollisionWith(gameObject): Collision {
         if(!gameObject.body) return false;
         const weap = Weapons["fists"], // TODO Get player's melee, substitute here
-              angle = Vector.unitVecToRadians(this.dir),
-              offset = Vector.add(weap.attack.offset, Vector.mul(Vector.create(1, 0), this.scale - 1)),
+              angle = Utils.unitVecToRadians(this.direction),
+              offset = Vector.add(weap.attack.offset, Vector.mult(Vector.create(1, 0), this.scale - 1)),
               position = Vector.add(this.position, Vector.rotate(offset, angle));
-        const body: Matter.Body = Matter.Bodies.circle(position.x, position.y, 0.9, {
+        const body: Body = Bodies.circle(position.x, position.y, 0.9, {
             collisionFilter: {
                 category: CollisionCategory.Other,
                 mask: CollisionCategory.Obstacle
             }
         });
-        return Matter.Collision.collides(body, gameObject.body);
+        return Collision.collides(body, gameObject.body);
     }
 
     isOnOtherSide(door) {

@@ -97,6 +97,7 @@ wsServer.on("connection", socket => {
 });
 
 console.log("Surviv Reloaded Server v1.0.0");
+// noinspection HttpUrlsUsage
 console.log(`Listening on ${ServerOptions.https ? "https://" : "http://"}${addr}`);
 console.log("Press Ctrl+C to exit.");
 

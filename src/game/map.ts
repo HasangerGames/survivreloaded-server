@@ -1,7 +1,6 @@
-import { GameOptions, Maps, ObjectKind, Objects, Point, TypeToId, Utils, Vector } from "../utils";
-import { Player } from "./objects/player";
+import { GameOptions, Maps, ObjectKind, Objects, Point, TypeToId, Utils } from "../utils";
 import { Game } from "./game";
-import Matter from "matter-js";
+import { Collision, Vector } from "matter-js";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
@@ -246,7 +245,7 @@ export class Map {
 
             for(const object of this.objects) {
                 if(object.body != null) {
-                    const collisionResult = Matter.Collision.collides(collider, object.body);
+                    const collisionResult = Collision.collides(collider, object.body);
                     if(collisionResult != null && collisionResult.collided) {
                         shouldContinue = true;
                         break;

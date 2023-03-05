@@ -1,7 +1,7 @@
 import crypto from "crypto";
-import Matter from "matter-js";
+import { Bodies, Body, Collision, Composite, Engine, Vector } from "matter-js";
 
-import { Emote, Explosion, GameOptions, InputType, MsgType, Point, Utils, Vector } from "../utils";
+import { Emote, Explosion, GameOptions, InputType, MsgType, Point, Utils } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
 import { Obstacle } from "./objects/obstacle";
@@ -25,7 +25,7 @@ class Game {
 
     timer: NodeJS.Timer;
 
-    engine: Matter.Engine;
+    engine: Engine;
     gasMode: number;
     initialGasDuration: number;
     oldGasPosition: Point;
@@ -51,7 +51,7 @@ class Game {
         this.newGasRad = 2048;
 
         this.timer = setInterval(() => this.tick(), GameOptions.tickDelta);
-        this.engine = Matter.Engine.create();
+        this.engine = Engine.create();
         this.engine.gravity.scale = 0;
 
         this.map = new Map(this, "main");
@@ -60,7 +60,7 @@ class Game {
     private tick(): void {
 
         // Update physics engine
-        Matter.Engine.update(this.engine, GameOptions.tickDelta);
+        Engine.update(this.engine, GameOptions.tickDelta);
 
         // First loop: Calculate movement & animations.
         for(const p of this.players) {
@@ -103,7 +103,7 @@ class Game {
                         const object = this.map.objects[id];
                         if(object.dead) continue;
                         if((object instanceof Obstacle && object.destructible) || object instanceof Player) {
-                            const collision: Matter.Collision = p.meleeCollisionWith(object);
+                            const collision: Collision = p.meleeCollisionWith(object);
                             if(collision && collision.depth > maxDepth) {
                                 maxDepth = collision.depth;
                                 closestObject = object;
@@ -195,8 +195,8 @@ class Game {
 
                 // Direction
                 const direction = stream.readUnitVec(10);
-                if(p.dir != direction) {
-                    p.dir = direction;
+                if(p.direction != direction) {
+                    p.direction = direction;
                     p.skipObjectCalculations = false;
                 }
                 stream.readFloat(0, 64, 8);                 // Distance to mouse
@@ -211,8 +211,8 @@ class Game {
                             for(const id of p.visibleObjects) {
                                 const object = this.map.objects[id];
                                 if(object instanceof Obstacle && object.isDoor && !object.dead) {
-                                    const interactionBody: Matter.Body = Matter.Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad);
-                                    const collisionResult: Matter.Collision = Matter.Collision.collides(interactionBody, object.body);
+                                    const interactionBody: Body = Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad);
+                                    const collisionResult: Collision = Collision.collides(interactionBody, object.body);
                                     if(collisionResult && collisionResult.collides) {
                                         object.interact(p);
                                         this.partialDirtyObjects.push(id);
@@ -258,7 +258,7 @@ class Game {
     }
 
     removePlayer(p) {
-        p.dir = Vector.create(1, 0);
+        p.direction = Vector.create(1, 0);
         p.quit = true;
         this.deletedPlayerIds.push(p.id);
         this.partialDirtyObjects.push(p.id);
@@ -267,11 +267,11 @@ class Game {
     }
 
     addBody(body) {
-        Matter.Composite.add(this.engine.world, body);
+        Composite.add(this.engine.world, body);
     }
 
     removeBody(body) {
-        Matter.Composite.remove(this.engine.world, body);
+        Composite.remove(this.engine.world, body);
     }
     
     end() {

@@ -1,5 +1,4 @@
 import { ObjectKind, Point, TypeToId, Utils } from "../../utils";
-import Matter from "matter-js";
 import { GameObject } from "./gameObject";
 
 export class Building extends GameObject {
@@ -22,7 +21,7 @@ export class Building extends GameObject {
     hasPuzzle: boolean = false;
     dead: boolean = false;
 
-    body: Matter.Body;
+    body: Body;
 
 
     constructor(id: any, data, position: Point, type: string, orientation, layer: number, showOnMap: boolean) {

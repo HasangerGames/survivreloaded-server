@@ -1,6 +1,6 @@
 import fs from "fs";
 import { BitStream } from "bit-buffer";
-import Matter from "matter-js";
+import { Bodies, Body, Vector } from "matter-js";
 
 function readJSON(path: string) {
     return JSON.parse(fs.readFileSync(path) as unknown as string);
@@ -133,7 +133,7 @@ export class Utils {
         if(dot5 < 0) dot5 = -dot1 + dot4;
 
         if(dot5 <= length) {
-            const point = Vector.add(position1, Vector.mul(lengthVec, dot5));
+            const point = Vector.add(position1, Vector.mult(lengthVec, dot5));
             return {point: point, normal: Vector.normalize(Vector.sub(point, position3))};
         }
 
@@ -172,12 +172,12 @@ export class Utils {
                 yOffset = -position2.x;
                 break;
         }
-        return Vector.add2(position1, xOffset, yOffset);
+        return Vector.add(position1, Vector.create(xOffset, yOffset));
     }
 
     static rotateRect(pos: Point, min: Point, max: Point, scale: number, orientation: number) {
-        min = Vector.mul(min, scale);
-        max = Vector.mul(max, scale);
+        min = Vector.mult(min, scale);
+        max = Vector.mult(max, scale);
         if(orientation != 0) {
             const minX = min.x, minY = min.y,
                   maxX = max.x, maxY = max.y;
@@ -202,93 +202,32 @@ export class Utils {
         };
     }
 
-    static bodyFromCollisionData(data, pos: Point, orientation: number = 0, scale: number = 1): Matter.Body {
+    static bodyFromCollisionData(data, pos: Point, orientation: number = 0, scale: number = 1): Body {
         if(!data || !data.type) {
             //console.error("Missing collision data");
         }
-        let body: Matter.Body;
+        let body: Body;
         if(data.type == CollisionType.Circle) {
             // noinspection TypeScriptValidateJSTypes
-            body = Matter.Bodies.circle(pos.x, pos.y, data.rad, { isStatic: true });
+            body = Bodies.circle(pos.x, pos.y, data.rad, { isStatic: true });
         } else if(data.type == CollisionType.Rectangle) {
             let rect = Utils.rotateRect(pos, data.min, data.max, scale, orientation);
             const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
             const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
-            body = Matter.Bodies.rectangle(x, y, width, height, { isStatic: true });
+            body = Bodies.rectangle(x, y, width, height, { isStatic: true });
         }
-        if(scale != 1) Matter.Body.scale(body, scale, scale);
+        if(scale != 1) Body.scale(body, scale, scale);
         body.collisionFilter.category = CollisionCategory.Obstacle;
         body.collisionFilter.mask = CollisionCategory.Player;
         return body;
-    }
-    
-}
-
-export class Vector {
-
-    static create(x: number, y: number): Point {
-        return {x: x, y: y};
-    }
-
-    static add(v1: Point, v2: Point): Point {
-        return Vector.create(v1.x + v2.x, v1.y + v2.y);
-    }
-
-    static add2(v: Point, x: number, y: number): Point {
-        return Vector.create(v.x + x, v.y + y);
-    }
-
-    static sub(v1: Point, v2: Point): Point {
-        return Vector.create(v1.x - v2.x, v1.y - v2.y);
-    }
-
-    static sub2(v: Point, x: number, y: number): Point {
-        return Vector.create(v.x - x, v.y - y);
-    }
-
-    static mul(v: Point, n: number): Point {
-        return Vector.create(v.x * n, v.y * n);
-    }
-
-    static div(v: Point, n: number): Point {
-        return Vector.create(v.x / n, v.y / n);
-    }
-
-    static mul2(v1: Point, v2: Point): Point {
-        return Vector.create(v1.x * v2.x, v1.y * v2.y);
-    }
-
-    static div2(v1: Point, v2: Point): Point {
-        return Vector.create(v1.x / v2.x, v1.y / v2.y);
-    }
-
-    static dot(v1: Point, v2: Point): number {
-        return v1.x * v2.x + v1.y * v2.y;
-    }
-
-    static magnitude(v: Point): number {
-        return Math.sqrt(Vector.lengthSqr(v));
-    }
-
-    static lengthSqr(v: Point): number {
-        return v.x * v.x + v.y * v.y;
-    }
-
-    static rotate(v: Point, angle: number): Point {
-        const cos = Math.cos(angle), sin = Math.sin(angle);
-        return Vector.create(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
-    }
-
-    static normalize(v: Point): Point {
-        const len = Vector.magnitude(v);
-        return Vector.create(len > 0 ? v.x / len : v.x, len > 0 ? v.y / len : v.y);
     }
 
     static unitVecToRadians(v: Point): number {
         return Math.atan2(v.y, v.x);
     }
-
+    
 }
+
 
 export class SurvivBitStream extends BitStream {
     constructor(source, byteOffset: number = 0, byteLength: number = null) {
@@ -304,24 +243,16 @@ export class SurvivBitStream extends BitStream {
     readString() { return this.readASCIIString(); }
 
     writeFloat(val, min, max, bitCount) {
-        const _0x450456 = (1 << bitCount) - 1,
-            _0x200bc9 = val < max ? (val > min ? val : min) : max,
-            _0x32aa59 = (_0x200bc9 - min) / (max - min);
-        this.writeBits(_0x32aa59 * _0x450456, bitCount);
+        const range = (1 << bitCount) - 1,
+                  x = val < max ? (val > min ? val : min) : max,
+                  t = (x - min) / (max - min);
+        this.writeBits(t * range + 0.5, bitCount);
     }
     readFloat(min, max, bitCount) {
-        const _0x450456 = (1 << bitCount) - 1;
-        return min + (max - min) * this.readBits(bitCount) / _0x450456;
+        const range = (1 << bitCount) - 1;
+        return min + (max - min) * this.readBits(bitCount) / range;
     }
 
-    writeInt(val, min, max, bitCount) {
-        const _0x450456 = (1 << bitCount) - 1;
-        this.writeBits(val - min, bitCount);
-    }
-    readInt(min, max, bitCount) {
-        const _0x450456 = (1 << bitCount) - 1;
-        return min + this.readBits(bitCount);
-    }
 
     writeVec(vec: Point, minX: number, minY: number, maxX: number, maxY: number, bitCount: number) {
         this.writeFloat(vec.x, minX, maxX, bitCount);

@@ -1,7 +1,7 @@
 import { ObjectKind, Point, TypeToId, Utils } from "../../utils";
 import { Game } from "../game";
 import { Player } from "./player";
-import Matter from "matter-js";
+import { Body } from "matter-js";
 
 export class Obstacle {
     readonly kind: ObjectKind = ObjectKind.Obstacle;
@@ -48,7 +48,7 @@ export class Obstacle {
     reflectBullets: boolean;
     destructible: boolean;
 
-    body: Matter.Body;
+    body: Body;
 
     constructor(id: number,
                 game: Game,
@@ -120,7 +120,7 @@ export class Obstacle {
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
-            Matter.Body.scale(this.body, scaleFactor, scaleFactor);
+            Body.scale(this.body, scaleFactor, scaleFactor);
         }
     }
 

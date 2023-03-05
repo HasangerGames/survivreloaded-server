@@ -1,5 +1,5 @@
 import { Packet } from "./packet";
-import { DamageType, MsgType, SurvivBitStream } from "../utils";
+import { DamageType, MsgType, SurvivBitStream as BitStream } from "../utils";
 import { Player } from "../game/objects/player";
 
 export class KillPacket extends Packet {
@@ -13,7 +13,7 @@ export class KillPacket extends Packet {
         this.allocBytes = 32;
     }
 
-    writeData(stream: SurvivBitStream): void {
+    writeData(stream: BitStream): void {
         super.writeData(stream);
         stream.writeUint8(MsgType.Kill);
         stream.writeUint8(DamageType.Player); // Damage type
