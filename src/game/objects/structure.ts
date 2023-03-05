@@ -7,26 +7,26 @@ export class Structure {
 
     id: any;
     mapType: number;
-    _pos: Point;
+    _position: Point;
     type: string;
-    ori: number;
+    orientation: number;
     scale: number = 1;
     layerObjIds: any[];
     dead: boolean = false;
 
     body: Matter.Body = null;
 
-    constructor(id: any, pos: Point, type, ori, layerObjIds) {
+    constructor(id: any, position: Point, type, orientation, layerObjIds) {
         this.id = id;
         this.mapType = TypeToId[type];
-        this._pos = pos;
+        this._position = position;
         this.type = type;
-        this.ori = ori;
+        this.orientation = orientation;
         this.layerObjIds = layerObjIds;
     }
 
-    get pos() {
-        return this._pos;
+    get position() {
+        return this._position;
     }
 
 }

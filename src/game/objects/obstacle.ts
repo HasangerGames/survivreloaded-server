@@ -10,9 +10,9 @@ export class Obstacle {
 
     game: Game;
 
-    _pos: Point;
-    ori: number;
-    initialOri: number;
+    _position: Point;
+    orientation: number;
+    initialOrientation: number;
 
     scale: number;
     minScale: number;
@@ -54,14 +54,14 @@ export class Obstacle {
                 game: Game,
                 data,
                 type: string,
-                pos: Point,
-                ori: number,
+                position: Point,
+                orientation: number,
                 scale: number,
                 layer: number = 0) {
         this.id = id;
         this.game = game;
-        this._pos = pos;
-        this.ori = ori;
+        this._position = position;
+        this.orientation = orientation;
         this.scale = scale; // Min: 0.125, max: 2.5
         this.minScale = data.scale.destroy;
         this.maxScale = this.scale;
@@ -79,7 +79,7 @@ export class Obstacle {
         this.collidable = data.collidable;
         this.reflectBullets = data.reflectBullets;
         this.destructible = data.destructible;
-        this.body = Utils.bodyFromCollisionData(data.collision, pos, ori, scale);
+        this.body = Utils.bodyFromCollisionData(data.collision, position, orientation, scale);
         if(this.body != null) {
             if(!this.collidable) this.body.isSensor = true;
             this.game.addBody(this.body);
@@ -103,8 +103,8 @@ export class Obstacle {
         this.isPuzzlePiece = false;
     }
 
-    get pos(): Point {
-        return this._pos;
+    get position(): Point {
+        return this._position;
     }
 
     damage(source, amount: number): void {

@@ -1,10 +1,12 @@
 import crypto from "crypto";
 import Matter from "matter-js";
 
-import { Emote, Explosion, GameOptions, InputType, MsgType, Utils, Vector } from "../utils";
+import { Emote, Explosion, GameOptions, InputType, MsgType, Point, Utils, Vector } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
 import { Obstacle } from "./objects/obstacle";
+import { AliveCountsPacket } from "../packets/aliveCountsPacket";
+import { UpdatePacket } from "../packets/updatePacket";
 
 class Game {
     id: string;
@@ -24,6 +26,12 @@ class Game {
     timer: NodeJS.Timer;
 
     engine: Matter.Engine;
+    gasMode: number;
+    initialGasDuration: number;
+    oldGasPosition: Point;
+    newGasPosition: Point;
+    oldGasRad: number;
+    newGasRad: number;
 
     constructor() {
         this.id = crypto.createHash('md5').update(crypto.randomBytes(512)).digest('hex');
@@ -33,6 +41,14 @@ class Game {
         this.emotes = [];
         this.explosions = [];
         this.fullDirtyObjects = [];
+        this.partialDirtyObjects = [];
+
+        this.gasMode = 0;
+        this.initialGasDuration = 0;
+        this.oldGasPosition = Vector.create(360, 360);
+        this.newGasPosition = Vector.create(360, 360);
+        this.oldGasRad = 2048;
+        this.newGasRad = 2048;
 
         this.timer = setInterval(() => this.tick(), GameOptions.tickDelta);
         this.engine = Matter.Engine.create();
@@ -148,8 +164,8 @@ class Game {
                 }
             }
 
-            p.sendUpdate();
-            if(this.aliveCountDirty) p.sendAliveCounts();
+            p.sendPacket(new UpdatePacket(p));
+            if(this.aliveCountDirty) p.sendPacket(new AliveCountsPacket(p));
         }
         this.emotes = [];
         this.explosions = [];
@@ -195,7 +211,7 @@ class Game {
                             for(const id of p.visibleObjects) {
                                 const object = this.map.objects[id];
                                 if(object instanceof Obstacle && object.isDoor && !object.dead) {
-                                    const interactionBody: Matter.Body = Matter.Bodies.circle(p.pos.x, p.pos.y, 1 + object.interactionRad);
+                                    const interactionBody: Matter.Body = Matter.Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad);
                                     const collisionResult: Matter.Collision = Matter.Collision.collides(interactionBody, object.body);
                                     if(collisionResult && collisionResult.collides) {
                                         object.interact(p);
@@ -213,21 +229,21 @@ class Game {
                 break;
 
             case MsgType.Emote:
-                const pos = stream.readVec(0, 0, 1024, 1024, 16);
+                const position = stream.readVec(0, 0, 1024, 1024, 16);
                 const type = stream.readGameType();
                 const isPing = stream.readBoolean();
                 stream.readBits(4); // Padding
-                if(!p.dead) this.emotes.push(new Emote(p.id, pos, type, isPing));
+                if(!p.dead) this.emotes.push(new Emote(p.id, position, type, isPing));
                 break;
         }
     }
 
     addPlayer(socket, username) {
-        let spawnPos;
-        if(GameOptions.debugMode) spawnPos = Vector.create(450, 150);
-        else spawnPos = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
+        let spawnPosition;
+        if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
+        else spawnPosition = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
         
-        const p = new Player(socket, this, username, spawnPos);
+        const p = new Player(socket, this, username, spawnPosition);
         p.id = this.map.objects.length;
         this.map.objects.push(p);
         this.players.push(p);

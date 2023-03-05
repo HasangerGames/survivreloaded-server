@@ -1,7 +1,8 @@
 import { ObjectKind, Point, TypeToId, Utils } from "../../utils";
 import Matter from "matter-js";
+import { GameObject } from "./gameObject";
 
-export class Building {
+export class Building extends GameObject {
     readonly kind: ObjectKind = ObjectKind.Building;
 
     showOnMap: boolean;
@@ -10,9 +11,9 @@ export class Building {
     layer: number;
     mapType: number;
 
-    _pos: Point;
+    _position: Point;
     type: string;
-    ori: number;
+    orientation: number;
     scale: number = 1;
 
     ceilingDead: boolean = false;
@@ -24,20 +25,21 @@ export class Building {
     body: Matter.Body;
 
 
-    constructor(id: any, data, pos: Point, type: string, ori, layer: number, showOnMap: boolean) {
+    constructor(id: any, data, position: Point, type: string, orientation, layer: number, showOnMap: boolean) {
+        super();
         this.showOnMap = showOnMap;
 
         this.id = id;
         this.mapType = TypeToId[type];
-        this._pos = pos;
+        this._position = position;
         this.type = type;
-        this.ori = ori;
+        this.orientation = orientation;
         this.layer = layer;
-        if(data.mapObstacleBounds) this.body = Utils.bodyFromCollisionData(data.mapObstacleBounds[0], this.pos);
+        if(data.mapObstacleBounds) this.body = Utils.bodyFromCollisionData(data.mapObstacleBounds[0], this.position);
     }
 
-    get pos() {
-        return this._pos;
+    get position() {
+        return this._position;
     }
 
 }

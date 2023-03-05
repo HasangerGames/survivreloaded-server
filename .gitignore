@@ -1,6 +1,6 @@
 node_modules/
 public/
-.built/
+dist/
 package-lock.json
 surviv.js
 surviv2.js

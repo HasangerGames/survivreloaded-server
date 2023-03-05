@@ -22,23 +22,23 @@ export type IntersectResult = { point: Point, normal: Point };
 
 export class Emote {
     playerId: number;
-    pos: Point;
+    position: Point;
     type: string;
     isPing: boolean;
-    constructor(playerId, pos, type, isPing) {
+    constructor(playerId, position, type, isPing) {
         this.playerId = playerId;
-        this.pos = pos;
+        this.position = position;
         this.type = type;
         this.isPing = isPing;
     }
 }
 
 export class Explosion {
-    pos: Point;
+    position: Point;
     type: string;
     layer: number;
-    constructor(pos, type, layer) {
-        this.pos = pos;
+    constructor(position, type, layer) {
+        this.position = position;
         this.type = type;
         this.layer = layer;
     }
@@ -93,18 +93,6 @@ export class Utils {
         console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
     }
 
-    static truncate(stream) {
-        const oldArray = new Uint8Array(stream.buffer);
-        const newArray = new Uint8Array(Math.ceil(stream.index / 8));
-        for(let i = 0; i < newArray.length; i++) newArray[i] = oldArray[i];
-        return newArray;
-    }
-
-    static createStream(length): SurvivBitStream { return new SurvivBitStream(Buffer.alloc(length)); }
-    static truncateToBitStream(stream): SurvivBitStream { return new SurvivBitStream(Utils.truncate(stream).buffer); }
-
-    static send(socket, packet): void { socket.send(Utils.truncate(packet)); }
-
     static randomFloat(min: number, max: number): number { return Math.random() * (max - min) + min; }
     static random(min: number, max: number): number { return Math.floor(Utils.randomFloat(min, max + 1)); }
     static randomVec(minX: number, maxX: number, minY: number, maxY: number): Vector { return Vector.create(Utils.random(minX, maxX), Utils.random(minY, maxY)); }
@@ -125,12 +113,12 @@ export class Utils {
     static distanceBetween(v1: Point, v2: Point): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
 
 
-    static intersectSegmentCircle(pos1: Point, pos2: Point, pos3: Point, rad: number): IntersectResult | null {
-        let lengthVec = Vector.sub(pos2, pos1),
+    static intersectSegmentCircle(position1: Point, position2: Point, position3: Point, rad: number): IntersectResult | null {
+        let lengthVec = Vector.sub(position2, position1),
             length = Math.max(Vector.magnitude(lengthVec), 0);
         lengthVec = Vector.div(lengthVec, length);
 
-        const distToCircleCenter = Vector.sub(pos1, pos3);
+        const distToCircleCenter = Vector.sub(position1, position3);
         const dot1 = Vector.dot(distToCircleCenter, lengthVec);
         const dot2 = Vector.dot(distToCircleCenter, distToCircleCenter) - rad * rad;
 
@@ -145,14 +133,14 @@ export class Utils {
         if(dot5 < 0) dot5 = -dot1 + dot4;
 
         if(dot5 <= length) {
-            const point = Vector.add(pos1, Vector.mul(lengthVec, dot5));
-            return {point: point, normal: Vector.normalize(Vector.sub(point, pos3))};
+            const point = Vector.add(position1, Vector.mul(lengthVec, dot5));
+            return {point: point, normal: Vector.normalize(Vector.sub(point, position3))};
         }
 
         return null;
     }
 
-    static addOris(n1: number, n2: number) {
+    static addOrientations(n1: number, n2: number) {
         const sum: number = n1 + n2;
         if(sum <= 3) return sum;
         switch(sum) {
@@ -165,35 +153,35 @@ export class Utils {
         }
     }
 
-    static addAdjust(pos1: Point, pos2: Point, ori: number): Point {
-        if(ori == 0) return Vector.add(pos1, pos2);
+    static addAdjust(position1: Point, position2: Point, orientation: number): Point {
+        if(orientation == 0) return Vector.add(position1, position2);
         let xOffset, yOffset;
-        switch(ori) {
+        switch(orientation) {
             case 1:
-                xOffset = -pos2.y;
+                xOffset = -position2.y;
                 // noinspection JSSuspiciousNameCombination
-                yOffset = pos2.x;
+                yOffset = position2.x;
                 break;
             case 2:
-                xOffset = -pos2.x;
-                yOffset = -pos2.y;
+                xOffset = -position2.x;
+                yOffset = -position2.y;
                 break;
             case 3:
                 // noinspection JSSuspiciousNameCombination
-                xOffset = pos2.y;
-                yOffset = -pos2.x;
+                xOffset = position2.y;
+                yOffset = -position2.x;
                 break;
         }
-        return Vector.add2(pos1, xOffset, yOffset);
+        return Vector.add2(position1, xOffset, yOffset);
     }
 
-    static rotateRect(pos: Point, min: Point, max: Point, scale: number, ori: number) {
+    static rotateRect(pos: Point, min: Point, max: Point, scale: number, orientation: number) {
         min = Vector.mul(min, scale);
         max = Vector.mul(max, scale);
-        if(ori != 0) {
+        if(orientation != 0) {
             const minX = min.x, minY = min.y,
                   maxX = max.x, maxY = max.y;
-            switch(ori) {
+            switch(orientation) {
                 case 1:
                     min = Vector.create(minX, maxY);
                     max = Vector.create(maxX, minY);
@@ -209,12 +197,12 @@ export class Utils {
             }
         }
         return {
-            min: Utils.addAdjust(pos, min, ori),
-            max: Utils.addAdjust(pos, max, ori)
+            min: Utils.addAdjust(pos, min, orientation),
+            max: Utils.addAdjust(pos, max, orientation)
         };
     }
 
-    static bodyFromCollisionData(data, pos: Point, ori: number = 0, scale: number = 1): Matter.Body {
+    static bodyFromCollisionData(data, pos: Point, orientation: number = 0, scale: number = 1): Matter.Body {
         if(!data || !data.type) {
             //console.error("Missing collision data");
         }
@@ -223,7 +211,7 @@ export class Utils {
             // noinspection TypeScriptValidateJSTypes
             body = Matter.Bodies.circle(pos.x, pos.y, data.rad, { isStatic: true });
         } else if(data.type == CollisionType.Rectangle) {
-            let rect = Utils.rotateRect(pos, data.min, data.max, scale, ori);
+            let rect = Utils.rotateRect(pos, data.min, data.max, scale, orientation);
             const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
             const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
             body = Matter.Bodies.rectangle(x, y, width, height, { isStatic: true });
@@ -302,21 +290,19 @@ export class Vector {
 
 }
 
-// TODO: Add writeTruncatedBitStream(stream), sendTo(socket), alloc(length)
-
 export class SurvivBitStream extends BitStream {
     constructor(source, byteOffset: number = 0, byteLength: number = null) {
         super(source, byteOffset, byteLength);
     }
 
+    static alloc(length: number) {
+        return new SurvivBitStream(Buffer.alloc(length));
+    }
+
     writeString(str) { this.writeASCIIString(str); }
     writeStringFixedLength(str, len) { this.writeASCIIString(str, len); }
     readString() { return this.readASCIIString(); }
-    // writeBytes(_0x10f494, _0x214f81, _0x22472f) {
-    //     let arr = new Uint8Array(_0x10f494._view._view.buffer, _0x214f81, _0x22472f);
-    //     this._view._view.set(arr, this.dex /_in 8);
-    //     this._index += _0x22472f * 8;
-    // }
+
     writeFloat(val, min, max, bitCount) {
         const _0x450456 = (1 << bitCount) - 1,
             _0x200bc9 = val < max ? (val > min ? val : min) : max,
@@ -327,6 +313,7 @@ export class SurvivBitStream extends BitStream {
         const _0x450456 = (1 << bitCount) - 1;
         return min + (max - min) * this.readBits(bitCount) / _0x450456;
     }
+
     writeInt(val, min, max, bitCount) {
         const _0x450456 = (1 << bitCount) - 1;
         this.writeBits(val - min, bitCount);
@@ -344,12 +331,14 @@ export class SurvivBitStream extends BitStream {
     readVec(minX: number, minY: number, maxX: number, maxY: number, bitCount: number) {
         return Vector.create(this.readFloat(minX, maxX, bitCount), this.readFloat(minY, maxY, bitCount));
     }
+
     writeUnitVec(vec: Point, bitCount) {
         this.writeVec(vec, -1, -1, 1, 1, bitCount);
     }
     readUnitVec(bitCount) {
         return this.readVec(-1, -1, 1, 1, bitCount);
     }
+
     writeVec32(vec: Point) {
         this.writeFloat32(vec.x);
         this.writeFloat32(vec.y);
@@ -357,6 +346,7 @@ export class SurvivBitStream extends BitStream {
     readVec32() {
         return Vector.create(this.readFloat32(), this.readFloat32());
     }
+
     writeAlignToNextByte() {
         const offset = 8 - this.index % 8;
         if(offset < 8) this.writeBits(0, offset);
@@ -365,16 +355,19 @@ export class SurvivBitStream extends BitStream {
         const offset = 8 - this.index % 8;
         if(offset < 8) this.readBits(offset);
     }
+
     writeGameType(id) {
         this.writeBits(id, 11);
     }
     readGameType() {
         return this.readBits(11);
     }
+
     writeMapType(id) {
         this.writeBits(id, 12);
     }
     readMapType() {
         return this.readBits(12);
     }
+
 }

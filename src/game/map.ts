@@ -19,7 +19,7 @@ export class Map {
 
     rivers: River[];
     places: Place[];
-    objects: (Obstacle | Building | Structure | Player)[];
+    objects: any[];
     groundPatches: GroundPatch[];
 
     constructor(game, mapId) {
@@ -34,6 +34,7 @@ export class Map {
         this.shoreInset = 48;
         this.grassInset = 18;
 
+        // TODO Better river generation
         this.rivers = [];
         let x = 0, y = 0;
         const points = [];
@@ -75,16 +76,16 @@ export class Map {
         this.groundPatches = [];
     }
 
-    private genStructure(type: any, structure: any, setPos: Point | null = null, setOri: number | null = null) {
-        let pos;
-        if(setPos) pos = setPos;
-        else if(GameOptions.debugMode) pos = Vector.create(450, 150);
-        else pos = this.getRandomPosFor(null, ObjectKind.Structure); // TODO
+    private genStructure(type: any, structure: any, setPosition: Point | null = null, setOrientation: number | null = null) {
+        let position;
+        if(setPosition) position = setPosition;
+        else if(GameOptions.debugMode) position = Vector.create(450, 150);
+        else position = this.getRandomPositionFor(null, ObjectKind.Structure); // TODO
 
-        let ori;
-        if(setOri != undefined) ori = setOri;
-        else if(GameOptions.debugMode) ori = 0;
-        else ori = Utils.random(0, 3);
+        let orientation;
+        if(setOrientation != undefined) orientation = setOrientation;
+        else if(GameOptions.debugMode) orientation = 0;
+        else orientation = Utils.random(0, 3);
 
         const layerObjIds = [];
 
@@ -94,20 +95,20 @@ export class Map {
             const layer = Objects[layerType];
             layerObjIds.push(TypeToId[layerType]);
 
-            let layerOri;
-            if(layerObj.inheritOri == false) layerOri = layerObj.ori;
-            else layerOri = Utils.addOris(layerObj.ori, ori);
-            let layerPos = Utils.addAdjust(pos, layerObj.pos, ori);
+            let layerOrientation;
+            if(layerObj.inheritOri == false) layerOrientation = layerObj.orientation;
+            else layerOrientation = Utils.addOrientations(layerObj.orientation, orientation);
+            let layerPosition = Utils.addAdjust(position, layerObj.position, orientation);
 
             if(layer.type == "structure") {
-                this.genStructure(layerType, layer, layerPos, layerOri);
+                this.genStructure(layerType, layer, layerPosition, layerOrientation);
             } else if(layer.type == "building") {
-                this.genBuilding(layerType, layer, layerPos, layerOri, layerId);
+                this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
             } else {
                 //console.warn(`Unsupported object type: ${layer.type}`);
             }
         }
-        this.objects.push(new Structure(this.objects.length, pos, type, ori, layerObjIds));
+        this.objects.push(new Structure(this.objects.length, position, type, orientation, layerObjIds));
     }
 
     private genBuildings(count, type, building) {
@@ -116,19 +117,19 @@ export class Map {
         }
     }
 
-    private genBuildingTest(type: string, ori: number, markers: boolean) {
-        this.genBuilding(type, Objects[type], undefined, ori, undefined, markers);
+    private genBuildingTest(type: string, orientation: number, markers: boolean) {
+        this.genBuilding(type, Objects[type], undefined, orientation, undefined, markers);
     }
 
-    private genBuilding(type, building, setPos?: Point, setOri?: number, setLayer?: number, debug: boolean = false) {
-        let pos;
-        if(setPos) pos = setPos;
-        else if(GameOptions.debugMode) pos = Vector.create(450, 150);
-        else pos = this.getRandomPosFor(ObjectKind.Building, building.mapObstacleBounds ? building.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
-        let ori;
-        if(setOri != undefined) ori = setOri;
-        else if(GameOptions.debugMode) ori = 0;
-        else ori = Utils.random(0, 3);
+    private genBuilding(type, building, setPosition?: Point, setOrientation?: number, setLayer?: number, debug: boolean = false) {
+        let position;
+        if(setPosition) position = setPosition;
+        else if(GameOptions.debugMode) position = Vector.create(450, 150);
+        else position = this.getRandomPositionFor(ObjectKind.Building, building.mapObstacleBounds ? building.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
+        let orientation;
+        if(setOrientation != undefined) orientation = setOrientation;
+        else if(GameOptions.debugMode) orientation = 0;
+        else orientation = Utils.random(0, 3);
 
         let layer;
         if(setLayer != undefined) layer = setLayer;
@@ -137,26 +138,26 @@ export class Map {
         for(const mapObject of building.mapObjects) {
             const partType = mapObject.type;
             if(!partType || partType == "") {
-                //console.warn(`${type}: Missing object at ${mapObject.pos.x}, ${mapObject.pos.y}`);
+                //console.warn(`${type}: Missing object at ${mapObject.position.x}, ${mapObject.position.y}`);
                 continue;
             }
             const part = Objects[partType];
 
-            let partOri;
-            if(mapObject.inheritOri == false) partOri = mapObject.ori;
-            else partOri = Utils.addOris(mapObject.ori, ori);
-            let partPos = Utils.addAdjust(pos, mapObject.pos, ori);
+            let partOrientation;
+            if(mapObject.inheritOri == false) partOrientation = mapObject.ori;
+            else partOrientation = Utils.addOrientations(mapObject.ori, orientation);
+            let partPosition = Utils.addAdjust(position, mapObject.pos, orientation);
 
             if(part.type == "structure") {
-                this.genStructure(partType, part, partPos, partOri);
+                this.genStructure(partType, part, partPosition, partOrientation);
             } else if(part.type == "building") {
-                this.genBuilding(partType, part, partPos, partOri, layer);
+                this.genBuilding(partType, part, partPosition, partOrientation, layer);
             } else if(part.type == "obstacle") {
                 this.genObstacle(
                     partType,
                     part,
-                    partPos,
-                    partOri,
+                    partPosition,
+                    partOrientation,
                     mapObject.scale,
                     layer
                 );
@@ -166,8 +167,8 @@ export class Map {
                 this.genObstacle(
                     randType,
                     Objects[randType],
-                    partPos,
-                    partOri,
+                    partPosition,
+                    partOrientation,
                     mapObject.scale,
                     layer
                 );
@@ -180,9 +181,9 @@ export class Map {
         this.objects.push(new Building(
             this.objects.length,
             building,
-            pos,
+            position,
             type,
-            ori,
+            orientation,
             setLayer != undefined ? setLayer : 0,
             building.map ? building.map.display : false
         ));
@@ -192,14 +193,14 @@ export class Map {
         this.genObstacle(type, Objects[type], Vector.create(455, 155), 0, 1);
     }
 
-    private genObstacle(type, obstacle, pos, ori, scale, layer = 0) {
+    private genObstacle(type, obstacle, pos, orientation, scale, layer = 0) {
         this.objects.push(new Obstacle(
             this.objects.length,
             this.game,
             obstacle,
             type,
             pos,
-            ori,
+            orientation,
             scale,
             layer != undefined ? layer : 0
         ));
@@ -213,7 +214,7 @@ export class Map {
                 this.game,
                 obstacle,
                 type,
-                this.getRandomPosFor(ObjectKind.Obstacle, obstacle.collision, scale),
+                this.getRandomPositionFor(ObjectKind.Obstacle, obstacle.collision, scale),
                 0,
                 scale,
                 0
@@ -221,18 +222,18 @@ export class Map {
         }
     }
 
-    private getRandomPosFor(kind: ObjectKind, collisionData, scale?) {
+    private getRandomPositionFor(kind: ObjectKind, collisionData, scale?) {
         if(!scale) scale = 1;
-        let foundPos = false;
-        let pos;
-        while(!foundPos) {
-            pos = Utils.randomVec(75, this.width - 75, 75, this.height - 75);
+        let foundPosition = false;
+        let position;
+        while(!foundPosition) {
+            position = Utils.randomVec(75, this.width - 75, 75, this.height - 75);
             let shouldContinue = false;
 
             for(const river of this.rivers) {
                 const minRiverDist = (kind == ObjectKind.Building || kind == ObjectKind.Structure) ? river.width * 5 : river.width * 2.5;
                 for(const point of river.points) {
-                    if(Utils.distanceBetween(pos, point) < minRiverDist) {
+                    if(Utils.distanceBetween(position, point) < minRiverDist) {
                         shouldContinue = true;
                         break;
                     }
@@ -240,7 +241,7 @@ export class Map {
             }
             if(shouldContinue) continue;
             if(!collisionData) break; // TODO Come back to this
-            const collider = Utils.bodyFromCollisionData(collisionData, pos, scale);
+            const collider = Utils.bodyFromCollisionData(collisionData, position, scale);
             if(collider == null) break;
 
             for(const object of this.objects) {
@@ -254,16 +255,16 @@ export class Map {
             }
             if(shouldContinue) continue;
 
-            foundPos = true;
+            foundPosition = true;
         }
-        return pos;
+        return position;
     }
 
 }
 
 class River {
     width: number;
-    looped: boolean;
+    looped: number;
     points: Point[];
 
     constructor(width, looped, points) {
@@ -271,16 +272,18 @@ class River {
         this.looped = looped;
         this.points = points;
     }
+
 }
 
 class Place {
     name: string;
-    pos: Point;
+    position: Point;
 
     constructor(name, pos) {
         this.name = name;
-        this.pos = pos;
+        this.position = pos;
     }
+
 }
 
 class GroundPatch {
@@ -301,4 +304,5 @@ class GroundPatch {
         this.order = order; // 7-bit integer
         this.useAsMapShape = useAsMapShape; // boolean (1 bit)
     }
+
 }

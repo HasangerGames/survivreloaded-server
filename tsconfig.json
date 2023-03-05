@@ -5,13 +5,13 @@
     "target": "es5",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "outDir": ".built",
+    "outDir": "dist",
     "allowJs": true,
     "sourceMap": true
   },
   "exclude": [
     "node_modules",
-    ".built",
+    "dist",
     "public",
     "reference"
   ]

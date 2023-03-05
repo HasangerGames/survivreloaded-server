@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node --enable-source-maps .built/server.js",
-    "br": "tsc && node --enable-source-maps .built/server.js"
+    "start": "node --enable-source-maps dist/server.js",
+    "br": "tsc && node --enable-source-maps dist/server.js"
   },
   "repository": {
     "type": "git",
