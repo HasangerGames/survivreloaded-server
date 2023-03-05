@@ -6,7 +6,7 @@ import compression from "compression";
 import ws from "ws";
 import fs from "fs";
 
-import { ServerOptions, SurvivBitStream as BitStream } from "./utils";
+import { ServerOptions, SurvivBitStream as BitStream, Utils } from "./utils";
 import { Game } from "./game/game.js";
 
 
@@ -39,11 +39,9 @@ app.post("/api/user/get_user_prestige", (req, res) => {
     res.send('"0"');
 });
 
-const addr = `${ServerOptions.host}:${ServerOptions.port}`;
+const addr = ServerOptions.addr || `${ServerOptions.host}:${ServerOptions.port}`;
 app.post("/api/find_game", (req, res) => {
     res.send({res: [{ zone: req.body.zones[0], gameId: game.id, useHttps: false, hosts: [addr], addrs: [addr] }]});
-    //if(usingLocal.get()) return object.toString();
-    //else return HttpClient.newHttpClient().send(HttpRequest.newBuilder().uri(new URI("https://surviv.io/api/find_game")).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString("{\"version\":131,\"region\":\"eu\",\"zones\":[\"fra\",\"waw\"],\"playerCount\":1,\"autoFill\":true,\"gameModeIdx\":0,\"isMobile\":false,\"adminCreate\":false,\"privCode\":false}")).build(), HttpResponse.BodyHandlers.ofString()).body();
 });
 
 app.post("/api/user/profile", (req, res) => {
@@ -85,14 +83,17 @@ server.on("upgrade", (request, socket, head) => {
 
 wsServer.on("connection", socket => {
     const p = game.addPlayer(socket, "Player");
-    console.log(`[${new Date()}] Player joined`);
+    Utils.log("Player joined");
 
     socket.on("message", data => {
         const stream = new BitStream(data, 6);
         game.onMessage(stream, p);
     });
 
-    socket.on("close", () => game.removePlayer(p));
+    socket.on("close", () => {
+        Utils.log("Player quit");
+        game.removePlayer(p);
+    });
 });
 
 console.log("Surviv Reloaded Server v1.0.0");

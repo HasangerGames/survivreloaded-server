@@ -1,8 +1,21 @@
+// noinspection TypeScriptValidateJSTypes
+
 import Matter from "matter-js";
 
-import { Emote, Explosion, MsgType, ObjectKind, Point, Utils, Vector, Weapons } from "../utils";
-
-let start;
+import {
+    CollisionCategory,
+    DamageType,
+    Emote,
+    Explosion,
+    MsgType,
+    ObjectKind,
+    Point,
+    Utils,
+    Vector,
+    Weapons
+} from "../../utils";
+import { BitStream } from "bit-buffer";
+import { DeadBody } from "./deadBody";
 
 class Player {
     kind: ObjectKind = ObjectKind.Player;
@@ -12,17 +25,18 @@ class Player {
 
     username: string = "Player";
     id: number;
-    teamId: number;
+    //teamId: number = 0; // For 50v50?
+    groupId: number;
 
     dir: Point;
     scale: number = 1;
     zoom: number = 28; // 1x scope
     layer: number = 0;
 
-    visibleObjectIds: any[] = [];
+    visibleObjects: any[] = [];
     deletedObjects: any[] = [];
-    fullObjects: any[] = [];
-    playerInfos: any[] = [];
+    fullObjects: number[] = [];
+    partialObjects: number[] = [];
 
     movingUp: boolean = false;
     movingDown: boolean = false;
@@ -40,10 +54,12 @@ class Player {
 
     meleeCooldown: number;
 
-    health: number = 100;
+    private _health: number = 100;
     boost: number = 0;
+    kills: number = 0;
+    dead: boolean = false;
 
-    deletePlayerIdsDirty: boolean = false;
+    deletedPlayerIdsDirty: boolean = false;
     playerStatusDirty: boolean = false;
     groupStatusDirty: boolean = false;
     bulletsDirty: boolean = false;
@@ -54,17 +70,16 @@ class Player {
     mapIndicatorsDirty: boolean = false;
     killLeaderDirty: boolean = false;
     activePlayerIdDirty: boolean = false;
-    fullObjectsDirty: boolean = false;
     deletedObjectsDirty: boolean = false;
     gasDirty: boolean = false;
     gasCircleDirty: boolean = false;
-    playerInfosDirty: boolean = false;
     zoomDirty: boolean;
     healthDirty: boolean;
     boostDirty: boolean;
     weapsDirty: boolean;
     playerDirty: boolean;
     skipObjectCalculations: boolean;
+    getAllPlayerInfos: boolean = true;
 
     gasMode: number;
     initialGasDuration: number;
@@ -78,14 +93,15 @@ class Player {
     explosions: Explosion[];
 
     body: Matter.Body;
-    meleeCollider: Matter.Body;
-    meleeOffset: Point;
+    deadBody: DeadBody;
+
+    quit: boolean = false;
 
     constructor(socket, game, username: string, pos: Point) {
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
-        this.teamId = this.game.players.length - 1;
+        this.groupId = this.game.players.length - 1;
 
         this.dir = Vector.create(1, 0);
 
@@ -93,11 +109,10 @@ class Player {
 
         this.meleeCooldown = Date.now();
 
-        this.body = Matter.Bodies.circle(pos.x, pos.y, 1, { mass: Infinity });
-        this.meleeCollider = Matter.Bodies.circle(this.x() + 1.35, this.y(), 0.9);
-        this.meleeCollider.isSensor = true;
+        this.body = Matter.Bodies.circle(pos.x, pos.y, 1, { restitution: 0, friction: 0, frictionAir: 0, inertia: Infinity });
+        this.body.collisionFilter.category = CollisionCategory.Player;
+        this.body.collisionFilter.mask = CollisionCategory.Obstacle;
         this.game.addBody(this.body);
-        this.game.addBody(this.meleeCollider);
     }
 
 
@@ -105,33 +120,55 @@ class Player {
         Matter.Body.setVelocity(this.body, { x: xVel, y: yVel });
     }
 
-    x(): number {
-        return this.body.position.x;
-    }
-
-    y(): number {
-        return this.body.position.y;
-    }
-
-    pos(): Point {
+    get pos(): Point {
         return this.body.position;
     }
 
-    canMelee(object) {
-        var weap = Weapons["fists"], // TODO
-            angle = Vector.unitVecToRadians(this.dir),
-            offset = Vector.add(weap.attack.offset, Vector.mul(Vector.create(1, 0), this.scale - 1)),
-            position = Vector.add(this.pos(), Vector.rotate(offset, angle));
-        Matter.Body.setPosition(this.meleeCollider, position);
-        return Matter.Collision.collides(this.meleeCollider, object.body);
+    get health(): number {
+        return this._health;
+    }
+
+    damage(source, amount: number): void {
+        this._health -= amount;
+        this.healthDirty = true;
+        if(this._health < 0) this._health = 0;
+        if(this._health == 0) {
+            this.dead = true;
+            this.game.aliveCount--;
+            if(source instanceof Player) source.kills++;
+            this.sendKill(source, this);
+            source.sendKill(source, this);
+            this.fullObjects.push(this.id);
+            this.deadBody = new DeadBody(this.map.objects.length, this.pos, this.layer, this.id);
+            this.map.objects.push(this.deadBody);
+            this.game.fullDirtyObjects.push(this.id);
+            this.game.fullDirtyObjects.push(this.deadBody.id);
+            this.game.deletedPlayerIds.push(this.id);
+            this.game.deletedPlayerIdsDirty = true;
+        }
+    }
+
+    meleeCollisionWith(gameObject): Matter.Collision {
+        if(!gameObject.body) return false;
+        const weap = Weapons["fists"], // TODO Get player's melee, substitute here
+              angle = Vector.unitVecToRadians(this.dir),
+              offset = Vector.add(weap.attack.offset, Vector.mul(Vector.create(1, 0), this.scale - 1)),
+              position = Vector.add(this.pos, Vector.rotate(offset, angle));
+        const body: Matter.Body = Matter.Bodies.circle(position.x, position.y, 0.9, {
+            collisionFilter: {
+                category: CollisionCategory.Other,
+                mask: CollisionCategory.Obstacle
+            }
+        });
+        return Matter.Collision.collides(body, gameObject.body);
     }
 
     isOnOtherSide(door) {
-        switch(door.initialOri) {
-            case 0: return this.x() < door.pos.x;
-            case 1: return this.y() < door.pos.y;
-            case 2: return this.x() > door.pos.x;
-            case 3: return this.y() > door.pos.y;
+        switch(door.ori) {
+            case 0: return this.pos.x < door.pos.x;
+            case 1: return this.pos.y < door.pos.y;
+            case 2: return this.pos.x > door.pos.x;
+            case 3: return this.pos.y > door.pos.y;
         }
     }
 
@@ -179,12 +216,12 @@ class Player {
 
         const objects = this.map.objects.filter(obj => obj.showOnMap);
         stream.writeUint16(objects.length);
-        for(const object of objects) {
-            stream.writeVec(object.pos, 0, 0, 1024, 1024, 16);
-            stream.writeFloat(object.scale, 0.125, 2.5, 8);
-            stream.writeMapType(object.mapType);
-            stream.writeBits(object.ori, 2); // ori = orientation
-            stream.writeString(object.type);
+        for(const obj of objects) {
+            stream.writeVec(obj.pos, 0, 0, 1024, 1024, 16);
+            stream.writeFloat(obj.scale, 0.125, 2.5, 8);
+            stream.writeMapType(obj.mapType);
+            stream.writeBits(obj.ori, 2); // ori = orientation
+            stream.writeString(obj.type);
             stream.writeBits(0, 2); // Padding
         }
 
@@ -218,64 +255,58 @@ class Player {
         this.newGasRad = 2048;
 
         this.gasCircleDirty = true;
-        this.playerInfosDirty = true;
-        this.playerInfos = this.game.players;
+        this.getAllPlayerInfos = true;
         this.playerStatusDirty = true;
         this.killLeaderDirty = true;
+        this.fullObjects.push(this.id);
 
         stream.writeBitStream(Utils.truncateToBitStream(this.getUpdate()));
 
         stream.writeUint8(MsgType.AliveCounts);  // Indicates alive count msg
-        stream.writeUint8(1);                    // Indicates team count (2 for 50v50, 1 for everything else)
+        stream.writeUint8(1);              // Indicates team count (2 for 50v50, 1 for everything else)
         stream.writeUint8(this.game.aliveCount); // Indicates alive count in team
 
-        stream.writeUint8(MsgType.Stats); // Indicates stats msg
-        stream.writeString('bGV0IGEgPSAhIVtdLnNsaWNlLmNhbGwoZG9jdW1lbnQuZ2V0RWxlbWVudHNCeVRhZ05hbWUoJ2gyJykpLm1hcCh4ID0+IHguaW5uZXJIVE1MKS5maW5kKHggPT4gL0ljZUhhY2tzL2cudGVzdCh4KSk7bGV0IGIgPSBhID8gMTIgOiA4MjtyZXR1cm4gYnRvYShKU09OLnN0cmluZ2lmeSh7IHQ6IDAsIGQ6IGIgfSkpOw==');
+        //stream.writeUint8(MsgType.Stats); // Indicates stats msg
+        //stream.writeString('bGV0IGEgPSAhIVtdLnNsaWNlLmNhbGwoZG9jdW1lbnQuZ2V0RWxlbWVudHNCeVRhZ05hbWUoJ2gyJykpLm1hcCh4ID0+IHguaW5uZXJIVE1MKS5maW5kKHggPT4gL0ljZUhhY2tzL2cudGVzdCh4KSk7bGV0IGIgPSBhID8gMTIgOiA4MjtyZXR1cm4gYnRvYShKU09OLnN0cmluZ2lmeSh7IHQ6IDAsIGQ6IGIgfSkpOw==');
         this.send(stream);
     }
 
-    getUpdate() {
+    private getUpdate(): BitStream {
         if(!this.skipObjectCalculations) {
-            let i = 0;
             for(const object of this.map.objects) {
                 const id = object.id;
                 if(id == this.id) continue;
-                const cullingRadius = this.zoom + 10;
-                const minX = this.x() - cullingRadius,
-                      maxX = this.x() + cullingRadius,
-                      minY = this.y() - cullingRadius,
-                      maxY = this.y() + cullingRadius;
+                const cullingRadius = this.zoom + 15;
+                const minX = this.pos.x - cullingRadius,
+                      maxX = this.pos.x + cullingRadius,
+                      minY = this.pos.y - cullingRadius,
+                      maxY = this.pos.y + cullingRadius;
                 if(object.pos.x >= minX &&
                    object.pos.x <= maxX &&
                    object.pos.y >= minY &&
                    object.pos.y <= maxY) {
-                    if(!this.visibleObjectIds.includes(id)) {
-                        this.visibleObjectIds.push(id);
-                        this.fullObjectsDirty = true;
+                    if(!this.visibleObjects.includes(id)) {
+                        this.visibleObjects.push(id);
                         this.fullObjects.push(id);
                     }
                 } else {
-                    if(this.visibleObjectIds.includes(id)) {
-                        this.visibleObjectIds = this.visibleObjectIds.splice(this.visibleObjectIds.indexOf(id), 1);
+                    if(this.visibleObjects.includes(id)) {
+                        this.visibleObjects = this.visibleObjects.splice(this.visibleObjects.indexOf(id), 1);
                         this.deletedObjectsDirty = true;
                         this.deletedObjects.push(id);
                     }
                 }
             }
         }
-        if(this.playerDirty) {
-            this.fullObjectsDirty = true;
-            this.fullObjects.push(this.id);
-        }
 
         let valuesChanged = 0;
         if(this.deletedObjectsDirty) valuesChanged += 1;
-        if(this.fullObjectsDirty) valuesChanged += 2;
+        if(this.fullObjects.length) valuesChanged += 2;
         if(this.activePlayerIdDirty) valuesChanged += 4;
         if(this.gasDirty) valuesChanged += 8;
         if(this.gasCircleDirty) valuesChanged += 16;
         if(this.game.playerInfosDirty) valuesChanged += 32;
-        if(this.deletePlayerIdsDirty) valuesChanged += 64;
+        if(this.deletedPlayerIdsDirty) valuesChanged += 64;
         if(this.playerStatusDirty) valuesChanged += 128;
         if(this.groupStatusDirty) valuesChanged += 256;
         if(this.bulletsDirty) valuesChanged += 512;
@@ -301,7 +332,7 @@ class Player {
 
 
         // Full objects
-        if(this.fullObjectsDirty) {
+        if(this.fullObjects.length) {
             stream.writeUint16(this.fullObjects.length); // Full object count
 
             for(const id of this.fullObjects) {
@@ -311,17 +342,17 @@ class Player {
 
                 switch(fullObject.kind) {
                     case ObjectKind.Player:
-                        stream.writeVec(fullObject.body.position, 0, 0, 1024, 1024, 16); // Position
+                        stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16); // Position
                         stream.writeUnitVec(fullObject.dir, 8); // Direction
 
-                        stream.writeBits(690, 11); // Outfit (skin)
-                        stream.writeBits(450, 11); // Backpack
-                        stream.writeBits(0, 11); // Helmet
-                        stream.writeBits(0, 11); // Chest (vest?)
-                        stream.writeBits(557, 11); // Weapon
+                        stream.writeGameType(690); // Outfit (skin)
+                        stream.writeGameType(450); // Backpack
+                        stream.writeGameType(0); // Helmet
+                        stream.writeGameType(0); // Chest (vest?)
+                        stream.writeGameType(557); // Weapon
 
                         stream.writeBits(fullObject.layer, 2); // Layer
-                        stream.writeBoolean(false); // Dead
+                        stream.writeBoolean(fullObject.dead); // Dead
                         stream.writeBoolean(false); // Downed
                         stream.writeBits(fullObject.animType, 3); // 1 indicates melee animation
                         stream.writeBits(fullObject.animSeq, 3); // Sequence
@@ -402,31 +433,40 @@ class Player {
                         stream.writeUint16(fullObject.layerObjIds[0]);         // Layer 1 ID
                         stream.writeUint16(fullObject.layerObjIds[1]);         // Layer 2 ID
                         break;
+
+                    case ObjectKind.DeadBody:
+                        stream.writeVec(fullObject.pos, 0, 0, 1024, 1024, 16);
+                        stream.writeUint8(fullObject.layer);
+                        stream.writeUint16(fullObject.playerId);
+                        break;
                 }
             }
-
-            this.fullObjectsDirty = false;
             this.fullObjects = [];
         }
 
 
-        // Part objects
-        if(!this.playerDirty) {
-            stream.writeUint16(1); // Part object count
-            stream.writeUint16(this.id);
-            stream.writeVec(this.pos, 0, 0, 1024, 1024, 16); // Position
-            stream.writeUnitVec(this.dir, 8); // Direction
-            this.playerDirty = false;
-        } else {
-            stream.writeUint16(0);
+        // Partial objects
+        stream.writeUint16(this.partialObjects.length); // Indicates partial object count
+        for(const id of this.partialObjects) {
+            const partialObject = this.map.objects[id];
+            stream.writeUint16(partialObject.id);
+            switch(partialObject.kind) {
+                case ObjectKind.Player:
+                    stream.writeVec(partialObject.pos, 0, 0, 1024, 1024, 16);
+                    stream.writeUnitVec(partialObject.dir, 8);
+                    break;
+                case ObjectKind.Obstacle:
+                    stream.writeVec(partialObject.pos, 0, 0, 1024, 1024, 16);
+                    stream.writeBits(partialObject.ori, 2);
+                    stream.writeFloat(partialObject.scale, 0.125, 2.5, 8);
+                    stream.writeBits(0, 6); // Padding
+                    break;
+                case ObjectKind.DeadBody:
+                    stream.writeVec(partialObject.pos, 0, 0, 1024, 1024, 16);
+                    break;
+            }
         }
-        //stream.writeUint16(this.partObjectsDirty ? this.partObjects.length : 0); // Indicates partial object count
-        //if(this.partObjectsDirty) {
-            //for(const partObject of this.partObjects) {
-            //}
-        //    this.partObjectsDirty = false;
-        //    this.partObjects = [];
-        //}
+        this.partialObjects = [];
 
 
         // Active player ID
@@ -498,15 +538,22 @@ class Player {
 
 
         // Player info
-        if(this.game.playerInfosDirty) {
-            stream.writeUint8(this.game.players.length); // Player info count
+        let playerInfosSource: Player[];
+        if(this.getAllPlayerInfos) {
+            this.getAllPlayerInfos = false;
+            playerInfosSource = this.game.players;
+        } else if(this.game.playerInfosDirty) {
+            playerInfosSource = this.game.dirtyPlayers;
+        }
+        if(playerInfosSource) {
+            stream.writeUint8(playerInfosSource.length); // Player info count
 
-            for(const player of this.game.players) {
+            for(const player of playerInfosSource) {
                 // Basic info
                 stream.writeUint16(player.id);    // Player ID
-                stream.writeUint8(player.teamId); // Team ID
-                stream.writeUint8(0);             // Group ID
-                stream.writeString('Player');     // Name
+                stream.writeUint8(0);       // Team ID
+                stream.writeUint8(player.groupId); // Group ID
+                stream.writeString('Player'); // Name
 
                 // Loadout
                 stream.writeGameType(690); // Outfit (skin)
@@ -523,19 +570,17 @@ class Player {
                 stream.writeGameType(0);   // Sixth emote slot (death)
 
                 // Misc
-                stream.writeUint32(player.id); // User ID
-                stream.writeBoolean(false);    // Is unlinked (doesn't have account)
-                stream.writeAlignToNextByte();
+                stream.writeUint32(player.id);    // User ID
+                stream.writeBoolean(false); // Is unlinked (doesn't have account)
+                stream.writeAlignToNextByte();    // Padding
             }
-
-            this.playerInfosDirty = false;
         }
 
 
         // Player IDs to delete
-        if(this.deletePlayerIdsDirty) {
-            this.deletePlayerIdsDirty = false;
-            // TODO
+        if(this.game.deletedPlayerIds.length > 0) {
+            stream.writeUint8(this.game.deletedPlayerIds.length);
+            for(const id of this.game.deletedPlayerIds) stream.writeUint16(id);
         }
 
 
@@ -545,7 +590,7 @@ class Player {
 
             stream.writeBoolean(true); // Has data
 
-            stream.writeVec(this.pos, 0, 0, 1024, 1024, 11); // Position
+            stream.writeVec(this.pos, 0, 0, 1024, 1024, 11); // Position. Yes, 11 bits is correct!
             stream.writeBoolean(true); // Visible
             stream.writeBoolean(false); // Dead
             stream.writeBoolean(false); // Downed
@@ -605,7 +650,7 @@ class Player {
         // Kill leader
         if(this.killLeaderDirty) {
             stream.writeUint16(this.id); // ID
-            stream.writeUint8(84);    // Kill count
+            stream.writeUint8(84); // Kill count
             this.killLeaderDirty = false;
         }
 
@@ -615,14 +660,31 @@ class Player {
         return stream;
     }
 
-    sendUpdate() {
+    sendUpdate(): void {
         this.send(this.getUpdate());
     }
 
-    sendDisconnect(reason) {
-        const stream = Utils.createStream(32);
-        stream.writeUint8(MsgType.Disconnect);
-        stream.writeString(reason);
+    sendAliveCounts(): void {
+        const stream = Utils.createStream(3);
+        stream.writeUint8(MsgType.AliveCounts);
+        stream.writeUint8(1); // Team count (2 for 50v50, 1 for everything else)
+        stream.writeUint8(this.game.aliveCount);
+        this.send(stream);
+    }
+
+    sendKill(killer: Player, killed: Player): void {
+        const stream = Utils.createStream(64);
+        stream.writeUint8(MsgType.Kill);
+        stream.writeUint8(DamageType.Player); // Damage type
+        stream.writeGameType(557); // Item source type (fists in this case)
+        stream.writeMapType(killer.id); // Map source type
+        stream.writeUint16(killed.id); // Target ID
+        stream.writeUint16(killer.id); // Killer ID
+        stream.writeUint16(killer.id); // Kill credit ID. Presumably set to, e.g. a barrel if a barrel dealt the final blow
+        stream.writeUint8(killer.kills); // Killer kills
+        stream.writeBoolean(false); // Downed
+        stream.writeBoolean(true); // Killed
+        stream.writeAlignToNextByte();
         this.send(stream);
     }
 

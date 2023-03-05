@@ -3,19 +3,23 @@ import Matter from "matter-js";
 
 import { Emote, Explosion, GameOptions, InputType, MsgType, Utils, Vector } from "../utils";
 import { Map } from "./map";
-import { Player } from "./player";
-import { Obstacle } from "./miscObjects";
+import { Player } from "./objects/player";
+import { Obstacle } from "./objects/obstacle";
 
 class Game {
     id: string;
     map: Map;
 
     players: Player[];
+    dirtyPlayers: Player[];
     aliveCount: number = 0;
+    aliveCountDirty: boolean = false;
     playerInfosDirty: boolean = false;
+    deletedPlayerIds: number[];
     emotes: Emote[];
     explosions: Explosion[];
-    dirtyObjects: number[];
+    fullDirtyObjects: number[];
+    partialDirtyObjects: number[];
 
     timer: NodeJS.Timer;
 
@@ -28,7 +32,7 @@ class Game {
 
         this.emotes = [];
         this.explosions = [];
-        this.dirtyObjects = [];
+        this.fullDirtyObjects = [];
 
         this.timer = setInterval(() => this.tick(), GameOptions.tickDelta);
         this.engine = Matter.Engine.create();
@@ -37,13 +41,19 @@ class Game {
         this.map = new Map(this, "main");
     }
 
-    tick() {
+    private tick(): void {
+
+        // Update physics engine
+        Matter.Engine.update(this.engine, GameOptions.tickDelta);
+
+        // First loop: Calculate movement & animations.
         for(const p of this.players) {
-            p.playerInfos = this.players;
+            if(p.dead || p.quit) continue;
 
             // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
 
             // Movement
+            p.notMoving = false;
             const s = GameOptions.movementSpeed, ds = GameOptions.diagonalSpeed;
             if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
             else if(p.movingUp && p.movingRight) p.setVelocity(ds, ds);
@@ -58,10 +68,6 @@ class Game {
                 if(!p.notMoving) p.setVelocity(0, 0);
                 p.notMoving = true;
             }
-            if(p.notMoving) p.skipObjectCalculations = false;
-
-            // Send update
-            p.playerDirty = true; // REMOVE ME LATER
 
             if(p.shootStart) {
                 p.shootStart = false;
@@ -75,27 +81,50 @@ class Game {
                         p.animTime = 0;
                     }
 
-                    // Check if the player is punching anything
-                    for(const id of p.visibleObjectIds) {
+                    // If the player is punching anything, damage the closest object
+                    let maxDepth: number = 0, closestObject = null;
+                    for(const id of p.visibleObjects) {
                         const object = this.map.objects[id];
-                        if(object instanceof Obstacle && object.destructible && p.canMelee(object)) {
-                            object.damage(24);
-                            if(object.isDoor) object.interact(p);
-                            this.dirtyObjects.push(id);
+                        if(object.dead) continue;
+                        if((object instanceof Obstacle && object.destructible) || object instanceof Player) {
+                            const collision: Matter.Collision = p.meleeCollisionWith(object);
+                            if(collision && collision.depth > maxDepth) {
+                                maxDepth = collision.depth;
+                                closestObject = object;
+                            }
+                        }
+                    }
+                    if(closestObject) {
+                        closestObject.damage(p, 24);
+
+                        if(closestObject.isDoor) closestObject.interact(p);
+
+                        if(closestObject instanceof Obstacle) {
+                            if(closestObject.dead) this.fullDirtyObjects.push(closestObject.id);
+                            else this.partialDirtyObjects.push(closestObject.id);
                         }
                     }
                 }
             }
 
             if(p.animActive) {
-                p.playerDirty = true;
+                this.fullDirtyObjects.push(p.id);
+                p.fullObjects.push(p.id);
                 p.animTime++;
                 p.animSeq = 1;
                 if(p.animTime > 8) {
                     p.animActive = false;
                     p.animType = p.animSeq = p.animTime = 0;
                 }
+            } else {
+                this.partialDirtyObjects.push(p.id);
+                p.partialObjects.push(p.id); // TODO Check for movement first
             }
+        }
+
+        // Second loop: calculate visible objects & send updates
+        for(const p of this.players) {
+            p.skipObjectCalculations = !this.fullDirtyObjects.length && !this.partialDirtyObjects.length && p.notMoving;
 
             if(this.emotes.length > 0) {
                 p.emotesDirty = true;
@@ -107,19 +136,27 @@ class Game {
                 p.explosions = this.explosions;
             }
 
-            if(this.dirtyObjects.length > 0) {
-                p.fullObjectsDirty = true;
-                for(const id of this.dirtyObjects) {
-                    if(p.visibleObjectIds.includes(id)) p.fullObjects.push(id);
+            if(this.fullDirtyObjects.length > 0) {
+                for(const id of this.fullDirtyObjects) {
+                    if(p.visibleObjects.includes(id)) p.fullObjects.push(id);
+                }
+            }
+
+            if(this.partialDirtyObjects.length > 0) {
+                for(const id of this.partialDirtyObjects) {
+                    if(p.visibleObjects.includes(id)) p.partialObjects.push(id);
                 }
             }
 
             p.sendUpdate();
+            if(this.aliveCountDirty) p.sendAliveCounts();
         }
-        Matter.Engine.update(this.engine, GameOptions.tickDelta);
         this.emotes = [];
         this.explosions = [];
-        this.dirtyObjects = [];
+        this.fullDirtyObjects = [];
+        this.partialDirtyObjects = [];
+        this.dirtyPlayers = [];
+        this.deletedPlayerIds = [];
     }
 
     onMessage(stream, p) {
@@ -140,7 +177,6 @@ class Game {
                 stream.readBoolean();                            // Portrait
                 stream.readBoolean();                            // Touch move active
 
-
                 // Direction
                 const direction = stream.readUnitVec(10);
                 if(p.dir != direction) {
@@ -156,44 +192,49 @@ class Game {
                     const input = stream.readUint8();
                     switch(input) {
                         case InputType.Interact:
-                            for(const id of p.visibleObjectIds) {
+                            for(const id of p.visibleObjects) {
                                 const object = this.map.objects[id];
-                                if(object instanceof Obstacle && object.isDoor
-                                    && !object.dead && Utils.rectCollision(object.collisionMin, object.collisionMax, p.pos, 1 + object.interactionRad)) {
-                                    object.interact(p);
-                                    this.dirtyObjects.push(id);
+                                if(object instanceof Obstacle && object.isDoor && !object.dead) {
+                                    const interactionBody: Matter.Body = Matter.Bodies.circle(p.pos.x, p.pos.y, 1 + object.interactionRad);
+                                    const collisionResult: Matter.Collision = Matter.Collision.collides(interactionBody, object.body);
+                                    if(collisionResult && collisionResult.collides) {
+                                        object.interact(p);
+                                        this.partialDirtyObjects.push(id);
+                                    }
                                 }
                             }
                             break;
                     }
                 }
 
-
                 // Misc
-                stream.readGameType();                      // Item in use
-                stream.readBits(5);                         // Zeroes
+                stream.readGameType();   // Item in use
+                stream.readBits(5); // Zeroes
                 break;
 
             case MsgType.Emote:
-                const pos = stream.readVec(Vector.create(0, 0), Vector.create(1024, 1024), 16);
+                const pos = stream.readVec(0, 0, 1024, 1024, 16);
                 const type = stream.readGameType();
                 const isPing = stream.readBoolean();
                 stream.readBits(4); // Padding
-                this.emotes.push(new Emote(p.id, pos, type, isPing));
+                if(!p.dead) this.emotes.push(new Emote(p.id, pos, type, isPing));
                 break;
         }
     }
 
     addPlayer(socket, username) {
         let spawnPos;
-        if(global.DEBUG_MODE) spawnPos = Vector.create(450, 150);
+        if(GameOptions.debugMode) spawnPos = Vector.create(450, 150);
         else spawnPos = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
         
         const p = new Player(socket, this, username, spawnPos);
         p.id = this.map.objects.length;
         this.map.objects.push(p);
         this.players.push(p);
+        this.dirtyPlayers.push(p);
+        this.fullDirtyObjects.push(p.id);
         this.aliveCount++;
+        this.aliveCountDirty = true;
         this.playerInfosDirty = true;
         p.onJoin();
 
@@ -201,7 +242,12 @@ class Game {
     }
 
     removePlayer(p) {
-        this.players = this.players.splice(this.players.indexOf(p), 1);
+        p.dir = Vector.create(1, 0);
+        p.quit = true;
+        this.deletedPlayerIds.push(p.id);
+        this.partialDirtyObjects.push(p.id);
+        this.aliveCount--;
+        this.aliveCountDirty = true;
     }
 
     addBody(body) {
@@ -213,10 +259,7 @@ class Game {
     }
     
     end() {
-        for(const p of this.players) {
-            //p.sendDisconnect("Disconnected");
-            this.players.splice(this.players.indexOf(p), 1);
-        }
+        for(const p of this.players) p.socket.close();
         clearInterval(this.timer);
     }
 

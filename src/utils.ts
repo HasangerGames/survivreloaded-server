@@ -1,32 +1,26 @@
-declare global {
-    var DEBUG_MODE: boolean;
-    var Buildings: any[];
-}
-
-global.DEBUG_MODE = false;
-
 import fs from "fs";
 import { BitStream } from "bit-buffer";
+import Matter from "matter-js";
 
 function readJSON(path: string) {
     return JSON.parse(fs.readFileSync(path) as unknown as string);
 }
 
-const Objects = readJSON("data/objects.json");
-const Maps = readJSON("data/maps.json");
-const Items = readJSON("data/items.json");
-const Weapons = readJSON("data/weapons.json");
-const Bullets = readJSON("data/bullets.json");
-const typeToId = readJSON("data/ids.json");
+export const Objects = readJSON("data/objects.json");
+export const Maps = readJSON("data/maps.json");
+export const Items = readJSON("data/items.json");
+export const Weapons = readJSON("data/weapons.json");
+export const Bullets = readJSON("data/bullets.json");
+export const TypeToId = readJSON("data/ids.json");
 
-const ServerOptions = readJSON("config/server.json");
-const GameOptions = readJSON("config/game.json");
+export const ServerOptions = readJSON("config/server.json");
+export const GameOptions = readJSON("config/game.json");
 GameOptions.diagonalSpeed = GameOptions.movementSpeed / Math.SQRT2;
 
-type Point = { x: number, y: number };
-type IntersectResult = { point: Point, normal: Point };
+export type Point = { x: number, y: number };
+export type IntersectResult = { point: Point, normal: Point };
 
-class Emote {
+export class Emote {
     playerId: number;
     pos: Point;
     type: string;
@@ -39,7 +33,7 @@ class Emote {
     }
 }
 
-class Explosion {
+export class Explosion {
     pos: Point;
     type: string;
     layer: number;
@@ -50,14 +44,14 @@ class Explosion {
     }
 }
 
-enum ObjectKind {
+export enum ObjectKind {
     Invalid, Player, Obstacle, Loot,
     LootSpawner, DeadBody, Building, Structure,
     Decal, Projectile, Smoke, Airdrop, Npc,
     Skitternade
 }
 
-enum MsgType {
+export enum MsgType {
     None, Join, Disconnect, Input, Edit,
     Joined, Update, Kill, GameOver, Pickup,
     Map, Spectate, DropItem, Emote, PlayerStats,
@@ -66,7 +60,7 @@ enum MsgType {
     GamePlayerStats, BattleResults
 }
 
-enum InputType {
+export enum InputType {
     MoveLeft, MoveRight, MoveUp, MoveDown,
     Fire, Reload, Cancel, Interact, Revive,
     Use, Loot, EquipPrimary, EquipSecondary,
@@ -79,11 +73,25 @@ enum InputType {
     Fullscreen, HideUI, TeamPingSingle, UseEventItem
 }
 
-enum CollisionType {
+export enum DamageType {
+    Player, Bleeding, Gas, Airdrop, Airstrike,
+    Freeze, Weather, Npc, Burning, Phoenix
+}
+
+export enum CollisionType {
     Circle, Rectangle
 }
 
-class Utils {
+export enum CollisionCategory {
+    Player = 1, Obstacle = 2, Loot = 4, Other = 8
+}
+
+export class Utils {
+
+    static log(message: string): void {
+        const date: Date = new Date();
+        console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
+    }
 
     static truncate(stream) {
         const oldArray = new Uint8Array(stream.buffer);
@@ -97,10 +105,10 @@ class Utils {
 
     static send(socket, packet): void { socket.send(Utils.truncate(packet)); }
 
-    static randomBase(min: number, max: number): number { return Math.random() * (max - min) + min; }
-    static random(min: number, max: number): number { return Math.floor(Utils.randomBase(min, max + 1)); }
+    static randomFloat(min: number, max: number): number { return Math.random() * (max - min) + min; }
+    static random(min: number, max: number): number { return Math.floor(Utils.randomFloat(min, max + 1)); }
     static randomVec(minX: number, maxX: number, minY: number, maxY: number): Vector { return Vector.create(Utils.random(minX, maxX), Utils.random(minY, maxY)); }
-    static randomFloat(min: number, max: number) { return Utils.randomBase(min, max).toFixed(3); }
+
     // https://stackoverflow.com/a/55671924/5905216
     static weightedRandom(items: any[], weights: number[]) {
         let i;
@@ -116,8 +124,6 @@ class Utils {
 
     static distanceBetween(v1: Point, v2: Point): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
 
-    static typeToId(type: string): number { return typeToId[type]; }
-    static getBuildingByType(type: string) { for(const building of Buildings) if(building.type == type) return building; }
 
     static intersectSegmentCircle(pos1: Point, pos2: Point, pos3: Point, rad: number): IntersectResult | null {
         let lengthVec = Vector.sub(pos2, pos1),
@@ -146,35 +152,17 @@ class Utils {
         return null;
     }
 
-    static getLine(origin: Point, length: number, angle: number) {
-        return Vector.create(origin.x + length * Math.cos(angle), origin.y + length * Math.sin(angle));
-    }
-
-    static circleCollision(pos1: Point, r1: number, pos2: Point, r2: number) {
-        const a = r1 + r2;
-        const x = pos1.x - pos2.x;
-        const y = pos1.y - pos2.y;
-        return a > Math.sqrt((x * x) + (y * y));
-    }
-
-    static rectCollision(min: Point, max: Point, circlePos: Point, circleRad: number): boolean {
-        // TODO Replace this collision detection function with a more efficient one from the surviv code
-        const rectWidth = max.x - min.x - 0.1;
-        const rectHeight = max.y - min.y - 0.2;
-        min = Vector.add2(min, rectWidth/2, rectHeight/2);
-        const distx = Math.abs(circlePos.x - min.x);
-        const disty = Math.abs(circlePos.y - min.y);
-
-        if (distx > (rectWidth/2 + circleRad)) { return false; }
-        if (disty > (rectHeight/2 + circleRad)) { return false; }
-
-        if (distx <= (rectWidth/2)) { return true; }
-        if (disty <= (rectHeight/2)) { return true; }
-
-        const hypot = (distx - rectWidth / 2) * (distx - rectWidth / 2) +
-            (disty - rectHeight / 2) * (disty - rectHeight / 2);
-
-        return (hypot <= (circleRad*circleRad));
+    static addOris(n1: number, n2: number) {
+        const sum: number = n1 + n2;
+        if(sum <= 3) return sum;
+        switch(sum) {
+            case 4:
+                return 0;
+            case 5:
+                return 1;
+            case 6:
+                return 2;
+        }
     }
 
     static addAdjust(pos1: Point, pos2: Point, ori: number): Point {
@@ -202,7 +190,6 @@ class Utils {
     static rotateRect(pos: Point, min: Point, max: Point, scale: number, ori: number) {
         min = Vector.mul(min, scale);
         max = Vector.mul(max, scale);
-
         if(ori != 0) {
             const minX = min.x, minY = min.y,
                   maxX = max.x, maxY = max.y;
@@ -226,10 +213,30 @@ class Utils {
             max: Utils.addAdjust(pos, max, ori)
         };
     }
+
+    static bodyFromCollisionData(data, pos: Point, ori: number = 0, scale: number = 1): Matter.Body {
+        if(!data || !data.type) {
+            //console.error("Missing collision data");
+        }
+        let body: Matter.Body;
+        if(data.type == CollisionType.Circle) {
+            // noinspection TypeScriptValidateJSTypes
+            body = Matter.Bodies.circle(pos.x, pos.y, data.rad, { isStatic: true });
+        } else if(data.type == CollisionType.Rectangle) {
+            let rect = Utils.rotateRect(pos, data.min, data.max, scale, ori);
+            const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
+            const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
+            body = Matter.Bodies.rectangle(x, y, width, height, { isStatic: true });
+        }
+        if(scale != 1) Matter.Body.scale(body, scale, scale);
+        body.collisionFilter.category = CollisionCategory.Obstacle;
+        body.collisionFilter.mask = CollisionCategory.Player;
+        return body;
+    }
     
 }
 
-class Vector {
+export class Vector {
 
     static create(x: number, y: number): Point {
         return {x: x, y: y};
@@ -297,7 +304,7 @@ class Vector {
 
 // TODO: Add writeTruncatedBitStream(stream), sendTo(socket), alloc(length)
 
-class SurvivBitStream extends BitStream {
+export class SurvivBitStream extends BitStream {
     constructor(source, byteOffset: number = 0, byteLength: number = null) {
         super(source, byteOffset, byteLength);
     }
@@ -329,18 +336,19 @@ class SurvivBitStream extends BitStream {
         return min + this.readBits(bitCount);
     }
 
-    writeVec(vec, minX, minY, maxX, maxY, bitCount) {
-        this.writeFloat(vec.x, minX, maxX, bitCount), this.writeFloat(vec.y, minY, maxY, bitCount);
+    writeVec(vec: Point, minX: number, minY: number, maxX: number, maxY: number, bitCount: number) {
+        this.writeFloat(vec.x, minX, maxX, bitCount);
+        this.writeFloat(vec.y, minY, maxY, bitCount);
     }
 
-    readVec(min: Point, max: Point, bitCount) {
-        return Vector.create(this.readFloat(min.x, max.x, bitCount), this.readFloat(min.y, max.y, bitCount));
+    readVec(minX: number, minY: number, maxX: number, maxY: number, bitCount: number) {
+        return Vector.create(this.readFloat(minX, maxX, bitCount), this.readFloat(minY, maxY, bitCount));
     }
     writeUnitVec(vec: Point, bitCount) {
         this.writeVec(vec, -1, -1, 1, 1, bitCount);
     }
     readUnitVec(bitCount) {
-        return this.readVec(Vector.create(-1, -1), Vector.create(1, 1), bitCount);
+        return this.readVec(-1, -1, 1, 1, bitCount);
     }
     writeVec32(vec: Point) {
         this.writeFloat32(vec.x);
@@ -370,11 +378,3 @@ class SurvivBitStream extends BitStream {
         return this.readBits(12);
     }
 }
-
-export {
-    Objects, Maps, Items, Weapons, Bullets,
-    ServerOptions, GameOptions,
-    ObjectKind, MsgType, InputType, CollisionType,
-    Utils, Vector, SurvivBitStream,
-    Point, IntersectResult, Emote, Explosion
-};
