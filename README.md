@@ -8,7 +8,7 @@ Surviv Reloaded is an open-source server for the defunct online game surviv.io. 
 
 ## Try it out!
 
-https://taskjourney.org:449
+https://survivreloaded.com
 
 ## FAQ
 
