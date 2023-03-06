@@ -186,6 +186,7 @@ export class Player {
         if(this._health == 0) {
             this.dead = true;
             this.game.aliveCount--;
+            this.game.aliveCountDirty = true;
             if(source instanceof Player) {
                 source.kills++;
                 this.game.kills.push(new KillPacket(this, source));

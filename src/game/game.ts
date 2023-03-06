@@ -27,7 +27,7 @@ export class Game {
 
     players: Player[] = [];
     dirtyPlayers: Player[] = [];
-    _aliveCount: number = 0;
+    aliveCount: number = 0;
     aliveCountDirty: boolean = false;
     playerInfosDirty: boolean = false;
     deletedPlayerIds: number[] = [];
@@ -308,15 +308,6 @@ export class Game {
         Composite.remove(this.engine.world, body);
     }
 
-
-    set aliveCount(aliveCount: number) {
-        this._aliveCount = aliveCount;
-        this.aliveCountDirty = true;
-    }
-
-    get aliveCount(): number {
-        return this._aliveCount;
-    }
     
     end() {
         for(const p of this.players) p.socket.close();
