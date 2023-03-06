@@ -1,7 +1,17 @@
 import crypto from "crypto";
 import { Bodies, Body, Collision, Composite, Engine, Vector } from "matter-js";
 
-import { Emote, Explosion, GameOptions, InputType, MsgType, SurvivBitStream as BitStream, Utils } from "../utils";
+import {
+    CollisionType,
+    Emote,
+    Explosion,
+    GameOptions,
+    InputType,
+    MsgType,
+    SurvivBitStream as BitStream,
+    Utils,
+    Weapons
+} from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
 import { Obstacle } from "./objects/obstacle";
@@ -9,21 +19,23 @@ import { AliveCountsPacket } from "../packets/aliveCountsPacket";
 import { UpdatePacket } from "../packets/updatePacket";
 import { JoinedPacket } from "../packets/joinedPacket";
 import { MapPacket } from "../packets/mapPacket";
+import { KillPacket } from "../packets/killPacket";
 
 export class Game {
     id: string;
     map: Map;
 
-    players: Player[];
-    dirtyPlayers: Player[];
-    aliveCount: number = 0;
+    players: Player[] = [];
+    dirtyPlayers: Player[] = [];
+    _aliveCount: number = 0;
     aliveCountDirty: boolean = false;
     playerInfosDirty: boolean = false;
-    deletedPlayerIds: number[];
-    emotes: Emote[];
-    explosions: Explosion[];
-    fullDirtyObjects: number[];
-    partialDirtyObjects: number[];
+    deletedPlayerIds: number[] = [];
+    emotes: Emote[] = [];
+    explosions: Explosion[] = [];
+    kills: KillPacket[] = [];
+    fullDirtyObjects: number[] = [];
+    partialDirtyObjects: number[] = [];
 
     timer: NodeJS.Timer;
 
@@ -37,13 +49,6 @@ export class Game {
 
     constructor() {
         this.id = crypto.createHash('md5').update(crypto.randomBytes(512)).digest('hex');
-
-        this.players = [];
-
-        this.emotes = [];
-        this.explosions = [];
-        this.fullDirtyObjects = [];
-        this.partialDirtyObjects = [];
 
         this.gasMode = 0;
         this.initialGasDuration = 0;
@@ -87,6 +92,8 @@ export class Game {
                 p.notMoving = true;
             }
 
+            // p.updateVisibleObjects();
+
             if(p.shootStart) {
                 p.shootStart = false;
                 if(Date.now() - p.meleeCooldown >= 250) {
@@ -100,12 +107,16 @@ export class Game {
                     }
 
                     // If the player is punching anything, damage the closest object
-                    let maxDepth: number = 0, closestObject = null;
-                    for(const id of p.visibleObjects) {
-                        const object = this.map.objects[id];
-                        if(object.dead) continue;
-                        if((object instanceof Obstacle && object.destructible) || object instanceof Player) {
-                            const collision: Collision = p.meleeCollisionWith(object);
+                    let maxDepth: number = -1, closestObject = null;
+                    const weap = Weapons["fists"], // TODO Get player's melee, substitute here
+                         angle = Utils.unitVecToRadians(p.direction),
+                        offset = Vector.add(weap.attack.offset, Vector.mult(Vector.create(1, 0), p.scale - 1)),
+                      position = Vector.add(p.position, Vector.rotate(offset, angle));
+                    const body: Body = Bodies.circle(position.x, position.y, 0.9);
+                    for(const object of this.map.objects) { // TODO This is very inefficient. Only check visible objects
+                        if(!object.body || object.dead || object.id == p.id) continue;
+                        if(((object instanceof Obstacle && object.destructible) || object instanceof Player)) {
+                            const collision: Collision = Collision.collides(body, object.body);
                             if(collision && collision.depth > maxDepth) {
                                 maxDepth = collision.depth;
                                 closestObject = object;
@@ -113,15 +124,23 @@ export class Game {
                         }
                     }
                     if(closestObject) {
-                        closestObject.damage(p, 24);
-
+                        closestObject.damage(24, p);
                         if(closestObject.isDoor) closestObject.interact(p);
+                    }
 
-                        if(closestObject instanceof Obstacle) {
-                            if(closestObject.dead) this.fullDirtyObjects.push(closestObject.id);
-                            else this.partialDirtyObjects.push(closestObject.id);
+                    /* This code is more efficient, but doesn't work:
+                    for(const id of p.visibleObjects) {
+                        const object = this.map.objects[id];
+                        if(!object.body || object.dead || object.id == p.id) continue;
+                        if(((object instanceof Obstacle && object.destructible) || object instanceof Player)) {
+                            const collision: Collision = Collision.collides(body, object.body);
+                            if(collision && collision.depth > maxDepth) {
+                                maxDepth = collision.depth;
+                                closestObject = object;
+                            }
                         }
                     }
+                    */
                 }
             }
 
@@ -168,9 +187,13 @@ export class Game {
 
             p.sendPacket(new UpdatePacket(p));
             if(this.aliveCountDirty) p.sendPacket(new AliveCountsPacket(p));
+            if(this.kills.length) {
+                for(const kill of this.kills) p.sendPacket(kill);
+            }
         }
         this.emotes = [];
         this.explosions = [];
+        this.kills = [];
         this.fullDirtyObjects = [];
         this.partialDirtyObjects = [];
         this.dirtyPlayers = [];
@@ -216,7 +239,7 @@ export class Game {
                                 if(object instanceof Obstacle && object.isDoor && !object.dead) {
                                     const interactionBody: Body = Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad);
                                     const collisionResult: Collision = Collision.collides(interactionBody, object.body);
-                                    if(collisionResult && collisionResult.collides) {
+                                    if(collisionResult && collisionResult.collided) {
                                         object.interact(p);
                                         this.partialDirtyObjects.push(id);
                                     }
@@ -283,6 +306,16 @@ export class Game {
 
     removeBody(body) {
         Composite.remove(this.engine.world, body);
+    }
+
+
+    set aliveCount(aliveCount: number) {
+        this._aliveCount = aliveCount;
+        this.aliveCountDirty = true;
+    }
+
+    get aliveCount(): number {
+        return this._aliveCount;
     }
     
     end() {

@@ -1,9 +1,11 @@
+import { Collision, Vector } from "matter-js";
+import Chance from "chance";
 import { GameOptions, Maps, ObjectKind, Objects, TypeToId, Utils } from "../utils";
 import { Game } from "./game";
-import { Collision, Vector } from "matter-js";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
+const chance = new Chance();
 
 export class Map {
     name: string;
@@ -69,7 +71,10 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects["club_structure_01"]);
             //this.genBuildingTest("house_red_01", 1, false);
-            this.genObstacleTest("crate_01");
+            this.genObstacleTest("crate_01", Vector.create(455, 155));
+            this.genObstacleTest("crate_01", Vector.create(505, 155));
+            this.genObstacleTest("crate_01", Vector.create(455, 205));
+            this.genObstacleTest("crate_01", Vector.create(505, 205));
         }
     
         this.groundPatches = [];
@@ -188,8 +193,8 @@ export class Map {
         ));
     }
 
-    private genObstacleTest(type) {
-        this.genObstacle(type, Objects[type], Vector.create(455, 155), 0, 0.8);
+    private genObstacleTest(type, pos?: Vector) {
+        this.genObstacle(type, Objects[type], pos ? pos : Vector.create(455, 155), 0, 0.8);
     }
 
     private genObstacle(type, obstacle, pos, orientation, scale, layer = 0) {
@@ -206,8 +211,8 @@ export class Map {
     }
 
     private genObstacles(count, type, obstacle) {
-        const scale = Utils.randomFloat(obstacle.scale.createMin, obstacle.scale.createMax);
         for(let i = 0; i < count; i++) {
+            const scale = Utils.randomBase(obstacle.scale.createMin, obstacle.scale.createMax);
             this.objects.push(new Obstacle(
                 this.objects.length,
                 this.game,
@@ -239,17 +244,16 @@ export class Map {
                 }
             }
             if(shouldContinue) continue;
-            if(!collisionData) break; // TODO Come back to this
+            if(!collisionData) break;
             const collider = Utils.bodyFromCollisionData(collisionData, position, scale);
             if(collider == null) break;
 
             for(const object of this.objects) {
-                if(object.body != null) {
-                    const collisionResult = Collision.collides(collider, object.body);
-                    if(collisionResult != null && collisionResult.collided) {
-                        shouldContinue = true;
-                        break;
-                    }
+                if(!object.body) continue;
+                const collisionResult = Collision.collides(collider, object.body);
+                if(collisionResult && collisionResult.collided) {
+                    shouldContinue = true;
+                    break;
                 }
             }
             if(shouldContinue) continue;

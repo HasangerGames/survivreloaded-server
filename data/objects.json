@@ -53436,7 +53436,7 @@
         "ori": 0
       },
       {
-        "type": "",
+        "type": "toilet_random",
         "pos": {
           "x": -9.75,
           "y": -8.25

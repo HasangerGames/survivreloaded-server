@@ -10,7 +10,6 @@ import fs from "fs";
 import { ServerOptions, SurvivBitStream as BitStream, Utils } from "./utils";
 import { Game } from "./game/game.js";
 
-
 const wsServer = new ws.Server({ noServer: true });
 const game = new Game();
 const app = express();
@@ -91,9 +90,9 @@ server.on("upgrade", (req, socket, head) => {
     });
 });
 
-function parseCookies (request) {
+function parseCookies(req) {
     const list = {};
-    const cookieHeader = request.headers?.cookie;
+    const cookieHeader = req.headers?.cookie;
     if (!cookieHeader) return list;
 
     cookieHeader.split(`;`).forEach(function(cookie) {
@@ -110,7 +109,7 @@ function parseCookies (request) {
 
 wsServer.on("connection", (socket, req) => {
     const cookies: any = parseCookies(req);
-    const p = game.addPlayer(socket, "Player", cookies.loadout ? JSON.parse(cookies.loadout) : null);
+    const p = game.addPlayer(socket, cookies["player-name"] ? cookies["player-name"] : "Player", cookies["loadout"] ? JSON.parse(cookies["loadout"]) : null);
     Utils.log("Player joined");
 
     socket.on("message", data => {

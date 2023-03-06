@@ -1,6 +1,6 @@
 import { Body, Vector } from "matter-js";
 
-import { ObjectKind, TypeToId, Utils } from "../../utils";
+import { CollisionType, ObjectKind, TypeToId, Utils } from "../../utils";
 import { Game } from "../game";
 import { Player } from "./player";
 
@@ -50,6 +50,7 @@ export class Obstacle {
     destructible: boolean;
 
     body: Body;
+    collision; // TODO Testing code, delete me
 
     constructor(id: number,
                 game: Game,
@@ -86,6 +87,9 @@ export class Obstacle {
             this.game.addBody(this.body);
         }
 
+        // TODO Testing code, delete me
+        this.collision = data.collision;
+
         this.isDoor = data.door != undefined;
         if(this.isDoor) {
             this.doorOpen = false;
@@ -108,7 +112,7 @@ export class Obstacle {
         return this._position;
     }
 
-    damage(source, amount: number): void {
+    damage(amount: number): void {
         this.health -= amount;
         if(this.health <= 0) {
             this.health = this.healthT = 0;
@@ -116,12 +120,14 @@ export class Obstacle {
             this.collidable = false;
             this.doorCanUse = false;
             this.game.removeBody(this.body);
+            this.game.fullDirtyObjects.push(this.id);
         } else {
             this.healthT = this.health / this.maxHealth;
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
             Body.scale(this.body, scaleFactor, scaleFactor);
+            this.game.partialDirtyObjects.push(this.id);
         }
     }
 

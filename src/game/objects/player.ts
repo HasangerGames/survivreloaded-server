@@ -1,17 +1,16 @@
 // noinspection TypeScriptValidateJSTypes
 
-import { Bodies, Body, Collision, Vector } from "matter-js";
+import { Bodies, Body, Vector } from "matter-js";
 import { Socket } from "ws";
 
 import {
     CollisionCategory,
     Emote,
     Explosion,
+    MsgType,
     ObjectKind,
     SurvivBitStream as BitStream,
-    TypeToId,
-    Utils,
-    Weapons
+    TypeToId
 } from "../../utils";
 import { DeadBody } from "./deadBody";
 import { Packet } from "../../packets/packet";
@@ -104,7 +103,7 @@ export class Player {
         this.map = this.game.map;
         this.socket = socket;
 
-        if(loadout) {
+        if(loadout && loadout.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes && loadout.deathEffect) {
             this.loadout = {
                 outfit: TypeToId[loadout.outfit],
                 melee: TypeToId[loadout.melee],
@@ -152,7 +151,35 @@ export class Player {
         return this._health;
     }
 
-    damage(source, amount: number): void {
+    /*updateVisibleObjects() {
+        for(const object of this.map.objects) {
+            const id = object.id;
+            if(id == this.id) continue;
+            const cullingRadius = this.zoom + 15;
+            const minX = this.position.x - cullingRadius,
+                maxX = this.position.x + cullingRadius,
+                minY = this.position.y - cullingRadius,
+                maxY = this.position.y + cullingRadius;
+            if(object.position.x >= minX &&
+                object.position.x <= maxX &&
+                object.position.y >= minY &&
+                object.position.y <= maxY) {
+                if(!this.visibleObjects.includes(id)) {
+                    this.visibleObjects.push(id);
+                    this.fullObjects.push(id);
+                }
+            } else {
+                const index: number = this.visibleObjects.indexOf(id);
+                if(index != -1) {
+                    this.visibleObjects = this.visibleObjects.splice(index, 1);
+                    this.deletedObjectsDirty = true;
+                    this.deletedObjects.push(id);
+                }
+            }
+        }
+    }*/
+
+    damage(amount: number, source): void {
         this._health -= amount;
         this.healthDirty = true;
         if(this._health < 0) this._health = 0;
@@ -161,9 +188,8 @@ export class Player {
             this.game.aliveCount--;
             if(source instanceof Player) {
                 source.kills++;
-                source.sendPacket(new KillPacket(this, source));
+                this.game.kills.push(new KillPacket(this, source));
             }
-            this.sendPacket(new KillPacket(this, source));
             this.fullObjects.push(this.id);
             this.deadBody = new DeadBody(this.map.objects.length, this.position, this.layer, this.id);
             this.map.objects.push(this.deadBody);
@@ -171,24 +197,6 @@ export class Player {
             this.game.fullDirtyObjects.push(this.deadBody.id);
             this.game.deletedPlayerIds.push(this.id);
         }
-    }
-
-    meleeCollisionWith(gameObject): Collision {
-        if(!gameObject.body) {
-            console.log("no body");
-            return false;
-        }
-        const weap = Weapons["fists"], // TODO Get player's melee, substitute here
-              angle = Utils.unitVecToRadians(this.direction),
-              offset = Vector.add(weap.attack.offset, Vector.mult(Vector.create(1, 0), this.scale - 1)),
-              position = Vector.add(this.position, Vector.rotate(offset, angle));
-        const body: Body = Bodies.circle(position.x, position.y, 0.9);
-        body.collisionFilter.category = CollisionCategory.Player;
-        body.collisionFilter.mask = CollisionCategory.Obstacle;
-        this.game.addBody(body);
-        const result: Collision = Collision.collides(body, gameObject.body);
-        this.game.removeBody(body);
-        return result;
     }
 
     isOnOtherSide(door) {

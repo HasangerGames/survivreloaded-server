@@ -30,8 +30,9 @@ export class UpdatePacket extends Packet {
                         this.p.fullObjects.push(id);
                     }
                 } else {
-                    if(this.p.visibleObjects.includes(id)) {
-                        this.p.visibleObjects = this.p.visibleObjects.splice(this.p.visibleObjects.indexOf(id), 1);
+                    const index: number = this.p.visibleObjects.indexOf(id);
+                    if(index != -1) {
+                        this.p.visibleObjects = this.p.visibleObjects.splice(index, 1);
                         this.p.deletedObjectsDirty = true;
                         this.p.deletedObjects.push(id);
                     }

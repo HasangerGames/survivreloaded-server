@@ -92,8 +92,10 @@ export class Utils {
         console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
     }
 
-    static randomFloat(min: number, max: number): number { return Math.random() * (max - min) + min; }
-    static random(min: number, max: number): number { return Math.floor(Utils.randomFloat(min, max + 1)); }
+    static randomBase(min: number, max: number): number {
+        return (Math.random() * (max - min) + min);
+    }
+    static random(min: number, max: number): number { return Math.floor(Utils.randomBase(min, max + 1)); }
     static randomVec(minX: number, maxX: number, minY: number, maxY: number): Vector { return Vector.create(Utils.random(minX, maxX), Utils.random(minY, maxY)); }
 
     // https://stackoverflow.com/a/55671924/5905216
@@ -137,6 +139,33 @@ export class Utils {
         }
 
         return null;
+    }
+
+    static circleCollision(pos1: Vector, r1: number, pos2: Vector, r2: number) {
+        const a = r1 + r2;
+        const x = pos1.x - pos2.x;
+        const y = pos1.y - pos2.y;
+        return a > Math.sqrt((x * x) + (y * y));
+    }
+
+    static rectCollision(min: Vector, max: Vector, circlePos: Vector, circleRad: number): boolean {
+        // TODO Replace this collision detection function with a more efficient one from the surviv code
+        const rectWidth = max.x - min.x;
+        const rectHeight = max.y - min.y;
+        min = Vector.add(min, Vector.create(rectWidth/2, rectHeight/2));
+        const distX = Math.abs(circlePos.x - min.x);
+        const distY = Math.abs(circlePos.y - min.y);
+
+        if (distX > (rectWidth/2 + circleRad)) { return false; }
+        if (distY > (rectHeight/2 + circleRad)) { return false; }
+
+        if (distX <= (rectWidth/2)) { return true; }
+        if (distY <= (rectHeight/2)) { return true; }
+
+        const hypot = (distX - rectWidth / 2) * (distX - rectWidth / 2) +
+            (distY - rectHeight / 2) * (distY - rectHeight / 2);
+
+        return (hypot <= (circleRad * circleRad));
     }
 
     static addOrientations(n1: number, n2: number) {
@@ -213,6 +242,7 @@ export class Utils {
             let rect = Utils.rotateRect(pos, data.min, data.max, scale, orientation);
             const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
             const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
+            if(width == 0 || height == 0) return null;
             body = Bodies.rectangle(x, y, width, height, { isStatic: true });
         }
         //if(scale != 1) Body.scale(body, scale, scale);

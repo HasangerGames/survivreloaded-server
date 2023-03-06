@@ -16,7 +16,7 @@ export class KillPacket extends Packet {
     writeData(stream: BitStream): void {
         super.writeData(stream);
         stream.writeUint8(DamageType.Player); // Damage type
-        stream.writeGameType(557); // Item source type (fists in this case)
+        stream.writeGameType(this.killer.loadout.melee); // Item source type
         stream.writeMapType(0); // Map source type
         stream.writeUint16(this.p.id); // Target ID
         stream.writeUint16(this.killer.id); // Killer ID
