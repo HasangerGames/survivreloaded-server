@@ -202,65 +202,69 @@ export class Game {
     }
 
     onMessage(stream, p) {
-        const msgType = stream.readUint8();
-        switch(msgType) {
-            case MsgType.Input:
-                stream.readUint8(); // Discard second byte (this.seq)
+        try {
+            const msgType = stream.readUint8();
+            switch(msgType) {
+                case MsgType.Input:
+                    stream.readUint8(); // Discard second byte (this.seq)
 
-                // Movement and shooting
-                p.movingLeft = stream.readBoolean();        // Left
-                p.movingRight = stream.readBoolean();       // Right
-                p.movingUp = stream.readBoolean();          // Up
-                p.movingDown = stream.readBoolean();        // Down
+                    // Movement and shooting
+                    p.movingLeft = stream.readBoolean();        // Left
+                    p.movingRight = stream.readBoolean();       // Right
+                    p.movingUp = stream.readBoolean();          // Up
+                    p.movingDown = stream.readBoolean();        // Down
 
-                const shootStart = stream.readBoolean();
-                p.shootStart = p.shootStart ? true : shootStart; // Shoot start
-                p.shootHold = stream.readBoolean();              // Shoot hold
-                stream.readBoolean();                            // Portrait
-                stream.readBoolean();                            // Touch move active
+                    const shootStart = stream.readBoolean();
+                    p.shootStart = p.shootStart ? true : shootStart; // Shoot start
+                    p.shootHold = stream.readBoolean();              // Shoot hold
+                    stream.readBoolean();                            // Portrait
+                    stream.readBoolean();                            // Touch move active
 
-                // Direction
-                const direction = stream.readUnitVec(10);
-                if(p.direction != direction) {
-                    p.direction = direction;
-                    p.skipObjectCalculations = false;
-                }
-                stream.readFloat(0, 64, 8);                 // Distance to mouse
+                    // Direction
+                    const direction = stream.readUnitVec(10);
+                    if(p.direction != direction) {
+                        p.direction = direction;
+                        p.skipObjectCalculations = false;
+                    }
+                    stream.readFloat(0, 64, 8);                 // Distance to mouse
 
 
-                // Other inputs
-                const inputCount = stream.readBits(4);
-                for(let i = 0; i < inputCount; i++) {
-                    const input = stream.readUint8();
-                    switch(input) {
-                        case InputType.Interact:
-                            for(const id of p.visibleObjects) {
-                                const object = this.map.objects[id];
-                                if(object instanceof Obstacle && object.isDoor && !object.dead) {
-                                    const interactionBody: Body = Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad);
-                                    const collisionResult: Collision = Collision.collides(interactionBody, object.body);
-                                    if(collisionResult && collisionResult.collided) {
-                                        object.interact(p);
-                                        this.partialDirtyObjects.push(id);
+                    // Other inputs
+                    const inputCount = stream.readBits(4);
+                    for(let i = 0; i < inputCount; i++) {
+                        const input = stream.readUint8();
+                        switch(input) {
+                            case InputType.Interact:
+                                for(const id of p.visibleObjects) {
+                                    const object = this.map.objects[id];
+                                    if(object instanceof Obstacle && object.isDoor && !object.dead) {
+                                        const interactionBody: Body = Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad);
+                                        const collisionResult: Collision = Collision.collides(interactionBody, object.body);
+                                        if(collisionResult && collisionResult.collided) {
+                                            object.interact(p);
+                                            this.partialDirtyObjects.push(id);
+                                        }
                                     }
                                 }
-                            }
-                            break;
+                                break;
+                        }
                     }
-                }
 
-                // Misc
-                stream.readGameType();   // Item in use
-                stream.readBits(5); // Zeroes
-                break;
+                    // Misc
+                    stream.readGameType();   // Item in use
+                    stream.readBits(5); // Zeroes
+                    break;
 
-            case MsgType.Emote:
-                const position = stream.readVec(0, 0, 1024, 1024, 16);
-                const type = stream.readGameType();
-                const isPing = stream.readBoolean();
-                stream.readBits(4); // Padding
-                if(!p.dead) this.emotes.push(new Emote(p.id, position, type, isPing));
-                break;
+                case MsgType.Emote:
+                    const position = stream.readVec(0, 0, 1024, 1024, 16);
+                    const type = stream.readGameType();
+                    const isPing = stream.readBoolean();
+                    stream.readBits(4); // Padding
+                    if(!p.dead) this.emotes.push(new Emote(p.id, position, type, isPing));
+                    break;
+            }
+        } catch(e) {
+            console.warn("Error parsing message:", e);
         }
     }
 
