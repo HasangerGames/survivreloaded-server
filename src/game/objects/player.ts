@@ -8,7 +8,7 @@ import {
     Emote,
     Explosion,
     MsgType,
-    ObjectKind,
+    ObjectKind, removeFrom,
     SurvivBitStream as BitStream,
     TypeToId
 } from "../../utils";
@@ -29,7 +29,7 @@ export class Player {
     //teamId: number = 0; // For 50v50?
     groupId: number;
 
-    direction: Vector;
+    direction: Vector = Vector.create(1, 0);
     scale: number = 1;
     zoom: number = 28; // 1x scope
     layer: number = 0;
@@ -53,7 +53,7 @@ export class Player {
     animSeq: number = 0;
     animTime: number = 0;
 
-    meleeCooldown: number;
+    meleeCooldown: number = 0;
 
     private _health: number = 100;
     boost: number = 0;
@@ -90,6 +90,7 @@ export class Player {
     loadout: {
         outfit: number,
         melee: number,
+        meleeType: string,
         heal: number,
         boost: number,
         emotes: number[],
@@ -107,6 +108,7 @@ export class Player {
             this.loadout = {
                 outfit: TypeToId[loadout.outfit],
                 melee: TypeToId[loadout.melee],
+                meleeType: loadout.melee,
                 heal: TypeToId[loadout.heal],
                 boost: TypeToId[loadout.boost],
                 emotes: [],
@@ -117,6 +119,7 @@ export class Player {
             this.loadout = {
                 outfit: 690,
                 melee: 557,
+                meleeType: "fists",
                 heal: 109,
                 boost: 138,
                 deathEffect: 0,
@@ -124,14 +127,11 @@ export class Player {
             };
         }
 
+        // Misc
         this.groupId = this.game.players.length - 1;
-
-        this.direction = Vector.create(1, 0);
-
         this.username = username;
 
-        this.meleeCooldown = Date.now();
-
+        // Init body
         this.body = Bodies.circle(position.x, position.y, 1, { restitution: 0, friction: 0, frictionAir: 0, inertia: Infinity });
         this.body.collisionFilter.category = CollisionCategory.Player;
         this.body.collisionFilter.mask = CollisionCategory.Obstacle;
@@ -199,6 +199,7 @@ export class Player {
             this.game.fullDirtyObjects.push(this.id);
             this.game.fullDirtyObjects.push(this.deadBody.id);
             this.game.deletedPlayerIds.push(this.id);
+            removeFrom(this.game.activePlayers, this);
         }
     }
 

@@ -145,7 +145,6 @@ export class Obstacle {
         } else {
 
         }*/
-        this.body.isSensor = this.doorOpen;
     }
 
 }

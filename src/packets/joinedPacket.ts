@@ -17,12 +17,8 @@ export class JoinedPacket extends Packet {
         stream.writeUint16(this.p.id); // Player ID
         stream.writeBoolean(false); // Game started
         stream.writeUint8(6); // Emote count
-        stream.writeGameType(195);          // First emote slot
-        stream.writeGameType(193);          // Second emote slot
-        stream.writeGameType(196);          // Third emote slot
-        stream.writeGameType(194);          // Fourth emote slot
-        stream.writeGameType(0);          // Fifth emote slot (win)
-        stream.writeGameType(0);          // Sixth emote slot (death)
+        for(let i = 0; i < 6; i++)
+            stream.writeGameType(this.p.loadout.emotes[i]);
     }
 
 }

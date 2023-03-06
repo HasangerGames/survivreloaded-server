@@ -85,6 +85,11 @@ export enum CollisionCategory {
     Player = 1, Obstacle = 2, Loot = 4, Other = 8
 }
 
+export function removeFrom(array: Array<any>, object: any) {
+    const index: number = array.indexOf(object);
+    if(index != -1) array.splice(index, 1);
+}
+
 export class Utils {
 
     static log(message: string): void {

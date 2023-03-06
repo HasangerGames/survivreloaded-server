@@ -263,8 +263,8 @@ export class UpdatePacket extends Packet {
             stream.writeBits(this.p.game.initialGasDuration, 8); // Duration
             stream.writeVec(this.p.game.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
             stream.writeVec(this.p.game.newGasPosition, 0, 0, 1024, 1024, 16); // New position
-            stream.writeFloat(this.p.game.oldGasRad, 0, 2048, 16); // Old radius
-            stream.writeFloat(this.p.game.newGasRad, 0, 2048, 16); // New radius
+            stream.writeFloat(this.p.game.oldGasRadius, 0, 2048, 16); // Old radius
+            stream.writeFloat(this.p.game.newGasRadius, 0, 2048, 16); // New radius
             this.p.gasDirty = false;
         }
 
