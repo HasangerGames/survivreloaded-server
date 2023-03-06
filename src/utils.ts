@@ -208,14 +208,14 @@ export class Utils {
         let body: Body;
         if(data.type == CollisionType.Circle) {
             // noinspection TypeScriptValidateJSTypes
-            body = Bodies.circle(pos.x, pos.y, data.rad, { isStatic: true });
+            body = Bodies.circle(pos.x, pos.y, data.rad * scale, { isStatic: true });
         } else if(data.type == CollisionType.Rectangle) {
             let rect = Utils.rotateRect(pos, data.min, data.max, scale, orientation);
             const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
             const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
             body = Bodies.rectangle(x, y, width, height, { isStatic: true });
         }
-        if(scale != 1) Body.scale(body, scale, scale);
+        //if(scale != 1) Body.scale(body, scale, scale);
         body.collisionFilter.category = CollisionCategory.Obstacle;
         body.collisionFilter.mask = CollisionCategory.Player;
         return body;

@@ -8,7 +8,8 @@ import {
     Emote,
     Explosion,
     ObjectKind,
-    SurvivBitStream as BitStream, TypeToId,
+    SurvivBitStream as BitStream,
+    TypeToId,
     Utils,
     Weapons
 } from "../../utils";
@@ -173,7 +174,10 @@ export class Player {
     }
 
     meleeCollisionWith(gameObject): Collision {
-        if(!gameObject.body) return false;
+        if(!gameObject.body) {
+            console.log("no body");
+            return false;
+        }
         const weap = Weapons["fists"], // TODO Get player's melee, substitute here
               angle = Utils.unitVecToRadians(this.direction),
               offset = Vector.add(weap.attack.offset, Vector.mult(Vector.create(1, 0), this.scale - 1)),
@@ -181,7 +185,10 @@ export class Player {
         const body: Body = Bodies.circle(position.x, position.y, 0.9);
         body.collisionFilter.category = CollisionCategory.Player;
         body.collisionFilter.mask = CollisionCategory.Obstacle;
-        return Collision.collides(body, gameObject.body);
+        this.game.addBody(body);
+        const result: Collision = Collision.collides(body, gameObject.body);
+        this.game.removeBody(body);
+        return result;
     }
 
     isOnOtherSide(door) {

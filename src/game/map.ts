@@ -189,7 +189,7 @@ export class Map {
     }
 
     private genObstacleTest(type) {
-        this.genObstacle(type, Objects[type], Vector.create(455, 155), 0, 1);
+        this.genObstacle(type, Objects[type], Vector.create(455, 155), 0, 0.8);
     }
 
     private genObstacle(type, obstacle, pos, orientation, scale, layer = 0) {
