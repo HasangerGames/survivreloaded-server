@@ -179,7 +179,7 @@ export class Player {
               offset = Vector.add(weap.attack.offset, Vector.mult(Vector.create(1, 0), this.scale - 1)),
               position = Vector.add(this.position, Vector.rotate(offset, angle));
         const body: Body = Bodies.circle(position.x, position.y, 0.9);
-        body.collisionFilter.category = CollisionCategory.Other;
+        body.collisionFilter.category = CollisionCategory.Player;
         body.collisionFilter.mask = CollisionCategory.Obstacle;
         return Collision.collides(body, gameObject.body);
     }
