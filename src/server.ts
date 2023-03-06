@@ -2,6 +2,7 @@ import express from "express";
 import http from "http";
 import https from "https";
 import compression from "compression";
+import cookieParser from "cookie-parser";
 
 import ws from "ws";
 import fs from "fs";
@@ -17,6 +18,7 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 app.use(compression());
+app.use(cookieParser());
 
 app.get("/api/site_info", (req, res) => {
     res.type("application/json");
@@ -46,7 +48,15 @@ app.post("/api/find_game", (req, res) => {
 
 app.post("/api/user/profile", (req, res) => {
     res.type("application/json");
-    res.send(JSON.parse(fs.readFileSync("json/profile.json") as unknown as string));
+    const loadout = JSON.parse(fs.readFileSync("json/profile.json") as unknown as string);
+    if(req.cookies.loadout) loadout.loadout = JSON.parse(req.cookies.loadout);
+    res.send(loadout);
+});
+
+app.post("/api/user/loadout", (req, res) => {
+    res.cookie("loadout", JSON.stringify(req.body.loadout), { maxAge: 2147483647 });
+    res.type("application/json");
+    res.send(req.body);
 });
 
 app.post("/api/user/load_exclusive_offers", (req, res) => {
@@ -75,14 +85,32 @@ if(ServerOptions.https) {
 }
 server.listen(ServerOptions.port, ServerOptions.host);
 
-server.on("upgrade", (request, socket, head) => {
-    wsServer.handleUpgrade(request, socket, head, socket => {
-        wsServer.emit("connection", socket, request);
+server.on("upgrade", (req, socket, head) => {
+    wsServer.handleUpgrade(req, socket, head, socket => {
+        wsServer.emit("connection", socket, req);
     });
 });
 
-wsServer.on("connection", socket => {
-    const p = game.addPlayer(socket, "Player");
+function parseCookies (request) {
+    const list = {};
+    const cookieHeader = request.headers?.cookie;
+    if (!cookieHeader) return list;
+
+    cookieHeader.split(`;`).forEach(function(cookie) {
+        let [ name, ...rest] = cookie.split(`=`);
+        name = name?.trim();
+        if (!name) return;
+        const value = rest.join(`=`).trim();
+        if (!value) return;
+        list[name] = decodeURIComponent(value);
+    });
+
+    return list;
+}
+
+wsServer.on("connection", (socket, req) => {
+    const cookies: any = parseCookies(req);
+    const p = game.addPlayer(socket, "Player", cookies.loadout ? JSON.parse(cookies.loadout) : null);
     Utils.log("Player joined");
 
     socket.on("message", data => {

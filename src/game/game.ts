@@ -1,12 +1,14 @@
 import crypto from "crypto";
 import { Bodies, Body, Collision, Composite, Engine, Vector } from "matter-js";
 
-import { Emote, Explosion, GameOptions, InputType, MsgType, Point, Utils } from "../utils";
+import { Emote, Explosion, GameOptions, InputType, MsgType, SurvivBitStream as BitStream, Utils } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
 import { Obstacle } from "./objects/obstacle";
 import { AliveCountsPacket } from "../packets/aliveCountsPacket";
 import { UpdatePacket } from "../packets/updatePacket";
+import { JoinedPacket } from "../packets/joinedPacket";
+import { MapPacket } from "../packets/mapPacket";
 
 class Game {
     id: string;
@@ -28,8 +30,8 @@ class Game {
     engine: Engine;
     gasMode: number;
     initialGasDuration: number;
-    oldGasPosition: Point;
-    newGasPosition: Point;
+    oldGasPosition: Vector;
+    newGasPosition: Vector;
     oldGasRad: number;
     newGasRad: number;
 
@@ -173,6 +175,7 @@ class Game {
         this.partialDirtyObjects = [];
         this.dirtyPlayers = [];
         this.deletedPlayerIds = [];
+        this.aliveCountDirty = false;
     }
 
     onMessage(stream, p) {
@@ -238,12 +241,12 @@ class Game {
         }
     }
 
-    addPlayer(socket, username) {
+    addPlayer(socket, username, loadout) {
         let spawnPosition;
         if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
         else spawnPosition = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
         
-        const p = new Player(socket, this, username, spawnPosition);
+        const p = new Player(socket, this, username, spawnPosition, loadout);
         p.id = this.map.objects.length;
         this.map.objects.push(p);
         this.players.push(p);
@@ -252,7 +255,14 @@ class Game {
         this.aliveCount++;
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
-        p.onJoin();
+        
+        p.sendPacket(new JoinedPacket(p));
+        const stream = BitStream.alloc(32768);
+        new MapPacket(p).writeData(stream);
+        p.fullObjects.push(p.id);
+        new UpdatePacket(p).writeData(stream);
+        new AliveCountsPacket(p).writeData(stream);
+        p.sendData(stream);
 
         return p;
     }

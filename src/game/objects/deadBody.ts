@@ -1,10 +1,11 @@
-import { ObjectKind, Point } from "../../utils";
+import { Vector } from "matter-js";
+import { ObjectKind } from "../../utils";
 
 export class DeadBody {
     readonly kind: ObjectKind = ObjectKind.DeadBody;
 
     id: number;
-    position: Point;
+    position: Vector;
     layer: number;
     playerId: number;
 

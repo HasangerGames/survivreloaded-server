@@ -1,7 +1,8 @@
-import { ObjectKind, Point, TypeToId, Utils } from "../../utils";
+import { Body, Vector } from "matter-js";
+
+import { ObjectKind, TypeToId, Utils } from "../../utils";
 import { Game } from "../game";
 import { Player } from "./player";
-import { Body } from "matter-js";
 
 export class Obstacle {
     readonly kind: ObjectKind = ObjectKind.Obstacle;
@@ -10,7 +11,7 @@ export class Obstacle {
 
     game: Game;
 
-    _position: Point;
+    _position: Vector;
     orientation: number;
     initialOrientation: number;
 
@@ -54,7 +55,7 @@ export class Obstacle {
                 game: Game,
                 data,
                 type: string,
-                position: Point,
+                position: Vector,
                 orientation: number,
                 scale: number,
                 layer: number = 0) {
@@ -103,7 +104,7 @@ export class Obstacle {
         this.isPuzzlePiece = false;
     }
 
-    get position(): Point {
+    get position(): Vector {
         return this._position;
     }
 
@@ -129,7 +130,7 @@ export class Obstacle {
         // TODO Make the door push players out of the way when opened, not just when closed
         // When pushing, ensure that they won't get stuck in anything.
         // If they do, move them to the opposite side regardless of their current position.
-        if(this.doorOpen) {
+        /*if(this.doorOpen) {
             if(p.isOnOtherSide(this)) {
 
             } else {
@@ -137,7 +138,8 @@ export class Obstacle {
             }
         } else {
 
-        }
+        }*/
+        this.body.isSensor = this.doorOpen;
     }
 
 }

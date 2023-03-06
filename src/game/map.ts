@@ -1,4 +1,4 @@
-import { GameOptions, Maps, ObjectKind, Objects, Point, TypeToId, Utils } from "../utils";
+import { GameOptions, Maps, ObjectKind, Objects, TypeToId, Utils } from "../utils";
 import { Game } from "./game";
 import { Collision, Vector } from "matter-js";
 import { Obstacle } from "./objects/obstacle";
@@ -75,7 +75,7 @@ export class Map {
         this.groundPatches = [];
     }
 
-    private genStructure(type: any, structure: any, setPosition: Point | null = null, setOrientation: number | null = null) {
+    private genStructure(type: any, structure: any, setPosition: Vector | null = null, setOrientation: number | null = null) {
         let position;
         if(setPosition) position = setPosition;
         else if(GameOptions.debugMode) position = Vector.create(450, 150);
@@ -96,8 +96,8 @@ export class Map {
 
             let layerOrientation;
             if(layerObj.inheritOri == false) layerOrientation = layerObj.orientation;
-            else layerOrientation = Utils.addOrientations(layerObj.orientation, orientation);
-            let layerPosition = Utils.addAdjust(position, layerObj.position, orientation);
+            else layerOrientation = Utils.addOrientations(layerObj.ori, orientation);
+            let layerPosition = Utils.addAdjust(position, layerObj.pos, orientation);
 
             if(layer.type == "structure") {
                 this.genStructure(layerType, layer, layerPosition, layerOrientation);
@@ -120,7 +120,7 @@ export class Map {
         this.genBuilding(type, Objects[type], undefined, orientation, undefined, markers);
     }
 
-    private genBuilding(type, building, setPosition?: Point, setOrientation?: number, setLayer?: number, debug: boolean = false) {
+    private genBuilding(type, building, setPosition?: Vector, setOrientation?: number, setLayer?: number, debug: boolean = false) {
         let position;
         if(setPosition) position = setPosition;
         else if(GameOptions.debugMode) position = Vector.create(450, 150);
@@ -264,7 +264,7 @@ export class Map {
 class River {
     width: number;
     looped: number;
-    points: Point[];
+    points: Vector[];
 
     constructor(width, looped, points) {
         this.width = width;
@@ -276,7 +276,7 @@ class River {
 
 class Place {
     name: string;
-    position: Point;
+    position: Vector;
 
     constructor(name, pos) {
         this.name = name;
@@ -286,8 +286,8 @@ class Place {
 }
 
 class GroundPatch {
-    min: Point;
-    max: Point;
+    min: Vector;
+    max: Vector;
     color: number;
     roughness: number;
     offsetDist: number;

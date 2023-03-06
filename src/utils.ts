@@ -17,12 +17,11 @@ export const ServerOptions = readJSON("config/server.json");
 export const GameOptions = readJSON("config/game.json");
 GameOptions.diagonalSpeed = GameOptions.movementSpeed / Math.SQRT2;
 
-export type Point = { x: number, y: number };
-export type IntersectResult = { point: Point, normal: Point };
+export type IntersectResult = { point: Vector, normal: Vector };
 
 export class Emote {
     playerId: number;
-    position: Point;
+    position: Vector;
     type: string;
     isPing: boolean;
     constructor(playerId, position, type, isPing) {
@@ -34,7 +33,7 @@ export class Emote {
 }
 
 export class Explosion {
-    position: Point;
+    position: Vector;
     type: string;
     layer: number;
     constructor(position, type, layer) {
@@ -110,10 +109,10 @@ export class Utils {
         return items[i];
     }
 
-    static distanceBetween(v1: Point, v2: Point): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
+    static distanceBetween(v1: Vector, v2: Vector): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
 
 
-    static intersectSegmentCircle(position1: Point, position2: Point, position3: Point, rad: number): IntersectResult | null {
+    static intersectSegmentCircle(position1: Vector, position2: Vector, position3: Vector, rad: number): IntersectResult | null {
         let lengthVec = Vector.sub(position2, position1),
             length = Math.max(Vector.magnitude(lengthVec), 0);
         lengthVec = Vector.div(lengthVec, length);
@@ -153,7 +152,7 @@ export class Utils {
         }
     }
 
-    static addAdjust(position1: Point, position2: Point, orientation: number): Point {
+    static addAdjust(position1: Vector, position2: Vector, orientation: number): Vector {
         if(orientation == 0) return Vector.add(position1, position2);
         let xOffset, yOffset;
         switch(orientation) {
@@ -175,7 +174,7 @@ export class Utils {
         return Vector.add(position1, Vector.create(xOffset, yOffset));
     }
 
-    static rotateRect(pos: Point, min: Point, max: Point, scale: number, orientation: number) {
+    static rotateRect(pos: Vector, min: Vector, max: Vector, scale: number, orientation: number) {
         min = Vector.mult(min, scale);
         max = Vector.mult(max, scale);
         if(orientation != 0) {
@@ -202,7 +201,7 @@ export class Utils {
         };
     }
 
-    static bodyFromCollisionData(data, pos: Point, orientation: number = 0, scale: number = 1): Body {
+    static bodyFromCollisionData(data, pos: Vector, orientation: number = 0, scale: number = 1): Body {
         if(!data || !data.type) {
             //console.error("Missing collision data");
         }
@@ -222,7 +221,7 @@ export class Utils {
         return body;
     }
 
-    static unitVecToRadians(v: Point): number {
+    static unitVecToRadians(v: Vector): number {
         return Math.atan2(v.y, v.x);
     }
     
@@ -254,7 +253,7 @@ export class SurvivBitStream extends BitStream {
     }
 
 
-    writeVec(vec: Point, minX: number, minY: number, maxX: number, maxY: number, bitCount: number) {
+    writeVec(vec: Vector, minX: number, minY: number, maxX: number, maxY: number, bitCount: number) {
         this.writeFloat(vec.x, minX, maxX, bitCount);
         this.writeFloat(vec.y, minY, maxY, bitCount);
     }
@@ -263,14 +262,14 @@ export class SurvivBitStream extends BitStream {
         return Vector.create(this.readFloat(minX, maxX, bitCount), this.readFloat(minY, maxY, bitCount));
     }
 
-    writeUnitVec(vec: Point, bitCount) {
+    writeUnitVec(vec: Vector, bitCount) {
         this.writeVec(vec, -1, -1, 1, 1, bitCount);
     }
     readUnitVec(bitCount) {
         return this.readVec(-1, -1, 1, 1, bitCount);
     }
 
-    writeVec32(vec: Point) {
+    writeVec32(vec: Vector) {
         this.writeFloat32(vec.x);
         this.writeFloat32(vec.y);
     }

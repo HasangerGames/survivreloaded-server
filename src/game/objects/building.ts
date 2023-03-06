@@ -1,4 +1,6 @@
-import { ObjectKind, Point, TypeToId, Utils } from "../../utils";
+import { Vector } from "matter-js";
+
+import { ObjectKind, TypeToId, Utils } from "../../utils";
 import { GameObject } from "./gameObject";
 
 export class Building extends GameObject {
@@ -10,7 +12,7 @@ export class Building extends GameObject {
     layer: number;
     mapType: number;
 
-    _position: Point;
+    _position: Vector;
     type: string;
     orientation: number;
     scale: number = 1;
@@ -24,7 +26,7 @@ export class Building extends GameObject {
     body: Body;
 
 
-    constructor(id: any, data, position: Point, type: string, orientation, layer: number, showOnMap: boolean) {
+    constructor(id: any, data, position: Vector, type: string, orientation, layer: number, showOnMap: boolean) {
         super();
         this.showOnMap = showOnMap;
 

@@ -83,11 +83,11 @@ export class UpdatePacket extends Packet {
                         stream.writeVec(fullObject.position, 0, 0, 1024, 1024, 16); // Position
                         stream.writeUnitVec(fullObject.direction, 8); // Direction
 
-                        stream.writeGameType(690); // Outfit (skin)
+                        stream.writeGameType(fullObject.loadout.outfit); // Outfit (skin)
                         stream.writeGameType(450); // Backpack
                         stream.writeGameType(0); // Helmet
                         stream.writeGameType(0); // Chest (vest?)
-                        stream.writeGameType(557); // Weapon
+                        stream.writeGameType(fullObject.loadout.melee); // Weapon
 
                         stream.writeBits(fullObject.layer, 2); // Layer
                         stream.writeBoolean(fullObject.dead); // Dead
@@ -245,7 +245,7 @@ export class UpdatePacket extends Packet {
             stream.writeGameType(0); // Secondary
             stream.writeUint8(0); // Ammo
 
-            stream.writeGameType(557); // Melee
+            stream.writeGameType(this.p.loadout.melee); // Melee
             stream.writeUint8(0); // Ammo
 
             stream.writeGameType(0); // Throwable
@@ -291,21 +291,17 @@ export class UpdatePacket extends Packet {
                 stream.writeUint16(player.id);    // Player ID
                 stream.writeUint8(0);       // Team ID
                 stream.writeUint8(player.groupId); // Group ID
-                stream.writeString('Player'); // Name
+                stream.writeString(player.username); // Name
 
                 // Loadout
-                stream.writeGameType(690); // Outfit (skin)
-                stream.writeGameType(109); // Healing particles
-                stream.writeGameType(138); // Adrenaline particles
-                stream.writeGameType(557); // Melee
-                stream.writeGameType(0);   // Death effect
+                stream.writeGameType(player.loadout.outfit); // Outfit (skin)
+                stream.writeGameType(player.loadout.heal); // Healing particles
+                stream.writeGameType(player.loadout.boost); // Adrenaline particles
+                stream.writeGameType(player.loadout.melee); // Melee
+                stream.writeGameType(player.loadout.deathEffect);   // Death effect
 
-                stream.writeGameType(195); // First emote slot
-                stream.writeGameType(196); // Second emote slot
-                stream.writeGameType(197); // Third emote slot
-                stream.writeGameType(194); // Fourth emote slot
-                stream.writeGameType(0);   // Fifth emote slot (win)
-                stream.writeGameType(0);   // Sixth emote slot (death)
+                for(let i = 0; i < 6; i++)
+                    stream.writeGameType(player.loadout.emotes[i]);
 
                 // Misc
                 stream.writeUint32(player.id);    // User ID

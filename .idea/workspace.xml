@@ -9,10 +9,14 @@
   <component name="ChangeListManager">
     <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/game.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/game.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ids.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/ids.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/profile.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/profile.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/game.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/map.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/map.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/building.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/building.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/objects/gameObject.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/gameObject.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/deadBody.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/deadBody.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/obstacle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/obstacle.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/player.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/structure.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/structure.ts" afterDir="false" />
@@ -30,6 +34,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="TypeScript File" />
+        <option value="HTTP Request" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -50,23 +56,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/home/desktopgeek/SynologyDrive/Programming/Node/SurvivReloaded",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "editor.preferences.tabs",
-    "ts.external.directory.path": "/home/desktopgeek/SynologyDrive/Programming/Node/SurvivReloaded/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/desktopgeek/SynologyDrive/Programming/Node/SurvivReloaded&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.tabs&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/desktopgeek/SynologyDrive/Programming/Node/SurvivReloaded/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src" />
@@ -126,7 +132,8 @@
       <workItem from="1677892751416" duration="743000" />
       <workItem from="1677893526924" duration="28135000" />
       <workItem from="1678021596459" duration="17830000" />
-      <workItem from="1678042070146" duration="6096000" />
+      <workItem from="1678042070146" duration="14801000" />
+      <workItem from="1678058419023" duration="4744000" />
     </task>
     <task id="LOCAL-00001" summary="more matter.js testing">
       <created>1677886378553</created>

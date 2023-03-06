@@ -1,4 +1,5 @@
-import { ObjectKind, Point, TypeToId } from "../../utils";
+import { Vector } from "matter-js";
+import { ObjectKind, TypeToId } from "../../utils";
 
 export class Structure {
     readonly kind: ObjectKind = ObjectKind.Structure;
@@ -6,7 +7,7 @@ export class Structure {
 
     id: any;
     mapType: number;
-    _position: Point;
+    _position: Vector;
     type: string;
     orientation: number;
     scale: number = 1;
@@ -15,7 +16,7 @@ export class Structure {
 
     body: Body = null;
 
-    constructor(id: any, position: Point, type, orientation, layerObjIds) {
+    constructor(id: any, position: Vector, type, orientation, layerObjIds) {
         this.id = id;
         this.mapType = TypeToId[type];
         this._position = position;
