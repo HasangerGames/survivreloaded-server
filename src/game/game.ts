@@ -264,15 +264,14 @@ export class Game {
                     break;
             }
         } catch(e) {
-            console.warn("Error parsing message:", e);
+            //console.warn("Error parsing message:", e);
         }
     }
 
     addPlayer(socket, username, loadout) {
         let spawnPosition;
-        spawnPosition = Vector.create(450, 150);
-        //if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
-        //else spawnPosition = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
+        if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
+        else spawnPosition = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
         
         const p = new Player(socket, this, username, spawnPosition, loadout);
         p.id = this.map.objects.length;
