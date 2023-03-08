@@ -2,13 +2,13 @@
 <hr>
 Surviv Reloaded is an open-source server for the defunct online game surviv.io. Work in progress.<br><br>
 
-## Join the Discord!
-
-https://discord.survivreloaded.com
-
 ## Try it out!
 
 https://survivreloaded.com
+
+## Join the Discord!
+
+https://discord.survivreloaded.com
 
 ## FAQ
 
