@@ -1,18 +1,16 @@
 import crypto from "crypto";
-import { removeFrom } from "../utils";
-import { Bodies, Body, Collision, Composite, Engine, Vector } from "matter-js";
-
 import {
-    CollisionType,
     Emote,
     Explosion,
     GameOptions,
     InputType,
     MsgType,
+    removeFrom,
     SurvivBitStream as BitStream,
     Utils,
     Weapons
 } from "../utils";
+import { Bodies, Body, Collision, Composite, Engine, Vector } from "matter-js";
 import { Map } from "./map";
 import { Player } from "./objects/player";
 import { Obstacle } from "./objects/obstacle";
@@ -93,7 +91,7 @@ export class Game {
                 // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
 
                 // Movement
-                p.notMoving = false;
+                p.moving = true;
                 const s = GameOptions.movementSpeed, ds = GameOptions.diagonalSpeed;
                 if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
                 else if(p.movingUp && p.movingRight) p.setVelocity(ds, ds);
@@ -105,8 +103,8 @@ export class Game {
                 else if(p.movingRight) p.setVelocity(s, 0);
                 else {
                     p.setVelocity(0, 0);
-                    if(!p.notMoving) p.setVelocity(0, 0);
-                    p.notMoving = true;
+                    if(p.moving) p.setVelocity(0, 0);
+                    p.moving = false;
                 }
 
                 // p.updateVisibleObjects();
@@ -178,7 +176,7 @@ export class Game {
 
             // Second loop: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
-                p.skipObjectCalculations = !this.fullDirtyObjects.length && !this.partialDirtyObjects.length && p.notMoving;
+                p.skipObjectCalculations = !this.fullDirtyObjects.length && !this.partialDirtyObjects.length && !p.moving;
 
                 if(this.emotes.length > 0) {
                     p.emotesDirty = true;
@@ -294,8 +292,7 @@ export class Game {
         if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
         else spawnPosition = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
         
-        const p = new Player(socket, this, username, spawnPosition, loadout);
-        p.id = this.map.objects.length;
+        const p = new Player(this.map.objects.length, socket, this, username, spawnPosition, loadout);
         this.map.objects.push(p);
         this.players.push(p);
         this.connectedPlayers.push(p);

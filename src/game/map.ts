@@ -5,6 +5,7 @@ import { Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
+
 const chance = new Chance();
 
 export class Map {
@@ -122,14 +123,19 @@ export class Map {
     }
 
     private genBuildingTest(type: string, orientation: number, markers: boolean) {
-        this.genBuilding(type, Objects[type], undefined, orientation, undefined, markers);
+        this.genBuilding(type, Objects[type], undefined, orientation, undefined, true);
     }
 
-    private genBuilding(type, building, setPosition?: Vector, setOrientation?: number, setLayer?: number, debug: boolean = false) {
+    private genBuilding(typeString: string,
+                        buildingData,
+                        setPosition?: Vector,
+                        setOrientation?: number,
+                        setLayer?: number,
+                        debug: boolean = false) {
         let position;
         if(setPosition) position = setPosition;
         else if(GameOptions.debugMode) position = Vector.create(450, 150);
-        else position = this.getRandomPositionFor(ObjectKind.Building, building.mapObstacleBounds ? building.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
+        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData.mapObstacleBounds ? buildingData.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
         let orientation;
         if(setOrientation != undefined) orientation = setOrientation;
         else if(GameOptions.debugMode) orientation = 0;
@@ -139,7 +145,7 @@ export class Map {
         if(setLayer != undefined) layer = setLayer;
         else layer = 0;
 
-        for(const mapObject of building.mapObjects) {
+        for(const mapObject of buildingData.mapObjects) {
             const partType = mapObject.type;
             if(!partType || partType == "") {
                 //console.warn(`${type}: Missing object at ${mapObject.position.x}, ${mapObject.position.y}`);
@@ -159,22 +165,22 @@ export class Map {
             } else if(part.type == "obstacle") {
                 this.genObstacle(
                     partType,
-                    part,
                     partPosition,
+                    layer,
                     partOrientation,
                     mapObject.scale,
-                    layer
+                    part
                 );
             } else if(part.type == "random") {
                 const items = Object.keys(part.weights), weights = Object.values(part.weights);
                 const randType = Utils.weightedRandom(items, weights as number[]);
                 this.genObstacle(
                     randType,
-                    Objects[randType],
                     partPosition,
+                    layer,
                     partOrientation,
                     mapObject.scale,
-                    layer
+                    Objects[randType]
                 );
             } else if(part.type == "ignored") {
                 // Ignored
@@ -184,45 +190,48 @@ export class Map {
         }
         this.objects.push(new Building(
             this.objects.length,
-            building,
+            typeString,
             position,
-            type,
-            orientation,
             setLayer != undefined ? setLayer : 0,
-            building.map ? building.map.display : false
+            orientation,
+            buildingData.map ? buildingData.map.display : false,
+            buildingData
         ));
     }
 
-    private genObstacleTest(type, pos?: Vector) {
-        this.genObstacle(type, Objects[type], pos ? pos : Vector.create(455, 155), 0, 0.8);
+    private genObstacleTest(typeString, position?: Vector) {
+        this.genObstacle(typeString, position ? position : Vector.create(455, 155), 0, 0,0.8, Objects[typeString]);
     }
 
-    private genObstacle(type, obstacle, pos, orientation, scale, layer = 0) {
+    private genObstacle(typeString: string,
+                        position: Vector,
+                        layer: number,
+                        orientation: number,
+                        scale: number,
+                        obstacleData): void {
         this.objects.push(new Obstacle(
             this.objects.length,
-            this.game,
-            obstacle,
-            type,
-            pos,
+            typeString,
+            position,
+            layer != undefined ? layer : 0,
             orientation,
+            this.game,
             scale,
-            layer != undefined ? layer : 0
+            obstacleData
         ));
     }
 
-    private genObstacles(count, type, obstacle) {
+    private genObstacles(count, typeString, obstacleData): void {
         for(let i = 0; i < count; i++) {
-            const scale = Utils.randomBase(obstacle.scale.createMin, obstacle.scale.createMax);
-            this.objects.push(new Obstacle(
-                this.objects.length,
-                this.game,
-                obstacle,
-                type,
-                this.getRandomPositionFor(ObjectKind.Obstacle, obstacle.collision, scale),
+            const scale = Utils.randomBase(obstacleData.scale.createMin, obstacleData.scale.createMax);
+            this.genObstacle(
+                typeString,
+                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, scale),
+                0,
                 0,
                 scale,
-                0
-            ));
+                obstacleData
+            );
         }
     }
 

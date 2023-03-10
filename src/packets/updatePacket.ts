@@ -78,107 +78,8 @@ export class UpdatePacket extends Packet {
                 const fullObject = this.p.map.objects[id];
                 stream.writeUint8(fullObject.kind);
                 stream.writeUint16(fullObject.id);
-
-                switch(fullObject.kind) {
-                    case ObjectKind.Player:
-                        stream.writeVec(fullObject.position, 0, 0, 1024, 1024, 16); // Position
-                        stream.writeUnitVec(fullObject.direction, 8); // Direction
-
-                        stream.writeGameType(fullObject.loadout.outfit); // Outfit (skin)
-                        stream.writeGameType(450); // Backpack
-                        stream.writeGameType(0); // Helmet
-                        stream.writeGameType(0); // Chest (vest?)
-                        stream.writeGameType(fullObject.loadout.melee); // Weapon
-
-                        stream.writeBits(fullObject.layer, 2); // Layer
-                        stream.writeBoolean(fullObject.dead); // Dead
-                        stream.writeBoolean(false); // Downed
-                        stream.writeBits(fullObject.animType, 3); // 1 indicates melee animation
-                        stream.writeBits(fullObject.animSeq, 3); // Sequence
-
-                        stream.writeBits(0, 3); // Action type
-                        stream.writeBits(0, 3); // Action sequence
-
-                        stream.writeBoolean(false); // Wearing pan
-                        stream.writeBoolean(false); // Indoors
-                        stream.writeBoolean(false); // Gun loaded
-                        stream.writeBoolean(false); // Passive heal
-                        stream.writeBoolean(false); // Heal by item effect (healing particles?)
-
-                        stream.writeBoolean(false); // Haste seq dirty
-
-                        stream.writeBoolean(false); // Action item dirty
-
-                        stream.writeBoolean(false); // Scale dirty
-
-                        stream.writeBoolean(false); // Role dirty
-
-                        stream.writeBoolean(false); // Perks dirty
-
-                        stream.writeBits(0, 4); // Event-specific effects
-
-                        stream.writeAlignToNextByte();
-                        break;
-
-                    case ObjectKind.Obstacle:
-                        stream.writeVec(fullObject.position, 0, 0, 1024, 1024, 16); // Position
-                        stream.writeBits(fullObject.orientation, 2);
-                        stream.writeFloat(fullObject.scale, 0.125, 2.5, 8);    // Size
-                        stream.writeBits(0, 6);                                // Padding
-
-                        stream.writeFloat(fullObject.healthT, 0, 1, 8); // Health
-                        stream.writeMapType(fullObject.mapType);        // Type
-                        stream.writeString(fullObject.type);            // Obstacle type (string ver. of ID)
-                        stream.writeBits(fullObject.layer, 2);          // Layer
-                        stream.writeBoolean(fullObject.dead);           // Dead
-                        stream.writeBoolean(fullObject.isDoor);         // Is door
-                        stream.writeUint8(fullObject.teamId);           // Team ID
-                        if(fullObject.isDoor) {
-                            stream.writeBoolean(fullObject.doorOpen);
-                            stream.writeBoolean(fullObject.doorCanUse);
-                            stream.writeBoolean(fullObject.doorLocked);
-                            stream.writeBits(0, 5); // door seq
-                        }
-                        stream.writeBoolean(fullObject.isButton);       // Is button
-                        if(fullObject.isButton) {
-                            stream.writeBoolean(fullObject.buttonOnOff);
-                            stream.writeBoolean(fullObject.buttonCanUse);
-                            stream.writeBits(0, 6); // button seq
-                        }
-                        stream.writeBoolean(fullObject.isPuzzlePiece);  // Is puzzle piece
-                        stream.writeBoolean(fullObject.isSkin);         // Is skin
-                        stream.writeBits(0, 5);                         // Padding
-                        break;
-
-                    case ObjectKind.Building:
-                        stream.writeBoolean(fullObject.ceilingDead);    // Ceiling destroyed
-                        stream.writeBoolean(fullObject.occupied);       // Occupied
-                        stream.writeBoolean(fullObject.ceilingDamaged); // Ceiling damaged
-                        stream.writeBoolean(fullObject.hasPuzzle);      // Has puzzle
-                        stream.writeBits(0, 4);                         // Padding
-
-                        stream.writeVec(fullObject.position, 0, 0, 1024, 1024, 16); // Position
-                        stream.writeMapType(fullObject.mapType);               // Building ID
-                        stream.writeBits(fullObject.orientation, 2);
-                        stream.writeBits(fullObject.layer, 2);                 // Layer
-                        break;
-
-                    case ObjectKind.Structure:
-                        stream.writeVec(fullObject.position, 0, 0, 1024, 1024, 16); // Position
-                        stream.writeMapType(fullObject.mapType);               // Type
-                        stream.writeBits(0, 2);
-                        stream.writeBoolean(true);                             // Interior sound enabled
-                        stream.writeBoolean(false);                            // Interior sound alt
-                        stream.writeUint16(fullObject.layerObjIds[0]);         // Layer 1 ID
-                        stream.writeUint16(fullObject.layerObjIds[1]);         // Layer 2 ID
-                        break;
-
-                    case ObjectKind.DeadBody:
-                        stream.writeVec(fullObject.position, 0, 0, 1024, 1024, 16);
-                        stream.writeUint8(fullObject.layer);
-                        stream.writeUint16(fullObject.playerId);
-                        break;
-                }
+                fullObject.serializePart(stream);
+                fullObject.serializeFull(stream);
             }
             this.p.fullObjects = [];
         }
@@ -189,21 +90,7 @@ export class UpdatePacket extends Packet {
         for(const id of this.p.partialObjects) {
             const partialObject = this.p.map.objects[id];
             stream.writeUint16(partialObject.id);
-            switch(partialObject.kind) {
-                case ObjectKind.Player:
-                    stream.writeVec(partialObject.position, 0, 0, 1024, 1024, 16);
-                    stream.writeUnitVec(partialObject.direction, 8);
-                    break;
-                case ObjectKind.Obstacle:
-                    stream.writeVec(partialObject.position, 0, 0, 1024, 1024, 16);
-                    stream.writeBits(partialObject.orientation, 2);
-                    stream.writeFloat(partialObject.scale, 0.125, 2.5, 8);
-                    stream.writeBits(0, 6); // Padding
-                    break;
-                case ObjectKind.DeadBody:
-                    stream.writeVec(partialObject.position, 0, 0, 1024, 1024, 16);
-                    break;
-            }
+            partialObject.serializePart(stream);
         }
         this.p.partialObjects = [];
 

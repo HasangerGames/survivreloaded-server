@@ -1,32 +1,34 @@
 import { Vector } from "matter-js";
-import { ObjectKind, TypeToId } from "../../utils";
+import { ObjectKind, SurvivBitStream } from "../../utils";
+import { GameObject } from "./gameObject";
 
-export class Structure {
-    readonly kind: ObjectKind = ObjectKind.Structure;
+export class Structure extends GameObject {
     showOnMap: boolean = false;
 
-    id: any;
-    mapType: number;
-    _position: Vector;
-    type: string;
-    orientation: number;
-    scale: number = 1;
-    layerObjIds: any[];
-    dead: boolean = false;
+    layerObjIds: number[];
 
     body: Body = null;
 
-    constructor(id: any, position: Vector, type, orientation, layerObjIds) {
-        this.id = id;
-        this.mapType = TypeToId[type];
-        this._position = position;
-        this.type = type;
-        this.orientation = orientation;
+    constructor(id: number,
+                typeString: string,
+                position: Vector,
+                orientation: number,
+                layerObjIds: number[]) {
+        super(id, typeString, position, 0, orientation);
+        this.kind = ObjectKind.Structure;
         this.layerObjIds = layerObjIds;
     }
 
-    get position() {
-        return this._position;
+    serializePart(stream: SurvivBitStream): void {}
+
+    serializeFull(stream: SurvivBitStream): void {
+        stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
+        stream.writeMapType(this.typeId);
+        stream.writeBits(this.orientation, 2);
+        stream.writeBoolean(true); // Interior sound enabled
+        stream.writeBoolean(false); // Interior sound alt
+        stream.writeUint16(this.layerObjIds[0]); // Layer 1 ID
+        stream.writeUint16(this.layerObjIds[1]); // Layer 2 ID
     }
 
 }

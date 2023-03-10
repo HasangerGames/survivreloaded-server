@@ -7,8 +7,9 @@ import {
     CollisionCategory,
     Emote,
     Explosion,
-    MsgType,
-    ObjectKind, removeFrom,
+    ObjectKind,
+    removeFrom,
+    SurvivBitStream,
     SurvivBitStream as BitStream,
     TypeToId
 } from "../../utils";
@@ -17,33 +18,30 @@ import { Packet } from "../../packets/packet";
 import { KillPacket } from "../../packets/killPacket";
 import { Map } from "../map";
 import { Game } from "../game";
+import { GameObject } from "./gameObject";
 
-export class Player {
-    kind: ObjectKind = ObjectKind.Player;
+export class Player extends GameObject {
     socket: Socket;
-    game: Game;
     map: Map;
 
     username: string = "Player";
-    id: number;
     //teamId: number = 0; // For 50v50?
     groupId: number;
 
     direction: Vector = Vector.create(1, 0);
     scale: number = 1;
     zoom: number = 28; // 1x scope
-    layer: number = 0;
 
     visibleObjects: number[] = [];
     deletedObjects: number[] = [];
     fullObjects: number[] = [];
     partialObjects: number[] = [];
 
+    moving: boolean = false;
     movingUp: boolean = false;
     movingDown: boolean = false;
     movingLeft: boolean = false;
     movingRight: boolean = false;
-    notMoving: boolean = true;
 
     shootStart: boolean = false;
     shootHold: boolean = false;
@@ -58,7 +56,7 @@ export class Player {
     private _health: number = 100;
     boost: number = 0;
     kills: number = 0;
-    dead: boolean = false;
+    downed: boolean = false;
 
     deletedPlayerIdsDirty: boolean = false;
     playerStatusDirty: boolean = true;
@@ -99,7 +97,10 @@ export class Player {
 
     quit: boolean = false;
 
-    constructor(socket, game, username: string, position: Vector, loadout) {
+    constructor(id: number, socket: Socket, game: Game, username: string, position: Vector, loadout) {
+        super(id, null, -1, 0);
+        this.kind = ObjectKind.Player;
+
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
@@ -223,6 +224,48 @@ export class Player {
         const newArray = new Uint8Array(Math.ceil(stream.index / 8));
         for(let i = 0; i < newArray.length; i++) newArray[i] = oldArray[i];
         this.socket.send(newArray);
+    }
+
+    serializePart(stream: SurvivBitStream): void {
+        stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
+        stream.writeUnitVec(this.direction, 8);
+    }
+
+    serializeFull(stream: SurvivBitStream): void {
+        stream.writeGameType(this.loadout.outfit);
+        stream.writeGameType(450); // Backpack
+        stream.writeGameType(0); // Helmet
+        stream.writeGameType(0); // Vest
+        stream.writeGameType(this.loadout.melee); // Active weapon (not necessarily melee)
+
+        stream.writeBits(this.layer, 2);
+        stream.writeBoolean(this.dead);
+        stream.writeBoolean(this.downed);
+        stream.writeBits(this.animType, 3);
+        stream.writeBits(this.animSeq, 3);
+
+        stream.writeBits(0, 3); // Action type
+        stream.writeBits(0, 3); // Action sequence
+
+        stream.writeBoolean(false); // Wearing pan
+        stream.writeBoolean(false); // Indoors
+        stream.writeBoolean(false); // Gun loaded
+        stream.writeBoolean(false); // Passive heal
+        stream.writeBoolean(false); // Heal by item effect (healing particles?)
+
+        stream.writeBoolean(false); // Haste seq dirty
+
+        stream.writeBoolean(false); // Action item dirty
+
+        stream.writeBoolean(false); // Scale dirty
+
+        stream.writeBoolean(false); // Role dirty
+
+        stream.writeBoolean(false); // Perks dirty
+
+        stream.writeBits(0, 4); // Event-specific effects
+
+        stream.writeAlignToNextByte();
     }
 
 }

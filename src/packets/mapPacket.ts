@@ -40,9 +40,9 @@ export class MapPacket extends Packet {
         for(const obj of objects) {
             stream.writeVec(obj.position, 0, 0, 1024, 1024, 16);
             stream.writeFloat(obj.scale, 0.125, 2.5, 8);
-            stream.writeMapType(obj.mapType);
+            stream.writeMapType(obj.typeId);
             stream.writeBits(obj.orientation, 2);
-            stream.writeString(obj.type);
+            stream.writeString(obj.typeString);
             stream.writeBits(0, 2); // Padding
         }
 

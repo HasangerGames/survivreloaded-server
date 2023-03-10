@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import ws from "ws";
 import fs from "fs";
 
-import { ServerOptions, SurvivBitStream as BitStream, Utils } from "./utils";
+import { ServerOptions, SurvivBitStream, Utils } from "./utils";
 import { Game } from "./game/game.js";
 
 const wsServer = new ws.Server({ noServer: true });
@@ -113,7 +113,7 @@ wsServer.on("connection", (socket, req) => {
     Utils.log("Player joined");
 
     socket.on("message", data => {
-        const stream = new BitStream(data, 6);
+        const stream = new SurvivBitStream(data, 6);
         game.onMessage(stream, p);
     });
 

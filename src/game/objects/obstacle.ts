@@ -1,11 +1,12 @@
 import { Body, Vector } from "matter-js";
 
-import { CollisionType, ObjectKind, TypeToId, Utils } from "../../utils";
+import { ObjectKind, SurvivBitStream, Utils } from "../../utils";
 import { Game } from "../game";
 import { Player } from "./player";
+import { Loot } from "./loot";
+import { GameObject } from "./gameObject";
 
-export class Obstacle {
-    readonly kind: ObjectKind = ObjectKind.Obstacle;
+export class Obstacle extends GameObject {
 
     id: number;
 
@@ -23,24 +24,21 @@ export class Obstacle {
     maxHealth: number;
     healthT: number = 1;
 
-    type: string;
-
-    layer: number;
-    dead: boolean = false;
     teamId: number = 0;
 
-    mapType: number;
     isPuzzlePiece: boolean = false;
     isSkin: boolean = false;
-
     isButton: boolean = false;
-    buttonOnOff?: boolean;
-    buttonCanUse?: boolean;
-
+    button: {
+        onOff: boolean;
+        canUse: boolean;
+    }
     isDoor: boolean = false;
-    doorOpen?: boolean;
-    doorCanUse?: boolean;
-    doorLocked?: boolean;
+    door: {
+        open: boolean;
+        canUse: boolean;
+        locked: boolean;
+    }
     interactionRad?: number;
 
     showOnMap: boolean;
@@ -53,15 +51,16 @@ export class Obstacle {
     collision; // TODO Testing code, delete me
 
     constructor(id: number,
-                game: Game,
-                data,
-                type: string,
+                typeString: string,
                 position: Vector,
+                layer: number,
                 orientation: number,
+                game: Game,
                 scale: number,
-                layer: number = 0) {
-        this.id = id;
-        this.game = game;
+                data) {
+        super(id, typeString, position, layer, orientation, game);
+        this.kind = ObjectKind.Obstacle;
+
         this._position = position;
         this.orientation = orientation;
         this.scale = scale; // Min: 0.125, max: 2.5
@@ -70,9 +69,6 @@ export class Obstacle {
 
         this.health = data.health;
         this.maxHealth = data.health;
-
-        this.type = type;
-        this.mapType = TypeToId[type];
 
         this.layer = layer;
         this.isSkin = false;
@@ -92,17 +88,21 @@ export class Obstacle {
 
         this.isDoor = data.door != undefined;
         if(this.isDoor) {
-            this.doorOpen = false;
-            this.doorCanUse = data.door.canUse;
-            this.doorLocked = false;
+            this.door = {
+                open: false,
+                canUse: data.door.canUse,
+                locked: false
+            };
             this.interactionRad = data.door.interactionRad;
             this.body.isSensor = true; // TODO THIS DISABLES DOOR COLLISIONS; remove once door collisions are implemented
         }
 
         this.isButton = data.button != undefined;
         if(this.isButton) {
-            this.buttonOnOff = false;
-            this.buttonCanUse = data.button.canUse;
+            this.button = {
+                onOff: false,
+                canUse: data.button.canUse
+            };
         }
 
         this.isPuzzlePiece = false;
@@ -118,9 +118,13 @@ export class Obstacle {
             this.health = this.healthT = 0;
             this.dead = true;
             this.collidable = false;
-            this.doorCanUse = false;
+            if(this.door) this.door.canUse = false;
             this.game.removeBody(this.body);
             this.game.fullDirtyObjects.push(this.id);
+
+            const loot: Loot = new Loot(this.game.map.objects.length, "15xscope", this.position, 0, this.game, 1);
+            this.game.map.objects.push(loot);
+            this.game.fullDirtyObjects.push(loot.id);
         } else {
             this.healthT = this.health / this.maxHealth;
             const oldScale: number = this.scale;
@@ -132,7 +136,7 @@ export class Obstacle {
     }
 
     interact(p: Player): void {
-        this.doorOpen = !this.doorOpen;
+        this.door.open = !this.door.open;
         // TODO Make the door push players out of the way when opened, not just when closed
         // When pushing, ensure that they won't get stuck in anything.
         // If they do, move them to the opposite side regardless of their current position.
@@ -145,6 +149,39 @@ export class Obstacle {
         } else {
 
         }*/
+    }
+
+    serializePart(stream: SurvivBitStream): void {
+        stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
+        stream.writeBits(this.orientation, 2);
+        stream.writeFloat(this.scale, 0.125, 2.5, 8);
+        stream.writeBits(0, 6); // Padding
+    }
+
+    serializeFull(stream: SurvivBitStream): void {
+        stream.writeFloat(this.healthT, 0, 1, 8);
+        stream.writeMapType(this.typeId);
+        stream.writeString(this.typeString);
+        stream.writeBits(this.layer, 2);
+        stream.writeBoolean(this.dead);
+        stream.writeBoolean(this.isDoor);
+        stream.writeUint8(this.teamId);
+
+        if(this.isDoor) {
+            stream.writeBoolean(this.door.open);
+            stream.writeBoolean(this.door.canUse);
+            stream.writeBoolean(this.door.locked);
+            stream.writeBits(0, 5); // door seq
+        }
+        stream.writeBoolean(this.isButton);
+        if(this.isButton) {
+            stream.writeBoolean(this.button.onOff);
+            stream.writeBoolean(this.button.canUse);
+            stream.writeBits(0, 6); // button seq
+        }
+        stream.writeBoolean(this.isPuzzlePiece);
+        stream.writeBoolean(this.isSkin);
+        stream.writeBits(0, 5); // Padding
     }
 
 }
