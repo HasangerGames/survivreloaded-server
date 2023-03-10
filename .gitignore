@@ -1,4 +1,5 @@
 node_modules/
+public
 public/
 dist/
 package-lock.json
