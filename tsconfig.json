@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "incremental": true,
-    "module": "commonjs",
-    "target": "es5",
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "outDir": "dist",
     "allowJs": true,
-    "sourceMap": true
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "incremental": true
   },
   "exclude": [
     "node_modules",

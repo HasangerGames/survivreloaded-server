@@ -6,7 +6,7 @@ import { ObjectKind, SurvivBitStream, TypeToId } from "../../utils";
 export abstract class GameObject {
     kind: ObjectKind;
     id: number;
-    typeString: string;
+    typeString?: string;
     typeId: number;
     _position: Vector;
     layer: number;
@@ -14,7 +14,7 @@ export abstract class GameObject {
     scale: number = 1;
     dead: boolean = false;
 
-    game: Game;
+    game?: Game;
     body: Body;
 
     protected constructor(id: number,

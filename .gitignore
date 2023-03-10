@@ -1,8 +1,15 @@
-node_modules/
-public
+# Public directory/symlink
 public/
+public
+
+# Compiled source
 dist/
+
+# Node stuff
+node_modules/
 package-lock.json
+
+# Misc
 surviv.js
 surviv2.js
 bitheroes.js

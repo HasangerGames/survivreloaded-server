@@ -112,7 +112,7 @@ export class Utils {
         let random = Math.random() * weights[weights.length - 1];
 
         for (i = 0; i < weights.length; i++) { if (weights[i] > random) break; }
-        
+
         return items[i];
     }
 
@@ -213,7 +213,7 @@ export class Utils {
         max = Vector.mult(max, scale);
         if(orientation != 0) {
             const minX = min.x, minY = min.y,
-                  maxX = max.x, maxY = max.y;
+                maxX = max.x, maxY = max.y;
             switch(orientation) {
                 case 1:
                     min = Vector.create(minX, maxY);
@@ -259,12 +259,12 @@ export class Utils {
     static unitVecToRadians(v: Vector): number {
         return Math.atan2(v.y, v.x);
     }
-    
+
 }
 
 
 export class SurvivBitStream extends BitStream {
-    constructor(source, byteOffset: number = 0, byteLength: number = null) {
+    constructor(source, byteOffset: number = 0, byteLength: number = 0) {
         super(source, byteOffset, byteLength);
     }
 
@@ -278,8 +278,8 @@ export class SurvivBitStream extends BitStream {
 
     writeFloat(val, min, max, bitCount) {
         const range = (1 << bitCount) - 1,
-                  x = val < max ? (val > min ? val : min) : max,
-                  t = (x - min) / (max - min);
+            x = val < max ? (val > min ? val : min) : max,
+            t = (x - min) / (max - min);
         this.writeBits(t * range + 0.5, bitCount);
     }
     readFloat(min, max, bitCount) {

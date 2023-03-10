@@ -8,15 +8,8 @@ import { GameObject } from "./gameObject";
 
 export class Obstacle extends GameObject {
 
-    id: number;
-
-    game: Game;
-
-    _position: Vector;
-    orientation: number;
     initialOrientation: number;
 
-    scale: number;
     minScale: number;
     maxScale: number;
 
@@ -80,7 +73,7 @@ export class Obstacle extends GameObject {
         this.body = Utils.bodyFromCollisionData(data.collision, position, orientation, scale);
         if(this.body != null) {
             if(!this.collidable) this.body.isSensor = true;
-            this.game.addBody(this.body);
+            this.game!.addBody(this.body);
         }
 
         // TODO Testing code, delete me
@@ -119,19 +112,19 @@ export class Obstacle extends GameObject {
             this.dead = true;
             this.collidable = false;
             if(this.door) this.door.canUse = false;
-            this.game.removeBody(this.body);
-            this.game.fullDirtyObjects.push(this.id);
+            this.game!.removeBody(this.body);
+            this.game!.fullDirtyObjects.push(this.id);
 
-            const loot: Loot = new Loot(this.game.map.objects.length, "15xscope", this.position, 0, this.game, 1);
-            this.game.map.objects.push(loot);
-            this.game.fullDirtyObjects.push(loot.id);
+            const loot: Loot = new Loot(this.game!.map.objects.length, "15xscope", this.position, 0, this.game!, 1);
+            this.game!.map.objects.push(loot);
+            this.game!.fullDirtyObjects.push(loot.id);
         } else {
             this.healthT = this.health / this.maxHealth;
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
             Body.scale(this.body, scaleFactor, scaleFactor);
-            this.game.partialDirtyObjects.push(this.id);
+            this.game!.partialDirtyObjects.push(this.id);
         }
     }
 
@@ -153,7 +146,7 @@ export class Obstacle extends GameObject {
 
     serializePart(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
-        stream.writeBits(this.orientation, 2);
+        stream.writeBits(this.orientation!, 2);
         stream.writeFloat(this.scale, 0.125, 2.5, 8);
         stream.writeBits(0, 6); // Padding
     }

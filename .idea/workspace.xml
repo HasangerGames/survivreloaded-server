@@ -8,7 +8,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="fixes">
+      <change afterPath="$PROJECT_DIR$/.eslintignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.eslintrc.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/game.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/map.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/map.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/building.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/building.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/deadBody.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/deadBody.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/gameObject.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/gameObject.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/loot.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/loot.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/obstacle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/obstacle.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/player.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/structure.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/structure.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/aliveCountsPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/aliveCountsPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/joinedPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/joinedPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/killPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/killPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/mapPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/mapPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/packet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/packet.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/updatePacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/updatePacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,9 +73,10 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "/home/desktopgeek/.nvm/versions/node/v18.13.0/bin/node",
     "nodejs_package_manager_path": "npm",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "editor.preferences.tabs",
+    "settings.editor.selected.configurable": "settings.nodejs",
     "ts.external.directory.path": "/home/desktopgeek/SynologyDrive/Programming/Node/SurvivReloaded/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
@@ -119,7 +142,7 @@
       <workItem from="1678021596459" duration="17830000" />
       <workItem from="1678042070146" duration="14801000" />
       <workItem from="1678058419023" duration="27488000" />
-      <workItem from="1678393422663" duration="9806000" />
+      <workItem from="1678393422663" duration="11469000" />
     </task>
     <task id="LOCAL-00001" summary="more matter.js testing">
       <created>1677886378553</created>

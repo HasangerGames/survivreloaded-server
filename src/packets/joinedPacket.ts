@@ -4,8 +4,6 @@ import { Player } from "../game/objects/player";
 
 export class JoinedPacket extends Packet {
 
-    p: Player;
-
     constructor(p: Player) {
         super(p);
         this.allocBytes = 512;
