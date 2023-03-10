@@ -6,7 +6,7 @@ export class DeadBody extends GameObject {
     playerId: number;
 
     constructor(id, layer, position, playerId) {
-        super(id, null, position, 0, layer);
+        super(id, "", position, 0, layer);
         this.kind = ObjectKind.DeadBody;
         this.playerId = playerId;
     }

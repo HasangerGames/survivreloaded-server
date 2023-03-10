@@ -6,10 +6,6 @@ import { GameObject } from "./gameObject";
 
 export class Loot extends GameObject {
 
-    id: number;
-
-    game: Game;
-
     count: number;
 
     constructor(id: number,
@@ -22,7 +18,7 @@ export class Loot extends GameObject {
         this.kind = ObjectKind.Loot;
         this.count = count;
         this.body = Bodies.circle(position.x, position.y, 1);
-        this.game.addBody(this.body);
+        this.game!.addBody(this.body);
     }
 
     get position(): Vector {

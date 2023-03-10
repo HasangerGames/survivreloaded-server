@@ -39,7 +39,7 @@ export class Building extends GameObject {
     serializeFull(stream: SurvivBitStream) {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeMapType(this.typeId);
-        stream.writeBits(this.orientation, 2);
+        stream.writeBits(this.orientation!, 2);
         stream.writeBits(this.layer, 2);
     }
 

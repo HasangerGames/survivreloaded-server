@@ -98,7 +98,7 @@ export class Player extends GameObject {
     quit: boolean = false;
 
     constructor(id: number, socket: Socket, game: Game, username: string, position: Vector, loadout) {
-        super(id, null, -1, 0);
+        super(id, "", -1, 0);
         this.kind = ObjectKind.Player;
 
         this.game = game;
@@ -187,20 +187,20 @@ export class Player extends GameObject {
         if(this._health == 0) {
             this.dead = true;
             if(!this.quit) {
-                this.game.aliveCount--;
-                this.game.aliveCountDirty = true;
+                this.game!.aliveCount--;
+                this.game!.aliveCountDirty = true;
             }
             if(source instanceof Player) {
                 source.kills++;
-                this.game.kills.push(new KillPacket(this, source));
+                this.game!.kills.push(new KillPacket(this, source));
             }
             this.fullObjects.push(this.id);
             this.deadBody = new DeadBody(this.map.objects.length, this.position, this.layer, this.id);
             this.map.objects.push(this.deadBody);
-            this.game.fullDirtyObjects.push(this.id);
-            this.game.fullDirtyObjects.push(this.deadBody.id);
-            this.game.deletedPlayerIds.push(this.id);
-            removeFrom(this.game.activePlayers, this);
+            this.game!.fullDirtyObjects.push(this.id);
+            this.game!.fullDirtyObjects.push(this.deadBody.id);
+            this.game!.deletedPlayerIds.push(this.id);
+            removeFrom(this.game!.activePlayers, this);
         }
     }
 

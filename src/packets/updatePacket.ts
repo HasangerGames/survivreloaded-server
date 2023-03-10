@@ -1,10 +1,8 @@
 import { Packet } from "./packet";
-import { MsgType, ObjectKind, SurvivBitStream as BitStream } from "../utils";
+import { MsgType, SurvivBitStream as BitStream } from "../utils";
 import { Player } from "../game/objects/player";
 
 export class UpdatePacket extends Packet {
-
-    p: Player;
 
     constructor(p: Player) {
         super(p);
@@ -46,7 +44,7 @@ export class UpdatePacket extends Packet {
         if(this.p.activePlayerIdDirty) valuesChanged += 4;
         if(this.p.gasDirty) valuesChanged += 8;
         if(this.p.gasCircleDirty) valuesChanged += 16;
-        if(this.p.game.playerInfosDirty) valuesChanged += 32;
+        if(this.p.game!.playerInfosDirty) valuesChanged += 32;
         if(this.p.deletedPlayerIdsDirty) valuesChanged += 64;
         if(this.p.playerStatusDirty) valuesChanged += 128;
         if(this.p.groupStatusDirty) valuesChanged += 256;
@@ -146,12 +144,12 @@ export class UpdatePacket extends Packet {
 
         // Red zone data
         if(this.p.gasDirty) {
-            stream.writeUint8(this.p.game.gasMode); // Mode
-            stream.writeBits(this.p.game.initialGasDuration, 8); // Duration
-            stream.writeVec(this.p.game.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
-            stream.writeVec(this.p.game.newGasPosition, 0, 0, 1024, 1024, 16); // New position
-            stream.writeFloat(this.p.game.oldGasRadius, 0, 2048, 16); // Old radius
-            stream.writeFloat(this.p.game.newGasRadius, 0, 2048, 16); // New radius
+            stream.writeUint8(this.p.game!.gasMode); // Mode
+            stream.writeBits(this.p.game!.initialGasDuration, 8); // Duration
+            stream.writeVec(this.p.game!.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
+            stream.writeVec(this.p.game!.newGasPosition, 0, 0, 1024, 1024, 16); // New position
+            stream.writeFloat(this.p.game!.oldGasRadius, 0, 2048, 16); // Old radius
+            stream.writeFloat(this.p.game!.newGasRadius, 0, 2048, 16); // New radius
             this.p.gasDirty = false;
         }
 
@@ -167,10 +165,11 @@ export class UpdatePacket extends Packet {
         let playerInfosSource: Player[];
         if(this.p.getAllPlayerInfos) {
             this.p.getAllPlayerInfos = false;
-            playerInfosSource = this.p.game.players;
-        } else if(this.p.game.playerInfosDirty) {
-            playerInfosSource = this.p.game.dirtyPlayers;
+            playerInfosSource = this.p.game!.players;
+        } else if(this.p.game!.playerInfosDirty) {
+            playerInfosSource = this.p.game!.dirtyPlayers;
         }
+        // @ts-ignore
         if(playerInfosSource) {
             stream.writeUint8(playerInfosSource.length); // Player info count
 
@@ -200,9 +199,9 @@ export class UpdatePacket extends Packet {
 
 
         // Player IDs to delete
-        if(this.p.game.deletedPlayerIds.length > 0) {
-            stream.writeUint8(this.p.game.deletedPlayerIds.length);
-            for(const id of this.p.game.deletedPlayerIds) stream.writeUint16(id);
+        if(this.p.game!.deletedPlayerIds.length > 0) {
+            stream.writeUint8(this.p.game!.deletedPlayerIds.length);
+            for(const id of this.p.game!.deletedPlayerIds) stream.writeUint16(id);
         }
 
 

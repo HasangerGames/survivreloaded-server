@@ -1,12 +1,9 @@
 import { Collision, Vector } from "matter-js";
-import Chance from "chance";
 import { GameOptions, Maps, ObjectKind, Objects, TypeToId, Utils } from "../utils";
 import { Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
-
-const chance = new Chance();
 
 export class Map {
     name: string;
@@ -38,8 +35,8 @@ export class Map {
 
         // TODO Better river generation
         this.rivers = [];
-        let x = 0, y = 0;
-        const points = [];
+        let x: number = 0, y: number = 0;
+        const points: Vector[] = [];
         while(x < 720 && y < 720) {
             x += 10 + Utils.random(-6, 6);
             y += 10 + Utils.random(-6, 6);
@@ -51,7 +48,7 @@ export class Map {
         for(const place of mapInfo.places) {
             this.places.push(new Place(place.name, Vector.create(place.x, place.y)));
         }
-        
+
 
         this.objects = [];
 
@@ -77,25 +74,25 @@ export class Map {
             this.genObstacleTest("crate_01", Vector.create(455, 205));
             this.genObstacleTest("crate_01", Vector.create(505, 205));
         }
-    
+
         this.groundPatches = [];
     }
 
-    private genStructure(type: any, structure: any, setPosition: Vector | null = null, setOrientation: number | null = null) {
+    private genStructure(typeString: string, structureData: any, setPosition: Vector | null = null, setOrientation: number | null = null) {
         let position;
         if(setPosition) position = setPosition;
         else if(GameOptions.debugMode) position = Vector.create(450, 150);
-        else position = this.getRandomPositionFor(null, ObjectKind.Structure); // TODO
+        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, 1);
 
         let orientation;
         if(setOrientation != undefined) orientation = setOrientation;
         else if(GameOptions.debugMode) orientation = 0;
         else orientation = Utils.random(0, 3);
 
-        const layerObjIds = [];
+        const layerObjIds: number[] = [];
 
-        for(let layerId = 0; layerId < structure.layers.length; layerId++) {
-            const layerObj = structure.layers[layerId];
+        for(let layerId = 0; layerId < structureData.layers.length; layerId++) {
+            const layerObj = structureData.layers[layerId];
             const layerType = layerObj.type;
             const layer = Objects[layerType];
             layerObjIds.push(TypeToId[layerType]);
@@ -113,7 +110,7 @@ export class Map {
                 //console.warn(`Unsupported object type: ${layer.type}`);
             }
         }
-        this.objects.push(new Structure(this.objects.length, position, type, orientation, layerObjIds));
+        this.objects.push(new Structure(this.objects.length, position, typeString, orientation, layerObjIds));
     }
 
     private genBuildings(count, type, building) {

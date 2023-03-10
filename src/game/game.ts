@@ -122,10 +122,10 @@ export class Game {
                         }
 
                         // If the player is punching anything, damage the closest object
-                        let maxDepth: number = -1, closestObject = null;
+                        let maxDepth: number = -1, closestObject: (Player | Obstacle);
                         const weapon = Weapons[p.loadout.meleeType],
-                               angle = Utils.unitVecToRadians(p.direction),
-                              offset = Vector.add(weapon.attack.offset, Vector.mult(Vector.create(1, 0), p.scale - 1)),
+                            angle = Utils.unitVecToRadians(p.direction),
+                            offset = Vector.add(weapon.attack.offset, Vector.mult(Vector.create(1, 0), p.scale - 1)),
                             position = Vector.add(p.position, Vector.rotate(offset, angle));
                         const body: Body = Bodies.circle(position.x, position.y, 0.9);
                         for(const object of this.map.objects) { // TODO This is very inefficient. Only check visible objects
@@ -138,9 +138,9 @@ export class Game {
                                 }
                             }
                         }
-                        if(closestObject) {
+                        if(closestObject!) {
                             closestObject.damage(24, p);
-                            if(closestObject.isDoor) closestObject.interact(p);
+                            if(closestObject instanceof Obstacle && closestObject.isDoor) closestObject.interact(p);
                         }
 
                         /* This code is more efficient, but doesn't work:
@@ -257,6 +257,7 @@ export class Game {
                                 for(const id of p.visibleObjects) {
                                     const object = this.map.objects[id];
                                     if(object instanceof Obstacle && object.isDoor && !object.dead) {
+                                        // @ts-ignore
                                         const interactionBody: Body = Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad);
                                         const collisionResult: Collision = Collision.collides(interactionBody, object.body);
                                         if(collisionResult && collisionResult.collided) {
@@ -291,7 +292,7 @@ export class Game {
         let spawnPosition;
         if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
         else spawnPosition = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
-        
+
         const p = new Player(this.map.objects.length, socket, this, username, spawnPosition, loadout);
         this.map.objects.push(p);
         this.players.push(p);
@@ -302,7 +303,7 @@ export class Game {
         this.aliveCount++;
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
-        
+
         p.sendPacket(new JoinedPacket(p));
         const stream = BitStream.alloc(32768);
         new MapPacket(p).writeData(stream);
@@ -335,7 +336,7 @@ export class Game {
         Composite.remove(this.engine.world, body);
     }
 
-    
+
     end() {
         for(const p of this.players) p.socket.close();
         clearInterval(this.timer);
