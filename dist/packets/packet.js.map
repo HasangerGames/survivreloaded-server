@@ -1,0 +1,1 @@
+{"version":3,"file":"packet.js","sourceRoot":"","sources":["../../src/packets/packet.ts"],"names":[],"mappings":";;;AAGA,MAAsB,MAAM;IACxB,UAAU,GAAW,CAAC,CAAC;IACvB,OAAO,CAAU;IAEjB,CAAC,CAAS;IAEV,YAAsB,CAAS;QAC3B,IAAI,CAAC,CAAC,GAAG,CAAC,CAAC;IACf,CAAC;IAED,SAAS,CAAC,MAAiB;QACvB,MAAM,CAAC,UAAU,CAAC,IAAI,CAAC,OAAO,CAAC,CAAC;IACpC,CAAC;CAEJ;AAdD,wBAcC"}
