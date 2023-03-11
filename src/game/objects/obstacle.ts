@@ -1,10 +1,10 @@
-import { Body, Vector } from "matter-js";
+import { Body, type Vector } from "matter-js";
 
-import { ObjectKind, SurvivBitStream, Utils } from "../../utils";
-import { Game } from "../game";
-import { Player } from "./player";
+import { ObjectKind, type SurvivBitStream, Utils } from "../../utils";
+import { type Game } from "../game";
+import { type Player } from "./player";
 import { Loot } from "./loot";
-import { GameObject } from "./gameObject";
+import { GameObject } from "../gameObject";
 
 export class Obstacle extends GameObject {
 
@@ -15,23 +15,25 @@ export class Obstacle extends GameObject {
 
     health: number;
     maxHealth: number;
-    healthT: number = 1;
+    healthT = 1;
 
-    teamId: number = 0;
+    teamId = 0;
 
-    isPuzzlePiece: boolean = false;
-    isSkin: boolean = false;
-    isButton: boolean = false;
+    isPuzzlePiece = false;
+    isSkin = false;
+    isButton = false;
     button: {
-        onOff: boolean;
-        canUse: boolean;
-    }
-    isDoor: boolean = false;
+        onOff: boolean
+        canUse: boolean
+    };
+
+    isDoor = false;
     door: {
-        open: boolean;
-        canUse: boolean;
-        locked: boolean;
-    }
+        open: boolean
+        canUse: boolean
+        locked: boolean
+    };
+
     interactionRad?: number;
 
     showOnMap: boolean;
@@ -40,7 +42,7 @@ export class Obstacle extends GameObject {
     reflectBullets: boolean;
     destructible: boolean;
 
-    body: Body;
+    body: Matter.Body | null;
     collision; // TODO Testing code, delete me
 
     constructor(id: number,
@@ -79,7 +81,7 @@ export class Obstacle extends GameObject {
         // TODO Testing code, delete me
         this.collision = data.collision;
 
-        this.isDoor = data.door != undefined;
+        this.isDoor = data.door !== undefined;
         if(this.isDoor) {
             this.door = {
                 open: false,
@@ -87,10 +89,10 @@ export class Obstacle extends GameObject {
                 locked: false
             };
             this.interactionRad = data.door.interactionRad;
-            this.body.isSensor = true; // TODO THIS DISABLES DOOR COLLISIONS; remove once door collisions are implemented
+            this.body!.isSensor = true; // TODO THIS DISABLES DOOR COLLISIONS; remove once door collisions are implemented
         }
 
-        this.isButton = data.button != undefined;
+        this.isButton = data.button !== undefined;
         if(this.isButton) {
             this.button = {
                 onOff: false,
@@ -123,7 +125,7 @@ export class Obstacle extends GameObject {
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
-            Body.scale(this.body, scaleFactor, scaleFactor);
+            Body.scale(this.body!, scaleFactor, scaleFactor);
             this.game!.partialDirtyObjects.push(this.id);
         }
     }
@@ -133,7 +135,7 @@ export class Obstacle extends GameObject {
         // TODO Make the door push players out of the way when opened, not just when closed
         // When pushing, ensure that they won't get stuck in anything.
         // If they do, move them to the opposite side regardless of their current position.
-        /*if(this.doorOpen) {
+        /* if(this.doorOpen) {
             if(p.isOnOtherSide(this)) {
 
             } else {
@@ -141,7 +143,7 @@ export class Obstacle extends GameObject {
             }
         } else {
 
-        }*/
+        } */
     }
 
     serializePart(stream: SurvivBitStream): void {

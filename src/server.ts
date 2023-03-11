@@ -26,7 +26,7 @@ app.get("/api/site_info", (req, res) => {
 
 app.get("/api/games_modes", (req, res) => {
     res.type("application/json");
-    //res.send(JSON.parse(fs.readFileSync("json/games_modes.json")));
+    // res.send(JSON.parse(fs.readFileSync("json/games_modes.json")));
     res.send([{ mapName: "main", teamMode: 1 }]);
 });
 
@@ -42,7 +42,7 @@ app.post("/api/user/get_user_prestige", (req, res) => {
 
 const addr = ServerOptions.addr || `${ServerOptions.host}:${ServerOptions.port}`;
 app.post("/api/find_game", (req, res) => {
-    res.send({res: [{ zone: req.body.zones[0], gameId: game.id, useHttps: false, hosts: [addr], addrs: [addr] }]});
+    res.send({ res: [{ zone: req.body.zones[0], gameId: game.id, useHttps: false, hosts: [addr], addrs: [addr] }] });
 });
 
 app.post("/api/user/profile", (req, res) => {
@@ -90,13 +90,13 @@ server.on("upgrade", (req, socket, head) => {
     });
 });
 
-function parseCookies(req) {
+function parseCookies(req): any {
     const list = {};
     const cookieHeader = req.headers?.cookie;
     if (!cookieHeader) return list;
 
-    cookieHeader.split(`;`).forEach(function(cookie) {
-        let [ name, ...rest] = cookie.split(`=`);
+    cookieHeader.split(`;`).forEach(cookie => {
+        let [name, ...rest] = cookie.split(`=`);
         name = name?.trim();
         if (!name) return;
         const value = rest.join(`=`).trim();
@@ -109,7 +109,7 @@ function parseCookies(req) {
 
 wsServer.on("connection", (socket, req) => {
     const cookies: any = parseCookies(req);
-    const p = game.addPlayer(socket, cookies["player-name"] ? cookies["player-name"] : "Player", cookies["loadout"] ? JSON.parse(cookies["loadout"]) : null);
+    const p = game.addPlayer(socket, cookies["player-name"] ? cookies["player-name"] : "Player", cookies.loadout ? JSON.parse(cookies.loadout) : null);
     Utils.log("Player joined");
 
     socket.on("message", data => {
@@ -128,7 +128,7 @@ console.log("Surviv Reloaded Server v1.0.0");
 console.log(`Listening on ${ServerOptions.https ? "https://" : "http://"}${addr}`);
 console.log("Press Ctrl+C to exit.");
 
-process.on("SIGINT", function() {
+process.on("SIGINT", () => {
     console.log("Shutting down...");
     game.end();
     process.exit();

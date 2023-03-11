@@ -18,16 +18,25 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/indent": ["error", 4, { "SwitchCase": 1 }],
+        "@typescript-eslint/indent": 0,
         "@typescript-eslint/semi": [2, "always"],
         "@typescript-eslint/quotes": [2, "double", { "avoidEscape": true, "allowTemplateLiterals": true }],
         "no-use-before-define": 0,
         "no-unused-vars": 0,
+        "one-var": 0,
+        "padded-blocks": 0,
         "@typescript-eslint/no-use-before-define": 2,
+        "@typescript-eslint/no-unnecessary-type-assertion": 0,
         "@typescript-eslint/no-unused-vars": 2,
         "prefer-arrow-callback": 2,
         "prefer-template": 2,
         "@typescript-eslint/curly": 0,
+        "@typescript-eslint/keyword-spacing": 0,
+        "@typescript-eslint/strict-boolean-expressions": 0,
+        "@typescript-eslint/restrict-template-expressions": 0,
+        "@typescript-eslint/space-before-function-paren": 0,
+        "@typescript-eslint/no-non-null-assertion": 0,
+        "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/no-for-in-array": 0,
         "@typescript-eslint/no-confusing-void-expression": 0
     }

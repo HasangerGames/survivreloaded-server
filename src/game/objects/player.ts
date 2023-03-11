@@ -1,83 +1,81 @@
-// noinspection TypeScriptValidateJSTypes
-
 import { Bodies, Body, Vector } from "matter-js";
-import { Socket } from "ws";
+import { type WebSocket } from "ws";
 
 import {
     CollisionCategory,
-    Emote,
-    Explosion,
+    type Emote,
+    type Explosion,
     ObjectKind,
     removeFrom,
-    SurvivBitStream,
+    type SurvivBitStream,
     SurvivBitStream as BitStream,
     TypeToId
 } from "../../utils";
 import { DeadBody } from "./deadBody";
-import { Packet } from "../../packets/packet";
+import { type Packet } from "../../packets/packet";
 import { KillPacket } from "../../packets/killPacket";
-import { Map } from "../map";
-import { Game } from "../game";
-import { GameObject } from "./gameObject";
+import { type Map } from "../map";
+import { type Game } from "../game";
+import { GameObject } from "../gameObject";
 
 export class Player extends GameObject {
-    socket: Socket;
+    socket: WebSocket;
     map: Map;
 
-    username: string = "Player";
-    //teamId: number = 0; // For 50v50?
+    username: string;
+    // teamId: number = 0; // For 50v50?
     groupId: number;
 
     direction: Vector = Vector.create(1, 0);
-    scale: number = 1;
-    zoom: number = 28; // 1x scope
+    scale = 1;
+    zoom = 28; // 1x scope
 
     visibleObjects: number[] = [];
     deletedObjects: number[] = [];
     fullObjects: number[] = [];
     partialObjects: number[] = [];
 
-    moving: boolean = false;
-    movingUp: boolean = false;
-    movingDown: boolean = false;
-    movingLeft: boolean = false;
-    movingRight: boolean = false;
+    moving = false;
+    movingUp = false;
+    movingDown = false;
+    movingLeft = false;
+    movingRight = false;
 
-    shootStart: boolean = false;
-    shootHold: boolean = false;
+    shootStart = false;
+    shootHold = false;
 
-    animActive: boolean = false;
-    animType: number = 0;
-    animSeq: number = 0;
-    animTime: number = 0;
+    animActive = false;
+    animType = 0;
+    animSeq = 0;
+    animTime = 0;
 
-    meleeCooldown: number = 0;
+    meleeCooldown = 0;
 
-    private _health: number = 100;
-    boost: number = 0;
-    kills: number = 0;
-    downed: boolean = false;
+    private _health = 100;
+    boost = 0;
+    kills = 0;
+    downed = false;
 
-    deletedPlayerIdsDirty: boolean = false;
-    playerStatusDirty: boolean = true;
-    groupStatusDirty: boolean = false;
-    bulletsDirty: boolean = false;
-    explosionsDirty: boolean = false;
-    emotesDirty: boolean = false;
-    planesDirty: boolean = false;
-    airstrikeZonesDirty: boolean = false;
-    mapIndicatorsDirty: boolean = false;
-    killLeaderDirty: boolean = true;
-    activePlayerIdDirty: boolean = true;
-    deletedObjectsDirty: boolean = false;
-    gasDirty: boolean = true;
-    gasCircleDirty: boolean = true;
-    healthDirty: boolean = true;
-    boostDirty: boolean = true;
-    zoomDirty: boolean = true;
-    weaponsDirty: boolean = true;
-    skipObjectCalculations: boolean = false;
-    getAllPlayerInfos: boolean = true;
+    deletedPlayerIdsDirty = false;
+    playerStatusDirty = true;
+    groupStatusDirty = false;
+    bulletsDirty = false;
+    explosionsDirty = false;
+    emotesDirty = false;
+    planesDirty = false;
+    airstrikeZonesDirty = false;
+    mapIndicatorsDirty = false;
+    killLeaderDirty = true;
+    activePlayerIdDirty = true;
+    deletedObjectsDirty = false;
+    gasDirty = true;
+    gasCircleDirty = true;
+    healthDirty = true;
+    boostDirty = true;
+    zoomDirty = true;
+    weaponsDirty = true;
+    skipObjectCalculations = false;
+    getAllPlayerInfos = true;
 
     emotes: Emote[];
     explosions: Explosion[];
@@ -86,26 +84,26 @@ export class Player extends GameObject {
     deadBody: DeadBody;
 
     loadout: {
-        outfit: number,
-        melee: number,
-        meleeType: string,
-        heal: number,
-        boost: number,
-        emotes: number[],
+        outfit: number
+        melee: number
+        meleeType: string
+        heal: number
+        boost: number
+        emotes: number[]
         deathEffect: number
     };
 
-    quit: boolean = false;
+    quit = false;
 
-    constructor(id: number, socket: Socket, game: Game, username: string, position: Vector, loadout) {
-        super(id, "", -1, 0);
+    constructor(id: number, position: Vector, socket: WebSocket, game: Game, username: string, loadout) {
+        super(id, "", position, 0);
         this.kind = ObjectKind.Player;
 
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
 
-        if(loadout && loadout.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes && loadout.deathEffect) {
+        if(loadout?.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes && loadout.deathEffect) {
             this.loadout = {
                 outfit: TypeToId[loadout.outfit],
                 melee: TypeToId[loadout.melee],
@@ -139,8 +137,7 @@ export class Player extends GameObject {
         this.game.addBody(this.body);
     }
 
-
-    setVelocity(xVel: number, yVel: number) {
+    setVelocity(xVel: number, yVel: number): void {
         Body.setVelocity(this.body, { x: xVel, y: yVel });
     }
 
@@ -152,7 +149,7 @@ export class Player extends GameObject {
         return this._health;
     }
 
-    /*updateVisibleObjects() {
+    /* updateVisibleObjects() {
         for(const object of this.map.objects) {
             const id = object.id;
             if(id == this.id) continue;
@@ -178,13 +175,13 @@ export class Player extends GameObject {
                 }
             }
         }
-    }*/
+    } */
 
     damage(amount: number, source): void {
         this._health -= amount;
         this.healthDirty = true;
         if(this._health < 0) this._health = 0;
-        if(this._health == 0) {
+        if(this._health === 0) {
             this.dead = true;
             if(!this.quit) {
                 this.game!.aliveCount--;
@@ -204,13 +201,14 @@ export class Player extends GameObject {
         }
     }
 
-    isOnOtherSide(door) {
+    isOnOtherSide(door): boolean {
         switch(door.orientation) {
             case 0: return this.position.x < door.position.x;
             case 1: return this.position.y < door.position.y;
             case 2: return this.position.x > door.position.x;
             case 3: return this.position.y > door.position.y;
         }
+        return false;
     }
 
     sendPacket(packet: Packet): void {

@@ -1,16 +1,15 @@
-import { Vector } from "matter-js";
+import { type Vector } from "matter-js";
 
-import { ObjectKind, SurvivBitStream, Utils } from "../../utils";
-import { GameObject } from "./gameObject";
+import { ObjectKind, type SurvivBitStream, Utils } from "../../utils";
+import { GameObject } from "../gameObject";
 
 export class Building extends GameObject {
 
     showOnMap: boolean;
 
-    occupied: boolean = false;
-    ceilingDamaged: boolean = false;
-    hasPuzzle: boolean = false;
-
+    occupied = false;
+    ceilingDamaged = false;
+    hasPuzzle = false;
 
     constructor(id: number,
                 typeString: string,
@@ -28,7 +27,7 @@ export class Building extends GameObject {
         }
     }
 
-    serializePart(stream: SurvivBitStream) {
+    serializePart(stream: SurvivBitStream): void {
         stream.writeBoolean(this.dead); // Ceiling destroyed
         stream.writeBoolean(this.occupied);
         stream.writeBoolean(this.ceilingDamaged);
@@ -36,7 +35,7 @@ export class Building extends GameObject {
         stream.writeBits(0, 4); // Padding
     }
 
-    serializeFull(stream: SurvivBitStream) {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeMapType(this.typeId);
         stream.writeBits(this.orientation!, 2);

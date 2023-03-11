@@ -1,8 +1,8 @@
-import { Bodies, Vector } from "matter-js";
+import { Bodies, type Vector } from "matter-js";
 
-import { ObjectKind, SurvivBitStream } from "../../utils";
-import { Game } from "../game";
-import { GameObject } from "./gameObject";
+import { ObjectKind, type SurvivBitStream } from "../../utils";
+import { type Game } from "../game";
+import { GameObject } from "../gameObject";
 
 export class Loot extends GameObject {
 
@@ -22,7 +22,7 @@ export class Loot extends GameObject {
     }
 
     get position(): Vector {
-        return this.body.position;
+        return this.body!.position;
     }
 
     serializePart(stream: SurvivBitStream): void {

@@ -1,6 +1,6 @@
 import { Collision, Vector } from "matter-js";
 import { GameOptions, Maps, ObjectKind, Objects, TypeToId, Utils } from "../utils";
-import { Game } from "./game";
+import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
@@ -35,7 +35,7 @@ export class Map {
 
         // TODO Better river generation
         this.rivers = [];
-        let x: number = 0, y: number = 0;
+        let x = 0; let y = 0;
         const points: Vector[] = [];
         while(x < 720 && y < 720) {
             x += 10 + Utils.random(-6, 6);
@@ -48,7 +48,6 @@ export class Map {
         for(const place of mapInfo.places) {
             this.places.push(new Place(place.name, Vector.create(place.x, place.y)));
         }
-
 
         this.objects = [];
 
@@ -67,8 +66,8 @@ export class Map {
             }
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
-            //this.genStructure("club_structure_01", Objects["club_structure_01"]);
-            //this.genBuildingTest("house_red_01", 1, false);
+            // this.genStructure("club_structure_01", Objects["club_structure_01"]);
+            // this.genBuildingTest("house_red_01", 1, false);
             this.genObstacleTest("crate_01", Vector.create(455, 155));
             this.genObstacleTest("crate_01", Vector.create(505, 155));
             this.genObstacleTest("crate_01", Vector.create(455, 205));
@@ -78,14 +77,14 @@ export class Map {
         this.groundPatches = [];
     }
 
-    private genStructure(typeString: string, structureData: any, setPosition: Vector | null = null, setOrientation: number | null = null) {
+    private genStructure(typeString: string, structureData: any, setPosition: Vector | null = null, setOrientation: number | null = null): void {
         let position;
         if(setPosition) position = setPosition;
         else if(GameOptions.debugMode) position = Vector.create(450, 150);
         else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, 1);
 
         let orientation;
-        if(setOrientation != undefined) orientation = setOrientation;
+        if(setOrientation !== undefined) orientation = setOrientation;
         else if(GameOptions.debugMode) orientation = 0;
         else orientation = Utils.random(0, 3);
 
@@ -98,28 +97,26 @@ export class Map {
             layerObjIds.push(TypeToId[layerType]);
 
             let layerOrientation;
-            if(layerObj.inheritOri == false) layerOrientation = layerObj.orientation;
+            if(layerObj.inheritOri === false) layerOrientation = layerObj.orientation;
             else layerOrientation = Utils.addOrientations(layerObj.ori, orientation);
-            let layerPosition = Utils.addAdjust(position, layerObj.pos, orientation);
+            const layerPosition = Utils.addAdjust(position, layerObj.pos, orientation);
 
-            if(layer.type == "structure") {
+            if(layer.type === "structure") {
                 this.genStructure(layerType, layer, layerPosition, layerOrientation);
-            } else if(layer.type == "building") {
+            } else if(layer.type === "building") {
                 this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
             } else {
-                //console.warn(`Unsupported object type: ${layer.type}`);
+                // console.warn(`Unsupported object type: ${layer.type}`);
             }
         }
-        this.objects.push(new Structure(this.objects.length, position, typeString, orientation, layerObjIds));
+        this.objects.push(new Structure(this.objects.length, typeString, position, orientation, layerObjIds));
     }
 
-    private genBuildings(count, type, building) {
-        for(let i = 0; i < count; i++) {
-            this.genBuilding(type, building);
-        }
+    private genBuildings(count, type, building): void {
+        for(let i = 0; i < count; i++) this.genBuilding(type, building);
     }
 
-    private genBuildingTest(type: string, orientation: number, markers: boolean) {
+    private genBuildingTest(type: string, orientation: number, markers: boolean): void {
         this.genBuilding(type, Objects[type], undefined, orientation, undefined, true);
     }
 
@@ -128,38 +125,38 @@ export class Map {
                         setPosition?: Vector,
                         setOrientation?: number,
                         setLayer?: number,
-                        debug: boolean = false) {
+                        debug = false): void {
         let position;
         if(setPosition) position = setPosition;
         else if(GameOptions.debugMode) position = Vector.create(450, 150);
         else position = this.getRandomPositionFor(ObjectKind.Building, buildingData.mapObstacleBounds ? buildingData.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
         let orientation;
-        if(setOrientation != undefined) orientation = setOrientation;
+        if(setOrientation !== undefined) orientation = setOrientation;
         else if(GameOptions.debugMode) orientation = 0;
         else orientation = Utils.random(0, 3);
 
         let layer;
-        if(setLayer != undefined) layer = setLayer;
+        if(setLayer !== undefined) layer = setLayer;
         else layer = 0;
 
         for(const mapObject of buildingData.mapObjects) {
             const partType = mapObject.type;
-            if(!partType || partType == "") {
-                //console.warn(`${type}: Missing object at ${mapObject.position.x}, ${mapObject.position.y}`);
+            if(!partType || partType === "") {
+                // console.warn(`${type}: Missing object at ${mapObject.position.x}, ${mapObject.position.y}`);
                 continue;
             }
             const part = Objects[partType];
 
             let partOrientation;
-            if(mapObject.inheritOri == false) partOrientation = mapObject.ori;
+            if(mapObject.inheritOri === false) partOrientation = mapObject.ori;
             else partOrientation = Utils.addOrientations(mapObject.ori, orientation);
-            let partPosition = Utils.addAdjust(position, mapObject.pos, orientation);
+            const partPosition = Utils.addAdjust(position, mapObject.pos, orientation);
 
-            if(part.type == "structure") {
+            if(part.type === "structure") {
                 this.genStructure(partType, part, partPosition, partOrientation);
-            } else if(part.type == "building") {
+            } else if(part.type === "building") {
                 this.genBuilding(partType, part, partPosition, partOrientation, layer);
-            } else if(part.type == "obstacle") {
+            } else if(part.type === "obstacle") {
                 this.genObstacle(
                     partType,
                     partPosition,
@@ -168,8 +165,8 @@ export class Map {
                     mapObject.scale,
                     part
                 );
-            } else if(part.type == "random") {
-                const items = Object.keys(part.weights), weights = Object.values(part.weights);
+            } else if(part.type === "random") {
+                const items = Object.keys(part.weights); const weights = Object.values(part.weights);
                 const randType = Utils.weightedRandom(items, weights as number[]);
                 this.genObstacle(
                     randType,
@@ -179,25 +176,25 @@ export class Map {
                     mapObject.scale,
                     Objects[randType]
                 );
-            } else if(part.type == "ignored") {
+            } else if(part.type === "ignored") {
                 // Ignored
             } else {
-                //console.warn(`Unknown object type: ${part.type}`);
+                // console.warn(`Unknown object type: ${part.type}`);
             }
         }
         this.objects.push(new Building(
             this.objects.length,
             typeString,
             position,
-            setLayer != undefined ? setLayer : 0,
+            setLayer !== undefined ? setLayer : 0,
             orientation,
             buildingData.map ? buildingData.map.display : false,
             buildingData
         ));
     }
 
-    private genObstacleTest(typeString, position?: Vector) {
-        this.genObstacle(typeString, position ? position : Vector.create(455, 155), 0, 0,0.8, Objects[typeString]);
+    private genObstacleTest(typeString, position?: Vector): void {
+        this.genObstacle(typeString, position ?? Vector.create(455, 155), 0, 0, 0.8, Objects[typeString]);
     }
 
     private genObstacle(typeString: string,
@@ -210,7 +207,7 @@ export class Map {
             this.objects.length,
             typeString,
             position,
-            layer != undefined ? layer : 0,
+            layer !== undefined ? layer : 0,
             orientation,
             this.game,
             scale,
@@ -232,7 +229,7 @@ export class Map {
         }
     }
 
-    private getRandomPositionFor(kind: ObjectKind, collisionData, scale?) {
+    private getRandomPositionFor(kind: ObjectKind, collisionData, scale?): Vector {
         if(!scale) scale = 1;
         let foundPosition = false;
         let position;
@@ -241,7 +238,7 @@ export class Map {
             let shouldContinue = false;
 
             for(const river of this.rivers) {
-                const minRiverDist = (kind == ObjectKind.Building || kind == ObjectKind.Structure) ? river.width * 5 : river.width * 2.5;
+                const minRiverDist = (kind === ObjectKind.Building || kind === ObjectKind.Structure) ? river.width * 5 : river.width * 2.5;
                 for(const point of river.points) {
                     if(Utils.distanceBetween(position, point) < minRiverDist) {
                         shouldContinue = true;
@@ -256,8 +253,9 @@ export class Map {
 
             for(const object of this.objects) {
                 if(!object.body) continue;
+                // @ts-expect-error The 3rd argument for Collision.collides is optional
                 const collisionResult = Collision.collides(collider, object.body);
-                if(collisionResult && collisionResult.collided) {
+                if(collisionResult?.collided) {
                     shouldContinue = true;
                     break;
                 }

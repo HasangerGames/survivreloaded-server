@@ -1,5 +1,5 @@
-import { ObjectKind, SurvivBitStream } from "../../utils";
-import { GameObject } from "./gameObject";
+import { ObjectKind, type SurvivBitStream } from "../../utils";
+import { GameObject } from "../gameObject";
 
 export class DeadBody extends GameObject {
 
@@ -11,11 +11,11 @@ export class DeadBody extends GameObject {
         this.playerId = playerId;
     }
 
-    serializePart(stream: SurvivBitStream) {
+    serializePart(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
     }
 
-    serializeFull(stream: SurvivBitStream) {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeUint8(this.layer);
         stream.writeUint16(this.playerId);
     }

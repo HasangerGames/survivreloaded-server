@@ -1,9 +1,9 @@
-import { Vector } from "matter-js";
-import { ObjectKind, SurvivBitStream } from "../../utils";
-import { GameObject } from "./gameObject";
+import { type Vector } from "matter-js";
+import { ObjectKind, type SurvivBitStream } from "../../utils";
+import { GameObject } from "../gameObject";
 
 export class Structure extends GameObject {
-    showOnMap: boolean = false;
+    showOnMap = false;
 
     layerObjIds: number[];
 

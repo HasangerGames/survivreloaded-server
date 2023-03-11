@@ -1,7 +1,7 @@
 import { Body, Vector } from "matter-js";
 
-import { Game } from "../game";
-import { ObjectKind, SurvivBitStream, TypeToId } from "../../utils";
+import { Game } from "./game";
+import { ObjectKind, SurvivBitStream, TypeToId } from "../utils";
 
 export abstract class GameObject {
     kind: ObjectKind;
@@ -15,7 +15,7 @@ export abstract class GameObject {
     dead: boolean = false;
 
     game?: Game;
-    body: Body;
+    body: Matter.Body | null;
 
     protected constructor(id: number,
                           typeString: string,
@@ -32,7 +32,7 @@ export abstract class GameObject {
         this.game = game;
     }
 
-    get position() {
+    get position(): Vector {
         return this._position;
     }
 
