@@ -1,5 +1,19 @@
 import { Collision, Vector } from "matter-js";
-import { GameOptions, Maps, ObjectKind, Objects, TypeToId, Utils } from "../utils";
+import {
+    addAdjust,
+    addOrientations,
+    bodyFromCollisionData,
+    distanceBetween,
+    GameOptions,
+    Maps,
+    ObjectKind,
+    Objects,
+    random,
+    randomBase,
+    randomVec,
+    TypeToId,
+    weightedRandom
+} from "../utils";
 import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
@@ -23,7 +37,7 @@ export class Map {
 
     constructor(game, mapId) {
         this.name = mapId;
-        this.seed = Utils.random(0, 2147483647);
+        this.seed = random(0, 2147483647);
         this.game = game;
 
         const mapInfo = Maps[mapId];
@@ -38,8 +52,8 @@ export class Map {
         let x = 0; let y = 0;
         const points: Vector[] = [];
         while(x < 720 && y < 720) {
-            x += 10 + Utils.random(-6, 6);
-            y += 10 + Utils.random(-6, 6);
+            x += 10 + random(-6, 6);
+            y += 10 + random(-6, 6);
             points.push(Vector.create(x, y));
         }
         this.rivers.push(new River(8, 0, points));
@@ -86,7 +100,7 @@ export class Map {
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
         else if(GameOptions.debugMode) orientation = 0;
-        else orientation = Utils.random(0, 3);
+        else orientation = random(0, 3);
 
         const layerObjIds: number[] = [];
 
@@ -98,8 +112,8 @@ export class Map {
 
             let layerOrientation;
             if(layerObj.inheritOri === false) layerOrientation = layerObj.orientation;
-            else layerOrientation = Utils.addOrientations(layerObj.ori, orientation);
-            const layerPosition = Utils.addAdjust(position, layerObj.pos, orientation);
+            else layerOrientation = addOrientations(layerObj.ori, orientation);
+            const layerPosition = addAdjust(position, layerObj.pos, orientation);
 
             if(layer.type === "structure") {
                 this.genStructure(layerType, layer, layerPosition, layerOrientation);
@@ -133,7 +147,7 @@ export class Map {
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
         else if(GameOptions.debugMode) orientation = 0;
-        else orientation = Utils.random(0, 3);
+        else orientation = random(0, 3);
 
         let layer;
         if(setLayer !== undefined) layer = setLayer;
@@ -149,8 +163,8 @@ export class Map {
 
             let partOrientation;
             if(mapObject.inheritOri === false) partOrientation = mapObject.ori;
-            else partOrientation = Utils.addOrientations(mapObject.ori, orientation);
-            const partPosition = Utils.addAdjust(position, mapObject.pos, orientation);
+            else partOrientation = addOrientations(mapObject.ori, orientation);
+            const partPosition = addAdjust(position, mapObject.pos, orientation);
 
             if(part.type === "structure") {
                 this.genStructure(partType, part, partPosition, partOrientation);
@@ -167,7 +181,7 @@ export class Map {
                 );
             } else if(part.type === "random") {
                 const items = Object.keys(part.weights); const weights = Object.values(part.weights);
-                const randType = Utils.weightedRandom(items, weights as number[]);
+                const randType = weightedRandom(items, weights as number[]);
                 this.genObstacle(
                     randType,
                     partPosition,
@@ -217,7 +231,7 @@ export class Map {
 
     private genObstacles(count, typeString, obstacleData): void {
         for(let i = 0; i < count; i++) {
-            const scale = Utils.randomBase(obstacleData.scale.createMin, obstacleData.scale.createMax);
+            const scale = randomBase(obstacleData.scale.createMin, obstacleData.scale.createMax);
             this.genObstacle(
                 typeString,
                 this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, scale),
@@ -234,13 +248,13 @@ export class Map {
         let foundPosition = false;
         let position;
         while(!foundPosition) {
-            position = Utils.randomVec(75, this.width - 75, 75, this.height - 75);
+            position = randomVec(75, this.width - 75, 75, this.height - 75);
             let shouldContinue = false;
 
             for(const river of this.rivers) {
                 const minRiverDist = (kind === ObjectKind.Building || kind === ObjectKind.Structure) ? river.width * 5 : river.width * 2.5;
                 for(const point of river.points) {
-                    if(Utils.distanceBetween(position, point) < minRiverDist) {
+                    if(distanceBetween(position, point) < minRiverDist) {
                         shouldContinue = true;
                         break;
                     }
@@ -248,7 +262,7 @@ export class Map {
             }
             if(shouldContinue) continue;
             if(!collisionData) break;
-            const collider = Utils.bodyFromCollisionData(collisionData, position, scale);
+            const collider = bodyFromCollisionData(collisionData, position, scale);
             if(collider == null) break;
 
             for(const object of this.objects) {

@@ -1,5 +1,5 @@
 import { Bodies, Body, Vector } from "matter-js";
-import { type WebSocket } from "ws";
+import { type WebSocket } from "uWebSockets.js";
 
 import {
     CollisionCategory,
@@ -19,10 +19,10 @@ import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 
 export class Player extends GameObject {
-    socket: WebSocket;
+    socket: WebSocket<any>;
     map: Map;
 
-    username: string;
+    name: string;
     // teamId: number = 0; // For 50v50?
     groupId: number;
 
@@ -95,7 +95,7 @@ export class Player extends GameObject {
 
     quit = false;
 
-    constructor(id: number, position: Vector, socket: WebSocket, game: Game, username: string, loadout) {
+    constructor(id: number, position: Vector, socket: WebSocket<any>, game: Game, username: string, loadout) {
         super(id, "", position, 0);
         this.kind = ObjectKind.Player;
 
@@ -128,7 +128,7 @@ export class Player extends GameObject {
 
         // Misc
         this.groupId = this.game.players.length - 1;
-        this.username = username;
+        this.name = username;
 
         // Init body
         this.body = Bodies.circle(position.x, position.y, 1, { restitution: 0, friction: 0, frictionAir: 0, inertia: Infinity });
@@ -218,10 +218,7 @@ export class Player extends GameObject {
     }
 
     sendData(stream: BitStream): void {
-        const oldArray = new Uint8Array(stream.buffer);
-        const newArray = new Uint8Array(Math.ceil(stream.index / 8));
-        for(let i = 0; i < newArray.length; i++) newArray[i] = oldArray[i];
-        this.socket.send(newArray);
+        this.socket.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)), true, true);
     }
 
     serializePart(stream: SurvivBitStream): void {

@@ -1,6 +1,6 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, SurvivBitStream as BitStream } from "../../utils";
-import { Player } from "../../game/objects/player";
+import { MsgType, type SurvivBitStream as BitStream } from "../../utils";
+import { type Player } from "../../game/objects/player";
 
 export class JoinedPacket extends SendingPacket {
 
@@ -15,8 +15,7 @@ export class JoinedPacket extends SendingPacket {
         stream.writeUint16(this.p.id); // Player ID
         stream.writeBoolean(false); // Game started
         stream.writeUint8(6); // Emote count
-        for(let i = 0; i < 6; i++)
-            stream.writeGameType(this.p.loadout.emotes[i]);
+        for(let i = 0; i < 6; i++) { stream.writeGameType(this.p.loadout.emotes[i]); }
     }
 
 }

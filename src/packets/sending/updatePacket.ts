@@ -1,19 +1,19 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, SurvivBitStream as BitStream } from "../../utils";
-import { Player } from "../../game/objects/player";
+import { MsgType, type SurvivBitStream } from "../../utils";
+import { type Player } from "../../game/objects/player";
 
 export class UpdatePacket extends SendingPacket {
 
     constructor(p: Player) {
         super(p);
-        this.allocBytes = 16384;
+        this.allocBytes = 8192;
     }
 
-    writeData(stream: BitStream): void {
+    writeData(stream: SurvivBitStream): void {
         if(!this.p.skipObjectCalculations) {
             for(const object of this.p.map.objects) {
                 const id = object.id;
-                if(id == this.p.id) continue;
+                if(id === this.p.id) continue;
                 const cullingRadius = this.p.zoom + 15;
                 const minX = this.p.position.x - cullingRadius,
                     maxX = this.p.position.x + cullingRadius,
@@ -29,7 +29,7 @@ export class UpdatePacket extends SendingPacket {
                     }
                 } else {
                     const index: number = this.p.visibleObjects.indexOf(id);
-                    if(index != -1) {
+                    if(index !== -1) {
                         this.p.visibleObjects = this.p.visibleObjects.splice(index, 1);
                         this.p.deletedObjectsDirty = true;
                         this.p.deletedObjects.push(id);
@@ -67,7 +67,6 @@ export class UpdatePacket extends SendingPacket {
             this.p.deletedObjects = [];
         }
 
-
         // Full objects
         if(this.p.fullObjects.length) {
             stream.writeUint16(this.p.fullObjects.length); // Full object count
@@ -82,7 +81,6 @@ export class UpdatePacket extends SendingPacket {
             this.p.fullObjects = [];
         }
 
-
         // Partial objects
         stream.writeUint16(this.p.partialObjects.length); // Indicates partial object count
         for(const id of this.p.partialObjects) {
@@ -92,13 +90,11 @@ export class UpdatePacket extends SendingPacket {
         }
         this.p.partialObjects = [];
 
-
         // Active player ID
         if(this.p.activePlayerIdDirty) {
             stream.writeUint16(this.p.id);
             this.p.activePlayerIdDirty = false;
         }
-
 
         // Active player data
         stream.writeBoolean(this.p.healthDirty);
@@ -113,7 +109,7 @@ export class UpdatePacket extends SendingPacket {
             this.p.boostDirty = false;
         }
 
-        stream.writeBits(0, 3);     // Misc dirty
+        stream.writeBits(0, 3); // Misc dirty
         stream.writeBoolean(this.p.zoomDirty); // Zoom dirty
         if(this.p.zoomDirty) {
             stream.writeUint8(this.p.zoom);
@@ -141,7 +137,6 @@ export class UpdatePacket extends SendingPacket {
         stream.writeBoolean(false); // Spectator count dirty
         stream.writeAlignToNextByte();
 
-
         // Red zone data
         if(this.p.gasDirty) {
             stream.writeUint8(this.p.game!.gasMode); // Mode
@@ -153,13 +148,11 @@ export class UpdatePacket extends SendingPacket {
             this.p.gasDirty = false;
         }
 
-
         // Red zone time data
         if(this.p.gasCircleDirty) {
             stream.writeFloat(0, 0, 1, 16); // Indicates red zone time (gasT)
             this.p.gasCircleDirty = false;
         }
-
 
         // Player info
         let playerInfosSource: Player[];
@@ -169,41 +162,40 @@ export class UpdatePacket extends SendingPacket {
         } else if(this.p.game!.playerInfosDirty) {
             playerInfosSource = this.p.game!.dirtyPlayers;
         }
-        // @ts-ignore
-        if(playerInfosSource) {
+
+        if(playerInfosSource!) {
             stream.writeUint8(playerInfosSource.length); // Player info count
 
             for(const player of playerInfosSource) {
                 // Basic info
-                stream.writeUint16(player.id);    // Player ID
-                stream.writeUint8(0);       // Team ID
+                stream.writeUint16(player.id); // Player ID
+                stream.writeUint8(0); // Team ID
                 stream.writeUint8(player.groupId); // Group ID
-                stream.writeString(player.username); // Name
+                stream.writeString(player.name); // Name
 
                 // Loadout
                 stream.writeGameType(player.loadout.outfit); // Outfit (skin)
                 stream.writeGameType(player.loadout.heal); // Healing particles
                 stream.writeGameType(player.loadout.boost); // Adrenaline particles
                 stream.writeGameType(player.loadout.melee); // Melee
-                stream.writeGameType(player.loadout.deathEffect);   // Death effect
+                stream.writeGameType(player.loadout.deathEffect); // Death effect
 
-                for(let i = 0; i < 6; i++)
+                for(let i = 0; i < 6; i++) {
                     stream.writeGameType(player.loadout.emotes[i]);
+                }
 
                 // Misc
-                stream.writeUint32(player.id);    // User ID
+                stream.writeUint32(player.id); // User ID
                 stream.writeBoolean(false); // Is unlinked (doesn't have account)
-                stream.writeAlignToNextByte();    // Padding
+                stream.writeAlignToNextByte(); // Padding
             }
         }
-
 
         // Player IDs to delete
         if(this.p.game!.deletedPlayerIds.length > 0) {
             stream.writeUint8(this.p.game!.deletedPlayerIds.length);
             for(const id of this.p.game!.deletedPlayerIds) stream.writeUint16(id);
         }
-
 
         // Player status
         if(this.p.playerStatusDirty) {
@@ -223,12 +215,9 @@ export class UpdatePacket extends SendingPacket {
             this.p.playerStatusDirty = false;
         }
 
-
         // Group status
 
-
         // Bullets
-
 
         // Explosions
         if(this.p.explosionsDirty) {
@@ -242,7 +231,6 @@ export class UpdatePacket extends SendingPacket {
             }
             this.p.explosionsDirty = false;
         }
-
 
         // Emotes
         if(this.p.emotesDirty) {
@@ -258,15 +246,11 @@ export class UpdatePacket extends SendingPacket {
             this.p.emotesDirty = false;
         }
 
-
         // Planes
-
 
         // Airstrike zones
 
-
         // Map indicators
-
 
         // Kill leader
         if(this.p.killLeaderDirty) {
@@ -274,7 +258,6 @@ export class UpdatePacket extends SendingPacket {
             stream.writeUint8(84); // Kill count
             this.p.killLeaderDirty = false;
         }
-
 
         stream.writeUint8(0); // "Ack" msg
     }

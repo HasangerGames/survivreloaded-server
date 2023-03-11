@@ -1,22 +1,15 @@
-import fs from "fs";
 import { BitStream } from "bit-buffer";
 import { Bodies, type Body, Vector } from "matter-js";
-
-function readJSON(path: string): any {
-    return JSON.parse(fs.readFileSync(path) as unknown as string);
-}
-
-export const Objects = readJSON("data/objects.json");
-export const Maps = readJSON("data/maps.json");
-export const Items = readJSON("data/items.json");
-export const Weapons = readJSON("data/weapons.json");
-export const Bullets = readJSON("data/bullets.json");
-export const TypeToId = readJSON("data/ids.json");
-
-export const ServerOptions = readJSON("config/server.json");
-export const GameOptions = readJSON("config/game.json");
+import fs from "fs";
+export const Objects = readJson("data/objects.json");
+export const Maps = readJson("data/maps.json");
+export const Items = readJson("data/items.json");
+export const Weapons = readJson("data/weapons.json");
+export const Bullets = readJson("data/bullets.json");
+export const TypeToId = readJson("data/ids.json");
+export const ServerOptions = readJson("config/server.json");
+export const GameOptions = readJson("config/game.json");
 GameOptions.diagonalSpeed = GameOptions.movementSpeed / Math.SQRT2;
-
 export interface IntersectResult { point: Vector, normal: Vector }
 
 export class Emote {
@@ -89,184 +82,250 @@ export function removeFrom(array: any[], object: any): void {
     const index: number = array.indexOf(object);
     if(index !== -1) array.splice(index, 1);
 }
+export function log(message: string): void {
+    const date: Date = new Date();
+    console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
+}
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class Utils {
+export function randomBase(min: number, max: number): number {
+    return (Math.random() * (max - min) + min);
+}
 
-    static log(message: string): void {
-        const date: Date = new Date();
-        console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
+export function random(min: number, max: number): number { return Math.floor(randomBase(min, max + 1)); }
+
+export function randomVec(minX: number, maxX: number, minY: number, maxY: number): Vector { return Vector.create(random(minX, maxX), random(minY, maxY)); }
+
+// https://stackoverflow.com/a/55671924/5905216
+export function weightedRandom(items: any[], weights: number[]): any {
+    let i;
+    for (i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
+
+    const random = Math.random() * weights[weights.length - 1];
+    for (i = 0; i < weights.length; i++) { if (weights[i] > random) break; }
+    return items[i];
+}
+
+export function distanceBetween(v1: Vector, v2: Vector): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
+
+export function intersectSegmentCircle(position1: Vector, position2: Vector, position3: Vector, rad: number): IntersectResult | null {
+    let lengthVec = Vector.sub(position2, position1);
+    const length = Math.max(Vector.magnitude(lengthVec), 0);
+    lengthVec = Vector.div(lengthVec, length);
+
+    const distToCircleCenter = Vector.sub(position1, position3);
+    const dot1 = Vector.dot(distToCircleCenter, lengthVec);
+    const dot2 = Vector.dot(distToCircleCenter, distToCircleCenter) - rad * rad;
+
+    if(dot2 > 0 && dot1 > 0) return null;
+
+    const dot3 = dot1 * dot1 - dot2;
+    if(dot3 < 0) return null;
+
+    const dot4 = Math.sqrt(dot3);
+    let dot5 = -dot1 - dot4;
+
+    if(dot5 < 0) dot5 = -dot1 + dot4;
+
+    if(dot5 <= length) {
+        const point = Vector.add(position1, Vector.mult(lengthVec, dot5));
+        return { point, normal: Vector.normalise(Vector.sub(point, position3)) };
     }
 
-    static randomBase(min: number, max: number): number {
-        return (Math.random() * (max - min) + min);
+    return null;
+}
+
+export function circleCollision(pos1: Vector, r1: number, pos2: Vector, r2: number): boolean {
+    const a = r1 + r2;
+    const x = pos1.x - pos2.x;
+    const y = pos1.y - pos2.y;
+    return a > Math.sqrt((x * x) + (y * y));
+}
+
+export function rectCollision(min: Vector, max: Vector, circlePos: Vector, circleRad: number): boolean {
+    // TODO Replace this collision detection function with a more efficient one from the surviv code
+    const rectWidth = max.x - min.x;
+    const rectHeight = max.y - min.y;
+    min = Vector.add(min, Vector.create(rectWidth / 2, rectHeight / 2));
+    const distX = Math.abs(circlePos.x - min.x);
+    const distY = Math.abs(circlePos.y - min.y);
+
+    if (distX > (rectWidth / 2 + circleRad)) { return false; }
+    if (distY > (rectHeight / 2 + circleRad)) { return false; }
+
+    if (distX <= (rectWidth / 2)) { return true; }
+    if (distY <= (rectHeight / 2)) { return true; }
+
+    const hypot = (distX - rectWidth / 2) * (distX - rectWidth / 2) +
+        (distY - rectHeight / 2) * (distY - rectHeight / 2);
+
+    return (hypot <= (circleRad * circleRad));
+}
+
+export function addOrientations(n1: number, n2: number): number {
+    const sum: number = n1 + n2;
+    if(sum <= 3) return sum;
+    switch(sum) {
+        case 4:
+            return 0;
+        case 5:
+            return 1;
+        case 6:
+            return 2;
     }
+    return -1;
+}
 
-    static random(min: number, max: number): number { return Math.floor(Utils.randomBase(min, max + 1)); }
-
-    static randomVec(minX: number, maxX: number, minY: number, maxY: number): Vector { return Vector.create(Utils.random(minX, maxX), Utils.random(minY, maxY)); }
-
-    // https://stackoverflow.com/a/55671924/5905216
-    static weightedRandom(items: any[], weights: number[]): any {
-        let i;
-        for (i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
-
-        const random = Math.random() * weights[weights.length - 1];
-        for (i = 0; i < weights.length; i++) { if (weights[i] > random) break; }
-        return items[i];
+export function addAdjust(position1: Vector, position2: Vector, orientation: number): Vector {
+    if(orientation === 0) return Vector.add(position1, position2);
+    let xOffset, yOffset;
+    switch(orientation) {
+        case 1:
+            xOffset = -position2.y;
+            // noinspection JSSuspiciousNameCombination
+            yOffset = position2.x;
+            break;
+        case 2:
+            xOffset = -position2.x;
+            yOffset = -position2.y;
+            break;
+        case 3:
+            // noinspection JSSuspiciousNameCombination
+            xOffset = position2.y;
+            yOffset = -position2.x;
+            break;
     }
+    return Vector.add(position1, Vector.create(xOffset, yOffset));
+}
 
-    static distanceBetween(v1: Vector, v2: Vector): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
-
-    static intersectSegmentCircle(position1: Vector, position2: Vector, position3: Vector, rad: number): IntersectResult | null {
-        let lengthVec = Vector.sub(position2, position1);
-        const length = Math.max(Vector.magnitude(lengthVec), 0);
-        lengthVec = Vector.div(lengthVec, length);
-
-        const distToCircleCenter = Vector.sub(position1, position3);
-        const dot1 = Vector.dot(distToCircleCenter, lengthVec);
-        const dot2 = Vector.dot(distToCircleCenter, distToCircleCenter) - rad * rad;
-
-        if(dot2 > 0 && dot1 > 0) return null;
-
-        const dot3 = dot1 * dot1 - dot2;
-        if(dot3 < 0) return null;
-
-        const dot4 = Math.sqrt(dot3);
-        let dot5 = -dot1 - dot4;
-
-        if(dot5 < 0) dot5 = -dot1 + dot4;
-
-        if(dot5 <= length) {
-            const point = Vector.add(position1, Vector.mult(lengthVec, dot5));
-            return { point, normal: Vector.normalise(Vector.sub(point, position3)) };
-        }
-
-        return null;
-    }
-
-    static circleCollision(pos1: Vector, r1: number, pos2: Vector, r2: number): boolean {
-        const a = r1 + r2;
-        const x = pos1.x - pos2.x;
-        const y = pos1.y - pos2.y;
-        return a > Math.sqrt((x * x) + (y * y));
-    }
-
-    static rectCollision(min: Vector, max: Vector, circlePos: Vector, circleRad: number): boolean {
-        // TODO Replace this collision detection function with a more efficient one from the surviv code
-        const rectWidth = max.x - min.x;
-        const rectHeight = max.y - min.y;
-        min = Vector.add(min, Vector.create(rectWidth / 2, rectHeight / 2));
-        const distX = Math.abs(circlePos.x - min.x);
-        const distY = Math.abs(circlePos.y - min.y);
-
-        if (distX > (rectWidth / 2 + circleRad)) { return false; }
-        if (distY > (rectHeight / 2 + circleRad)) { return false; }
-
-        if (distX <= (rectWidth / 2)) { return true; }
-        if (distY <= (rectHeight / 2)) { return true; }
-
-        const hypot = (distX - rectWidth / 2) * (distX - rectWidth / 2) +
-            (distY - rectHeight / 2) * (distY - rectHeight / 2);
-
-        return (hypot <= (circleRad * circleRad));
-    }
-
-    static addOrientations(n1: number, n2: number): number {
-        const sum: number = n1 + n2;
-        if(sum <= 3) return sum;
-        switch(sum) {
-            case 4:
-                return 0;
-            case 5:
-                return 1;
-            case 6:
-                return 2;
-        }
-        return -1;
-    }
-
-    static addAdjust(position1: Vector, position2: Vector, orientation: number): Vector {
-        if(orientation === 0) return Vector.add(position1, position2);
-        let xOffset, yOffset;
+export function rotateRect(pos: Vector, min: Vector, max: Vector, scale: number, orientation: number): { min: Vector, max: Vector } {
+    min = Vector.mult(min, scale);
+    max = Vector.mult(max, scale);
+    if(orientation !== 0) {
+        const minX = min.x, minY = min.y,
+              maxX = max.x, maxY = max.y;
         switch(orientation) {
             case 1:
-                xOffset = -position2.y;
-                // noinspection JSSuspiciousNameCombination
-                yOffset = position2.x;
+                min = Vector.create(minX, maxY);
+                max = Vector.create(maxX, minY);
                 break;
             case 2:
-                xOffset = -position2.x;
-                yOffset = -position2.y;
+                min = Vector.create(maxX, maxY);
+                max = Vector.create(minX, minY);
                 break;
             case 3:
-                // noinspection JSSuspiciousNameCombination
-                xOffset = position2.y;
-                yOffset = -position2.x;
+                min = Vector.create(maxX, minY);
+                max = Vector.create(minX, maxY);
                 break;
         }
-        return Vector.add(position1, Vector.create(xOffset, yOffset));
     }
+    return {
+        min: addAdjust(pos, min, orientation),
+        max: addAdjust(pos, max, orientation)
+    };
+}
 
-    static rotateRect(pos: Vector, min: Vector, max: Vector, scale: number, orientation: number): { min: Vector, max: Vector } {
-        min = Vector.mult(min, scale);
-        max = Vector.mult(max, scale);
-        if(orientation !== 0) {
-            const minX = min.x, minY = min.y,
-                  maxX = max.x, maxY = max.y;
-            switch(orientation) {
-                case 1:
-                    min = Vector.create(minX, maxY);
-                    max = Vector.create(maxX, minY);
-                    break;
-                case 2:
-                    min = Vector.create(maxX, maxY);
-                    max = Vector.create(minX, minY);
-                    break;
-                case 3:
-                    min = Vector.create(maxX, minY);
-                    max = Vector.create(minX, maxY);
-                    break;
+export function bodyFromCollisionData(data, pos: Vector, orientation = 0, scale = 1): Body | null {
+    if(!data?.type) {
+        // console.error("Missing collision data");
+    }
+    let body: Body;
+    if(data.type === CollisionType.Circle) {
+        // noinspection TypeScriptValidateJSTypes
+        body = Bodies.circle(pos.x, pos.y, data.rad * scale, { isStatic: true });
+    } else if(data.type === CollisionType.Rectangle) {
+        const rect = rotateRect(pos, data.min, data.max, scale, orientation);
+        const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
+        const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
+        if(width === 0 || height === 0) return null;
+        body = Bodies.rectangle(x, y, width, height, { isStatic: true });
+    }
+    // if(scale != 1) Body.scale(body, scale, scale);
+
+    // @ts-expect-error body will always be assigned when the code gets to this point
+    body.collisionFilter.category = CollisionCategory.Obstacle;
+    // @ts-expect-error body will always be assigned when the code gets to this point
+    body.collisionFilter.mask = CollisionCategory.Player;
+    // @ts-expect-error body will always be assigned when the code gets to this point
+    return body;
+}
+
+export function unitVecToRadians(v: Vector): number {
+    return Math.atan2(v.y, v.x);
+}
+
+export function readJson(path: string): any {
+    return JSON.parse(fs.readFileSync(path) as unknown as string);
+}
+
+/**
+ * Helper function for reading a posted JSON body.
+ * https://github.com/uNetworking/uWebSockets.js/blob/master/examples/JsonPost.js
+ */
+export function readPostedJson(res, cb, err): any {
+    let buffer;
+    /* Register data cb */
+    res.onData((ab, isLast) => {
+        const chunk = Buffer.from(ab);
+        if(isLast) {
+            let json;
+            if(buffer) {
+                try {
+                    // @ts-expect-error JSON.parse can accept a Buffer as an argument
+                    json = JSON.parse(Buffer.concat([buffer, chunk]));
+                } catch (e) {
+                    /* res.close calls onAborted */
+                    res.close();
+                    return;
+                }
+                cb(json);
+            } else {
+                try {
+                    // @ts-expect-error JSON.parse can accept a Buffer as an argument
+                    json = JSON.parse(chunk);
+                } catch (e) {
+                    /* res.close calls onAborted */
+                    res.close();
+                    return;
+                }
+                cb(json);
+            }
+        } else {
+            if(buffer) {
+                buffer = Buffer.concat([buffer, chunk]);
+            } else {
+                buffer = Buffer.concat([chunk]);
             }
         }
-        return {
-            min: Utils.addAdjust(pos, min, orientation),
-            max: Utils.addAdjust(pos, max, orientation)
-        };
-    }
+    });
 
-    static bodyFromCollisionData(data, pos: Vector, orientation = 0, scale = 1): Body | null {
-        if(!data?.type) {
-            // console.error("Missing collision data");
-        }
-        let body: Body;
-        if(data.type === CollisionType.Circle) {
-            // noinspection TypeScriptValidateJSTypes
-            body = Bodies.circle(pos.x, pos.y, data.rad * scale, { isStatic: true });
-        } else if(data.type === CollisionType.Rectangle) {
-            const rect = Utils.rotateRect(pos, data.min, data.max, scale, orientation);
-            const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
-            const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
-            if(width === 0 || height === 0) return null;
-            body = Bodies.rectangle(x, y, width, height, { isStatic: true });
-        }
-        // if(scale != 1) Body.scale(body, scale, scale);
+    /* Register error cb */
+    res.onAborted(err);
+}
 
-        // @ts-expect-error body will always be assigned when the code gets to this point
-        body.collisionFilter.category = CollisionCategory.Obstacle;
-        // @ts-expect-error body will always be assigned when the code gets to this point
-        body.collisionFilter.mask = CollisionCategory.Player;
-        // @ts-expect-error body will always be assigned when the code gets to this point
-        return body;
-    }
+export async function streamToBuffer(stream): Promise<Buffer> {
+    const chunks: Buffer[] = [];
+    return await new Promise((resolve, reject) => {
+        stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+        stream.on("error", (err) => reject(err));
+        stream.on("end", () => resolve(Buffer.concat(chunks)));
+    });
+}
 
-    static unitVecToRadians(v: Vector): number {
-        return Math.atan2(v.y, v.x);
-    }
-
+export function getContentType(filename: string): string {
+    let contentType;
+    if(filename.endsWith(".svg")) contentType = "image/svg+xml";
+    else if(filename.endsWith(".mp3")) contentType = "audio/mpeg";
+    else if(filename.endsWith(".html")) contentType = "text/html; charset=UTF-8";
+    else if(filename.endsWith(".css")) contentType = "text/css";
+    else if(filename.endsWith(".js")) contentType = "text/javascript";
+    else if(filename.endsWith(".png")) contentType = "image/png";
+    else if(filename.endsWith(".ico")) contentType = "image/vnd.microsoft.icon";
+    else if(filename.endsWith(".jpg")) contentType = "image/jpeg";
+    return contentType;
 }
 
 export class SurvivBitStream extends BitStream {
+
     constructor(source, byteOffset = 0, byteLength = 0) {
         super(source, byteOffset, byteLength);
     }

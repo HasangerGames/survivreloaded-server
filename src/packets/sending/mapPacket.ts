@@ -1,6 +1,6 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, SurvivBitStream } from "../../utils";
-import { Player } from "../../game/objects/player";
+import { MsgType, type SurvivBitStream } from "../../utils";
+import { type Player } from "../../game/objects/player";
 
 export class MapPacket extends SendingPacket {
 

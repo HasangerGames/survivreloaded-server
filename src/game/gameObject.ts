@@ -1,7 +1,7 @@
-import { Body, Vector } from "matter-js";
+import { type Vector } from "matter-js";
 
-import { Game } from "./game";
-import { ObjectKind, SurvivBitStream, TypeToId } from "../utils";
+import { type Game } from "./game";
+import { type ObjectKind, type SurvivBitStream, TypeToId } from "../utils";
 
 export abstract class GameObject {
     kind: ObjectKind;
@@ -11,8 +11,8 @@ export abstract class GameObject {
     _position: Vector;
     layer: number;
     orientation?: number;
-    scale: number = 1;
-    dead: boolean = false;
+    scale = 1;
+    dead = false;
 
     game?: Game;
     body: Matter.Body | null;

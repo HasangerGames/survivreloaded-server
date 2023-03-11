@@ -3,10 +3,10 @@ import {
     type Emote,
     type Explosion,
     GameOptions,
-    MsgType,
+    randomVec,
     removeFrom,
     SurvivBitStream as BitStream,
-    Utils,
+    unitVecToRadians,
     Weapons
 } from "../utils";
 import { Bodies, type Body, Collision, Composite, Engine, Vector } from "matter-js";
@@ -18,8 +18,6 @@ import { UpdatePacket } from "../packets/sending/updatePacket";
 import { JoinedPacket } from "../packets/sending/joinedPacket";
 import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
-import { InputPacket } from "../packets/receiving/inputPacket";
-import { EmotePacket } from "../packets/receiving/emotePacket";
 
 export class Game {
 
@@ -123,9 +121,9 @@ export class Game {
                         }
 
                         // If the player is punching anything, damage the closest object
-                        let maxDepth = -1; let closestObject: (Player | Obstacle);
+                        let maxDepth = -1; let closestObject: (Player | Obstacle | null) = null;
                         const weapon = Weapons[p.loadout.meleeType];
-                            const angle = Utils.unitVecToRadians(p.direction);
+                            const angle = unitVecToRadians(p.direction);
                             const offset = Vector.add(weapon.attack.offset, Vector.mult(Vector.create(1, 0), p.scale - 1));
                             const position = Vector.add(p.position, Vector.rotate(offset, angle));
                         const body: Body = Bodies.circle(position.x, position.y, 0.9);
@@ -224,7 +222,7 @@ export class Game {
     addPlayer(socket, username, loadout): Player {
         let spawnPosition;
         if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
-        else spawnPosition = Utils.randomVec(75, this.map.width - 75, 75, this.map.height - 75);
+        else spawnPosition = randomVec(75, this.map.width - 75, 75, this.map.height - 75);
 
         const p = new Player(this.map.objects.length, spawnPosition, socket, this, username, loadout);
         this.map.objects.push(p);

@@ -17,6 +17,7 @@ export class Structure extends GameObject {
         this.layerObjIds = layerObjIds;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     serializePart(stream: SurvivBitStream): void {}
 
     serializeFull(stream: SurvivBitStream): void {

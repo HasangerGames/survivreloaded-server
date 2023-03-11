@@ -1,6 +1,6 @@
 import { type Vector } from "matter-js";
 
-import { ObjectKind, type SurvivBitStream, Utils } from "../../utils";
+import { bodyFromCollisionData, ObjectKind, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 
 export class Building extends GameObject {
@@ -23,7 +23,7 @@ export class Building extends GameObject {
 
         this.showOnMap = showOnMap;
         if(data.mapObstacleBounds) {
-            this.body = Utils.bodyFromCollisionData(data.mapObstacleBounds[0], this.position);
+            this.body = bodyFromCollisionData(data.mapObstacleBounds[0], this.position);
         }
     }
 

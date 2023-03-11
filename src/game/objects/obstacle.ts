@@ -1,6 +1,6 @@
 import { Body, type Vector } from "matter-js";
 
-import { ObjectKind, type SurvivBitStream, Utils } from "../../utils";
+import { bodyFromCollisionData, ObjectKind, type SurvivBitStream } from "../../utils";
 import { type Game } from "../game";
 import { type Player } from "./player";
 import { Loot } from "./loot";
@@ -42,7 +42,6 @@ export class Obstacle extends GameObject {
     reflectBullets: boolean;
     destructible: boolean;
 
-    body: Matter.Body | null;
     collision; // TODO Testing code, delete me
 
     constructor(id: number,
@@ -72,7 +71,7 @@ export class Obstacle extends GameObject {
         this.collidable = data.collidable;
         this.reflectBullets = data.reflectBullets;
         this.destructible = data.destructible;
-        this.body = Utils.bodyFromCollisionData(data.collision, position, orientation, scale);
+        this.body = bodyFromCollisionData(data.collision, position, orientation, scale);
         if(this.body != null) {
             if(!this.collidable) this.body.isSensor = true;
             this.game!.addBody(this.body);
