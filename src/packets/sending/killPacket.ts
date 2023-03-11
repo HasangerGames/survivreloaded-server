@@ -1,8 +1,8 @@
-import { Packet } from "./packet";
-import { DamageType, MsgType, SurvivBitStream as BitStream } from "../utils";
-import { Player } from "../game/objects/player";
+import { SendingPacket } from "../sendingPacket";
+import { DamageType, MsgType, SurvivBitStream as BitStream } from "../../utils";
+import { Player } from "../../game/objects/player";
 
-export class KillPacket extends Packet {
+export class KillPacket extends SendingPacket {
 
     killer;
 

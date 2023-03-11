@@ -7,8 +7,10 @@ import cookieParser from "cookie-parser";
 import ws from "ws";
 import fs from "fs";
 
-import { ServerOptions, SurvivBitStream, Utils } from "./utils";
+import { MsgType, ServerOptions, SurvivBitStream, Utils } from "./utils";
 import { Game } from "./game/game.js";
+import { InputPacket } from "./packets/receiving/inputPacket";
+import { EmotePacket } from "./packets/receiving/emotePacket";
 
 const wsServer = new ws.Server({ noServer: true });
 const game = new Game();
@@ -114,7 +116,19 @@ wsServer.on("connection", (socket, req) => {
 
     socket.on("message", data => {
         const stream = new SurvivBitStream(data, 6);
-        game.onMessage(stream, p);
+        try {
+            const msgType = stream.readUint8();
+            switch(msgType) {
+                case MsgType.Input:
+                    new InputPacket(p).readData(stream);
+                    break;
+                case MsgType.Emote:
+                    new EmotePacket(p).readData(stream);
+                    break;
+            }
+        } catch(e) {
+            // console.warn("Error parsing message:", e);
+        }
     });
 
     socket.on("close", () => {

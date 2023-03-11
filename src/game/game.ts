@@ -1,9 +1,8 @@
 import crypto from "crypto";
 import {
-    Emote,
+    type Emote,
     type Explosion,
     GameOptions,
-    InputType,
     MsgType,
     removeFrom,
     SurvivBitStream as BitStream,
@@ -14,11 +13,13 @@ import { Bodies, type Body, Collision, Composite, Engine, Vector } from "matter-
 import { Map } from "./map";
 import { Player } from "./objects/player";
 import { Obstacle } from "./objects/obstacle";
-import { AliveCountsPacket } from "../packets/aliveCountsPacket";
-import { UpdatePacket } from "../packets/updatePacket";
-import { JoinedPacket } from "../packets/joinedPacket";
-import { MapPacket } from "../packets/mapPacket";
-import { type KillPacket } from "../packets/killPacket";
+import { AliveCountsPacket } from "../packets/sending/aliveCountsPacket";
+import { UpdatePacket } from "../packets/sending/updatePacket";
+import { JoinedPacket } from "../packets/sending/joinedPacket";
+import { MapPacket } from "../packets/sending/mapPacket";
+import { type KillPacket } from "../packets/sending/killPacket";
+import { InputPacket } from "../packets/receiving/inputPacket";
+import { EmotePacket } from "../packets/receiving/emotePacket";
 
 export class Game {
 
@@ -218,76 +219,6 @@ export class Game {
             this.deletedPlayerIds = [];
             this.aliveCountDirty = false;
         }, GameOptions.tickDelta);
-    }
-
-    onMessage(stream, p): void {
-        try {
-            const msgType = stream.readUint8();
-            switch(msgType) {
-                case MsgType.Input: {
-                    stream.readUint8(); // Discard second byte (this.seq)
-
-                    // Movement and shooting
-                    p.movingLeft = stream.readBoolean(); // Left
-                    p.movingRight = stream.readBoolean(); // Right
-                    p.movingUp = stream.readBoolean(); // Up
-                    p.movingDown = stream.readBoolean(); // Down
-
-                    const shootStart = stream.readBoolean();
-                    p.shootStart = p.shootStart ? true : shootStart; // Shoot start
-                    p.shootHold = stream.readBoolean(); // Shoot hold
-                    stream.readBoolean(); // Portrait
-                    stream.readBoolean(); // Touch move active
-
-                    // Direction
-                    const direction = stream.readUnitVec(10);
-                    if (p.direction !== direction) {
-                        p.direction = direction;
-                        p.skipObjectCalculations = false;
-                    }
-                    stream.readFloat(0, 64, 8); // Distance to mouse
-
-                    // Other inputs
-                    const inputCount = stream.readBits(4);
-                    for(let i = 0; i < inputCount; i++) {
-                        const input = stream.readUint8();
-                        switch (input) {
-                            case InputType.Interact: {
-                                for (const id of p.visibleObjects) {
-                                    const object = this.map.objects[id];
-                                    if (object instanceof Obstacle && object.isDoor && !object.dead) {
-                                        const interactionBody: Body = Bodies.circle(p.position.x, p.position.y, 1 + object.interactionRad!);
-                                        // @ts-expect-error The 3rd argument for Collision.collides is optional
-                                        const collisionResult = Collision.collides(interactionBody, object.body);
-                                        if (collisionResult?.collided) {
-                                            object.interact(p);
-                                            this.partialDirtyObjects.push(id);
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                    }
-
-                    // Misc
-                    stream.readGameType(); // Item in use
-                    stream.readBits(5); // Zeroes
-                    break;
-                }
-
-                case MsgType.Emote: {
-                    const position = stream.readVec(0, 0, 1024, 1024, 16);
-                    const type = stream.readGameType();
-                    const isPing = stream.readBoolean();
-                    stream.readBits(4); // Padding
-                    if(!p.dead) this.emotes.push(new Emote(p.id, position, type, isPing));
-                    break;
-                }
-            }
-        } catch(e) {
-            // console.warn("Error parsing message:", e);
-        }
     }
 
     addPlayer(socket, username, loadout): Player {

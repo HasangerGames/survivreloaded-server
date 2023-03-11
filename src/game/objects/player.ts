@@ -12,8 +12,8 @@ import {
     TypeToId
 } from "../../utils";
 import { DeadBody } from "./deadBody";
-import { type Packet } from "../../packets/packet";
-import { KillPacket } from "../../packets/killPacket";
+import { type SendingPacket } from "../../packets/sendingPacket";
+import { KillPacket } from "../../packets/sending/killPacket";
 import { type Map } from "../map";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
@@ -211,7 +211,7 @@ export class Player extends GameObject {
         return false;
     }
 
-    sendPacket(packet: Packet): void {
+    sendPacket(packet: SendingPacket): void {
         const stream: BitStream = BitStream.alloc(packet.allocBytes);
         packet.writeData(stream);
         this.sendData(stream);

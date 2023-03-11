@@ -1,8 +1,8 @@
-import { Packet } from "./packet";
-import { MsgType, SurvivBitStream } from "../utils";
-import { Player } from "../game/objects/player";
+import { SendingPacket } from "../sendingPacket";
+import { MsgType, SurvivBitStream } from "../../utils";
+import { Player } from "../../game/objects/player";
 
-export class MapPacket extends Packet {
+export class MapPacket extends SendingPacket {
 
     constructor(p: Player) {
         super(p);
