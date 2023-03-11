@@ -118,7 +118,7 @@ app.post("/api/user/get_pass", (res) => {
 // noinspection TypeScriptValidateJSTypes
 app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
-    idleTimeout: 10000,
+    idleTimeout: 30,
     upgrade: (res, req, context) => {
         res.upgrade({
                 cookies: cookie.parse(req.getHeader("cookie"))
