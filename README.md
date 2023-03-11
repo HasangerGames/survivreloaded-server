@@ -36,7 +36,7 @@ npm run build
 
 ### Step 4: Start the server
 
-Finally, run this command:
+To start the server, run this command:
 ```
 npm start
 ```
