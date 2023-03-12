@@ -122,7 +122,7 @@ export class Player extends GameObject {
                 heal: 109,
                 boost: 138,
                 deathEffect: 0,
-                emotes: [195, 196, 197, 194, 0, 0]
+                emotes: [195, 193, 196, 194, 0, 0]
             };
         }
 

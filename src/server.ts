@@ -92,7 +92,7 @@ app.post("/api/user/profile", (res, req) => {
 
 app.post("/api/user/loadout", (res) => {
     readPostedJson(res, (body) => {
-        res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { maxAge: 2147483647 }));
+        res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { path: "/", maxAge: 2147483647 }));
         res.writeHeader("Content-Type", "application/json");
         res.end(JSON.stringify(body));
     }, () => {
@@ -120,7 +120,8 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        res.upgrade({
+        res.upgrade(
+            {
                 cookies: cookie.parse(req.getHeader("cookie"))
             },
             req.getHeader("sec-websocket-key"),
@@ -131,7 +132,7 @@ app.ws("/play", {
     },
     open: (socket) => {
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
-        log(`"${socket.player.name}" joined`);
+        log(`${socket.player.name} joined the game`);
     },
     message: (socket, message) => {
         const stream = new SurvivBitStream(message, 0);
@@ -150,13 +151,13 @@ app.ws("/play", {
         }
     },
     close: (socket) => {
-        log(`"${socket.player.name}" quit`);
+        log(`${socket.player.name} left the game`);
         game.removePlayer(socket.player);
     }
 });
 
 process.on("SIGINT", () => {
-    console.log("Shutting down...");
+    log("Shutting down...");
     game.end();
     process.exit();
 });

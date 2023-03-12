@@ -422,17 +422,10 @@ const loadoutItems = [
     "fist_upandatom",
     "knuckles_rusted",
     "knuckles_heroic",
-    "karambit_rugged",
-    "karambit_prismatic",
-    "karambit_drowned",
     "bayonet_rugged",
     "bayonet_woodland",
-    "huntsman_rugged",
-    "huntsman_burnished",
-    "bowie_vintage",
-    "bowie_frontier"
 ];
-const loadout = [];
+const loadout = [], melee = [], outfits = [], emotes = [], heals = [], boosts = [], deaths = [];
 for(const item of loadoutItems) {
     let itemObj = {
         type: item,
@@ -448,7 +441,17 @@ for(const item of loadoutItems) {
             wins: 0
         }
     };
+    if(item.startsWith("fist") || item.startsWith("knuckles") || item.startsWith("bayonet")) melee.push(item);
+    else if(item.startsWith("outfit")) outfits.push(item);
+    else if(item.)
     loadout.push(itemObj);
 }
 require('fs').writeFileSync("loadout2.json", JSON.stringify(loadoutItems, null, 2));
 require('fs').writeFileSync("loadout.json", JSON.stringify(loadout, null, 2));
+require('fs').writeFileSync("validation/melee.json", JSON.stringify(melee, null, 2));
+require('fs').writeFileSync("validation/outfits.json", JSON.stringify(outfits, null, 2));
+require('fs').writeFileSync("validation/emotes.json", JSON.stringify(emotes, null, 2));
+require('fs').writeFileSync("validation/heals.json", JSON.stringify(heals, null, 2));
+require('fs').writeFileSync("validation/boosts.json", JSON.stringify(boosts, null, 2));
+require('fs').writeFileSync("validation/deaths.json", JSON.stringify(deaths, null, 2));
+
