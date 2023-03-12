@@ -85,6 +85,7 @@ app.post("/api/find_game", (res) => {
 app.post("/api/user/profile", (res, req) => {
     const loadout = readJson("json/profile.json");
     const cookies = cookie.parse(req.getHeader("cookie"));
+    console.log(cookies.loadout);
     if(cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
     res.writeHeader("Content-Type", "application/json");
     res.end(JSON.stringify(loadout));
