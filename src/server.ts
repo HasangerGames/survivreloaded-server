@@ -21,8 +21,8 @@ const game = new Game();
 let app;
 if(Config.https) {
     app = SSLApp({
-        key_file_name: fs.readFileSync(Config.keyFile, "utf8"),
-        cert_file_name: fs.readFileSync(Config.certFile, "utf8")
+        key_file_name: Config.keyFile,
+        cert_file_name: Config.certFile
     });
 } else {
     app = App();
