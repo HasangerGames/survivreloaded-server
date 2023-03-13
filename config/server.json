@@ -1,7 +1,0 @@
-{
-  "host": "127.0.0.1",
-  "port": 8000,
-  "https": false,
-  "keyFile": "config/key.pem",
-  "certFile": "config/cert.pem"
-}

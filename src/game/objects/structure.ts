@@ -18,7 +18,7 @@ export class Structure extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    serializePart(stream: SurvivBitStream): void {}
+    serializePartial(stream: SurvivBitStream): void {}
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);

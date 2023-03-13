@@ -2,6 +2,7 @@ import { type Vector } from "matter-js";
 
 import { type Game } from "./game";
 import { type ObjectKind, type SurvivBitStream, TypeToId } from "../utils";
+import { Player } from "./objects/player";
 
 export abstract class GameObject {
     kind: ObjectKind;
@@ -13,8 +14,14 @@ export abstract class GameObject {
     orientation?: number;
     scale = 1;
     dead = false;
+    showOnMap = false;
+
+    interactable = false;
+    interactionRad: number;
+    damageable = false;
 
     game?: Game;
+
     body: Matter.Body | null;
 
     protected constructor(id: number,
@@ -36,7 +43,7 @@ export abstract class GameObject {
         return this._position;
     }
 
-    abstract serializePart(stream: SurvivBitStream): void;
+    abstract serializePartial(stream: SurvivBitStream): void;
     abstract serializeFull(stream: SurvivBitStream): void;
 
 }

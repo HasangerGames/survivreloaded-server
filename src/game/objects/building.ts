@@ -27,7 +27,7 @@ export class Building extends GameObject {
         }
     }
 
-    serializePart(stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeBoolean(this.dead); // Ceiling destroyed
         stream.writeBoolean(this.occupied);
         stream.writeBoolean(this.ceilingDamaged);

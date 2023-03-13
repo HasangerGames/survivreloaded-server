@@ -23,17 +23,19 @@ export class Player extends GameObject {
     map: Map;
 
     name: string;
-    // teamId: number = 0; // For 50v50?
+    teamId = 1; // For 50v50?
     groupId: number;
 
     direction: Vector = Vector.create(1, 0);
     scale = 1;
-    zoom = 28; // 1x scope
+    private _zoom = 28; // 1x scope
+    xCullingDistance = this._zoom + 20;
+    yCullingDistance = this._zoom + 15;
 
-    visibleObjects: number[] = [];
-    deletedObjects: number[] = [];
-    fullObjects: number[] = [];
-    partialObjects: number[] = [];
+    visibleObjects: GameObject[] = [];
+    partialDirtyObjects: GameObject[] = [];
+    fullDirtyObjects: GameObject[] = [];
+    deletedObjects: GameObject[] = [];
 
     moving = false;
     movingUp = false;
@@ -55,6 +57,8 @@ export class Player extends GameObject {
     boost = 0;
     kills = 0;
     downed = false;
+
+    damageable = true;
 
     deletedPlayerIdsDirty = false;
     playerStatusDirty = true;
@@ -145,37 +149,23 @@ export class Player extends GameObject {
         return this.body.position;
     }
 
+    set position(position: Vector) {
+        Body.setPosition(this.body, position);
+    }
+
+    get zoom(): number {
+        return this._zoom;
+    }
+
+    set zoom(zoom: number) {
+        this._zoom = zoom;
+        this.xCullingDistance = this._zoom + 20;
+        this.yCullingDistance = this._zoom + 15;
+    }
+
     get health(): number {
         return this._health;
     }
-
-    /* updateVisibleObjects() {
-        for(const object of this.map.objects) {
-            const id = object.id;
-            if(id == this.id) continue;
-            const cullingRadius = this.zoom + 15;
-            const minX = this.position.x - cullingRadius,
-                maxX = this.position.x + cullingRadius,
-                minY = this.position.y - cullingRadius,
-                maxY = this.position.y + cullingRadius;
-            if(object.position.x >= minX &&
-                object.position.x <= maxX &&
-                object.position.y >= minY &&
-                object.position.y <= maxY) {
-                if(!this.visibleObjects.includes(id)) {
-                    this.visibleObjects.push(id);
-                    this.fullObjects.push(id);
-                }
-            } else {
-                const index: number = this.visibleObjects.indexOf(id);
-                if(index != -1) {
-                    this.visibleObjects = this.visibleObjects.splice(index, 1);
-                    this.deletedObjectsDirty = true;
-                    this.deletedObjects.push(id);
-                }
-            }
-        }
-    } */
 
     damage(amount: number, source): void {
         this._health -= amount;
@@ -191,12 +181,12 @@ export class Player extends GameObject {
                 source.kills++;
                 this.game!.kills.push(new KillPacket(this, source));
             }
-            this.fullObjects.push(this.id);
-            this.deadBody = new DeadBody(this.map.objects.length, this.position, this.layer, this.id);
-            this.map.objects.push(this.deadBody);
-            this.game!.fullDirtyObjects.push(this.id);
-            this.game!.fullDirtyObjects.push(this.deadBody.id);
-            this.game!.deletedPlayerIds.push(this.id);
+            this.fullDirtyObjects.push(this);
+            this.deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
+            this.game!.objects.push(this.deadBody);
+            this.game!.fullDirtyObjects.push(this);
+            this.game!.fullDirtyObjects.push(this.deadBody);
+            this.game!.deletedPlayers.push(this);
             removeFrom(this.game!.activePlayers, this);
         }
     }
@@ -221,14 +211,14 @@ export class Player extends GameObject {
         this.socket.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)), true, true);
     }
 
-    serializePart(stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeUnitVec(this.direction, 8);
     }
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
-        stream.writeGameType(450); // Backpack
+        stream.writeGameType(451); // Backpack
         stream.writeGameType(0); // Helmet
         stream.writeGameType(0); // Vest
         stream.writeGameType(this.loadout.melee); // Active weapon (not necessarily melee)

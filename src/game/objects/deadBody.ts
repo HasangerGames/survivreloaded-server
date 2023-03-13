@@ -11,7 +11,7 @@ export class DeadBody extends GameObject {
         this.playerId = playerId;
     }
 
-    serializePart(stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
     }
 

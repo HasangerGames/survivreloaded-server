@@ -1,14 +1,12 @@
 import { Body, type Vector } from "matter-js";
 
-import { bodyFromCollisionData, ObjectKind, type SurvivBitStream } from "../../utils";
+import { bodyFromCollisionData, Item, LootTables, ObjectKind, type SurvivBitStream, weightedRandom } from "../../utils";
 import { type Game } from "../game";
 import { type Player } from "./player";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
 
 export class Obstacle extends GameObject {
-
-    initialOrientation: number;
 
     minScale: number;
     maxScale: number;
@@ -34,13 +32,13 @@ export class Obstacle extends GameObject {
         locked: boolean
     };
 
-    interactionRad?: number;
-
     showOnMap: boolean;
 
     collidable: boolean;
     reflectBullets: boolean;
     destructible: boolean;
+
+    loot: Item[] = [];
 
     collision; // TODO Testing code, delete me
 
@@ -70,7 +68,7 @@ export class Obstacle extends GameObject {
 
         this.collidable = data.collidable;
         this.reflectBullets = data.reflectBullets;
-        this.destructible = data.destructible;
+        this.destructible = this.damageable = data.destructible;
         this.body = bodyFromCollisionData(data.collision, position, orientation, scale);
         if(this.body != null) {
             if(!this.collidable) this.body.isSensor = true;
@@ -87,6 +85,7 @@ export class Obstacle extends GameObject {
                 canUse: data.door.canUse,
                 locked: false
             };
+            this.interactable = true;
             this.interactionRad = data.door.interactionRad;
             this.body!.isSensor = true; // TODO THIS DISABLES DOOR COLLISIONS; remove once door collisions are implemented
         }
@@ -100,6 +99,24 @@ export class Obstacle extends GameObject {
         }
 
         this.isPuzzlePiece = false;
+
+        if(data.loot) {
+            this.loot = [];
+            for(const loot of data.loot) {
+                const lootTable = LootTables[loot.tier];
+                if(!lootTable) {
+                    console.warn(`Warning: Loot table not found: ${loot.tier}`);
+                    continue;
+                }
+                const items: string[] = [], weights: number[] = [];
+                for(const item in lootTable) {
+                    items.push(item);
+                    weights.push(lootTable[item].weight);
+                }
+                const selectedItem = weightedRandom(items, weights);
+                this.loot.push(new Item(selectedItem, lootTable[selectedItem].count));
+            }
+        }
     }
 
     get position(): Vector {
@@ -114,18 +131,19 @@ export class Obstacle extends GameObject {
             this.collidable = false;
             if(this.door) this.door.canUse = false;
             this.game!.removeBody(this.body);
-            this.game!.fullDirtyObjects.push(this.id);
-
-            const loot: Loot = new Loot(this.game!.map.objects.length, "15xscope", this.position, 0, this.game!, 1);
-            this.game!.map.objects.push(loot);
-            this.game!.fullDirtyObjects.push(loot.id);
+            this.game!.fullDirtyObjects.push(this);
+            for(const item of this.loot) {
+                const loot: Loot = new Loot(this.game!.nextObjectId, item.type, this.position, 0, this.game!, item.count);
+                this.game!.objects.push(loot);
+                this.game!.fullDirtyObjects.push(loot);
+            }
         } else {
             this.healthT = this.health / this.maxHealth;
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
             Body.scale(this.body!, scaleFactor, scaleFactor);
-            this.game!.partialDirtyObjects.push(this.id);
+            this.game!.partialDirtyObjects.push(this);
         }
     }
 
@@ -145,7 +163,7 @@ export class Obstacle extends GameObject {
         } */
     }
 
-    serializePart(stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeBits(this.orientation!, 2);
         stream.writeFloat(this.scale, 0.125, 2.5, 8);

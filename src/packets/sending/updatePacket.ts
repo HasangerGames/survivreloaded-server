@@ -10,37 +10,10 @@ export class UpdatePacket extends SendingPacket {
     }
 
     writeData(stream: SurvivBitStream): void {
-        if(!this.p.skipObjectCalculations) {
-            for(const object of this.p.map.objects) {
-                const id = object.id;
-                if(id === this.p.id) continue;
-                const cullingRadius = this.p.zoom + 15;
-                const minX = this.p.position.x - cullingRadius,
-                    maxX = this.p.position.x + cullingRadius,
-                    minY = this.p.position.y - cullingRadius,
-                    maxY = this.p.position.y + cullingRadius;
-                if(object.position.x >= minX &&
-                    object.position.x <= maxX &&
-                    object.position.y >= minY &&
-                    object.position.y <= maxY) {
-                    if(!this.p.visibleObjects.includes(id)) {
-                        this.p.visibleObjects.push(id);
-                        this.p.fullObjects.push(id);
-                    }
-                } else {
-                    const index: number = this.p.visibleObjects.indexOf(id);
-                    if(index !== -1) {
-                        this.p.visibleObjects = this.p.visibleObjects.splice(index, 1);
-                        this.p.deletedObjectsDirty = true;
-                        this.p.deletedObjects.push(id);
-                    }
-                }
-            }
-        }
 
         let valuesChanged = 0;
         if(this.p.deletedObjectsDirty) valuesChanged += 1;
-        if(this.p.fullObjects.length) valuesChanged += 2;
+        if(this.p.fullDirtyObjects.length) valuesChanged += 2;
         if(this.p.activePlayerIdDirty) valuesChanged += 4;
         if(this.p.gasDirty) valuesChanged += 8;
         if(this.p.gasCircleDirty) valuesChanged += 16;
@@ -62,33 +35,30 @@ export class UpdatePacket extends SendingPacket {
         // Deleted objects
         if(this.p.deletedObjectsDirty) {
             stream.writeUint16(this.p.deletedObjects.length);
-            for(const deletedObject of this.p.deletedObjects) stream.writeUint16(deletedObject);
+            for(const deletedObject of this.p.deletedObjects) stream.writeUint16(deletedObject.id);
             this.p.deletedObjectsDirty = false;
             this.p.deletedObjects = [];
         }
 
         // Full objects
-        if(this.p.fullObjects.length) {
-            stream.writeUint16(this.p.fullObjects.length); // Full object count
-
-            for(const id of this.p.fullObjects) {
-                const fullObject = this.p.map.objects[id];
+        if(this.p.fullDirtyObjects.length) {
+            stream.writeUint16(this.p.fullDirtyObjects.length);
+            for(const fullObject of this.p.fullDirtyObjects) {
                 stream.writeUint8(fullObject.kind);
                 stream.writeUint16(fullObject.id);
-                fullObject.serializePart(stream);
+                fullObject.serializePartial(stream);
                 fullObject.serializeFull(stream);
             }
-            this.p.fullObjects = [];
+            this.p.fullDirtyObjects = [];
         }
 
         // Partial objects
-        stream.writeUint16(this.p.partialObjects.length); // Indicates partial object count
-        for(const id of this.p.partialObjects) {
-            const partialObject = this.p.map.objects[id];
+        stream.writeUint16(this.p.partialDirtyObjects.length);
+        for(const partialObject of this.p.partialDirtyObjects) {
             stream.writeUint16(partialObject.id);
-            partialObject.serializePart(stream);
+            partialObject.serializePartial(stream);
         }
-        this.p.partialObjects = [];
+        this.p.partialDirtyObjects = [];
 
         // Active player ID
         if(this.p.activePlayerIdDirty) {
@@ -169,7 +139,7 @@ export class UpdatePacket extends SendingPacket {
             for(const player of playerInfosSource) {
                 // Basic info
                 stream.writeUint16(player.id); // Player ID
-                stream.writeUint8(0); // Team ID
+                stream.writeUint8(player.teamId); // Team ID
                 stream.writeUint8(player.groupId); // Group ID
                 stream.writeString(player.name); // Name
 
@@ -192,9 +162,9 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Player IDs to delete
-        if(this.p.game!.deletedPlayerIds.length > 0) {
-            stream.writeUint8(this.p.game!.deletedPlayerIds.length);
-            for(const id of this.p.game!.deletedPlayerIds) stream.writeUint16(id);
+        if(this.p.game!.deletedPlayers.length > 0) {
+            stream.writeUint8(this.p.game!.deletedPlayers.length);
+            for(const player of this.p.game!.deletedPlayers) stream.writeUint16(player.id);
         }
 
         // Player status

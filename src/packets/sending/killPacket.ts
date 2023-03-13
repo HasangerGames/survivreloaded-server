@@ -4,7 +4,7 @@ import { type Player } from "../../game/objects/player";
 
 export class KillPacket extends SendingPacket {
 
-    killer;
+    readonly killer;
 
     constructor(p: Player, killer) {
         super(p);

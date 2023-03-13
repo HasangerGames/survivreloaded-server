@@ -9,7 +9,7 @@ import {
     MsgType,
     readJson,
     readPostedJson,
-    ServerOptions,
+    Config,
     streamToBuffer,
     SurvivBitStream
 } from "./utils";
@@ -19,17 +19,17 @@ import { EmotePacket } from "./packets/receiving/emotePacket";
 
 const game = new Game();
 let app;
-if(ServerOptions.https) {
+if(Config.https) {
     app = SSLApp({
-        key_file_name: fs.readFileSync(ServerOptions.keyFile, "utf8"),
-        cert_file_name: fs.readFileSync(ServerOptions.certFile, "utf8")
+        key_file_name: fs.readFileSync(Config.keyFile, "utf8"),
+        cert_file_name: fs.readFileSync(Config.certFile, "utf8")
     });
 } else {
     app = App();
 }
 const staticFiles: LiveDirectory = new LiveDirectory("./public", { static: true });
 
-const addr: string = ServerOptions.addr || `${ServerOptions.host}:${ServerOptions.port}`;
+const addr: string = Config.addr || `${Config.host}:${Config.port}`;
 
 app.get("/*", async (res, req) => {
     const path: string = req.getUrl() === "/" ? "/index.html" : req.getUrl();
@@ -76,7 +76,7 @@ app.post("/api/user/get_user_prestige", (res) => {
 app.post("/api/find_game", (res) => {
     readPostedJson(res, (body) => {
         res.writeHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: game.id, useHttps: ServerOptions.useHttps, hosts: [addr], addrs: [addr] }] }));
+        res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: game.id, useHttps: Config.useHttps, hosts: [addr], addrs: [addr] }] }));
     }, () => {
         log("/api/find_game: Error retrieving body");
     });
@@ -163,8 +163,8 @@ process.on("SIGINT", () => {
 });
 
 log("Surviv Reloaded Server v0.2.0");
-app.listen(ServerOptions.host, ServerOptions.port, () => {
+app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
-    log(`Listening on ${ServerOptions.https ? "https://" : "http://"}${addr}`);
+    log(`Listening on ${Config.https ? "https://" : "http://"}${addr}`);
     log("Press Ctrl+C to exit.");
 });

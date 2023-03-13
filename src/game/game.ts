@@ -1,8 +1,9 @@
 import crypto from "crypto";
 import {
+    DebugFeatures,
     type Emote,
     type Explosion,
-    GameOptions,
+    Config, log,
     randomVec,
     removeFrom,
     SurvivBitStream as BitStream,
@@ -12,12 +13,12 @@ import {
 import { Bodies, type Body, Collision, Composite, Engine, Vector } from "matter-js";
 import { Map } from "./map";
 import { Player } from "./objects/player";
-import { Obstacle } from "./objects/obstacle";
 import { AliveCountsPacket } from "../packets/sending/aliveCountsPacket";
 import { UpdatePacket } from "../packets/sending/updatePacket";
 import { JoinedPacket } from "../packets/sending/joinedPacket";
 import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
+import { type GameObject } from "./gameObject";
 
 export class Game {
 
@@ -28,41 +29,57 @@ export class Game {
 
     map: Map;
 
-    /***
+    objects: GameObject[] = [];
+    _nextObjectId = 0;
+    partialDirtyObjects: GameObject[] = [];
+    fullDirtyObjects: GameObject[] = [];
+    deletedObjects: GameObject[] = [];
+
+    /**
      * All players, including dead and disconnected players.
      */
     players: Player[] = [];
 
-    /***
+    /**
      * All connected players. May be dead.
      */
     connectedPlayers: Player[] = [];
 
-    /***
+    /**
      * All connected and living players.
      */
     activePlayers: Player[] = [];
 
     dirtyPlayers: Player[] = [];
+
+    deletedPlayers: Player[] = [];
+
+    playerInfosDirty = false;
+
+    /**
+     * The number of players alive. Does not include players who have quit the game
+     */
     aliveCount = 0;
     aliveCountDirty = false;
-    playerInfosDirty = false;
-    deletedPlayerIds: number[] = [];
+
     emotes: Emote[] = [];
     explosions: Explosion[] = [];
     kills: KillPacket[] = [];
-    fullDirtyObjects: number[] = [];
-    partialDirtyObjects: number[] = [];
-
-    timer: NodeJS.Timer;
 
     engine: Engine;
+
+    // Red zone
     gasMode: number;
     initialGasDuration: number;
     oldGasPosition: Vector;
     newGasPosition: Vector;
     oldGasRadius: number;
     newGasRadius: number;
+
+    /**
+     * Whether this game is active. This is set to false to stop the tick loop.
+     */
+    active = true;
 
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
@@ -79,10 +96,20 @@ export class Game {
 
         this.map = new Map(this, "main");
 
-        this.timer = setInterval(() => {
+        this.tick(Config.tickDelta);
+    }
+
+    tickTimes: number[] = [];
+
+    tick(delay: number): void {
+        setTimeout(() => {
+            const tickStart = performance.now();
+
+            // Stop the tick loop if the game is no longer active
+            if(!this.active) return;
 
             // Update physics engine
-            Engine.update(this.engine, GameOptions.tickDelta);
+            Engine.update(this.engine, Config.tickDelta);
 
             // First loop: Calculate movement & animations.
             for(const p of this.activePlayers) {
@@ -90,8 +117,9 @@ export class Game {
                 // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
 
                 // Movement
+                const alreadyMoving = p.moving;
                 p.moving = true;
-                const s = GameOptions.movementSpeed; const ds = GameOptions.diagonalSpeed;
+                const s = Config.movementSpeed; const ds = Config.diagonalSpeed;
                 if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
                 else if(p.movingUp && p.movingRight) p.setVelocity(ds, ds);
                 else if(p.movingDown && p.movingLeft) p.setVelocity(-ds, -ds);
@@ -103,10 +131,14 @@ export class Game {
                 else {
                     p.setVelocity(0, 0);
                     if(p.moving) p.setVelocity(0, 0);
-                    p.moving = false;
+                    if(!alreadyMoving) p.moving = false;
                 }
-
-                // p.updateVisibleObjects();
+                if(p.moving) {
+                    if(p.position.x < 0) p.position.x = 0;
+                    if(p.position.x > 720) p.position.x = 720;
+                    if(p.position.y < 0) p.position.y = 0;
+                    if(p.position.y > 720) p.position.y = 720;
+                }
 
                 if(p.shootStart) {
                     p.shootStart = false;
@@ -121,15 +153,16 @@ export class Game {
                         }
 
                         // If the player is punching anything, damage the closest object
-                        let maxDepth = -1; let closestObject: (Player | Obstacle | null) = null;
+                        let maxDepth = -1;
+                        let closestObject;
                         const weapon = Weapons[p.loadout.meleeType];
-                            const angle = unitVecToRadians(p.direction);
-                            const offset = Vector.add(weapon.attack.offset, Vector.mult(Vector.create(1, 0), p.scale - 1));
-                            const position = Vector.add(p.position, Vector.rotate(offset, angle));
+                        const angle: number = unitVecToRadians(p.direction);
+                        const offset: Vector = Vector.add(weapon.attack.offset, Vector.mult(Vector.create(1, 0), p.scale - 1));
+                        const position: Vector = Vector.add(p.position, Vector.rotate(offset, angle));
                         const body: Body = Bodies.circle(position.x, position.y, 0.9);
-                        for(const object of this.map.objects) { // TODO This is very inefficient. Only check visible objects
-                            if(!object.body || object.dead || object.id === p.id) continue;
-                            if(((object instanceof Obstacle && object.destructible) || object instanceof Player)) {
+                        for(const object of p.visibleObjects) {
+                            if(!object.body || object.dead || object === p) continue;
+                            if(object.damageable) {
                                 // @ts-expect-error The 3rd argument for Collision.collides is optional
                                 const collision = Collision.collides(body, object.body);
                                 if(collision && collision.depth > maxDepth) {
@@ -138,45 +171,57 @@ export class Game {
                                 }
                             }
                         }
-                        if(closestObject!) {
+                        if(closestObject) {
                             closestObject.damage(24, p);
-                            if(closestObject instanceof Obstacle && closestObject.isDoor) closestObject.interact(p);
+                            if(closestObject.interactable) closestObject.interact(p);
                         }
-
-                        /* This code is more efficient, but doesn't work:
-                        for(const id of p.visibleObjects) {
-                            const object = this.map.objects[id];
-                            if(!object.body || object.dead || object.id == p.id) continue;
-                            if(((object instanceof Obstacle && object.destructible) || object instanceof Player)) {
-                                const collision: Collision = Collision.collides(body, object.body);
-                                if(collision && collision.depth > maxDepth) {
-                                    maxDepth = collision.depth;
-                                    closestObject = object;
-                                }
-                            }
-                        }
-                        */
                     }
                 }
 
                 if(p.animActive) {
-                    this.fullDirtyObjects.push(p.id);
-                    p.fullObjects.push(p.id);
+                    this.fullDirtyObjects.push(p);
+                    p.fullDirtyObjects.push(p);
                     p.animTime++;
                     p.animSeq = 1;
                     if(p.animTime > 8) {
                         p.animActive = false;
                         p.animType = p.animSeq = p.animTime = 0;
                     }
-                } else {
-                    this.partialDirtyObjects.push(p.id);
-                    p.partialObjects.push(p.id); // TODO Check for movement first
+                } else if(p.moving) {
+                    this.partialDirtyObjects.push(p);
+                    p.partialDirtyObjects.push(p);
                 }
             }
 
             // Second loop: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
-                p.skipObjectCalculations = !this.fullDirtyObjects.length && !this.partialDirtyObjects.length && !p.moving;
+
+                // Calculate visible objects
+                if(p.moving || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
+                    const minX = p.position.x - p.xCullingDistance,
+                          maxX = p.position.x + p.xCullingDistance,
+                          minY = p.position.y - p.yCullingDistance,
+                          maxY = p.position.y + p.yCullingDistance;
+                    for(const object of this.objects) {
+                        if(p === object) continue;
+                        if(object.position.x > minX &&
+                            object.position.x < maxX &&
+                            object.position.y > minY &&
+                            object.position.y < maxY) {
+                            if(!p.visibleObjects.includes(object)) {
+                                p.visibleObjects.push(object);
+                                p.fullDirtyObjects.push(object);
+                            }
+                        } else {
+                            const index: number = p.visibleObjects.indexOf(object);
+                            if(index !== -1) {
+                                p.visibleObjects = p.visibleObjects.slice(0, index).concat(p.visibleObjects.slice(index + 1));
+                                p.deletedObjectsDirty = true;
+                                p.deletedObjects.push(object);
+                            }
+                        }
+                    }
+                }
 
                 if(this.emotes.length > 0) {
                     p.emotesDirty = true;
@@ -189,14 +234,20 @@ export class Game {
                 }
 
                 if(this.fullDirtyObjects.length > 0) {
-                    for(const id of this.fullDirtyObjects) {
-                        if(p.visibleObjects.includes(id)) p.fullObjects.push(id);
+                    for(const object of this.fullDirtyObjects) {
+                        if(p.visibleObjects.includes(object)) p.fullDirtyObjects.push(object);
                     }
                 }
 
                 if(this.partialDirtyObjects.length > 0) {
-                    for(const id of this.partialDirtyObjects) {
-                        if(p.visibleObjects.includes(id)) p.partialObjects.push(id);
+                    for(const object of this.partialDirtyObjects) {
+                        if(p.visibleObjects.includes(object)) p.partialDirtyObjects.push(object);
+                    }
+                }
+
+                if(this.deletedObjects.length > 0) {
+                    for(const object of this.deletedObjects) {
+                        if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
                     }
                 }
 
@@ -205,6 +256,7 @@ export class Game {
                 if(this.kills.length) {
                     for(const kill of this.kills) p.sendPacket(kill);
                 }
+                p.moving = false;
             }
 
             // Reset everything
@@ -214,23 +266,36 @@ export class Game {
             this.fullDirtyObjects = [];
             this.partialDirtyObjects = [];
             this.dirtyPlayers = [];
-            this.deletedPlayerIds = [];
+            this.deletedPlayers = [];
             this.aliveCountDirty = false;
-        }, GameOptions.tickDelta);
+
+            const tickTime: number = performance.now() - tickStart;
+            if(DebugFeatures.logPerformance) {
+                this.tickTimes.push(tickTime);
+                if(this.tickTimes.length === 200) {
+                    let tickSum = 0;
+                    for(const time of this.tickTimes) tickSum += time;
+                    log(`Average ms/tick: ${tickSum / this.tickTimes.length}`);
+                    this.tickTimes = [];
+                }
+            }
+            const newDelay: number = Math.max(0, Config.tickDelta - tickTime);
+            this.tick(newDelay);
+        }, delay);
     }
 
     addPlayer(socket, username, loadout): Player {
         let spawnPosition;
-        if(GameOptions.debugMode) spawnPosition = Vector.create(450, 150);
+        if(DebugFeatures.fixedSpawnLocation.length) spawnPosition = Vector.create(DebugFeatures.fixedSpawnLocation[0], DebugFeatures.fixedSpawnLocation[1]);
         else spawnPosition = randomVec(75, this.map.width - 75, 75, this.map.height - 75);
 
-        const p = new Player(this.map.objects.length, spawnPosition, socket, this, username, loadout);
-        this.map.objects.push(p);
+        const p = new Player(this.nextObjectId, spawnPosition, socket, this, username, loadout);
+        this.objects.push(p);
         this.players.push(p);
         this.connectedPlayers.push(p);
         this.activePlayers.push(p);
         this.dirtyPlayers.push(p);
-        this.fullDirtyObjects.push(p.id);
+        this.fullDirtyObjects.push(p);
         this.aliveCount++;
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
@@ -238,7 +303,7 @@ export class Game {
         p.sendPacket(new JoinedPacket(p));
         const stream = BitStream.alloc(32768);
         new MapPacket(p).writeData(stream);
-        p.fullObjects.push(p.id);
+        p.fullDirtyObjects.push(p);
         new UpdatePacket(p).writeData(stream);
         new AliveCountsPacket(p).writeData(stream);
         p.sendData(stream);
@@ -249,8 +314,8 @@ export class Game {
     removePlayer(p): void {
         p.direction = Vector.create(1, 0);
         p.quit = true;
-        this.deletedPlayerIds.push(p.id);
-        this.partialDirtyObjects.push(p.id);
+        this.deletedPlayers.push(p);
+        this.partialDirtyObjects.push(p);
         removeFrom(this.activePlayers, p);
         removeFrom(this.connectedPlayers, p);
         if(!p.dead) {
@@ -268,8 +333,12 @@ export class Game {
     }
 
     end(): void {
-        for(const p of this.players) p.socket.close();
-        clearInterval(this.timer);
+        this.active = false;
+    }
+
+    get nextObjectId(): number {
+        this._nextObjectId++;
+        return this._nextObjectId;
     }
 
 }

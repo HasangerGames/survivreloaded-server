@@ -3,13 +3,14 @@ import {
     addAdjust,
     addOrientations,
     bodyFromCollisionData,
+    Config,
+    DebugFeatures,
     distanceBetween,
-    GameOptions,
     Maps,
     ObjectKind,
     Objects,
     random,
-    randomBase,
+    randomFloat,
     randomVec,
     TypeToId,
     weightedRandom
@@ -32,7 +33,6 @@ export class Map {
 
     rivers: River[];
     places: Place[];
-    objects: any[];
     groundPatches: GroundPatch[];
 
     constructor(game, mapId) {
@@ -63,9 +63,7 @@ export class Map {
             this.places.push(new Place(place.name, Vector.create(place.x, place.y)));
         }
 
-        this.objects = [];
-
-        if(!GameOptions.debugMode) {
+        if(!DebugFeatures.minimalMapGeneration) {
             for(const type in mapInfo.objects) {
                 const data = Objects[type];
                 const count = mapInfo.objects[type];
@@ -82,7 +80,7 @@ export class Map {
         } else {
             // this.genStructure("club_structure_01", Objects["club_structure_01"]);
             // this.genBuildingTest("house_red_01", 1, false);
-            this.genObstacleTest("crate_01", Vector.create(455, 155));
+            this.genObstacleTest("crate_01", Vector.create(452, 152));
             this.genObstacleTest("crate_01", Vector.create(505, 155));
             this.genObstacleTest("crate_01", Vector.create(455, 205));
             this.genObstacleTest("crate_01", Vector.create(505, 205));
@@ -94,12 +92,12 @@ export class Map {
     private genStructure(typeString: string, structureData: any, setPosition: Vector | null = null, setOrientation: number | null = null): void {
         let position;
         if(setPosition) position = setPosition;
-        else if(GameOptions.debugMode) position = Vector.create(450, 150);
+        else if(Config.debugMode) position = Vector.create(450, 150);
         else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, 1);
 
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
-        else if(GameOptions.debugMode) orientation = 0;
+        else if(Config.debugMode) orientation = 0;
         else orientation = random(0, 3);
 
         const layerObjIds: number[] = [];
@@ -123,7 +121,7 @@ export class Map {
                 // console.warn(`Unsupported object type: ${layer.type}`);
             }
         }
-        this.objects.push(new Structure(this.objects.length, typeString, position, orientation, layerObjIds));
+        this.game.objects.push(new Structure(this.game.nextObjectId, typeString, position, orientation, layerObjIds));
     }
 
     private genBuildings(count, type, building): void {
@@ -142,11 +140,11 @@ export class Map {
                         debug = false): void {
         let position;
         if(setPosition) position = setPosition;
-        else if(GameOptions.debugMode) position = Vector.create(450, 150);
+        else if(Config.debugMode) position = Vector.create(450, 150);
         else position = this.getRandomPositionFor(ObjectKind.Building, buildingData.mapObstacleBounds ? buildingData.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
-        else if(GameOptions.debugMode) orientation = 0;
+        else if(Config.debugMode) orientation = 0;
         else orientation = random(0, 3);
 
         let layer;
@@ -196,8 +194,8 @@ export class Map {
                 // console.warn(`Unknown object type: ${part.type}`);
             }
         }
-        this.objects.push(new Building(
-            this.objects.length,
+        this.game.objects.push(new Building(
+            this.game.nextObjectId,
             typeString,
             position,
             setLayer !== undefined ? setLayer : 0,
@@ -217,8 +215,8 @@ export class Map {
                         orientation: number,
                         scale: number,
                         obstacleData): void {
-        this.objects.push(new Obstacle(
-            this.objects.length,
+        this.game.objects.push(new Obstacle(
+            this.game.nextObjectId,
             typeString,
             position,
             layer !== undefined ? layer : 0,
@@ -231,7 +229,7 @@ export class Map {
 
     private genObstacles(count, typeString, obstacleData): void {
         for(let i = 0; i < count; i++) {
-            const scale = randomBase(obstacleData.scale.createMin, obstacleData.scale.createMax);
+            const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
             this.genObstacle(
                 typeString,
                 this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, scale),
@@ -265,7 +263,7 @@ export class Map {
             const collider = bodyFromCollisionData(collisionData, position, scale);
             if(collider == null) break;
 
-            for(const object of this.objects) {
+            for(const object of this.game.objects) {
                 if(!object.body) continue;
                 // @ts-expect-error The 3rd argument for Collision.collides is optional
                 const collisionResult = Collision.collides(collider, object.body);

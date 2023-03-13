@@ -1,7 +1,6 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { InputType, type SurvivBitStream } from "../../utils";
-import { Obstacle } from "../../game/objects/obstacle";
-import { Bodies, type Body, Collision } from "matter-js";
+import { distanceBetween, InputType, type SurvivBitStream } from "../../utils";
+import { type GameObject } from "../../game/gameObject";
 
 export class InputPacket extends ReceivingPacket {
 
@@ -24,7 +23,8 @@ export class InputPacket extends ReceivingPacket {
         const direction = stream.readUnitVec(10);
         if(this.p.direction !== direction) {
             this.p.direction = direction;
-            this.p.skipObjectCalculations = false;
+            this.p.moving = true;
+            // this.p.skipObjectCalculations = false;
         }
         stream.readFloat(0, 64, 8); // Distance to mouse
 
@@ -34,17 +34,20 @@ export class InputPacket extends ReceivingPacket {
             const input = stream.readUint8();
             switch(input) {
                 case InputType.Interact: {
-                    for(const id of this.p.visibleObjects) {
-                        const object = this.p.map.objects[id];
-                        if(object instanceof Obstacle && object.isDoor && !object.dead) {
-                            const interactionBody: Body = Bodies.circle(this.p.position.x, this.p.position.y, 1 + object.interactionRad!);
-                            // @ts-expect-error The 3rd argument for Collision.collides is optional
-                            const collisionResult = Collision.collides(interactionBody, object.body);
-                            if(collisionResult?.collided) {
-                                object.interact(this.p);
-                                this.p.game!.partialDirtyObjects.push(id);
+                    let minDist = Number.MAX_VALUE;
+                    let minDistObject;
+                    for(const object of this.p.visibleObjects) {
+                        const distance: number = distanceBetween(this.p.position, object.position);
+                        if(object.interactable && distance < 1 + object.interactionRad) {
+                            if(distance < minDist) {
+                                minDist = distance;
+                                minDistObject = object;
                             }
                         }
+                    }
+                    if(minDistObject) {
+                        // console.log(`interacting: ${minDistObject}`);
+                        minDistObject.interact(this.p);
                     }
                     break;
                 }

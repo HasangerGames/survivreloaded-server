@@ -6,11 +6,258 @@ export const Maps = readJson("data/maps.json");
 export const Items = readJson("data/items.json");
 export const Weapons = readJson("data/weapons.json");
 export const Bullets = readJson("data/bullets.json");
+export const LootTables = readJson("data/lootTables.json");
 export const TypeToId = readJson("data/ids.json");
-export const ServerOptions = readJson("config/server.json");
-export const GameOptions = readJson("config/game.json");
-GameOptions.diagonalSpeed = GameOptions.movementSpeed / Math.SQRT2;
+export const Config = readJson("config.json");
+export const DebugFeatures = Config.debugFeatures || {};
+Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
 export interface IntersectResult { point: Vector, normal: Vector }
+export class Item {
+    type: string;
+    count: number;
+
+    constructor(type, count) {
+        this.type = type;
+        this.count = count;
+    }
+}
+
+export const Constants = {
+    Input: {
+        MoveLeft: 0,
+        MoveRight: 1,
+        MoveUp: 2,
+        MoveDown: 3,
+        Fire: 4,
+        Reload: 5,
+        Cancel: 6,
+        Interact: 7,
+        Revive: 8,
+        Use: 9,
+        Loot: 10,
+        EquipPrimary: 11,
+        EquipSecondary: 12,
+        EquipMelee: 13,
+        EquipThrowable: 14,
+        EquipFragGrenade: 15,
+        EquipSmokeGrenade: 16,
+        EquipNextWeap: 17,
+        EquipPrevWeap: 18,
+        EquipLastWeap: 19,
+        EquipOtherGun: 20,
+        EquipPrevScope: 21,
+        EquipNextScope: 22,
+        UseBandage: 23,
+        UseHealthKit: 24,
+        UseSoda: 25,
+        UsePainkiller: 26,
+        StowWeapons: 27,
+        SwapWeapSlots: 28,
+        ToggleMap: 29,
+        CycleUIMode: 30,
+        EmoteMenu: 31,
+        TeamPingMenu: 32,
+        Fullscreen: 33,
+        HideUI: 34,
+        TeamPingSingle: 35,
+        UseEventItem: 36,
+        Count: 37
+    },
+    EmoteSlot: {
+        Top: 0,
+        Right: 1,
+        Bottom: 2,
+        Left: 3,
+        Win: 4,
+        Death: 5,
+        Count: 6
+    },
+    WeaponSlot: {
+        Primary: 0,
+        Secondary: 1,
+        Melee: 2,
+        Throwable: 3,
+        Count: 4
+    },
+    WeaponType: ["gun", "gun", "melee", "throwable"],
+    DamageType: {
+        Player: 0,
+        Bleeding: 1,
+        Gas: 2,
+        Airdrop: 3,
+        Airstrike: 4,
+        Freeze: 5,
+        Weather: 6,
+        Npc: 7,
+        Burning: 8,
+        Phoenix: 9
+    },
+    Action: {
+        None: 0,
+        Reload: 1,
+        ReloadAlt: 2,
+        UseItem: 3,
+        Revive: 4
+    },
+    Anim: {
+        None: 0,
+        Melee: 1,
+        Cook: 2,
+        Throw: 3,
+        CrawlForward: 4,
+        CrawlBackward: 5,
+        Revive: 6,
+        ChangePose: 7
+    },
+    GasMode: {
+        Inactive: 0,
+        Waiting: 1,
+        Moving: 2
+    },
+    Plane: {
+        Airdrop: 0,
+        Airstrike: 1
+    },
+    HasteType: {
+        None: 0,
+        Windwalk: 1,
+        Takedown: 2,
+        Inspire: 3
+    },
+    map: {
+        gridSize: 16,
+        shoreVariation: 3,
+        grassVariation: 2
+    },
+    player: {
+        radius: 1,
+        maxVisualRadius: 3.75,
+        maxInteractionRad: 3.5,
+        health: 100,
+        reviveHealth: 24,
+        boostBreakpoints: [1, 1, 1.5, 0.5],
+        baseSwitchDelay: 0.25,
+        freeSwitchCooldown: 1,
+        bleedTickRate: 1,
+        reviveDuration: 8,
+        reviveRange: 5,
+        crawlTime: 0.75,
+        emoteSoftCooldown: 2,
+        emoteHardCooldown: 6,
+        emoteThreshold: 6,
+        throwableMaxMouseDist: 18,
+        cookTime: 0.1,
+        throwTime: 0.3,
+        meleeHeight: 0.25,
+        touchLootRadMult: 1.4,
+        medicHealRange: 8,
+        medicReviveRange: 6
+    },
+    defaultEmoteLoadout: ["emote_happyface", "emote_thumbsup", "emote_surviv", "emote_sadface", "", ""],
+    airdrop: {
+        actionOffset: 0,
+        fallTime: 8,
+        crushDamage: 100,
+        planeVel: 48,
+        planeRad: 150,
+        soundRangeMult: 2.5,
+        soundRangeDelta: 0.25,
+        soundRangeMax: 92,
+        fallOff: 0
+    },
+    airstrike: {
+        actionOffset: 0,
+        bombJitter: 4,
+        bombOffset: 2,
+        bombVel: 3,
+        bombCount: 20,
+        planeVel: 350,
+        planeRad: 120,
+        soundRangeMult: 18,
+        soundRangeDelta: 18,
+        soundRangeMax: 48,
+        fallOff: 1.25
+    },
+    bullet: {
+        maxReflect: 3,
+        reflectDistDecay: 1.5,
+        height: 0.25
+    },
+    projectile: {
+        maxHeight: 5
+    },
+    structureLayerCount: 2,
+    scopeZoomRadius: {
+        desktop: {
+            "1xscope": 28,
+            "2xscope": 36,
+            "4xscope": 48,
+            "8xscope": 68,
+            "15xscope": 104
+        },
+        mobile: {
+            "1xscope": 32,
+            "2xscope": 40,
+            "4xscope": 48,
+            "8xscope": 64,
+            "15xscope": 88
+        }
+    },
+    bagSizes: {
+        "9mm": [120, 240, 330, 420],
+        "762mm": [90, 180, 240, 300],
+        "556mm": [90, 180, 240, 300],
+        "12gauge": [15, 30, 60, 90],
+        "50AE": [49, 98, 147, 196],
+        "308sub": [10, 20, 40, 80],
+        flare: [2, 4, 6, 8],
+        "40mm": [10, 20, 30, 40],
+        "45acp": [90, 180, 240, 300],
+        mine: [3, 6, 9, 12],
+        frag: [3, 6, 9, 12],
+        heart_frag: [3, 6, 9, 12],
+        smoke: [3, 6, 9, 12],
+        strobe: [2, 3, 4, 5],
+        mirv: [2, 4, 6, 8],
+        snowball: [10, 20, 30, 40],
+        water_balloon: [10, 20, 30, 40],
+        skitternade: [10, 20, 30, 40],
+        antiFire: [10, 20, 30, 40],
+        potato: [10, 20, 30, 40],
+        bandage: [5, 10, 15, 30],
+        healthkit: [1, 2, 3, 4],
+        soda: [2, 5, 10, 15],
+        chocolateBox: [2, 5, 10, 15],
+        bottle: [2, 5, 10, 15],
+        gunchilada: [2, 5, 10, 15],
+        watermelon: [2, 5, 10, 15],
+        nitroLace: [2, 5, 10, 15],
+        flask: [2, 5, 10, 15],
+        pulseBox: [2, 5, 10, 15],
+        painkiller: [1, 2, 3, 4],
+        "1xscope": [1, 1, 1, 1],
+        "2xscope": [1, 1, 1, 1],
+        "4xscope": [1, 1, 1, 1],
+        "8xscope": [1, 1, 1, 1],
+        "15xscope": [1, 1, 1, 1],
+        rainbow_ammo: [1, 1, 1, 1]
+    },
+    lootRadius: {
+        outfit: 1,
+        melee: 1.25,
+        gun: 1.25,
+        throwable: 1,
+        ammo: 1.2,
+        heal: 1,
+        boost: 1,
+        backpack: 1,
+        helmet: 1,
+        chest: 1,
+        scope: 1,
+        perk: 1.25,
+        xp: 1
+    }
+};
 
 export class Emote {
     playerId: number;
@@ -87,11 +334,15 @@ export function log(message: string): void {
     console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
 }
 
-export function randomBase(min: number, max: number): number {
+export function randomFloat(min: number, max: number): number {
     return (Math.random() * (max - min) + min);
 }
 
-export function random(min: number, max: number): number { return Math.floor(randomBase(min, max + 1)); }
+export function randomFloatSpecial(min: number, max: number): number {
+    return (Math.random() < 0.5) ? randomFloat(min, max) : -randomFloat(min, max);
+}
+
+export function random(min: number, max: number): number { return Math.floor(randomFloat(min, max + 1)); }
 
 export function randomVec(minX: number, maxX: number, minY: number, maxY: number): Vector { return Vector.create(random(minX, maxX), random(minY, maxY)); }
 
@@ -162,17 +413,7 @@ export function rectCollision(min: Vector, max: Vector, circlePos: Vector, circl
 }
 
 export function addOrientations(n1: number, n2: number): number {
-    const sum: number = n1 + n2;
-    if(sum <= 3) return sum;
-    switch(sum) {
-        case 4:
-            return 0;
-        case 5:
-            return 1;
-        case 6:
-            return 2;
-    }
-    return -1;
+    return (n1 + n2) % 4;
 }
 
 export function addAdjust(position1: Vector, position2: Vector, orientation: number): Vector {
@@ -231,7 +472,7 @@ export function bodyFromCollisionData(data, pos: Vector, orientation = 0, scale 
     let body: Body;
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
-        body = Bodies.circle(pos.x, pos.y, data.rad * scale, { isStatic: true });
+        body = Bodies.circle(pos.x, pos.y, data.rad * scale * 1.1, { isStatic: true });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(pos, data.min, data.max, scale, orientation);
         const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
@@ -239,7 +480,6 @@ export function bodyFromCollisionData(data, pos: Vector, orientation = 0, scale 
         if(width === 0 || height === 0) return null;
         body = Bodies.rectangle(x, y, width, height, { isStatic: true });
     }
-    // if(scale != 1) Body.scale(body, scale, scale);
 
     // @ts-expect-error body will always be assigned when the code gets to this point
     body.collisionFilter.category = CollisionCategory.Obstacle;
