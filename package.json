@@ -1,6 +1,6 @@
 {
   "name": "survivreloaded",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A community-made resurrection of the defunct online game surviv.io.",
   "main": "dist/server.js",
   "scripts": {
