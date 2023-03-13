@@ -43,7 +43,7 @@ npm start
 
 To open the game, go to http://127.0.0.1:8000 in your browser.
 
-If you made any changes to the code, type `npm run build` first, then `npm start`.
+If you made any changes to the code, run `npm br` instead.
 
 
 ## FAQ
