@@ -108,7 +108,7 @@ export class Game {
             // Stop the tick loop if the game is no longer active
             if(!this.active) return;
 
-            // Update physics engine
+            // Update physics
             Engine.update(this.engine, Config.tickDelta);
 
             // First loop: Calculate movement & animations.
@@ -117,9 +117,9 @@ export class Game {
                 // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
 
                 // Movement
-                const alreadyMoving = p.moving;
-                p.moving = true;
-                const s = Config.movementSpeed; const ds = Config.diagonalSpeed;
+                p.moving = false;
+                const s = Config.movementSpeed;
+                const ds = Config.diagonalSpeed;
                 if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
                 else if(p.movingUp && p.movingRight) p.setVelocity(ds, ds);
                 else if(p.movingDown && p.movingLeft) p.setVelocity(-ds, -ds);
@@ -128,16 +128,14 @@ export class Game {
                 else if(p.movingDown) p.setVelocity(0, -s);
                 else if(p.movingLeft) p.setVelocity(-s, 0);
                 else if(p.movingRight) p.setVelocity(s, 0);
-                else {
-                    p.setVelocity(0, 0);
-                    if(p.moving) p.setVelocity(0, 0);
-                    if(!alreadyMoving) p.moving = false;
-                }
-                if(p.moving) {
+
+                if(p.moving) { // Collision detection w/ map edges
                     if(p.position.x < 0) p.position.x = 0;
                     if(p.position.x > 720) p.position.x = 720;
                     if(p.position.y < 0) p.position.y = 0;
                     if(p.position.y > 720) p.position.y = 720;
+                } else {
+                    p.setVelocity(0, 0);
                 }
 
                 if(p.shootStart) {
@@ -149,6 +147,7 @@ export class Game {
                         if(!p.animActive) {
                             p.animActive = true;
                             p.animType = 1;
+                            p.animSeq = 1;
                             p.animTime = 0;
                         }
 
@@ -182,7 +181,6 @@ export class Game {
                     this.fullDirtyObjects.push(p);
                     p.fullDirtyObjects.push(p);
                     p.animTime++;
-                    p.animSeq = 1;
                     if(p.animTime > 8) {
                         p.animActive = false;
                         p.animType = p.animSeq = p.animTime = 0;
@@ -223,29 +221,29 @@ export class Game {
                     }
                 }
 
-                if(this.emotes.length > 0) {
+                if(this.emotes.length) {
                     p.emotesDirty = true;
                     p.emotes = this.emotes;
                 }
 
-                if(this.explosions.length > 0) {
+                if(this.explosions.length) {
                     p.explosionsDirty = true;
                     p.explosions = this.explosions;
                 }
 
-                if(this.fullDirtyObjects.length > 0) {
+                if(this.fullDirtyObjects.length) {
                     for(const object of this.fullDirtyObjects) {
                         if(p.visibleObjects.includes(object)) p.fullDirtyObjects.push(object);
                     }
                 }
 
-                if(this.partialDirtyObjects.length > 0) {
+                if(this.partialDirtyObjects.length) {
                     for(const object of this.partialDirtyObjects) {
                         if(p.visibleObjects.includes(object)) p.partialDirtyObjects.push(object);
                     }
                 }
 
-                if(this.deletedObjects.length > 0) {
+                if(this.deletedObjects.length) {
                     for(const object of this.deletedObjects) {
                         if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
                     }
@@ -256,7 +254,6 @@ export class Game {
                 if(this.kills.length) {
                     for(const kill of this.kills) p.sendPacket(kill);
                 }
-                p.moving = false;
             }
 
             // Reset everything
@@ -270,9 +267,9 @@ export class Game {
             this.aliveCountDirty = false;
 
             const tickTime: number = performance.now() - tickStart;
-            if(DebugFeatures.logPerformance) {
+            if(DebugFeatures.performanceLog) {
                 this.tickTimes.push(tickTime);
-                if(this.tickTimes.length === 200) {
+                if(this.tickTimes.length === DebugFeatures.performanceLogInterval) {
                     let tickSum = 0;
                     for(const time of this.tickTimes) tickSum += time;
                     log(`Average ms/tick: ${tickSum / this.tickTimes.length}`);

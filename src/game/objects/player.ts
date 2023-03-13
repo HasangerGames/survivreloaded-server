@@ -38,6 +38,7 @@ export class Player extends GameObject {
     deletedObjects: GameObject[] = [];
 
     moving = false;
+    turning = false;
     movingUp = false;
     movingDown = false;
     movingLeft = false;
@@ -142,6 +143,7 @@ export class Player extends GameObject {
     }
 
     setVelocity(xVel: number, yVel: number): void {
+        this.moving = true;
         Body.setVelocity(this.body, { x: xVel, y: yVel });
     }
 

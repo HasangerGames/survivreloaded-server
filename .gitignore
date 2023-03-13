@@ -10,7 +10,6 @@ node_modules/
 package-lock.json
 
 # Misc
-config.json
 surviv.js
 surviv2.js
 bitheroes.js
