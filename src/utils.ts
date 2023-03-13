@@ -389,27 +389,13 @@ export function circleCollision(pos1: Vector, r1: number, pos2: Vector, r2: numb
     const a = r1 + r2;
     const x = pos1.x - pos2.x;
     const y = pos1.y - pos2.y;
-    return a > Math.sqrt((x * x) + (y * y));
+    return a * a > x * x + y * y;
 }
 
 export function rectCollision(min: Vector, max: Vector, circlePos: Vector, circleRad: number): boolean {
-    // TODO Replace this collision detection function with a more efficient one from the surviv code
-    const rectWidth = max.x - min.x;
-    const rectHeight = max.y - min.y;
-    min = Vector.add(min, Vector.create(rectWidth / 2, rectHeight / 2));
-    const distX = Math.abs(circlePos.x - min.x);
-    const distY = Math.abs(circlePos.y - min.y);
-
-    if (distX > (rectWidth / 2 + circleRad)) { return false; }
-    if (distY > (rectHeight / 2 + circleRad)) { return false; }
-
-    if (distX <= (rectWidth / 2)) { return true; }
-    if (distY <= (rectHeight / 2)) { return true; }
-
-    const hypot = (distX - rectWidth / 2) * (distX - rectWidth / 2) +
-        (distY - rectHeight / 2) * (distY - rectHeight / 2);
-
-    return (hypot <= (circleRad * circleRad));
+    const distX = Math.max(min.x, Math.min(max.x, circlePos.x)) - circlePos.x;
+    const distY = Math.max(min.y, Math.min(max.y, circlePos.y)) - circlePos.y;
+    return distX * distX + distY * distY < circleRad * circleRad;
 }
 
 export function addOrientations(n1: number, n2: number): number {
