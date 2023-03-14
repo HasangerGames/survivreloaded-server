@@ -1,16 +1,14 @@
 import crypto from "crypto";
 import {
+    Config,
     DebugFeatures,
     type Emote,
     type Explosion,
-    Config, log,
+    log,
     randomVec,
     removeFrom,
-    SurvivBitStream as BitStream,
-    unitVecToRadians,
-    Weapons
+    SurvivBitStream as BitStream
 } from "../utils";
-import { Bodies, type Body, Collision, Composite, Engine, Vector } from "matter-js";
 import { Map } from "./map";
 import { Player } from "./objects/player";
 import { AliveCountsPacket } from "../packets/sending/aliveCountsPacket";
@@ -19,6 +17,7 @@ import { JoinedPacket } from "../packets/sending/joinedPacket";
 import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
+import { Vec2, World } from "planck";
 
 export class Game {
 
@@ -66,13 +65,13 @@ export class Game {
     explosions: Explosion[] = [];
     kills: KillPacket[] = [];
 
-    engine: Engine;
+    world: World;
 
     // Red zone
     gasMode: number;
     initialGasDuration: number;
-    oldGasPosition: Vector;
-    newGasPosition: Vector;
+    oldGasPosition: Vec2;
+    newGasPosition: Vec2;
     oldGasRadius: number;
     newGasRadius: number;
 
@@ -86,13 +85,12 @@ export class Game {
 
         this.gasMode = 0;
         this.initialGasDuration = 0;
-        this.oldGasPosition = Vector.create(360, 360);
-        this.newGasPosition = Vector.create(360, 360);
+        this.oldGasPosition = Vec2(360, 360);
+        this.newGasPosition = Vec2(360, 360);
         this.oldGasRadius = 2048;
         this.newGasRadius = 2048;
 
-        this.engine = Engine.create();
-        this.engine.gravity.scale = 0; // Disable gravity
+        this.world = new World(Vec2(0, 0));
 
         this.map = new Map(this, "main");
 
@@ -109,7 +107,7 @@ export class Game {
             if(!this.active) return;
 
             // Update physics
-            Engine.update(this.engine, Config.tickDelta);
+            this.world.step(Config.tickDelta, 6, 2);
 
             // First loop: Calculate movement & animations.
             for(const p of this.activePlayers) {
@@ -144,12 +142,12 @@ export class Game {
                         }
 
                         // If the player is punching anything, damage the closest object
-                        let maxDepth = -1;
+                        /* let maxDepth = -1;
                         let closestObject;
                         const weapon = Weapons[p.loadout.meleeType];
                         const angle: number = unitVecToRadians(p.direction);
-                        const offset: Vector = Vector.add(weapon.attack.offset, Vector.mult(Vector.create(1, 0), p.scale - 1));
-                        const position: Vector = Vector.add(p.position, Vector.rotate(offset, angle));
+                        const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2.mult(Vec2(1, 0), p.scale - 1));
+                        const position: Vec2 = Vec2.add(p.position, Vec2.rotate(offset, angle));
                         const body: Body = Bodies.circle(position.x, position.y, 0.9);
                         for(const object of p.visibleObjects) {
                             if(!object.body || object.dead || object === p) continue;
@@ -165,7 +163,7 @@ export class Game {
                         if(closestObject) {
                             closestObject.damage(24, p);
                             if(closestObject.interactable) closestObject.interact(p);
-                        }
+                        } */
                     }
                 }
 
@@ -275,7 +273,7 @@ export class Game {
 
     addPlayer(socket, username, loadout): Player {
         let spawnPosition;
-        if(DebugFeatures.fixedSpawnLocation.length) spawnPosition = Vector.create(DebugFeatures.fixedSpawnLocation[0], DebugFeatures.fixedSpawnLocation[1]);
+        if(DebugFeatures.fixedSpawnLocation.length) spawnPosition = Vec2(DebugFeatures.fixedSpawnLocation[0], DebugFeatures.fixedSpawnLocation[1]);
         else spawnPosition = randomVec(75, this.map.width - 75, 75, this.map.height - 75);
 
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, username, loadout);
@@ -301,7 +299,7 @@ export class Game {
     }
 
     removePlayer(p): void {
-        p.direction = Vector.create(1, 0);
+        p.direction = Vec2(1, 0);
         p.quit = true;
         this.deletedPlayers.push(p);
         this.partialDirtyObjects.push(p);
@@ -311,14 +309,6 @@ export class Game {
             this.aliveCount--;
             this.aliveCountDirty = true;
         }
-    }
-
-    addBody(body): void {
-        Composite.add(this.engine.world, body);
-    }
-
-    removeBody(body): void {
-        Composite.remove(this.engine.world, body);
     }
 
     end(): void {

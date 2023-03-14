@@ -1,8 +1,6 @@
-import { Bodies, Body, Vector } from "matter-js";
 import { type WebSocket } from "uWebSockets.js";
 
 import {
-    CollisionCategory,
     type Emote,
     type Explosion,
     ObjectKind,
@@ -17,6 +15,7 @@ import { KillPacket } from "../../packets/sending/killPacket";
 import { type Map } from "../map";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
+import { type Body, Circle, Vec2 } from "planck";
 
 export class Player extends GameObject {
     socket: WebSocket<any>;
@@ -26,7 +25,7 @@ export class Player extends GameObject {
     teamId = 1; // For 50v50?
     groupId: number;
 
-    direction: Vector = Vector.create(1, 0);
+    direction: Vec2 = Vec2(1, 0);
     scale = 1;
     private _zoom = 28; // 1x scope
     xCullingDistance = this._zoom + 20;
@@ -100,7 +99,7 @@ export class Player extends GameObject {
 
     quit = false;
 
-    constructor(id: number, position: Vector, socket: WebSocket<any>, game: Game, username: string, loadout) {
+    constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, username: string, loadout) {
         super(id, "", position, 0);
         this.kind = ObjectKind.Player;
 
@@ -136,19 +135,17 @@ export class Player extends GameObject {
         this.name = username;
 
         // Init body
-        this.body = Bodies.circle(position.x, position.y, 1, { restitution: 0, friction: 0, frictionAir: 0, inertia: Infinity });
-        this.body.collisionFilter.category = CollisionCategory.Player;
-        this.body.collisionFilter.mask = CollisionCategory.Obstacle;
-        this.game.addBody(this.body);
+        this.body = game.world.createBody({ type: "dynamic", position });
+        this.body.createFixture(Circle(position, 1));
     }
 
     setVelocity(xVel: number, yVel: number): void {
         this.moving = true;
-        Body.setVelocity(this.body, { x: xVel, y: yVel });
+        this.body.setLinearVelocity(Vec2(xVel, yVel));
     }
 
-    get position(): Vector {
-        return this.body.position;
+    get position(): Vec2 {
+        return this.body.getPosition();
     }
 
     get zoom(): number {

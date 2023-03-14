@@ -1,15 +1,13 @@
-import { type Vector } from "matter-js";
-
 import { type Game } from "./game";
 import { type ObjectKind, type SurvivBitStream, TypeToId } from "../utils";
-import { Player } from "./objects/player";
+import { type Vec2, type Body } from "planck";
 
 export abstract class GameObject {
     kind: ObjectKind;
     id: number;
     typeString?: string;
     typeId: number;
-    _position: Vector;
+    _position: Vec2;
     layer: number;
     orientation?: number;
     scale = 1;
@@ -22,11 +20,11 @@ export abstract class GameObject {
 
     game?: Game;
 
-    body: Matter.Body | null;
+    body: Body | null;
 
     protected constructor(id: number,
                           typeString: string,
-                          position: Vector,
+                          position: Vec2,
                           layer: number,
                           orientation?: number,
                           game?: Game) {
@@ -39,7 +37,7 @@ export abstract class GameObject {
         this.game = game;
     }
 
-    get position(): Vector {
+    get position(): Vec2 {
         return this._position;
     }
 

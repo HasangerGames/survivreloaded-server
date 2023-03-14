@@ -6,11 +6,11 @@
   "certFile": "config/cert.pem",
 
   "tickDelta": 30,
-  "movementSpeed": 0.22,
+  "movementSpeed": 0.015,
   "debugFeatures": {
     "performanceLog": true,
     "performanceLogInterval": 200,
-    "minimalMapGeneration": false,
-    "fixedSpawnLocation": []
+    "minimalMapGeneration": true,
+    "fixedSpawnLocation": [450, 150]
   }
 }

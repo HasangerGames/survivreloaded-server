@@ -1,6 +1,6 @@
-import { type Vector } from "matter-js";
 import { ObjectKind, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
+import { type Vec2 } from "planck";
 
 export class Structure extends GameObject {
     showOnMap = false;
@@ -9,7 +9,7 @@ export class Structure extends GameObject {
 
     constructor(id: number,
                 typeString: string,
-                position: Vector,
+                position: Vec2,
                 orientation: number,
                 layerObjIds: number[]) {
         super(id, typeString, position, 0, orientation);

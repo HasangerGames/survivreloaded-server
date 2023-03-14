@@ -1,4 +1,3 @@
-import { Collision, Vector } from "matter-js";
 import {
     addAdjust,
     addOrientations,
@@ -19,6 +18,7 @@ import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
+import { Vec2 } from "planck";
 
 export class Map {
     name: string;
@@ -50,17 +50,17 @@ export class Map {
         // TODO Better river generation
         this.rivers = [];
         let x = 0; let y = 0;
-        const points: Vector[] = [];
+        const points: Vec2[] = [];
         while(x < 720 && y < 720) {
             x += 10 + random(-6, 6);
             y += 10 + random(-6, 6);
-            points.push(Vector.create(x, y));
+            points.push(Vec2(x, y));
         }
         this.rivers.push(new River(8, 0, points));
 
         this.places = [];
         for(const place of mapInfo.places) {
-            this.places.push(new Place(place.name, Vector.create(place.x, place.y)));
+            this.places.push(new Place(place.name, Vec2(place.x, place.y)));
         }
 
         if(!DebugFeatures.minimalMapGeneration) {
@@ -80,19 +80,16 @@ export class Map {
         } else {
             // this.genStructure("club_structure_01", Objects["club_structure_01"]);
             // this.genBuildingTest("house_red_01", 1, false);
-            this.genObstacleTest("crate_01", Vector.create(452, 152));
-            this.genObstacleTest("crate_01", Vector.create(505, 155));
-            this.genObstacleTest("crate_01", Vector.create(455, 205));
-            this.genObstacleTest("crate_01", Vector.create(505, 205));
+            this.genObstacleTest("stone_01", Vec2(452, 152));
         }
 
         this.groundPatches = [];
     }
 
-    private genStructure(typeString: string, structureData: any, setPosition: Vector | null = null, setOrientation: number | null = null): void {
+    private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {
         let position;
         if(setPosition) position = setPosition;
-        else if(Config.debugMode) position = Vector.create(450, 150);
+        else if(Config.debugMode) position = Vec2(450, 150);
         else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, 1);
 
         let orientation;
@@ -134,13 +131,13 @@ export class Map {
 
     private genBuilding(typeString: string,
                         buildingData,
-                        setPosition?: Vector,
+                        setPosition?: Vec2,
                         setOrientation?: number,
                         setLayer?: number,
                         debug = false): void {
         let position;
         if(setPosition) position = setPosition;
-        else if(Config.debugMode) position = Vector.create(450, 150);
+        else if(Config.debugMode) position = Vec2(450, 150);
         else position = this.getRandomPositionFor(ObjectKind.Building, buildingData.mapObstacleBounds ? buildingData.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
@@ -200,17 +197,18 @@ export class Map {
             position,
             setLayer !== undefined ? setLayer : 0,
             orientation,
+            this.game,
             buildingData.map ? buildingData.map.display : false,
             buildingData
         ));
     }
 
-    private genObstacleTest(typeString, position?: Vector): void {
-        this.genObstacle(typeString, position ?? Vector.create(455, 155), 0, 0, 0.8, Objects[typeString]);
+    private genObstacleTest(typeString, position?: Vec2): void {
+        this.genObstacle(typeString, position ?? Vec2(455, 155), 0, 0, 0.8, Objects[typeString]);
     }
 
     private genObstacle(typeString: string,
-                        position: Vector,
+                        position: Vec2,
                         layer: number,
                         orientation: number,
                         scale: number,
@@ -241,7 +239,7 @@ export class Map {
         }
     }
 
-    private getRandomPositionFor(kind: ObjectKind, collisionData, scale?): Vector {
+    private getRandomPositionFor(kind: ObjectKind, collisionData, scale?): Vec2 {
         if(!scale) scale = 1;
         let foundPosition = false;
         let position;
@@ -284,7 +282,7 @@ export class Map {
 class River {
     width: number;
     looped: number;
-    points: Vector[];
+    points: Vec2[];
 
     constructor(width, looped, points) {
         this.width = width;
@@ -296,7 +294,7 @@ class River {
 
 class Place {
     name: string;
-    position: Vector;
+    position: Vec2;
 
     constructor(name, pos) {
         this.name = name;
@@ -306,8 +304,8 @@ class Place {
 }
 
 class GroundPatch {
-    min: Vector;
-    max: Vector;
+    min: Vec2;
+    max: Vec2;
     color: number;
     roughness: number;
     offsetDist: number;
