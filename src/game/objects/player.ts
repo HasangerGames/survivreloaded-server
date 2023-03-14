@@ -139,7 +139,7 @@ export class Player extends GameObject {
         this.body.createFixture({
             shape: Circle(position, 1),
             friction: 0,
-            density: 1000.0
+            density: 1.0
         });
     }
 

@@ -1,6 +1,6 @@
 import { BitStream } from "bit-buffer";
 import fs from "fs";
-import { Body, Circle, Vec2, World } from "planck";
+import { AABB, Body, Box, Circle, Vec2, World } from "planck";
 
 export const Objects = readJson("data/objects.json");
 export const Maps = readJson("data/maps.json");
@@ -432,15 +432,15 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
     let body;
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
-        const circlePos: Vec2 = position.sub(Vec2(data.rad * 1.25, data.rad * 1.25));
-        body = world.createBody({ type: "static", position: circlePos });
-        body.createFixture(Circle(circlePos), data.rad * 2.75);
+        body = world.createBody({ type: "static", position });
+        body.createFixture(Circle(position, data.rad * scale));
+        body.setPosition(position);
     } else if(data.type === CollisionType.Rectangle) {
-        /* const rect = rotateRect(position, data.min, data.max, scale, orientation);
+        const rect = rotateRect(position, data.min, data.max, scale, orientation);
         const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
-        const x = rect.min.x + width / 2, y = rect.min.y + height / 2;
         if(width === 0 || height === 0) return null;
-        body = Bodies.rectangle(x, y, width, height, { isStatic: true }); */
+        body = world.createBody({ type: "static", position });
+        body.createFixture(Box(width / 2, height / 2, position));
     }
     return body;
 }

@@ -3,7 +3,7 @@ import { type Game } from "../game";
 import { type Player } from "./player";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
-import { type Vec2 } from "planck";
+import { Vec2 } from "planck";
 
 export class Obstacle extends GameObject {
 

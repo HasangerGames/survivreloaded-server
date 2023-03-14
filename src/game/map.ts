@@ -76,11 +76,15 @@ export class Map {
                         break;
                 }
             }
+            for(const object of this.game.objects) console.log(object.position, object.body?.getPosition());
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             // this.genStructure("club_structure_01", Objects["club_structure_01"]);
             // this.genBuildingTest("house_red_01", 1, false);
-            this.genObstacleTest("stone_01", Vec2(452, 152));
+            const type = "stone_01";
+            const position = Vec2(455, 155);
+            const scale = 1;
+            this.genObstacle(type, position, 0, 0, scale, Objects[type]);
         }
 
         this.groundPatches = [];
@@ -201,10 +205,6 @@ export class Map {
             buildingData.map ? buildingData.map.display : false,
             buildingData
         ));
-    }
-
-    private genObstacleTest(typeString, position?: Vec2): void {
-        this.genObstacle(typeString, position ?? Vec2(455, 155), 0, 0, 0.8, Objects[typeString]);
     }
 
     private genObstacle(typeString: string,
