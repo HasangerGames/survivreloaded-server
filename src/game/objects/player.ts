@@ -151,10 +151,6 @@ export class Player extends GameObject {
         return this.body.position;
     }
 
-    set position(position: Vector) {
-        Body.setPosition(this.body, position);
-    }
-
     get zoom(): number {
         return this._zoom;
     }

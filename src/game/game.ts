@@ -128,15 +128,7 @@ export class Game {
                 else if(p.movingDown) p.setVelocity(0, -s);
                 else if(p.movingLeft) p.setVelocity(-s, 0);
                 else if(p.movingRight) p.setVelocity(s, 0);
-
-                if(p.moving) { // Collision detection w/ map edges
-                    if(p.position.x < 0) p.position.x = 0;
-                    if(p.position.x > 720) p.position.x = 720;
-                    if(p.position.y < 0) p.position.y = 0;
-                    if(p.position.y > 720) p.position.y = 720;
-                } else {
-                    p.setVelocity(0, 0);
-                }
+                if(!p.moving) p.setVelocity(0, 0);
 
                 if(p.shootStart) {
                     p.shootStart = false;
