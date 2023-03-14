@@ -136,7 +136,11 @@ export class Player extends GameObject {
 
         // Init body
         this.body = game.world.createBody({ type: "dynamic", position });
-        this.body.createFixture(Circle(position, 1));
+        this.body.createFixture({
+            shape: Circle(position, 1),
+            friction: 0,
+            density: 1000.0
+        });
     }
 
     setVelocity(xVel: number, yVel: number): void {
