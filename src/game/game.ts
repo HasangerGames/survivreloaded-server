@@ -108,7 +108,6 @@ export class Game {
 
             // Update physics
             this.world.step(Config.tickDelta, 6, 2);
-            console.log(performance.now() - tickStart);
 
             // First loop: Calculate movement & animations.
             for(const p of this.activePlayers) {
