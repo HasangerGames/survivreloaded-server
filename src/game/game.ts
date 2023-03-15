@@ -90,7 +90,11 @@ export class Game {
         this.oldGasRadius = 2048;
         this.newGasRadius = 2048;
 
-        this.world = new World(Vec2(0, 0));
+        this.world = new World({
+            gravity: Vec2(0, 0),
+            velocityIterations: 8,
+            positionIterations: 3
+        });
 
         this.map = new Map(this, "main");
 
@@ -107,7 +111,7 @@ export class Game {
             if(!this.active) return;
 
             // Update physics
-            this.world.step(Config.tickDelta, 8, 3);
+            this.world.step(Config.tickDelta);
 
             // First loop: Calculate movement & animations.
             for(const p of this.activePlayers) {

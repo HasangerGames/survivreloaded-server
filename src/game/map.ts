@@ -80,13 +80,15 @@ export class Map {
         } else {
             // this.genStructure("club_structure_01", Objects["club_structure_01"]);
             // this.genBuildingTest("house_red_01", 1, false);
-            const type = "stone_01";
-            const position = Vec2(455, 155);
-            const scale = 1;
-            this.genObstacle(type, position, 0, 0, scale, Objects[type]);
+            this.obstacleTest("stone_01", Vec2(455, 155), 1);
+            this.obstacleTest("stone_01", Vec2(458.2, 155), 1);
         }
 
         this.groundPatches = [];
+    }
+
+    private obstacleTest(type: string, position: Vec2, scale: number): void {
+        this.genObstacle(type, position, 0, 0, scale, Objects[type]);
     }
 
     private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {

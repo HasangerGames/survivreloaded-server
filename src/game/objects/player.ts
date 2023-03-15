@@ -138,10 +138,10 @@ export class Player extends GameObject {
         this.body = game.world.createBody({ type: "dynamic", position, fixedRotation: true });
         this.body.createFixture({
             shape: Circle(1),
-            friction: 0,
-            density: 1.0,
-            restitution: 0
+            friction: 0.01,
+            density: 0.0
         });
+        this.body.setBullet(true);
     }
 
     setVelocity(xVel: number, yVel: number): void {

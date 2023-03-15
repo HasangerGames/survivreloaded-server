@@ -46,7 +46,6 @@ export class UpdatePacket extends SendingPacket {
             for(const fullObject of this.p.fullDirtyObjects) {
                 stream.writeUint8(fullObject.kind);
                 stream.writeUint16(fullObject.id);
-                console.log(fullObject.kind);
                 fullObject.serializePartial(stream);
                 fullObject.serializeFull(stream);
             }

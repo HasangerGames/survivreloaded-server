@@ -10,7 +10,7 @@
   "debugFeatures": {
     "performanceLog": true,
     "performanceLogInterval": 200,
-    "minimalMapGeneration": false,
+    "minimalMapGeneration": true,
     "fixedSpawnLocation": [450, 150]
   }
 }
