@@ -76,7 +76,6 @@ export class Map {
                         break;
                 }
             }
-            for(const object of this.game.objects) console.log(object.position, object.body?.getPosition());
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             // this.genStructure("club_structure_01", Objects["club_structure_01"]);

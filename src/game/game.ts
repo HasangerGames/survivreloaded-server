@@ -107,7 +107,7 @@ export class Game {
             if(!this.active) return;
 
             // Update physics
-            this.world.step(Config.tickDelta, 6, 2);
+            this.world.step(Config.tickDelta, 8, 3);
 
             // First loop: Calculate movement & animations.
             for(const p of this.activePlayers) {

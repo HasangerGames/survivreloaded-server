@@ -46,6 +46,7 @@ export class UpdatePacket extends SendingPacket {
             for(const fullObject of this.p.fullDirtyObjects) {
                 stream.writeUint8(fullObject.kind);
                 stream.writeUint16(fullObject.id);
+                console.log(fullObject.kind);
                 fullObject.serializePartial(stream);
                 fullObject.serializeFull(stream);
             }
@@ -125,7 +126,7 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Player info
-        let playerInfosSource: Player[];
+        let playerInfosSource;
         if(this.p.getAllPlayerInfos) {
             this.p.getAllPlayerInfos = false;
             playerInfosSource = this.p.game!.players;
@@ -133,7 +134,7 @@ export class UpdatePacket extends SendingPacket {
             playerInfosSource = this.p.game!.dirtyPlayers;
         }
 
-        if(playerInfosSource!) {
+        if(playerInfosSource) {
             stream.writeUint8(playerInfosSource.length); // Player info count
 
             for(const player of playerInfosSource) {

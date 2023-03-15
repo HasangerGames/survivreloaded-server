@@ -135,11 +135,12 @@ export class Player extends GameObject {
         this.name = username;
 
         // Init body
-        this.body = game.world.createBody({ type: "dynamic", position });
+        this.body = game.world.createBody({ type: "dynamic", position, fixedRotation: true });
         this.body.createFixture({
-            shape: Circle(position, 1),
+            shape: Circle(1),
             friction: 0,
-            density: 1.0
+            density: 1.0,
+            restitution: 0
         });
     }
 

@@ -432,15 +432,14 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
     let body;
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
-        body = world.createBody({ type: "static", position });
-        body.createFixture(Circle(position, data.rad * scale));
-        body.setPosition(position);
+        body = world.createBody({ type: "static", position, fixedRotation: true });
+        body.createFixture({ shape: Circle(data.rad * scale), restitution: 0 });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
         const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
         if(width === 0 || height === 0) return null;
-        body = world.createBody({ type: "static", position });
-        body.createFixture(Box(width / 2, height / 2, position));
+        body = world.createBody({ type: "static", position, fixedRotation: true });
+        body.createFixture({ shape: Box(width / 2, height / 2), restitution: 0 });
     }
     return body;
 }
