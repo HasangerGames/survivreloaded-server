@@ -433,13 +433,13 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
         body = world.createBody({ type: "static", position, fixedRotation: true });
-        body.createFixture({ shape: Circle(data.rad * scale), restitution: 0 });
+        body.createFixture({ shape: Circle((data.rad * scale) + 0.1) });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
         const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
         if(width === 0 || height === 0) return null;
         body = world.createBody({ type: "static", position, fixedRotation: true });
-        body.createFixture({ shape: Box(width / 2, height / 2), restitution: 0 });
+        body.createFixture({ shape: Box(width / 2, height / 2) });
     }
     return body;
 }

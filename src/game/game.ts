@@ -17,7 +17,7 @@ import { JoinedPacket } from "../packets/sending/joinedPacket";
 import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
-import { Vec2, World } from "planck";
+import { Settings, Vec2, World } from "planck";
 
 export class Game {
 
@@ -91,10 +91,9 @@ export class Game {
         this.newGasRadius = 2048;
 
         this.world = new World({
-            gravity: Vec2(0, 0),
-            velocityIterations: 8,
-            positionIterations: 3
+            gravity: Vec2(0, 0)
         });
+        Settings.linearSlop = 0.1;
 
         this.map = new Map(this, "main");
 
