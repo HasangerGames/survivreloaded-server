@@ -46,7 +46,6 @@ export class InputPacket extends ReceivingPacket {
                         }
                     }
                     if(minDistObject) {
-                        // console.log(`interacting: ${minDistObject}`);
                         minDistObject.interact(this.p);
                     }
                     break;
