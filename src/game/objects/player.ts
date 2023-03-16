@@ -190,7 +190,7 @@ export class Player extends GameObject {
 
             gun1: "",
             gun2: "",
-            melee: this.loadout.melee,
+            melee: this.loadout.meleeType,
             activeThrowable: ""
         };
 
