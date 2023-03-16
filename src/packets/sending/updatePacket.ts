@@ -82,13 +82,19 @@ export class UpdatePacket extends SendingPacket {
         }
 
         stream.writeBits(0, 3); // Misc dirty
+
         stream.writeBoolean(p.zoomDirty); // Zoom dirty
         if(p.zoomDirty) {
             stream.writeUint8(p.zoom);
             p.zoomDirty = false;
         }
+
         stream.writeBoolean(false); // Action dirty
-        stream.writeBoolean(false); // Inventory dirty
+        stream.writeBoolean(false);//p.inventoryDirty); // Inventory dirty
+        if(p.inventoryDirty) {
+
+        }
+
         stream.writeBoolean(p.weaponsDirty); // Weapons dirty
         if(p.weaponsDirty) {
             stream.writeBits(2, 2); // Current weapon slot

@@ -198,4 +198,16 @@
     <MESSAGE value="fix small issue; idleTimeout is in seconds, not milliseconds" />
     <option name="LAST_COMMIT_MESSAGE" value="fix small issue; idleTimeout is in seconds, not milliseconds" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/public/js/app.js</url>
+          <line>4</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
 </project>

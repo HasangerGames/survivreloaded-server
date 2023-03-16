@@ -258,7 +258,8 @@ export class Game {
 
                 if(this.deletedObjects.length) {
                     for(const object of this.deletedObjects) {
-                        if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
+                        //if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
+                        p.deletedObjects.push(object);
                     }
                 }
 

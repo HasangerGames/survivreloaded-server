@@ -37,12 +37,20 @@ export class Loot extends GameObject {
 
         if(this.typeString?.endsWith("scope")) { // TODO Check if mobile or desktop
             p.zoom = Constants.scopeZoomRadius.desktop[this.typeString];
+            p.zoomDirty = true;
         } else if(this.typeString?.startsWith("backpack")) {
-            p.packLevel = parseInt(this.typeString.charAt(10)); // Last digit of the ID is always the item level
+            console.log(this.typeString.charAt(10));
+            p.packLevel = parseInt(this.typeString.charAt(9)); // Last digit of the ID is always the item level
+            this.game?.fullDirtyObjects.push(p);
+            p.fullDirtyObjects.push(p);
         } else if(this.typeString?.startsWith("chest")) {
-            p.chestLevel = parseInt(this.typeString.charAt(7));
+            p.chestLevel = parseInt(this.typeString.charAt(6));
+            this.game?.fullDirtyObjects.push(p);
+            p.fullDirtyObjects.push(p);
         } else if(this.typeString?.startsWith("helmet")) {
-            p.helmetLevel = parseInt(this.typeString.charAt(8));
+            p.helmetLevel = parseInt(this.typeString.charAt(7));
+            this.game?.fullDirtyObjects.push(p);
+            p.fullDirtyObjects.push(p);
         }
     }
 

@@ -86,6 +86,7 @@ export class Player extends GameObject {
     gasCircleDirty = true;
     healthDirty = true;
     boostDirty = true;
+    inventoryDirty = true;
     zoomDirty = true;
     weaponsDirty = true;
     getAllPlayerInfos = true;
@@ -123,7 +124,7 @@ export class Player extends GameObject {
         this.groupId = this.game.players.length - 1;
         this.name = username;
         this.oldPosition = position;
-        this.zoom = Constants.scopeZoomRadius["1xscope"];
+        this.zoom = Constants.scopeZoomRadius.desktop["1xscope"];
 
         // Set loadout
         if(loadout?.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes && loadout.deathEffect) {
@@ -189,7 +190,7 @@ export class Player extends GameObject {
 
             gun1: "",
             gun2: "",
-            melee: loadout.melee,
+            melee: this.loadout.melee,
             activeThrowable: ""
         };
 
