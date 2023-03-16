@@ -1,6 +1,11 @@
 {
   "tier_world": {
-    "2xscope": { "count": 1, "weight": 0.5 },
-    "backpack01": { "count": 1, "weight": 0.5 }
+    "2xscope": { "count": 1, "weight": 0.15 },
+    "4xscope": { "count": 1, "weight": 0.04 },
+    "8xscope": { "count": 1, "weight": 0.009 },
+    "15xscope": { "count": 1, "weight": 0.001 },
+    "helmet01": { "count": 1, "weight": 0.21 },
+    "chest01": { "count": 1, "weight": 0.29 },
+    "backpack01": { "count": 1, "weight": 0.30 }
   }
 }

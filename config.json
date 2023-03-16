@@ -7,7 +7,7 @@
 
   "tickDelta": 15,
   "movementSpeed": 0.013,
-  "debugFeatures": {
+  "debug": {
     "performanceLog": true,
     "performanceLogInterval": 200,
     "minimalMapGeneration": false,

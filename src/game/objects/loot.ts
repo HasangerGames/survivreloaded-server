@@ -1,4 +1,4 @@
-import { ObjectKind, removeFrom, type SurvivBitStream } from "../../utils";
+import { Constants, ObjectKind, removeFrom, type SurvivBitStream } from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Player } from "./player";
@@ -34,6 +34,16 @@ export class Loot extends GameObject {
         this.game!.world.destroyBody(this.body!);
         this.interactable = false;
         p.sendPacket(new PickupPacket(p, this.typeString!, this.count, PickupMsgType.Success));
+
+        if(this.typeString?.endsWith("scope")) { // TODO Check if mobile or desktop
+            p.zoom = Constants.scopeZoomRadius.desktop[this.typeString];
+        } else if(this.typeString?.startsWith("backpack")) {
+            p.packLevel = parseInt(this.typeString.charAt(10)); // Last digit of the ID is always the item level
+        } else if(this.typeString?.startsWith("chest")) {
+            p.chestLevel = parseInt(this.typeString.charAt(7));
+        } else if(this.typeString?.startsWith("helmet")) {
+            p.helmetLevel = parseInt(this.typeString.charAt(8));
+        }
     }
 
     serializePartial(stream: SurvivBitStream): void {

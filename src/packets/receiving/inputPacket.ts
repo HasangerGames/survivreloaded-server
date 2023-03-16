@@ -1,6 +1,5 @@
 import { ReceivingPacket } from "../receivingPacket";
 import { distanceBetween, InputType, type SurvivBitStream } from "../../utils";
-import { type GameObject } from "../../game/gameObject";
 
 export class InputPacket extends ReceivingPacket {
 
@@ -24,7 +23,6 @@ export class InputPacket extends ReceivingPacket {
         if(this.p.direction !== direction) {
             this.p.direction = direction;
             this.p.moving = true;
-            // this.p.skipObjectCalculations = false;
         }
         stream.readFloat(0, 64, 8); // Distance to mouse
 

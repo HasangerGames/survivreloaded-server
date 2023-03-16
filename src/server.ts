@@ -4,12 +4,12 @@ import LiveDirectory from "live-directory";
 import fs from "fs";
 
 import {
+    Config,
     getContentType,
     log,
     MsgType,
     readJson,
     readPostedJson,
-    Config,
     streamToBuffer,
     SurvivBitStream
 } from "./utils";

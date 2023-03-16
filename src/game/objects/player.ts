@@ -1,12 +1,12 @@
 import { type WebSocket } from "uWebSockets.js";
 
 import {
+    Constants,
     type Emote,
     type Explosion,
     ObjectKind,
     removeFrom,
-    type SurvivBitStream,
-    SurvivBitStream as BitStream,
+    SurvivBitStream,
     TypeToId
 } from "../../utils";
 import { DeadBody } from "./deadBody";
@@ -38,7 +38,6 @@ export class Player extends GameObject {
     deletedObjects: GameObject[] = [];
 
     moving = false;
-    turning = false;
     movingUp = false;
     movingDown = false;
     movingLeft = false;
@@ -55,18 +54,29 @@ export class Player extends GameObject {
     meleeCooldown = 0;
 
     private _health = 100;
+
+    /**
+     * The player's adrenaline. Ranges from 0-100.
+     */
     boost = 0;
+
     kills = 0;
+
+    /**
+     * Whether the player is downed (knocked out)
+     */
     downed = false;
+
+    /**
+     * Whether the player has left the game.
+     */
+    quit = false;
 
     damageable = true;
 
-    deletedPlayerIdsDirty = false;
     playerStatusDirty = true;
     groupStatusDirty = false;
     bulletsDirty = false;
-    explosionsDirty = false;
-    emotesDirty = false;
     planesDirty = false;
     airstrikeZonesDirty = false;
     mapIndicatorsDirty = false;
@@ -78,18 +88,14 @@ export class Player extends GameObject {
     boostDirty = true;
     zoomDirty = true;
     weaponsDirty = true;
-    skipObjectCalculations = false;
     getAllPlayerInfos = true;
 
     movesSinceLastUpdate = 0;
 
-    emotes: Emote[];
-    explosions: Explosion[];
+    emotes: Emote[] = [];
+    explosions: Explosion[] = [];
 
     body: Body;
-    meleeBody: Body;
-
-    deadBody: DeadBody;
 
     loadout: {
         outfit: number
@@ -101,18 +107,25 @@ export class Player extends GameObject {
         deathEffect: number
     };
 
-    quit = false;
+    packLevel = 0;
+    chestLevel = 0;
+    helmetLevel = 0;
+    inventory;
 
     constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, username: string, loadout) {
         super(id, "", position, 0);
         this.kind = ObjectKind.Player;
 
+        // Misc
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
+        this.groupId = this.game.players.length - 1;
+        this.name = username;
         this.oldPosition = position;
-        this.zoom = 28; // 1x scope
+        this.zoom = Constants.scopeZoomRadius["1xscope"];
 
+        // Set loadout
         if(loadout?.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes && loadout.deathEffect) {
             this.loadout = {
                 outfit: TypeToId[loadout.outfit],
@@ -135,13 +148,57 @@ export class Player extends GameObject {
                 emotes: [195, 193, 196, 194, 0, 0]
             };
         }
+        this.inventory = {
+            "9mm": 0,
+            "762mm": 0,
+            "556mm": 0,
+            "12gauge": 0,
+            "50AE": 0,
+            "308sub": 0,
+            flare: 0,
+            "40mm": 0,
+            "45acp": 0,
+            mine: 0,
+            frag: 0,
+            heart_frag: 0,
+            smoke: 0,
+            strobe: 0,
+            mirv: 0,
+            snowball: 0,
+            water_balloon: 0,
+            skitternade: 0,
+            antiFire: 0,
+            potato: 0,
+            bandage: 0,
+            healthkit: 0,
+            soda: 0,
+            chocolateBox: 0,
+            bottle: 0,
+            gunchilada: 0,
+            watermelon: 0,
+            nitroLace: 0,
+            flask: 0,
+            pulseBox: 0,
+            painkiller: 0,
+            "1xscope": 0,
+            "2xscope": 0,
+            "4xscope": 0,
+            "8xscope": 0,
+            "15xscope": 0,
+            rainbow_ammo: 0,
 
-        // Misc
-        this.groupId = this.game.players.length - 1;
-        this.name = username;
+            gun1: "",
+            gun2: "",
+            melee: loadout.melee,
+            activeThrowable: ""
+        };
 
         // Init body
-        this.body = game.world.createBody({ type: "dynamic", position, fixedRotation: true });
+        this.body = game.world.createBody({
+            type: "dynamic",
+            position,
+            fixedRotation: true
+        });
         this.body.createFixture({
             shape: Circle(1),
             friction: 0.0,
@@ -188,10 +245,10 @@ export class Player extends GameObject {
                 this.game!.kills.push(new KillPacket(this, source));
             }
             this.fullDirtyObjects.push(this);
-            this.deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
-            this.game!.objects.push(this.deadBody);
+            const deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
+            this.game!.objects.push(deadBody);
             this.game!.fullDirtyObjects.push(this);
-            this.game!.fullDirtyObjects.push(this.deadBody);
+            this.game!.fullDirtyObjects.push(deadBody);
             this.game!.deletedPlayers.push(this);
             removeFrom(this.game!.activePlayers, this);
         }
@@ -208,12 +265,12 @@ export class Player extends GameObject {
     }
 
     sendPacket(packet: SendingPacket): void {
-        const stream: BitStream = BitStream.alloc(packet.allocBytes);
+        const stream = SurvivBitStream.alloc(packet.allocBytes);
         packet.writeData(stream);
         this.sendData(stream);
     }
 
-    sendData(stream: BitStream): void {
+    sendData(stream: SurvivBitStream): void {
         this.socket.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)), true, true);
     }
 
@@ -224,9 +281,9 @@ export class Player extends GameObject {
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
-        stream.writeGameType(451); // Backpack
-        stream.writeGameType(0); // Helmet
-        stream.writeGameType(0); // Vest
+        stream.writeGameType(451 + this.packLevel); // Backpack
+        stream.writeGameType(this.helmetLevel === 0 ? 0 : 454 + this.helmetLevel); // Helmet
+        stream.writeGameType(this.chestLevel === 0 ? 0 : 458 + this.chestLevel); // Vest
         stream.writeGameType(this.loadout.melee); // Active weapon (not necessarily melee)
 
         stream.writeBits(this.layer, 2);

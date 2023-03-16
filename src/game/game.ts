@@ -1,14 +1,18 @@
 import crypto from "crypto";
 import {
-    circleCollision, CollisionRecord, CollisionType,
+    type CollisionRecord,
+    CollisionType,
     Config,
-    DebugFeatures, distanceToCircle, distanceToRect,
+    Debug,
+    distanceToCircle,
+    distanceToRect,
     type Emote,
     type Explosion,
     log,
-    randomVec, rectCollision,
-    removeFrom,
-    SurvivBitStream as BitStream, unitVecToRadians, vec2Rotate, Weapons
+    randomVec,
+    removeFrom, SurvivBitStream,
+    unitVecToRadians,
+    vec2Rotate, Weapons
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -82,6 +86,9 @@ export class Game {
      */
     active = true;
 
+    /**
+     * Creates a new Game. Doesn't take any arguments.
+     */
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
 
@@ -154,13 +161,11 @@ export class Game {
                         // If the player is punching anything, damage the closest object
                         let minDist = Number.MAX_VALUE;
                         let closestObject;
-                        const weapon = Weapons[p.loadout.meleeType];
+                        const weapon = Weapons[p.inventory.melee];
                         const radius: number = weapon.attack.rad;
                         const angle: number = unitVecToRadians(p.direction);
                         const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2(1, 0).mul(p.scale - 1));
                         const position: Vec2 = p.position.clone().add(vec2Rotate(offset, angle));
-                        //p.meleeBody.setAwake(true);
-                        //p.meleeBody.setPosition(position);
                         for(const object of p.visibleObjects) {
                             if(object.body && !object.dead && object !== p && object.damageable) {
                                 let record: CollisionRecord;
@@ -186,33 +191,6 @@ export class Game {
                     }
                 }
 
-                // Calculate visible objects
-                if(p.movesSinceLastUpdate > 8 || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
-                    p.movesSinceLastUpdate = 0;
-                    const newVisibleObjects: GameObject[] = [];
-                    for(const object of this.objects) {
-                        if(p === object) continue;
-                        const minX = p.position.x - p.xCullDist,
-                              maxX = p.position.x + p.xCullDist,
-                              minY = p.position.y - p.yCullDist,
-                              maxY = p.position.y + p.yCullDist;
-                        if(object.position.x > minX &&
-                           object.position.x < maxX &&
-                           object.position.y > minY &&
-                           object.position.y < maxY) {
-                            newVisibleObjects.push(object);
-                            if(!p.visibleObjects.includes(object)) {
-                                p.fullDirtyObjects.push(object);
-                            }
-                        } else {
-                            if(p.visibleObjects.includes(object)) {
-                                p.deletedObjects.push(object);
-                            }
-                        }
-                    }
-                    p.visibleObjects = newVisibleObjects;
-                }
-
                 if(p.animActive) {
                     p.animTime++;
                     if(p.animTime > 16) {
@@ -233,15 +211,38 @@ export class Game {
             // Second loop: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
 
-                if(this.emotes.length) {
-                    p.emotesDirty = true;
-                    p.emotes = this.emotes;
+                // Calculate visible objects
+                if(p.movesSinceLastUpdate > 8 || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
+                    p.movesSinceLastUpdate = 0;
+                    const newVisibleObjects: GameObject[] = [];
+                    for(const object of this.objects) {
+                        if(p === object) continue;
+                        const minX = p.position.x - p.xCullDist,
+                            maxX = p.position.x + p.xCullDist,
+                            minY = p.position.y - p.yCullDist,
+                            maxY = p.position.y + p.yCullDist;
+                        if(object.position.x > minX &&
+                            object.position.x < maxX &&
+                            object.position.y > minY &&
+                            object.position.y < maxY) {
+                            newVisibleObjects.push(object);
+                            if(!p.visibleObjects.includes(object)) {
+                                p.fullDirtyObjects.push(object);
+                            }
+                        } else {
+                            if(p.visibleObjects.includes(object)) {
+                                p.deletedObjects.push(object);
+                            }
+                        }
+                    }
+                    p.visibleObjects = newVisibleObjects;
                 }
 
-                if(this.explosions.length) {
-                    p.explosionsDirty = true;
-                    p.explosions = this.explosions;
-                }
+                // TODO Determine which emotes should be displayed to the player
+                if(this.emotes.length) p.emotes = this.emotes;
+
+                // TODO Determine which explosions should be displayed to the player
+                if(this.explosions.length) p.explosions = this.explosions;
 
                 if(this.fullDirtyObjects.length) {
                     for(const object of this.fullDirtyObjects) {
@@ -257,8 +258,7 @@ export class Game {
 
                 if(this.deletedObjects.length) {
                     for(const object of this.deletedObjects) {
-                        //if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
-                        p.deletedObjects.push(object);
+                        if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
                     }
                 }
 
@@ -281,9 +281,9 @@ export class Game {
             this.aliveCountDirty = false;
 
             const tickTime: number = performance.now() - tickStart;
-            if(DebugFeatures.performanceLog) {
+            if(Debug.performanceLog) {
                 this.tickTimes.push(tickTime);
-                if(this.tickTimes.length === DebugFeatures.performanceLogInterval) {
+                if(this.tickTimes.length === Debug.performanceLogInterval) {
                     let tickSum = 0;
                     for(const time of this.tickTimes) tickSum += time;
                     log(`Average ms/tick: ${tickSum / this.tickTimes.length}`);
@@ -297,7 +297,7 @@ export class Game {
 
     addPlayer(socket, username, loadout): Player {
         let spawnPosition;
-        if(DebugFeatures.fixedSpawnLocation.length) spawnPosition = Vec2(DebugFeatures.fixedSpawnLocation[0], DebugFeatures.fixedSpawnLocation[1]);
+        if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
         else spawnPosition = randomVec(75, this.map.width - 75, 75, this.map.height - 75);
 
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, username, loadout);
@@ -312,7 +312,7 @@ export class Game {
         this.playerInfosDirty = true;
 
         p.sendPacket(new JoinedPacket(p));
-        const stream = BitStream.alloc(32768);
+        const stream = SurvivBitStream.alloc(32768);
         new MapPacket(p).writeData(stream);
         p.fullDirtyObjects.push(p);
         new UpdatePacket(p).writeData(stream);
