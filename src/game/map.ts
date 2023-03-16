@@ -78,10 +78,15 @@ export class Map {
             }
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
-            // this.genStructure("club_structure_01", Objects["club_structure_01"]);
-            // this.genBuildingTest("house_red_01", 1, false);
-            this.obstacleTest("crate_01", Vec2(455, 155), 1);
-            //this.obstacleTest("stone_01", Vec2(458.2, 155), 1);
+            //this.genStructure("club_structure_01", Objects["club_structure_01"]);
+            //this.genBuildingTest("house_red_01", 1, false);
+            //this.obstacleTest("crate_01", Vec2(455, 155), 1);
+            //this.obstacleTest("crate_01", Vec2(465, 155), 0.8);
+            for(let x = 0; x <= 45; x++) {
+                for(let y = 0; y <= 45; y++) {
+                    this.obstacleTest("tree_01", Vec2(x * 16, y * 16), 1.6);
+                }
+            }
         }
 
         this.groundPatches = [];

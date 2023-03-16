@@ -1,13 +1,14 @@
 import crypto from "crypto";
 import {
+    circleCollision, CollisionRecord, CollisionType,
     Config,
-    DebugFeatures,
+    DebugFeatures, distanceToCircle, distanceToRect,
     type Emote,
     type Explosion,
     log,
-    randomVec,
+    randomVec, rectCollision,
     removeFrom,
-    SurvivBitStream as BitStream
+    SurvivBitStream as BitStream, unitVecToRadians, vec2Rotate, Weapons
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -18,6 +19,7 @@ import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
 import { Settings, Vec2, World } from "planck";
+import { Obstacle } from "./objects/obstacle";
 
 export class Game {
 
@@ -93,7 +95,7 @@ export class Game {
         this.world = new World({
             gravity: Vec2(0, 0)
         });
-        Settings.linearSlop = 0.1;
+        Settings.maxLinearCorrection = 0; // This prevents collision jitter
 
         this.map = new Map(this, "main");
 
@@ -115,7 +117,10 @@ export class Game {
             // First loop: Calculate movement & animations.
             for(const p of this.activePlayers) {
 
-                // TODO: Only check objects when player moves 1 unit. No reason to check every 0.2 units.
+                if(p.oldPosition.x !== p.position.x || p.oldPosition.y !== p.position.y) {
+                    p.movesSinceLastUpdate++;
+                }
+                p.oldPosition = p.position.clone();
 
                 // Movement
                 p.moving = false;
@@ -142,23 +147,34 @@ export class Game {
                             p.animType = 1;
                             p.animSeq = 1;
                             p.animTime = 0;
+                            this.fullDirtyObjects.push(p);
+                            p.fullDirtyObjects.push(p);
                         }
 
                         // If the player is punching anything, damage the closest object
-                        /* let maxDepth = -1;
+                        let minDist = Number.MAX_VALUE;
                         let closestObject;
                         const weapon = Weapons[p.loadout.meleeType];
+                        const radius: number = weapon.attack.rad;
                         const angle: number = unitVecToRadians(p.direction);
-                        const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2.mult(Vec2(1, 0), p.scale - 1));
-                        const position: Vec2 = Vec2.add(p.position, Vec2.rotate(offset, angle));
-                        const body: Body = Bodies.circle(position.x, position.y, 0.9);
+                        const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2(1, 0).mul(p.scale - 1));
+                        const position: Vec2 = p.position.clone().add(vec2Rotate(offset, angle));
+                        //p.meleeBody.setAwake(true);
+                        //p.meleeBody.setPosition(position);
                         for(const object of p.visibleObjects) {
-                            if(!object.body || object.dead || object === p) continue;
-                            if(object.damageable) {
-                                // @ts-expect-error The 3rd argument for Collision.collides is optional
-                                const collision = Collision.collides(body, object.body);
-                                if(collision && collision.depth > maxDepth) {
-                                    maxDepth = collision.depth;
+                            if(object.body && !object.dead && object !== p && object.damageable) {
+                                let record: CollisionRecord;
+                                if(object instanceof Obstacle) {
+                                    if(object.collision.type === CollisionType.Circle) {
+                                        record = distanceToCircle(object.position, object.collision.rad, position, radius);
+                                    } else if(object.collision.type === CollisionType.Rectangle) {
+                                        record = distanceToRect(object.collision.min, object.collision.max, position, radius);
+                                    }
+                                } else if(object instanceof Player) {
+                                    record = distanceToCircle(object.position, object.scale, position, radius);
+                                }
+                                if(record!.collided && record!.distance < minDist) {
+                                    minDist = record!.distance;
                                     closestObject = object;
                                 }
                             }
@@ -166,17 +182,47 @@ export class Game {
                         if(closestObject) {
                             closestObject.damage(24, p);
                             if(closestObject.interactable) closestObject.interact(p);
-                        } */
+                        }
                     }
                 }
 
+                // Calculate visible objects
+                if(p.movesSinceLastUpdate > 8 || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
+                    p.movesSinceLastUpdate = 0;
+                    const newVisibleObjects: GameObject[] = [];
+                    for(const object of this.objects) {
+                        if(p === object) continue;
+                        const minX = p.position.x - p.xCullDist,
+                              maxX = p.position.x + p.xCullDist,
+                              minY = p.position.y - p.yCullDist,
+                              maxY = p.position.y + p.yCullDist;
+                        if(object.position.x > minX &&
+                           object.position.x < maxX &&
+                           object.position.y > minY &&
+                           object.position.y < maxY) {
+                            newVisibleObjects.push(object);
+                            if(!p.visibleObjects.includes(object)) {
+                                p.fullDirtyObjects.push(object);
+                            }
+                        } else {
+                            if(p.visibleObjects.includes(object)) {
+                                p.deletedObjects.push(object);
+                            }
+                        }
+                    }
+                    p.visibleObjects = newVisibleObjects;
+                }
+
                 if(p.animActive) {
-                    this.fullDirtyObjects.push(p);
-                    p.fullDirtyObjects.push(p);
                     p.animTime++;
-                    if(p.animTime > 8) {
+                    if(p.animTime > 16) {
                         p.animActive = false;
+                        this.fullDirtyObjects.push(p);
+                        p.fullDirtyObjects.push(p);
                         p.animType = p.animSeq = p.animTime = 0;
+                    } else if(p.moving) {
+                        this.partialDirtyObjects.push(p);
+                        p.partialDirtyObjects.push(p);
                     }
                 } else if(p.moving) {
                     this.partialDirtyObjects.push(p);
@@ -186,33 +232,6 @@ export class Game {
 
             // Second loop: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
-
-                // Calculate visible objects
-                if(p.moving || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
-                    const minX = p.position.x - p.xCullingDistance,
-                          maxX = p.position.x + p.xCullingDistance,
-                          minY = p.position.y - p.yCullingDistance,
-                          maxY = p.position.y + p.yCullingDistance;
-                    for(const object of this.objects) {
-                        if(p === object) continue;
-                        if(object.position.x > minX &&
-                            object.position.x < maxX &&
-                            object.position.y > minY &&
-                            object.position.y < maxY) {
-                            if(!p.visibleObjects.includes(object)) {
-                                p.visibleObjects.push(object);
-                                p.fullDirtyObjects.push(object);
-                            }
-                        } else {
-                            const index: number = p.visibleObjects.indexOf(object);
-                            if(index !== -1) {
-                                p.visibleObjects = p.visibleObjects.slice(0, index).concat(p.visibleObjects.slice(index + 1));
-                                p.deletedObjectsDirty = true;
-                                p.deletedObjects.push(object);
-                            }
-                        }
-                    }
-                }
 
                 if(this.emotes.length) {
                     p.emotesDirty = true;
@@ -238,7 +257,8 @@ export class Game {
 
                 if(this.deletedObjects.length) {
                     for(const object of this.deletedObjects) {
-                        if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
+                        //if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
+                        p.deletedObjects.push(object);
                     }
                 }
 
@@ -255,6 +275,7 @@ export class Game {
             this.kills = [];
             this.fullDirtyObjects = [];
             this.partialDirtyObjects = [];
+            this.deletedObjects = [];
             this.dirtyPlayers = [];
             this.deletedPlayers = [];
             this.aliveCountDirty = false;

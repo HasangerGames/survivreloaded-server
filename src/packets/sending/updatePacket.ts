@@ -12,7 +12,7 @@ export class UpdatePacket extends SendingPacket {
     writeData(stream: SurvivBitStream): void {
 
         let valuesChanged = 0;
-        if(this.p.deletedObjectsDirty) valuesChanged += 1;
+        if(this.p.deletedObjects.length) valuesChanged += 1;
         if(this.p.fullDirtyObjects.length) valuesChanged += 2;
         if(this.p.activePlayerIdDirty) valuesChanged += 4;
         if(this.p.gasDirty) valuesChanged += 8;
@@ -33,10 +33,11 @@ export class UpdatePacket extends SendingPacket {
         stream.writeUint16(valuesChanged);
 
         // Deleted objects
-        if(this.p.deletedObjectsDirty) {
+        if(this.p.deletedObjects.length) {
             stream.writeUint16(this.p.deletedObjects.length);
-            for(const deletedObject of this.p.deletedObjects) stream.writeUint16(deletedObject.id);
-            this.p.deletedObjectsDirty = false;
+            for(const deletedObject of this.p.deletedObjects) {
+                stream.writeUint16(deletedObject.id);
+            }
             this.p.deletedObjects = [];
         }
 

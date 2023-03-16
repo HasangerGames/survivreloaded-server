@@ -1,6 +1,6 @@
 import { BitStream } from "bit-buffer";
 import fs from "fs";
-import { AABB, Body, Box, Circle, Vec2, World } from "planck";
+import { type Body, Box, Circle, Vec2, type World } from "planck";
 
 export const Objects = readJson("data/objects.json");
 export const Maps = readJson("data/maps.json");
@@ -12,7 +12,7 @@ export const TypeToId = readJson("data/ids.json");
 export const Config = readJson("config.json");
 export const DebugFeatures = Config.debugFeatures || {};
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
-export interface IntersectResult { point: Vec2, normal: Vec2 }
+
 export class Item {
     type: string;
     count: number;
@@ -327,8 +327,7 @@ export enum CollisionCategory {
 }
 
 export function removeFrom(array: any[], object: any): void {
-    const index: number = array.indexOf(object);
-    if(index !== -1) array.splice(index, 1);
+    array.splice(array.indexOf(object), 1);
 }
 export function log(message: string): void {
     const date: Date = new Date();
@@ -369,7 +368,26 @@ export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number):
 export function rectCollision(min: Vec2, max: Vec2, circlePos: Vec2, circleRad: number): boolean {
     const distX = Math.max(min.x, Math.min(max.x, circlePos.x)) - circlePos.x;
     const distY = Math.max(min.y, Math.min(max.y, circlePos.y)) - circlePos.y;
-    return distX * distX + distY * distY < circleRad * circleRad;
+    return distX * distX + distY * distY > circleRad * circleRad;
+}
+
+export interface CollisionRecord { collided: boolean, distance: number }
+
+export function distanceToCircle(pos1: Vec2, r1: number, pos2: Vec2, r2: number): CollisionRecord {
+    const a = r1 + r2;
+    const x = pos1.x - pos2.x;
+    const y = pos1.y - pos2.y;
+    const a2 = a * a;
+    const xy = (x * x + y * y);
+    return { collided: a2 > xy, distance: a2 - xy };
+}
+
+export function distanceToRect(min: Vec2, max: Vec2, circlePos: Vec2, circleRad: number): CollisionRecord {
+    const distX = Math.max(min.x, Math.min(max.x, circlePos.x)) - circlePos.x;
+    const distY = Math.max(min.y, Math.min(max.y, circlePos.y)) - circlePos.y;
+    const radSquared = circleRad * circleRad;
+    const distSquared = (distX * distX + distY * distY);
+    return { collided: distSquared < radSquared, distance: radSquared - distSquared };
 }
 
 export function addOrientations(n1: number, n2: number): number {
@@ -433,19 +451,24 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
         body = world.createBody({ type: "static", position, fixedRotation: true });
-        body.createFixture({ shape: Circle((data.rad * scale) + 0.1) });
+        body.createFixture({ shape: Circle(data.rad * scale) });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
         const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
         if(width === 0 || height === 0) return null;
         body = world.createBody({ type: "static", position, fixedRotation: true });
-        body.createFixture({ shape: Box(width / 2, height / 2) });
+        body.createFixture({ shape: Box((width / 2), (height / 2)) });
     }
     return body;
 }
 
 export function unitVecToRadians(v: Vec2): number {
     return Math.atan2(v.y, v.x);
+}
+
+export function vec2Rotate(v: Vec2, angle: number): Vec2 {
+    const cos = Math.cos(angle), sin = Math.sin(angle);
+    return Vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
 }
 
 export function readJson(path: string): any {

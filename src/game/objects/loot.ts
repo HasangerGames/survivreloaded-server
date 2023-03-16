@@ -9,7 +9,7 @@ export class Loot extends GameObject {
 
     count: number;
     interactable = true;
-    interactionRad = 0.75;
+    interactionRad = 1;
 
     constructor(id: number,
                 typeString: string,

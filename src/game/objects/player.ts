@@ -25,11 +25,12 @@ export class Player extends GameObject {
     teamId = 1; // For 50v50?
     groupId: number;
 
+    oldPosition: Vec2;
     direction: Vec2 = Vec2(1, 0);
     scale = 1;
-    private _zoom = 28; // 1x scope
-    xCullingDistance = this._zoom + 20;
-    yCullingDistance = this._zoom + 15;
+    private _zoom: number;
+    xCullDist: number;
+    yCullDist: number;
 
     visibleObjects: GameObject[] = [];
     partialDirtyObjects: GameObject[] = [];
@@ -71,7 +72,6 @@ export class Player extends GameObject {
     mapIndicatorsDirty = false;
     killLeaderDirty = true;
     activePlayerIdDirty = true;
-    deletedObjectsDirty = false;
     gasDirty = true;
     gasCircleDirty = true;
     healthDirty = true;
@@ -81,10 +81,14 @@ export class Player extends GameObject {
     skipObjectCalculations = false;
     getAllPlayerInfos = true;
 
+    movesSinceLastUpdate = 0;
+
     emotes: Emote[];
     explosions: Explosion[];
 
     body: Body;
+    meleeBody: Body;
+
     deadBody: DeadBody;
 
     loadout: {
@@ -106,6 +110,8 @@ export class Player extends GameObject {
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
+        this.oldPosition = position;
+        this.zoom = 28; // 1x scope
 
         if(loadout?.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes && loadout.deathEffect) {
             this.loadout = {
@@ -138,9 +144,9 @@ export class Player extends GameObject {
         this.body = game.world.createBody({ type: "dynamic", position, fixedRotation: true });
         this.body.createFixture({
             shape: Circle(1),
-            friction: 0,
-            density: 0,
-            restitution: 0
+            friction: 0.0,
+            density: 1.0,
+            restitution: 0.0
         });
     }
 
@@ -159,8 +165,8 @@ export class Player extends GameObject {
 
     set zoom(zoom: number) {
         this._zoom = zoom;
-        this.xCullingDistance = this._zoom + 20;
-        this.yCullingDistance = this._zoom + 15;
+        this.xCullDist = this._zoom * 1.5;
+        this.yCullDist = this._zoom;
     }
 
     get health(): number {

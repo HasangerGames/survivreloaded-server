@@ -1,9 +1,19 @@
-import { bodyFromCollisionData, Item, LootTables, ObjectKind, type SurvivBitStream, weightedRandom } from "../../utils";
+import {
+    bodyFromCollisionData,
+    CollisionType,
+    Item,
+    LootTables,
+    ObjectKind,
+    type SurvivBitStream,
+    weightedRandom
+} from "../../utils";
 import { type Game } from "../game";
 import { type Player } from "./player";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
 import { Vec2 } from "planck";
+
+enum DoorOpenState { Closed, Open, OpenAlt }
 
 export class Obstacle extends GameObject {
 
@@ -68,13 +78,16 @@ export class Obstacle extends GameObject {
         this.collidable = data.collidable;
         this.reflectBullets = data.reflectBullets;
         this.destructible = this.damageable = data.destructible;
-        this.body = bodyFromCollisionData(this.game!.world, data.collision, position, orientation, scale);
-        if(this.body != null) {
-            //if(!this.collidable) this.body.isSensor = true;
+        if(this.collidable) {
+            this.body = bodyFromCollisionData(this.game!.world, data.collision, position, orientation, scale);
         }
 
         // TODO Testing code, delete me
-        this.collision = data.collision;
+        this.collision = JSON.parse(JSON.stringify(data.collision)); // JSON.parse(JSON.stringify(x)) to deep copy object
+        if(this.collision.type === CollisionType.Rectangle) {
+            this.collision.min = this.position.clone().add(Vec2.mul(this.collision.min, this.scale));
+            this.collision.max = this.position.clone().add(Vec2.mul(this.collision.max, this.scale));
+        }
 
         this.isDoor = data.door !== undefined;
         if(this.isDoor) {
@@ -85,7 +98,6 @@ export class Obstacle extends GameObject {
             };
             this.interactable = true;
             this.interactionRad = data.door.interactionRad;
-            // this.body!.isSensor = true; // TODO THIS DISABLES DOOR COLLISIONS; remove once door collisions are implemented
         }
 
         this.isButton = data.button !== undefined;
@@ -140,6 +152,14 @@ export class Obstacle extends GameObject {
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
+            const shape: any = this.body!.getFixtureList()!.getShape();
+            if(this.collision.type === CollisionType.Circle) {
+                shape.m_radius = shape.m_radius * scaleFactor;
+            } else if(this.collision.type === CollisionType.Rectangle) {
+                for(let i = 0; i < shape.m_vertices.length; i++) {
+                    shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
+                }
+            }
             //Body.scale(this.body!, scaleFactor, scaleFactor);
             this.game!.partialDirtyObjects.push(this);
         }

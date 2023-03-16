@@ -11,7 +11,7 @@ export class PickupPacket extends SendingPacket {
     constructor(p: Player, type: string, count: number, message: PickupMsgType) {
         super(p);
         this.msgType = MsgType.Pickup;
-        this.allocBytes = 4;
+        this.allocBytes = 5;
 
         this.type = type;
         this.count = count;

@@ -25,6 +25,7 @@
         "no-unused-vars": 0,
         "one-var": 0,
         "padded-blocks": 0,
+        "spaced-comment": 0,
         "@typescript-eslint/no-use-before-define": 2,
         "@typescript-eslint/no-unnecessary-type-assertion": 0,
         "@typescript-eslint/no-unused-vars": 2,
