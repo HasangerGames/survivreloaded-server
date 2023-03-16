@@ -1,7 +1,6 @@
 import {
     bodyFromCollisionData,
-    CollisionType,
-    Item,
+    CollisionType, Item,
     LootTables,
     ObjectKind,
     type SurvivBitStream,
@@ -49,7 +48,7 @@ export class Obstacle extends GameObject {
 
     loot: Item[] = [];
 
-    collision; // TODO Testing code, delete me
+    collision;
 
     constructor(id: number,
                 typeString: string,
@@ -82,7 +81,6 @@ export class Obstacle extends GameObject {
             this.body = bodyFromCollisionData(this.game!.world, data.collision, position, orientation, scale);
         }
 
-        // TODO Testing code, delete me
         this.collision = JSON.parse(JSON.stringify(data.collision)); // JSON.parse(JSON.stringify(x)) to deep copy object
         if(this.collision.type === CollisionType.Rectangle) {
             this.collision.min = this.position.clone().add(Vec2.mul(this.collision.min, this.scale));

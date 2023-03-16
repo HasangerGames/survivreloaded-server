@@ -1,6 +1,6 @@
 import { type Game } from "./game";
 import { type ObjectKind, type SurvivBitStream, TypeToId } from "../utils";
-import { type Vec2, type Body } from "planck";
+import { type Body, type Vec2 } from "planck";
 
 export abstract class GameObject {
     kind: ObjectKind;

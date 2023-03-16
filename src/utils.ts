@@ -10,8 +10,8 @@ export const Bullets = readJson("data/bullets.json");
 export const LootTables = readJson("data/lootTables.json");
 export const TypeToId = readJson("data/ids.json");
 export const Config = readJson("config.json");
-export const DebugFeatures = Config.debugFeatures || {};
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
+export const Debug = Config.debug || {};
 
 export class Item {
     type: string;

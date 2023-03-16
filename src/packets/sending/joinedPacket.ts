@@ -1,5 +1,5 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, type SurvivBitStream as BitStream } from "../../utils";
+import { MsgType, type SurvivBitStream } from "../../utils";
 import { type Player } from "../../game/objects/player";
 
 export class JoinedPacket extends SendingPacket {
@@ -9,7 +9,7 @@ export class JoinedPacket extends SendingPacket {
         this.allocBytes = 512;
     }
 
-    writeData(stream: BitStream): void {
+    writeData(stream: SurvivBitStream): void {
         stream.writeUint8(MsgType.Joined);
         stream.writeUint8(1); // Team mode
         stream.writeUint16(this.p.id); // Player ID

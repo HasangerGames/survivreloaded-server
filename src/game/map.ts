@@ -3,7 +3,7 @@ import {
     addOrientations,
     bodyFromCollisionData,
     Config,
-    DebugFeatures,
+    Debug,
     distanceBetween,
     Maps,
     ObjectKind,
@@ -63,7 +63,7 @@ export class Map {
             this.places.push(new Place(place.name, Vec2(place.x, place.y)));
         }
 
-        if(!DebugFeatures.minimalMapGeneration) {
+        if(!Debug.minimalMapGeneration) {
             for(const type in mapInfo.objects) {
                 const data = Objects[type];
                 const count = mapInfo.objects[type];
