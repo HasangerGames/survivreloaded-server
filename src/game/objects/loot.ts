@@ -1,4 +1,4 @@
-import { Constants, ObjectKind, removeFrom, type SurvivBitStream, TypeToId } from "../../utils";
+import { CollisionCategory, Constants, ObjectKind, removeFrom, type SurvivBitStream, TypeToId } from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Player } from "./player";
@@ -21,7 +21,11 @@ export class Loot extends GameObject {
         this.kind = ObjectKind.Loot;
         this.count = count;
         this.body = game.world.createBody({ position });
-        this.body.createFixture(Circle(position, 1));
+        this.body.createFixture({
+            shape: Circle(position, 1),
+            filterCategoryBits: CollisionCategory.Loot,
+            filterMaskBits: CollisionCategory.Obstacle | CollisionCategory.Player
+        });
     }
 
     get position(): Vec2 {
