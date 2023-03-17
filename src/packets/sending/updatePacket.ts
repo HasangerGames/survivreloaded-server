@@ -1,5 +1,5 @@
 import { SendingPacket } from "../sendingPacket";
-import { Constants, MsgType, type SurvivBitStream, TypeToId } from "../../utils";
+import { Constants, MsgType, type SurvivBitStream } from "../../utils";
 import { type Player } from "../../game/objects/player";
 
 export class UpdatePacket extends SendingPacket {
@@ -101,7 +101,7 @@ export class UpdatePacket extends SendingPacket {
         // Inventory
         stream.writeBoolean(p.inventoryDirty);
         if(p.inventoryDirty) {
-            stream.writeGameType(TypeToId[p.activeItems.scope]);
+            stream.writeGameType(p.activeItems.scope.typeId);
             for(const value of Object.values(p.inventory)) {
                 const hasItem: boolean = (value as number) > 0;
                 stream.writeBoolean(hasItem);
