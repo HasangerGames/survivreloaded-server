@@ -323,7 +323,7 @@ export enum CollisionType {
 }
 
 export enum CollisionCategory {
-    Player = 1, Obstacle = 2, Loot = 4, Other = 8
+    Player = 2, Obstacle = 4, Loot = 8, Other = 16
 }
 
 export function removeFrom(array: any[], object: any): void {
@@ -465,8 +465,16 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
         const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
         if(width === 0 || height === 0) return null;
-        body = world.createBody({ type: "static", position, fixedRotation: true });
-        body.createFixture({ shape: Box((width / 2), (height / 2)) });
+        body = world.createBody({
+            type: "static",
+            position,
+            fixedRotation: true
+        });
+        body.createFixture({
+            shape: Box(width / 2, height / 2),
+            filterMaskBits: CollisionCategory.Obstacle,
+            filterCategoryBits: CollisionCategory.Player | CollisionCategory.Loot
+        });
     }
     return body;
 }

@@ -223,7 +223,8 @@ export class Player extends GameObject {
             density: 1.0,
             restitution: 0.0,
             filterCategoryBits: CollisionCategory.Player,
-            filterMaskBits: CollisionCategory.Obstacle
+            filterMaskBits: CollisionCategory.Obstacle,
+            filterGroupIndex: 1
         });
     }
 
