@@ -10,7 +10,10 @@
   <component name="ChangeListManager">
     <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="change the way inputs are handled; fix default ip in config">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/packets/sending/updatePacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/updatePacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/game.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/loot.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/loot.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/player.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/receiving/inputPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/receiving/inputPacket.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -9,38 +9,29 @@ export class InputPacket extends ReceivingPacket {
 
         stream.readUint8(); // Discard second byte (this.seq)
 
-        // Movement and shooting
+        // Movement
         p.movingLeft = stream.readBoolean();
         p.movingRight = stream.readBoolean();
         p.movingUp = stream.readBoolean();
         p.movingDown = stream.readBoolean();
 
+        // Shooting
         const shootStart = stream.readBoolean();
         p.shootStart = p.shootStart ? true : shootStart;
         p.shootHold = stream.readBoolean();
+
+        // Mobile stuff
         stream.readBoolean(); // Portrait
         const touchMoveActive = stream.readBoolean();
         if(touchMoveActive) {
             p.touchMoveDir = stream.readUnitVec(8);
+
+            // Detect when the player isn't moving
             if(p.touchMoveDir.x === 1 && p.touchMoveDir.y > 0 && p.touchMoveDir.y < 0.01) {
                 p.touchMoveDir = Vec2(0, 0);
-                p.setVelocity(0, 0);
-            } else {
-                p.setVelocity(p.touchMoveDir.x * Config.movementSpeed, p.touchMoveDir.y * Config.movementSpeed);
             }
+
             stream.readUint8(); // Touch move len
-        } else {
-            const s = Config.movementSpeed;
-            const ds = Config.diagonalSpeed;
-            if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
-            else if(p.movingUp && p.movingRight) p.setVelocity(ds, ds);
-            else if(p.movingDown && p.movingLeft) p.setVelocity(-ds, -ds);
-            else if(p.movingDown && p.movingRight) p.setVelocity(ds, -ds);
-            else if(p.movingUp) p.setVelocity(0, s);
-            else if(p.movingDown) p.setVelocity(0, -s);
-            else if(p.movingLeft) p.setVelocity(-s, 0);
-            else if(p.movingRight) p.setVelocity(s, 0);
-            else p.setVelocity(0, 0);
         }
 
         // Direction
@@ -49,7 +40,6 @@ export class InputPacket extends ReceivingPacket {
             p.direction = direction;
             p.moving = true;
         }
-        console.log(p.moving);
         stream.readFloat(0, 64, 8); // Distance to mouse
 
         // Other inputs

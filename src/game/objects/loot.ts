@@ -71,7 +71,9 @@ export class Loot extends GameObject {
             }
         }
 
-        p.sendPacket(new PickupPacket(this.typeString!, this.count, result!));
+        if(!(p.isMobile && result !== PickupMsgType.Success)) {
+            p.sendPacket(new PickupPacket(this.typeString!, this.count, result!));
+        }
         if(result! === PickupMsgType.Success) {
             this.game?.fullDirtyObjects.push(p);
             p.fullDirtyObjects.push(p);

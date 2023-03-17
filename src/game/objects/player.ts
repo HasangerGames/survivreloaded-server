@@ -225,11 +225,9 @@ export class Player extends GameObject {
 
     setVelocity(xVel: number, yVel: number): void {
         this.body.setLinearVelocity(Vec2(xVel, yVel));
-        if(xVel !== 0 && yVel !== 0) {
+        if(xVel !== 0 || yVel !== 0) {
             this.moving = true;
             this.movesSinceLastUpdate++;
-        } else {
-            this.moving = false;
         }
     }
 

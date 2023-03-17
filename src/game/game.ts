@@ -2,8 +2,8 @@ import crypto from "crypto";
 import {
     type CollisionRecord,
     CollisionType,
-    Config,
-    Debug,
+    Config, Constants,
+    Debug, distanceBetween,
     distanceToCircle,
     distanceToRect,
     type Emote,
@@ -28,6 +28,7 @@ import { type GameObject } from "./gameObject";
 import { Settings, Vec2, World } from "planck";
 import { Obstacle } from "./objects/obstacle";
 import { type RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
+import { Loot } from "./objects/loot";
 
 export class Game {
 
@@ -120,8 +121,33 @@ export class Game {
             // Create an alive count packet
             if(this.aliveCountDirty) this.aliveCounts = new AliveCountsPacket(this);
 
-            // First loop: Calculate animations
+            // First loop: Calculate movement & animations
             for(const p of this.activePlayers) {
+                // Movement
+                if(p.useTouch) {
+                    p.setVelocity(p.touchMoveDir.x * Config.movementSpeed, p.touchMoveDir.y * Config.movementSpeed);
+                } else {
+                    if(p.movingUp && p.movingLeft) p.setVelocity(-Config.diagonalSpeed, Config.diagonalSpeed);
+                    else if(p.movingUp && p.movingRight) p.setVelocity(Config.diagonalSpeed, Config.diagonalSpeed);
+                    else if(p.movingDown && p.movingLeft) p.setVelocity(-Config.diagonalSpeed, -Config.diagonalSpeed);
+                    else if(p.movingDown && p.movingRight) p.setVelocity(Config.diagonalSpeed, -Config.diagonalSpeed);
+                    else if(p.movingUp) p.setVelocity(0, Config.movementSpeed);
+                    else if(p.movingDown) p.setVelocity(0, -Config.movementSpeed);
+                    else if(p.movingLeft) p.setVelocity(-Config.movementSpeed, 0);
+                    else if(p.movingRight) p.setVelocity(Config.movementSpeed, 0);
+                    else p.setVelocity(0, 0);
+                }
+
+                // Pick up nearby items if on mobile
+                if(p.isMobile) {
+                    for(const object of p.visibleObjects) {
+                        if(object instanceof Loot && distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
+                            object.interact(p);
+                        }
+                    }
+                }
+
+                // Melee logic
                 if(p.shootStart) {
                     p.shootStart = false;
                     if(Date.now() - p.meleeCooldown >= 250) {
@@ -169,22 +195,21 @@ export class Game {
                         }
                     }
                 }
-                if(p.animActive) {
-                    p.animTime++;
-                    if(p.animTime > 8) {
-                        p.animActive = false;
-                        this.fullDirtyObjects.push(p);
-                        p.fullDirtyObjects.push(p);
-                        p.animType = p.animSeq = 0;
-                        p.animTime = -1;
-                    } else if(p.moving) {
-                        p.game?.partialDirtyObjects.push(p);
-                        p.partialDirtyObjects.push(p);
-                    }
+                console.log(p.moving);
+
+                // Animation logic
+                if(p.animActive) p.animTime++;
+                if(p.animTime > 8) {
+                    p.animActive = false;
+                    this.fullDirtyObjects.push(p);
+                    p.fullDirtyObjects.push(p);
+                    p.animType = p.animSeq = 0;
+                    p.animTime = -1;
                 } else if(p.moving) {
                     p.game?.partialDirtyObjects.push(p);
                     p.partialDirtyObjects.push(p);
                 }
+                p.moving = false;
             }
 
             // Second loop: calculate visible objects & send packets
