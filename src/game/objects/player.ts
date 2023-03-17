@@ -1,6 +1,7 @@
 import { type WebSocket } from "uWebSockets.js";
 
 import {
+    CollisionCategory,
     Constants,
     type Emote,
     type Explosion,
@@ -61,6 +62,7 @@ export class Player extends GameObject {
 
     downed = false; // Whether the player is downed (knocked out)
     quit = false; // Whether the player has left the game
+    deadPos: Vec2;
 
     damageable = true;
 
@@ -219,7 +221,9 @@ export class Player extends GameObject {
             shape: Circle(1),
             friction: 0.0,
             density: 1.0,
-            restitution: 0.0
+            restitution: 0.0,
+            filterCategoryBits: CollisionCategory.Player,
+            filterMaskBits: CollisionCategory.Obstacle
         });
     }
 
@@ -232,7 +236,7 @@ export class Player extends GameObject {
     }
 
     get position(): Vec2 {
-        return this.body.getPosition();
+        return this.dead ? this.deadPos : this.body.getPosition();
     }
 
     get zoom(): number {
@@ -255,8 +259,6 @@ export class Player extends GameObject {
         if(this._health < 0) this._health = 0;
         if(this._health === 0) {
             this.dead = true;
-            this.movingLeft = this.movingRight = this.movingUp = this.movingDown = this.shootStart = this.shootHold = false;
-            this.setVelocity(0, 0);
             if(this.role === TypeToId.kill_leader) {
                 this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
                 if(this.game!.killLeader === this) {
@@ -282,10 +284,13 @@ export class Player extends GameObject {
                     }
                 }
             }
+            this.deadPos = this.body.getPosition();
+            this.game!.world.destroyBody(this.body);
             this.fullDirtyObjects.push(this);
-            const deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
-            this.game!.objects.push(deadBody);
             this.game!.fullDirtyObjects.push(this);
+            const deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
+            setInterval(() => console.log(this.position), 1000);
+            this.game!.objects.push(deadBody);
             this.game!.fullDirtyObjects.push(deadBody);
             //this.game!.deletedPlayers.push(this);
             removeFrom(this.game!.activePlayers, this);
