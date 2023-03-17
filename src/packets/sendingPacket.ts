@@ -5,13 +5,13 @@ export abstract class SendingPacket {
     allocBytes = 0;
     msgType: MsgType;
 
-    p: Player;
+    p?: Player;
 
-    protected constructor(p: Player) {
+    protected constructor(p?: Player) {
         this.p = p;
     }
 
-    writeData(stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         stream.writeUint8(this.msgType);
     }
 

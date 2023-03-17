@@ -10,9 +10,12 @@ import {
     type Explosion,
     log,
     randomVec,
-    removeFrom, SurvivBitStream, TypeToId,
+    removeFrom,
+    SurvivBitStream,
+    TypeToId,
     unitVecToRadians,
-    vec2Rotate, Weapons
+    vec2Rotate,
+    Weapons
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -60,6 +63,7 @@ export class Game {
 
     emotes: Emote[] = []; // All emotes sent this tick
     explosions: Explosion[] = []; // All explosions created this tick
+    aliveCounts: AliveCountsPacket;
     kills: KillPacket[] = []; // All kills this tick
     roleAnnouncements: RoleAnnouncementPacket[] = []; // All role announcements this tick
 
@@ -105,7 +109,7 @@ export class Game {
 
     tick(delay: number): void {
         setTimeout(() => {
-            const tickStart = performance.now();
+            const tickStart = Date.now();
 
             // Stop the tick loop if the game is no longer active
             if(!this.active) return;
@@ -113,28 +117,11 @@ export class Game {
             // Update physics
             this.world.step(Config.tickDelta);
 
-            // First loop: Calculate movement & animations.
+            // Create an alive count packet
+            if(this.aliveCountDirty) this.aliveCounts = new AliveCountsPacket(this);
+
+            // First loop: Calculate animations
             for(const p of this.activePlayers) {
-
-                if(p.oldPosition.x !== p.position.x || p.oldPosition.y !== p.position.y) {
-                    p.moving = true;
-                    p.movesSinceLastUpdate++;
-                }
-                p.oldPosition = p.position.clone();
-
-                // Movement
-                const s = Config.movementSpeed;
-                const ds = Config.diagonalSpeed;
-                if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
-                else if(p.movingUp && p.movingRight) p.setVelocity(ds, ds);
-                else if(p.movingDown && p.movingLeft) p.setVelocity(-ds, -ds);
-                else if(p.movingDown && p.movingRight) p.setVelocity(ds, -ds);
-                else if(p.movingUp) p.setVelocity(0, s);
-                else if(p.movingDown) p.setVelocity(0, -s);
-                else if(p.movingLeft) p.setVelocity(-s, 0);
-                else if(p.movingRight) p.setVelocity(s, 0);
-                else p.setVelocity(0, 0);
-
                 if(p.shootStart) {
                     p.shootStart = false;
                     if(Date.now() - p.meleeCooldown >= 250) {
@@ -182,7 +169,6 @@ export class Game {
                         }
                     }
                 }
-
                 if(p.animActive) {
                     p.animTime++;
                     if(p.animTime > 8) {
@@ -192,25 +178,17 @@ export class Game {
                         p.animType = p.animSeq = 0;
                         p.animTime = -1;
                     } else if(p.moving) {
-                        this.partialDirtyObjects.push(p);
+                        p.game?.partialDirtyObjects.push(p);
                         p.partialDirtyObjects.push(p);
                     }
-                } else if(p.moving && p.animTime !== 0) { // animTime === 0 meaning animation just started
-                    this.partialDirtyObjects.push(p);
+                } else if(p.moving) {
+                    p.game?.partialDirtyObjects.push(p);
                     p.partialDirtyObjects.push(p);
                 }
-
-                p.moving = false;
             }
 
             // Second loop: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
-
-                if(p.roleLost) {
-                    p.roleLost = false;
-                    p.role = 0;
-                }
-
                 // Calculate visible objects
                 if(p.movesSinceLastUpdate > 8 || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
                     p.movesSinceLastUpdate = 0;
@@ -238,9 +216,17 @@ export class Game {
                     p.visibleObjects = newVisibleObjects;
                 }
 
+                // Update role
+                if(p.roleLost) {
+                    p.roleLost = false;
+                    p.role = 0;
+                }
+
+                // Emotes
                 // TODO Determine which emotes should be displayed to the player
                 if(this.emotes.length) p.emotes = this.emotes;
 
+                // Explosions
                 // TODO Determine which explosions should be displayed to the player
                 if(this.explosions.length) p.explosions = this.explosions;
 
@@ -264,7 +250,7 @@ export class Game {
                 }
 
                 p.sendPacket(new UpdatePacket(p));
-                if(this.aliveCountDirty) p.sendPacket(new AliveCountsPacket(p));
+                if(this.aliveCountDirty) p.sendPacket(this.aliveCounts);
                 for(const kill of this.kills) p.sendPacket(kill);
                 for(const roleAnnouncement of this.roleAnnouncements) p.sendPacket(roleAnnouncement);
             }
@@ -287,7 +273,7 @@ export class Game {
             this.gasCircleDirty = false;
             this.aliveCountDirty = false;
 
-            const tickTime: number = performance.now() - tickStart;
+            const tickTime: number = Date.now() - tickStart;
             if(Debug.performanceLog) {
                 this.tickTimes.push(tickTime);
                 if(this.tickTimes.length === Debug.performanceLogInterval) {
@@ -320,10 +306,10 @@ export class Game {
 
         p.sendPacket(new JoinedPacket(p));
         const stream = SurvivBitStream.alloc(32768);
-        new MapPacket(p).writeData(stream);
+        new MapPacket(p).serialize(stream);
         p.fullDirtyObjects.push(p);
-        new UpdatePacket(p).writeData(stream);
-        new AliveCountsPacket(p).writeData(stream);
+        new UpdatePacket(p).serialize(stream);
+        new AliveCountsPacket(this).serialize(stream);
         p.sendData(stream);
 
         return p;
@@ -332,11 +318,6 @@ export class Game {
     removePlayer(p): void {
         p.direction = Vec2(1, 0);
         p.quit = true;
-        p.role = 0;
-        if(p.role === TypeToId.kill_leader) {
-            this.killLeader = { id: 0, kills: 0 };
-            this.killLeaderDirty = true;
-        }
         //this.deletedPlayers.push(p);
         this.partialDirtyObjects.push(p);
         removeFrom(this.activePlayers, p);

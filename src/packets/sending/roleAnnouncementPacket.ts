@@ -18,10 +18,10 @@ export class RoleAnnouncementPacket extends SendingPacket {
         this.allocBytes = 8;
     }
 
-    writeData(stream: SurvivBitStream): void {
-        const p = this.p;
+    serialize(stream: SurvivBitStream): void {
+        const p = this.p!;
 
-        super.writeData(stream);
+        super.serialize(stream);
         stream.writeUint16(p.id);
         stream.writeUint16(this.killer ? this.killer.id : 0);
         stream.writeGameType(p.role);

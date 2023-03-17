@@ -4,13 +4,17 @@ import { type Body, type Vec2 } from "planck";
 
 export abstract class GameObject {
     kind: ObjectKind;
+
     id: number;
-    typeString?: string;
+
+    typeString: string;
     typeId: number;
+
     _position: Vec2;
     layer: number;
     orientation?: number;
     scale = 1;
+
     dead = false;
     showOnMap = false;
 

@@ -10,9 +10,9 @@ export class UpdatePacket extends SendingPacket {
         this.allocBytes = 8192;
     }
 
-    writeData(stream: SurvivBitStream): void {
-        super.writeData(stream);
-        const p = this.p;
+    serialize(stream: SurvivBitStream): void {
+        super.serialize(stream);
+        const p = this.p!;
 
         let valuesChanged = 0;
         if(p.deletedObjects.length) valuesChanged += 1;

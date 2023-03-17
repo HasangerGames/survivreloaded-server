@@ -9,6 +9,6 @@ export abstract class ReceivingPacket {
         this.p = p;
     }
 
-    abstract readData(stream: SurvivBitStream);
+    abstract deserialize(stream: SurvivBitStream);
 
 }

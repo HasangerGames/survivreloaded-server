@@ -16,6 +16,7 @@ import {
 import { Game } from "./game/game.js";
 import { InputPacket } from "./packets/receiving/inputPacket";
 import { EmotePacket } from "./packets/receiving/emotePacket";
+import { JoinPacket } from "./packets/receiving/joinPacket";
 
 const game = new Game();
 let app;
@@ -85,6 +86,7 @@ app.post("/api/find_game", (res) => {
 app.post("/api/user/profile", (res, req) => {
     const loadout = readJson("json/profile.json");
     const cookies = cookie.parse(req.getHeader("cookie"));
+    console.log(cookies.loadout);
     if(cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
     res.writeHeader("Content-Type", "application/json");
     res.end(JSON.stringify(loadout));
@@ -140,14 +142,17 @@ app.ws("/play", {
             const msgType = stream.readUint8();
             switch(msgType) {
                 case MsgType.Input:
-                    new InputPacket(socket.player).readData(stream);
+                    new InputPacket(socket.player).deserialize(stream);
                     break;
                 case MsgType.Emote:
-                    new EmotePacket(socket.player).readData(stream);
+                    new EmotePacket(socket.player).deserialize(stream);
+                    break;
+                case MsgType.Join:
+                    new JoinPacket(socket.player).deserialize(stream);
                     break;
             }
         } catch(e) {
-            // console.warn("Error parsing message:", e);
+            console.warn("Error parsing message:", e);
         }
     },
     close: (socket) => {

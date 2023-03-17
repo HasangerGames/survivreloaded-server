@@ -26,7 +26,6 @@ export class Player extends GameObject {
     teamId = 1; // For 50v50?
     groupId: number;
 
-    oldPosition: Vec2;
     direction: Vec2 = Vec2(1, 0);
     scale = 1;
 
@@ -80,6 +79,10 @@ export class Player extends GameObject {
     weaponsDirty = true;
 
     movesSinceLastUpdate = 0;
+
+    useTouch: boolean;
+    isMobile: boolean;
+    touchMoveDir: Vec2;
 
     emotes: Emote[] = [];
     explosions: Explosion[] = [];
@@ -159,7 +162,10 @@ export class Player extends GameObject {
             typeId: 0,
             count: 0
         },
-        scope: "1xscope"
+        scope: {
+            typeString: "1xscope",
+            typeId: 463
+        }
     };
 
     role = 0;
@@ -175,7 +181,6 @@ export class Player extends GameObject {
         this.socket = socket;
         this.groupId = this.game.players.length - 1;
         this.name = username;
-        this.oldPosition = position;
         this.zoom = Constants.scopeZoomRadius.desktop["1xscope"];
 
         // Set loadout
@@ -220,6 +225,12 @@ export class Player extends GameObject {
 
     setVelocity(xVel: number, yVel: number): void {
         this.body.setLinearVelocity(Vec2(xVel, yVel));
+        if(xVel !== 0 && yVel !== 0) {
+            this.moving = true;
+            this.movesSinceLastUpdate++;
+        } else {
+            this.moving = false;
+        }
     }
 
     get position(): Vec2 {
@@ -262,7 +273,7 @@ export class Player extends GameObject {
             if(source instanceof Player) {
                 source.kills++;
                 this.game!.kills.push(new KillPacket(this, source));
-                if(source.kills > 0 && source.kills > this.game!.killLeader.kills) {
+                if(source.kills > 2 && source.kills > this.game!.killLeader.kills) {
                     this.game!.killLeaderDirty = true;
                     if(this.game!.killLeader !== source) {
                         source.role = TypeToId.kill_leader;
@@ -294,7 +305,7 @@ export class Player extends GameObject {
 
     sendPacket(packet: SendingPacket): void {
         const stream = SurvivBitStream.alloc(packet.allocBytes);
-        packet.writeData(stream);
+        packet.serialize(stream);
         this.sendData(stream);
     }
 
