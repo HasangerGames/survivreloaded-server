@@ -24,7 +24,8 @@ export class Loot extends GameObject {
         this.body.createFixture({
             shape: Circle(position, 1),
             filterCategoryBits: CollisionCategory.Loot,
-            filterMaskBits: CollisionCategory.Obstacle | CollisionCategory.Player
+            filterMaskBits: CollisionCategory.Obstacle | CollisionCategory.Player,
+            filterGroupIndex: 1
         });
     }
 

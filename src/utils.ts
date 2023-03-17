@@ -459,7 +459,8 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         body.createFixture({
             shape: Circle(data.rad * scale),
             filterMaskBits: CollisionCategory.Obstacle,
-            filterCategoryBits: CollisionCategory.Player | CollisionCategory.Loot
+            filterCategoryBits: CollisionCategory.Player | CollisionCategory.Loot,
+            filterGroupIndex: 1
         });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
@@ -473,7 +474,8 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         body.createFixture({
             shape: Box(width / 2, height / 2),
             filterMaskBits: CollisionCategory.Obstacle,
-            filterCategoryBits: CollisionCategory.Player | CollisionCategory.Loot
+            filterCategoryBits: CollisionCategory.Player | CollisionCategory.Loot,
+            filterGroupIndex: 1
         });
     }
     return body;

@@ -290,7 +290,6 @@ export class Player extends GameObject {
             this.fullDirtyObjects.push(this);
             this.game!.fullDirtyObjects.push(this);
             const deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
-            setInterval(() => console.log(this.position), 1000);
             this.game!.objects.push(deadBody);
             this.game!.fullDirtyObjects.push(deadBody);
             //this.game!.deletedPlayers.push(this);
