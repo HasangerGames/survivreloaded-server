@@ -16,6 +16,7 @@ import { type Map } from "../map";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Body, Circle, Vec2 } from "planck";
+import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPacket";
 
 export class Player extends GameObject {
     socket: WebSocket<any>;
@@ -28,14 +29,15 @@ export class Player extends GameObject {
     oldPosition: Vec2;
     direction: Vec2 = Vec2(1, 0);
     scale = 1;
+
     private _zoom: number;
     xCullDist: number;
     yCullDist: number;
 
-    visibleObjects: GameObject[] = [];
-    partialDirtyObjects: GameObject[] = [];
-    fullDirtyObjects: GameObject[] = [];
-    deletedObjects: GameObject[] = [];
+    visibleObjects: GameObject[] = []; // Objects the player can see
+    partialDirtyObjects: GameObject[] = []; // Objects that need to be partially updated
+    fullDirtyObjects: GameObject[] = []; // Objects that need to be fully updated
+    deletedObjects: GameObject[] = []; // Objects that need to be deleted
 
     moving = false;
     movingUp = false;
@@ -49,54 +51,40 @@ export class Player extends GameObject {
     animActive = false;
     animType = 0;
     animSeq = 0;
-    animTime = 0;
+    animTime = -1;
 
     meleeCooldown = 0;
 
-    private _health = 100;
-
-    /**
-     * The player's adrenaline. Ranges from 0-100.
-     */
-    boost = 0;
+    private _health = 100; // The player's health. Ranges from 0-100.
+    boost = 0; // The player's adrenaline. Ranges from 0-100.
 
     kills = 0;
 
-    /**
-     * Whether the player is downed (knocked out)
-     */
-    downed = false;
-
-    /**
-     * Whether the player has left the game.
-     */
-    quit = false;
+    downed = false; // Whether the player is downed (knocked out)
+    quit = false; // Whether the player has left the game
 
     damageable = true;
 
+    firstUpdate = true;
     playerStatusDirty = true;
     groupStatusDirty = false;
     bulletsDirty = false;
     planesDirty = false;
     airstrikeZonesDirty = false;
     mapIndicatorsDirty = false;
-    killLeaderDirty = true;
     activePlayerIdDirty = true;
-    gasDirty = true;
-    gasCircleDirty = true;
     healthDirty = true;
     boostDirty = true;
     inventoryDirty = true;
     zoomDirty = true;
     weaponsDirty = true;
-    getAllPlayerInfos = true;
 
     movesSinceLastUpdate = 0;
 
     emotes: Emote[] = [];
     explosions: Explosion[] = [];
 
-    body: Body;
+    body: Body; // The player's Planck.js Body
 
     loadout: {
         outfit: number
@@ -111,7 +99,71 @@ export class Player extends GameObject {
     packLevel = 0;
     chestLevel = 0;
     helmetLevel = 0;
-    inventory;
+    inventory = {
+        "9mm": 0,
+        "762mm": 0,
+        "556mm": 0,
+        "12gauge": 0,
+        "50AE": 0,
+        "308sub": 0,
+        flare: 0,
+        "40mm": 0,
+        "45acp": 0,
+        mine: 0,
+        frag: 0,
+        heart_frag: 0,
+        smoke: 0,
+        strobe: 0,
+        mirv: 0,
+        snowball: 0,
+        water_balloon: 0,
+        skitternade: 0,
+        antiFire: 0,
+        potato: 0,
+        bandage: 0,
+        healthkit: 0,
+        soda: 0,
+        chocolateBox: 0,
+        bottle: 0,
+        gunchilada: 0,
+        watermelon: 0,
+        nitroLace: 0,
+        flask: 0,
+        pulseBox: 0,
+        painkiller: 0,
+        "1xscope": 1,
+        "2xscope": 0,
+        "4xscope": 0,
+        "8xscope": 0,
+        "15xscope": 0,
+        rainbow_ammo: 0
+    };
+
+    activeItems = {
+        primaryGun: {
+            typeString: "",
+            typeId: 0,
+            ammo: 0
+        },
+        secondaryGun: {
+            typeString: "",
+            typeId: 0,
+            ammo: 0
+        },
+        melee: {
+            typeString: "fists",
+            typeId: 557
+        },
+        throwable: {
+            typeString: "",
+            typeId: 0,
+            count: 0
+        },
+        scope: "1xscope"
+    };
+
+    role = 0;
+    roleLost = false;
 
     constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, username: string, loadout) {
         super(id, "", position, 0);
@@ -149,50 +201,8 @@ export class Player extends GameObject {
                 emotes: [195, 193, 196, 194, 0, 0]
             };
         }
-        this.inventory = {
-            "9mm": 0,
-            "762mm": 0,
-            "556mm": 0,
-            "12gauge": 0,
-            "50AE": 0,
-            "308sub": 0,
-            flare: 0,
-            "40mm": 0,
-            "45acp": 0,
-            mine: 0,
-            frag: 0,
-            heart_frag: 0,
-            smoke: 0,
-            strobe: 0,
-            mirv: 0,
-            snowball: 0,
-            water_balloon: 0,
-            skitternade: 0,
-            antiFire: 0,
-            potato: 0,
-            bandage: 0,
-            healthkit: 0,
-            soda: 0,
-            chocolateBox: 0,
-            bottle: 0,
-            gunchilada: 0,
-            watermelon: 0,
-            nitroLace: 0,
-            flask: 0,
-            pulseBox: 0,
-            painkiller: 0,
-            "1xscope": 0,
-            "2xscope": 0,
-            "4xscope": 0,
-            "8xscope": 0,
-            "15xscope": 0,
-            rainbow_ammo: 0,
-
-            gun1: "",
-            gun2: "",
-            melee: this.loadout.meleeType,
-            activeThrowable: ""
-        };
+        this.activeItems.melee.typeString = this.loadout.meleeType;
+        this.activeItems.melee.typeId = this.loadout.melee;
 
         // Init body
         this.body = game.world.createBody({
@@ -209,7 +219,6 @@ export class Player extends GameObject {
     }
 
     setVelocity(xVel: number, yVel: number): void {
-        this.moving = true;
         this.body.setLinearVelocity(Vec2(xVel, yVel));
     }
 
@@ -237,6 +246,15 @@ export class Player extends GameObject {
         if(this._health < 0) this._health = 0;
         if(this._health === 0) {
             this.dead = true;
+            this.setVelocity(0, 0);
+            if(this.role === TypeToId.kill_leader) {
+                this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
+                if(this.game!.killLeader === this) {
+                    this.game!.killLeader = { id: 0, kills: 0 };
+                    this.game!.killLeaderDirty = true;
+                }
+            }
+            this.roleLost = true;
             if(!this.quit) {
                 this.game!.aliveCount--;
                 this.game!.aliveCountDirty = true;
@@ -244,13 +262,22 @@ export class Player extends GameObject {
             if(source instanceof Player) {
                 source.kills++;
                 this.game!.kills.push(new KillPacket(this, source));
+                if(source.kills > 0 && source.kills > this.game!.killLeader.kills) {
+                    this.game!.killLeaderDirty = true;
+                    if(this.game!.killLeader !== source) {
+                        source.role = TypeToId.kill_leader;
+                        //this.game!.dirtyStatusPlayers.push(source);
+                        this.game!.killLeader = source;
+                        this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(source, true, false));
+                    }
+                }
             }
             this.fullDirtyObjects.push(this);
             const deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
             this.game!.objects.push(deadBody);
             this.game!.fullDirtyObjects.push(this);
             this.game!.fullDirtyObjects.push(deadBody);
-            this.game!.deletedPlayers.push(this);
+            //this.game!.deletedPlayers.push(this);
             removeFrom(this.game!.activePlayers, this);
         }
     }

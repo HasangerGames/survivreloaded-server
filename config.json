@@ -1,16 +1,18 @@
 {
-  "host": "127.0.0.1",
+  "host": "192.168.1.15",
   "port": 8000,
   "https": false,
   "keyFile": "config/key.pem",
   "certFile": "config/cert.pem",
 
-  "tickDelta": 15,
+  "tickDelta": 30,
   "movementSpeed": 0.013,
   "debug": {
     "performanceLog": true,
     "performanceLogInterval": 200,
-    "minimalMapGeneration": false,
-    "fixedSpawnLocation": [450, 150]
+    "minimalMapGeneration": true,
+    "fixedSpawnLocation": [450, 150],
+    "guaranteedLoot": "chest01",
+    "guaranteedLootCount": 1
   }
 }

@@ -10,7 +10,7 @@ import {
     type Explosion,
     log,
     randomVec,
-    removeFrom, SurvivBitStream,
+    removeFrom, SurvivBitStream, TypeToId,
     unitVecToRadians,
     vec2Rotate, Weapons
 } from "../utils";
@@ -24,54 +24,44 @@ import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
 import { Settings, Vec2, World } from "planck";
 import { Obstacle } from "./objects/obstacle";
+import { type RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 
 export class Game {
 
-    /***
-     * The game ID. 16 hex characters, same as MD5
-     */
-    id: string;
+    id: string; // The game ID. 16 hex characters, same as MD5
 
     map: Map;
 
-    objects: GameObject[] = [];
-    _nextObjectId = 0;
+    world: World; // The Planck.js World
+
+    objects: GameObject[] = []; // An array of all the objects in the world
+    _nextObjectId = -1;
+
     partialDirtyObjects: GameObject[] = [];
     fullDirtyObjects: GameObject[] = [];
     deletedObjects: GameObject[] = [];
 
-    /**
-     * All players, including dead and disconnected players.
-     */
-    players: Player[] = [];
+    players: Player[] = []; // All players, including dead and disconnected players.
+    connectedPlayers: Player[] = []; // All connected players. May be dead.
+    activePlayers: Player[] = []; // All connected and living players.
 
-    /**
-     * All connected players. May be dead.
-     */
-    connectedPlayers: Player[] = [];
-
-    /**
-     * All connected and living players.
-     */
-    activePlayers: Player[] = [];
-
-    dirtyPlayers: Player[] = [];
+    newPlayers: Player[] = [];
 
     deletedPlayers: Player[] = [];
+    //dirtyStatusPlayers: Player[] = [];
 
     playerInfosDirty = false;
 
-    /**
-     * The number of players alive. Does not include players who have quit the game
-     */
-    aliveCount = 0;
-    aliveCountDirty = false;
+    killLeader: { id: number, kills: number } = { id: 0, kills: 0 };
+    killLeaderDirty = false;
 
-    emotes: Emote[] = [];
-    explosions: Explosion[] = [];
-    kills: KillPacket[] = [];
+    aliveCount = 0; // The number of players alive. Does not include players who have quit the game
+    aliveCountDirty = false; // Whether the alive count needs to be updated
 
-    world: World;
+    emotes: Emote[] = []; // All emotes sent this tick
+    explosions: Explosion[] = []; // All explosions created this tick
+    kills: KillPacket[] = []; // All kills this tick
+    roleAnnouncements: RoleAnnouncementPacket[] = []; // All role announcements this tick
 
     // Red zone
     gasMode: number;
@@ -80,6 +70,8 @@ export class Game {
     newGasPosition: Vec2;
     oldGasRadius: number;
     newGasRadius: number;
+    gasDirty = false;
+    gasCircleDirty = false;
 
     /**
      * Whether this game is active. This is set to false to stop the tick loop.
@@ -125,12 +117,12 @@ export class Game {
             for(const p of this.activePlayers) {
 
                 if(p.oldPosition.x !== p.position.x || p.oldPosition.y !== p.position.y) {
+                    p.moving = true;
                     p.movesSinceLastUpdate++;
                 }
                 p.oldPosition = p.position.clone();
 
                 // Movement
-                p.moving = false;
                 const s = Config.movementSpeed;
                 const ds = Config.diagonalSpeed;
                 if(p.movingUp && p.movingLeft) p.setVelocity(-ds, ds);
@@ -141,7 +133,7 @@ export class Game {
                 else if(p.movingDown) p.setVelocity(0, -s);
                 else if(p.movingLeft) p.setVelocity(-s, 0);
                 else if(p.movingRight) p.setVelocity(s, 0);
-                if(!p.moving) p.setVelocity(0, 0);
+                else p.setVelocity(0, 0);
 
                 if(p.shootStart) {
                     p.shootStart = false;
@@ -161,7 +153,7 @@ export class Game {
                         // If the player is punching anything, damage the closest object
                         let minDist = Number.MAX_VALUE;
                         let closestObject;
-                        const weapon = Weapons[p.inventory.melee];
+                        const weapon = Weapons[p.activeItems.melee.typeString];
                         const radius: number = weapon.attack.rad;
                         const angle: number = unitVecToRadians(p.direction);
                         const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2(1, 0).mul(p.scale - 1));
@@ -193,23 +185,31 @@ export class Game {
 
                 if(p.animActive) {
                     p.animTime++;
-                    if(p.animTime > 16) {
+                    if(p.animTime > 8) {
                         p.animActive = false;
                         this.fullDirtyObjects.push(p);
                         p.fullDirtyObjects.push(p);
-                        p.animType = p.animSeq = p.animTime = 0;
+                        p.animType = p.animSeq = 0;
+                        p.animTime = -1;
                     } else if(p.moving) {
                         this.partialDirtyObjects.push(p);
                         p.partialDirtyObjects.push(p);
                     }
-                } else if(p.moving) {
+                } else if(p.moving && p.animTime !== 0) { // animTime === 0 meaning animation just started
                     this.partialDirtyObjects.push(p);
                     p.partialDirtyObjects.push(p);
                 }
+
+                p.moving = false;
             }
 
             // Second loop: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
+
+                if(p.roleLost) {
+                    p.roleLost = false;
+                    p.role = 0;
+                }
 
                 // Calculate visible objects
                 if(p.movesSinceLastUpdate > 8 || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
@@ -229,7 +229,7 @@ export class Game {
                             if(!p.visibleObjects.includes(object)) {
                                 p.fullDirtyObjects.push(object);
                             }
-                        } else {
+                        } else { // if object is not visible
                             if(p.visibleObjects.includes(object)) {
                                 p.deletedObjects.push(object);
                             }
@@ -265,20 +265,26 @@ export class Game {
 
                 p.sendPacket(new UpdatePacket(p));
                 if(this.aliveCountDirty) p.sendPacket(new AliveCountsPacket(p));
-                if(this.kills.length) {
-                    for(const kill of this.kills) p.sendPacket(kill);
-                }
+                for(const kill of this.kills) p.sendPacket(kill);
+                for(const roleAnnouncement of this.roleAnnouncements) p.sendPacket(roleAnnouncement);
             }
 
             // Reset everything
-            this.emotes = [];
-            this.explosions = [];
-            this.kills = [];
             this.fullDirtyObjects = [];
             this.partialDirtyObjects = [];
             this.deletedObjects = [];
-            this.dirtyPlayers = [];
+
+            this.newPlayers = [];
             this.deletedPlayers = [];
+            //this.dirtyStatusPlayers = [];
+
+            this.emotes = [];
+            this.explosions = [];
+            this.kills = [];
+            this.roleAnnouncements = [];
+
+            this.gasDirty = false;
+            this.gasCircleDirty = false;
             this.aliveCountDirty = false;
 
             const tickTime: number = performance.now() - tickStart;
@@ -306,7 +312,7 @@ export class Game {
         this.players.push(p);
         this.connectedPlayers.push(p);
         this.activePlayers.push(p);
-        this.dirtyPlayers.push(p);
+        this.newPlayers.push(p);
         this.fullDirtyObjects.push(p);
         this.aliveCount++;
         this.aliveCountDirty = true;
@@ -326,7 +332,12 @@ export class Game {
     removePlayer(p): void {
         p.direction = Vec2(1, 0);
         p.quit = true;
-        this.deletedPlayers.push(p);
+        p.role = 0;
+        if(p.role === TypeToId.kill_leader) {
+            this.killLeader = { id: 0, kills: 0 };
+            this.killLeaderDirty = true;
+        }
+        //this.deletedPlayers.push(p);
         this.partialDirtyObjects.push(p);
         removeFrom(this.activePlayers, p);
         removeFrom(this.connectedPlayers, p);

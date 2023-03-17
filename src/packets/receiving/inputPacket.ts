@@ -4,25 +4,31 @@ import { distanceBetween, InputType, type SurvivBitStream } from "../../utils";
 export class InputPacket extends ReceivingPacket {
 
     readData(stream: SurvivBitStream): void {
+        const p = this.p;
+
         stream.readUint8(); // Discard second byte (this.seq)
 
         // Movement and shooting
-        this.p.movingLeft = stream.readBoolean();
-        this.p.movingRight = stream.readBoolean();
-        this.p.movingUp = stream.readBoolean();
-        this.p.movingDown = stream.readBoolean();
+        p.movingLeft = stream.readBoolean();
+        p.movingRight = stream.readBoolean();
+        p.movingUp = stream.readBoolean();
+        p.movingDown = stream.readBoolean();
 
         const shootStart = stream.readBoolean();
-        this.p.shootStart = this.p.shootStart ? true : shootStart;
-        this.p.shootHold = stream.readBoolean();
+        p.shootStart = p.shootStart ? true : shootStart;
+        p.shootHold = stream.readBoolean();
         stream.readBoolean(); // Portrait
-        stream.readBoolean(); // Touch move active
+        const touchMoveActive = stream.readBoolean();
+        if(touchMoveActive) {
+            stream.readUnitVec(8); // Touch move dir
+            stream.readUint8(); // Touch move len
+        }
 
         // Direction
         const direction = stream.readUnitVec(10);
-        if(this.p.direction !== direction) {
-            this.p.direction = direction;
-            this.p.moving = true;
+        if(p.direction !== direction) {
+            p.direction = direction;
+            p.moving = true;
         }
         stream.readFloat(0, 64, 8); // Distance to mouse
 
@@ -34,8 +40,8 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.Interact: {
                     let minDist = Number.MAX_VALUE;
                     let minDistObject;
-                    for(const object of this.p.visibleObjects) {
-                        const distance: number = distanceBetween(this.p.position, object.position);
+                    for(const object of p.visibleObjects) {
+                        const distance: number = distanceBetween(p.position, object.position);
                         if(object.interactable && distance < 1 + object.interactionRad) {
                             if(distance < minDist) {
                                 minDist = distance;
@@ -44,7 +50,7 @@ export class InputPacket extends ReceivingPacket {
                         }
                     }
                     if(minDistObject) {
-                        minDistObject.interact(this.p);
+                        minDistObject.interact(p);
                     }
                     break;
                 }

@@ -327,7 +327,8 @@ export enum CollisionCategory {
 }
 
 export function removeFrom(array: any[], object: any): void {
-    array.splice(array.indexOf(object), 1);
+    const index: number = array.indexOf(object);
+    if(index !== -1) array.splice(index, 1);
 }
 export function log(message: string): void {
     const date: Date = new Date();
@@ -349,10 +350,10 @@ export function randomVec(minX: number, maxX: number, minY: number, maxY: number
 // https://stackoverflow.com/a/55671924/5905216
 export function weightedRandom(items: any[], weights: number[]): any {
     let i;
-    for (i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
+    for(i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
 
     const random = Math.random() * weights[weights.length - 1];
-    for (i = 0; i < weights.length; i++) { if (weights[i] > random) break; }
+    for(i = 0; i < weights.length; i++) { if(weights[i] > random) break; }
     return items[i];
 }
 
@@ -555,6 +556,8 @@ export class SurvivBitStream extends BitStream {
     writeString(str): void { this.writeASCIIString(str); }
     writeStringFixedLength(str, len): void { this.writeASCIIString(str, len); }
     readString(): string { return this.readASCIIString(); }
+
+    readStringFixedLength(len): string { return this.readASCIIString(len); }
 
     writeFloat(val: number, min: number, max: number, bitCount: number): void {
         const range = (1 << bitCount) - 1,

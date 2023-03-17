@@ -1,6 +1,6 @@
 import {
     bodyFromCollisionData,
-    CollisionType, Item,
+    CollisionType, Debug, Item,
     LootTables,
     ObjectKind,
     type SurvivBitStream,
@@ -111,20 +111,30 @@ export class Obstacle extends GameObject {
         if(data.loot) {
             this.loot = [];
             for(const loot of data.loot) {
-                const lootTable = LootTables[loot.tier];
-                if(!lootTable) {
-                    console.warn(`Warning: Loot table not found: ${loot.tier}`);
-                    continue;
-                }
-                const items: string[] = [], weights: number[] = [];
-                for(const item in lootTable) {
-                    items.push(item);
-                    weights.push(lootTable[item].weight);
-                }
-                const selectedItem = weightedRandom(items, weights);
-                this.loot.push(new Item(selectedItem, lootTable[selectedItem].count));
+                this.getLoot(loot.tier);
             }
         }
+    }
+
+    private getLoot(tier: string): void {
+        if(Debug.guaranteedLoot) {
+            this.loot.push(new Item(Debug.guaranteedLoot, Debug.guaranteedLootCount));
+            return;
+        }
+        const lootTable = LootTables[tier];
+        if(!lootTable) {
+            //console.warn(`Warning: Loot table not found: ${tier}`);
+            return;
+        }
+        const items: string[] = [], weights: number[] = [];
+        for(const item in lootTable) {
+            if(item === "metaTier") continue;
+            items.push(item);
+            weights.push(lootTable[item].weight);
+        }
+        const selectedItem = weightedRandom(items, weights);
+        if(lootTable.metaTier) this.getLoot(selectedItem);
+        else this.loot.push(new Item(selectedItem, lootTable[selectedItem].count));
     }
 
     get position(): Vec2 {

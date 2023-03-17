@@ -1,11 +1,35 @@
 {
   "tier_world": {
-    "2xscope": { "count": 1, "weight": 0.15 },
-    "4xscope": { "count": 1, "weight": 0.04 },
-    "8xscope": { "count": 1, "weight": 0.009 },
-    "15xscope": { "count": 1, "weight": 0.001 },
-    "helmet01": { "count": 1, "weight": 0.21 },
-    "chest01": { "count": 1, "weight": 0.29 },
-    "backpack01": { "count": 1, "weight": 0.30 }
+    "metaTier": true,
+    "tier_scopes": { "count": 1, "weight": 1 },
+    "tier_armor": { "count": 1, "weight": 1 },
+    "tier_packs": { "count": 1, "weight": 1 },
+    "tier_medical": { "count": 1, "weight": 1 }
+  },
+  "tier_scopes": {
+    "2xscope": { "count": 1, "weight": 0.75 },
+    "4xscope": { "count": 1, "weight": 0.20 },
+    "8xscope": { "count": 1, "weight": 0.049 },
+    "15xscope": { "count": 1, "weight": 0.001 }
+  },
+  "tier_armor": {
+    "helmet01": { "count": 1, "weight": 9 },
+    "helmet02": { "count": 1, "weight": 6 },
+    "helmet03": { "count": 1, "weight": 0.2 },
+
+    "chest01": { "count": 1, "weight": 15 },
+    "chest02": { "count": 1, "weight": 6 },
+    "chest03": { "count": 1, "weight": 0.2 }
+  },
+  "tier_packs": {
+    "backpack01": { "count": 1, "weight": 15 },
+    "backpack02": { "count": 1, "weight": 6 },
+    "backpack03": { "count": 1, "weight": 0.2 }
+  },
+  "tier_medical": {
+    "bandage": { "count": 5, "weight": 16 },
+    "healthkit": { "count": 1, "weight": 4 },
+    "soda": { "count": 1, "weight": 15 },
+    "painkiller": { "count": 1, "weight": 5 }
   }
 }

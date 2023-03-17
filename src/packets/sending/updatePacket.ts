@@ -1,26 +1,28 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, type SurvivBitStream } from "../../utils";
+import { Constants, MsgType, type SurvivBitStream, TypeToId } from "../../utils";
 import { type Player } from "../../game/objects/player";
 
 export class UpdatePacket extends SendingPacket {
 
     constructor(p: Player) {
         super(p);
+        this.msgType = MsgType.Update;
         this.allocBytes = 8192;
     }
 
     writeData(stream: SurvivBitStream): void {
+        super.writeData(stream);
         const p = this.p;
 
         let valuesChanged = 0;
         if(p.deletedObjects.length) valuesChanged += 1;
         if(p.fullDirtyObjects.length) valuesChanged += 2;
         if(p.activePlayerIdDirty) valuesChanged += 4;
-        if(p.gasDirty) valuesChanged += 8;
-        if(p.gasCircleDirty) valuesChanged += 16;
+        if(p.game!.gasDirty || p.firstUpdate) valuesChanged += 8;
+        if(p.game!.gasCircleDirty || p.firstUpdate) valuesChanged += 16;
         if(p.game!.playerInfosDirty) valuesChanged += 32;
         if(p.game!.deletedPlayers.length) valuesChanged += 64;
-        if(p.playerStatusDirty) valuesChanged += 128;
+        if(/*p.game!.dirtyStatusPlayers.length || */p.firstUpdate) valuesChanged += 128;
         if(p.groupStatusDirty) valuesChanged += 256;
         if(p.bulletsDirty) valuesChanged += 512;
         if(p.explosions.length) valuesChanged += 1024;
@@ -28,9 +30,7 @@ export class UpdatePacket extends SendingPacket {
         if(p.planesDirty) valuesChanged += 4096;
         if(p.airstrikeZonesDirty) valuesChanged += 8192;
         if(p.mapIndicatorsDirty) valuesChanged += 16384;
-        if(p.killLeaderDirty) valuesChanged += 32768;
-
-        stream.writeUint8(MsgType.Update);
+        if(p.game!.killLeaderDirty || p.firstUpdate) valuesChanged += 32768;
         stream.writeUint16(valuesChanged);
 
         // Deleted objects
@@ -68,79 +68,101 @@ export class UpdatePacket extends SendingPacket {
             p.activePlayerIdDirty = false;
         }
 
+        //
         // Active player data
+        //
+
+        // Health
         stream.writeBoolean(p.healthDirty);
         if(p.healthDirty) {
             stream.writeFloat(p.health, 0, 100, 8);
             p.healthDirty = false;
         }
 
-        stream.writeBoolean(p.boostDirty); // Boost (adrenaline) dirty
+        // Adrenaline
+        stream.writeBoolean(p.boostDirty);
         if(p.boostDirty) {
             stream.writeFloat(p.boost, 0, 100, 8);
             p.boostDirty = false;
         }
 
+        // Misc
         stream.writeBits(0, 3); // Misc dirty
 
-        stream.writeBoolean(p.zoomDirty); // Zoom dirty
+        // Zoom
+        stream.writeBoolean(p.zoomDirty);
         if(p.zoomDirty) {
             stream.writeUint8(p.zoom);
             p.zoomDirty = false;
         }
 
         stream.writeBoolean(false); // Action dirty
-        stream.writeBoolean(false);//p.inventoryDirty); // Inventory dirty
-        if(p.inventoryDirty) {
 
+        // Inventory
+        stream.writeBoolean(p.inventoryDirty);
+        if(p.inventoryDirty) {
+            stream.writeGameType(TypeToId[p.activeItems.scope]);
+            for(const value of Object.values(p.inventory)) {
+                const hasItem: boolean = (value as number) > 0;
+                stream.writeBoolean(hasItem);
+                if(hasItem) stream.writeBits(value as number, 9);
+            }
         }
 
-        stream.writeBoolean(p.weaponsDirty); // Weapons dirty
+        // Weapons
+        stream.writeBoolean(p.weaponsDirty);
         if(p.weaponsDirty) {
-            stream.writeBits(2, 2); // Current weapon slot
+            // Current weapon slot
+            stream.writeBits(2, 2);
 
-            stream.writeGameType(0); // Primary
-            stream.writeUint8(0); // Ammo
+            // Primary
+            stream.writeGameType(p.activeItems.primaryGun.typeId); // Primary
+            stream.writeUint8(p.activeItems.primaryGun.ammo); // Ammo
 
-            stream.writeGameType(0); // Secondary
-            stream.writeUint8(0); // Ammo
+            // Secondary
+            stream.writeGameType(p.activeItems.secondaryGun.typeId); // Secondary
+            stream.writeUint8(p.activeItems.secondaryGun.ammo); // Ammo
 
-            stream.writeGameType(p.loadout.melee); // Melee
-            stream.writeUint8(0); // Ammo
+            // Melee
+            stream.writeGameType(p.activeItems.melee.typeId);
+            stream.writeUint8(0);
 
-            stream.writeGameType(0); // Throwable
-            stream.writeUint8(0); // Ammo
+            // Throwable
+            stream.writeGameType(p.activeItems.throwable.typeId);
+            stream.writeUint8(p.activeItems.throwable.count);
+
             p.weaponsDirty = false;
         }
+
         stream.writeBoolean(false); // Spectator count dirty
-        stream.writeAlignToNextByte();
+        stream.writeAlignToNextByte(); // Padding
+
+        //
+        // End active player data
+        //
 
         // Red zone data
-        if(p.gasDirty) {
+        if(p.game!.gasDirty || p.firstUpdate) {
             stream.writeUint8(p.game!.gasMode); // Mode
             stream.writeBits(p.game!.initialGasDuration, 8); // Duration
             stream.writeVec(p.game!.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
             stream.writeVec(p.game!.newGasPosition, 0, 0, 1024, 1024, 16); // New position
             stream.writeFloat(p.game!.oldGasRadius, 0, 2048, 16); // Old radius
             stream.writeFloat(p.game!.newGasRadius, 0, 2048, 16); // New radius
-            p.gasDirty = false;
         }
 
         // Red zone time data
-        if(p.gasCircleDirty) {
+        if(p.game!.gasCircleDirty || p.firstUpdate) {
             stream.writeFloat(0, 0, 1, 16); // Indicates red zone time (gasT)
-            p.gasCircleDirty = false;
         }
 
         // Player info
         let playerInfosSource;
-        if(p.getAllPlayerInfos) {
-            p.getAllPlayerInfos = false;
+        if(p.firstUpdate) {
             playerInfosSource = p.game!.players;
         } else if(p.game!.playerInfosDirty) {
-            playerInfosSource = p.game!.dirtyPlayers;
+            playerInfosSource = p.game!.newPlayers;
         }
-
         if(playerInfosSource) {
             stream.writeUint8(playerInfosSource.length); // Player info count
 
@@ -158,12 +180,12 @@ export class UpdatePacket extends SendingPacket {
                 stream.writeGameType(player.loadout.melee); // Melee
                 stream.writeGameType(player.loadout.deathEffect); // Death effect
 
-                for(let i = 0; i < 6; i++) {
+                for(let i = 0; i < Constants.EmoteSlot.Count; i++) {
                     stream.writeGameType(player.loadout.emotes[i]);
                 }
 
                 // Misc
-                stream.writeUint32(player.id); // User ID
+                stream.writeUint32(player.id); // User account ID
                 stream.writeBoolean(false); // Is unlinked (doesn't have account)
                 stream.writeAlignToNextByte(); // Padding
             }
@@ -176,21 +198,25 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Player status
-        if(p.playerStatusDirty) {
+        //const dirtyStatusPlayers: Player[] = p.game!.dirtyStatusPlayers;
+        //if(p.firstUpdate) dirtyStatusPlayers.push(p);
+        //if(dirtyStatusPlayers.length) {
+        if(p.firstUpdate) {
             stream.writeUint8(1); // Player count
 
+            //for(const player of dirtyStatusPlayers) {
             stream.writeBoolean(true); // Has data
 
             stream.writeVec(p.position, 0, 0, 1024, 1024, 11); // Position. Yes, 11 bits is correct!
             stream.writeBoolean(true); // Visible
-            stream.writeBoolean(false); // Dead
-            stream.writeBoolean(false); // Downed
+            stream.writeBoolean(p.dead); // Dead
+            stream.writeBoolean(p.downed); // Downed
 
-            stream.writeBoolean(false); // Has role
+            stream.writeBoolean(p.role !== 0); // Has role
+            if(p.role !== 0) stream.writeGameType(p.role);
 
             stream.writeAlignToNextByte();
-
-            p.playerStatusDirty = false;
+            //}
         }
 
         // Group status
@@ -231,11 +257,12 @@ export class UpdatePacket extends SendingPacket {
         // Map indicators
 
         // Kill leader
-        if(p.killLeaderDirty) {
-            stream.writeUint16(p.id); // ID
-            stream.writeUint8(84); // Kill count
-            p.killLeaderDirty = false;
+        if(p.game!.killLeaderDirty || p.firstUpdate) {
+            stream.writeUint16(p.game!.killLeader.id);
+            stream.writeUint8(p.game!.killLeader.kills);
         }
+
+        if(p.firstUpdate) p.firstUpdate = false;
 
         stream.writeUint8(0); // "Ack" msg
     }

@@ -7,6 +7,7 @@ import { Circle, type Vec2 } from "planck";
 
 export class Loot extends GameObject {
 
+    typeString = "";
     count: number;
     interactable = true;
     interactionRad = 1;
@@ -33,24 +34,49 @@ export class Loot extends GameObject {
         this.game!.deletedObjects.push(this);
         this.game!.world.destroyBody(this.body!);
         this.interactable = false;
-        p.sendPacket(new PickupPacket(p, this.typeString!, this.count, PickupMsgType.Success));
+
+        let result: PickupMsgType = PickupMsgType.Success;
 
         if(this.typeString?.endsWith("scope")) { // TODO Check if mobile or desktop
-            p.zoom = Constants.scopeZoomRadius.desktop[this.typeString];
-            p.zoomDirty = true;
+            if(p.inventory[this.typeString] > 0) result = PickupMsgType.AlreadyEquipped;
+            else {
+                p.activeItems.scope = this.typeString;
+                p.zoom = Constants.scopeZoomRadius.desktop[this.typeString];
+                p.zoomDirty = true;
+            }
         } else if(this.typeString?.startsWith("backpack")) {
-            console.log(this.typeString.charAt(10));
-            p.packLevel = parseInt(this.typeString.charAt(9)); // Last digit of the ID is always the item level
-            this.game?.fullDirtyObjects.push(p);
-            p.fullDirtyObjects.push(p);
+            const packLevel = parseInt(this.typeString.charAt(9)); // Last digit of the ID is always the item level
+            if(packLevel < p.packLevel) result = PickupMsgType.BetterItemEquipped;
+            else if(packLevel === p.packLevel) result = PickupMsgType.AlreadyEquipped;
+            else p.packLevel = packLevel;
         } else if(this.typeString?.startsWith("chest")) {
-            p.chestLevel = parseInt(this.typeString.charAt(6));
-            this.game?.fullDirtyObjects.push(p);
-            p.fullDirtyObjects.push(p);
+            const chestLevel = parseInt(this.typeString.charAt(6));
+            if(chestLevel < p.chestLevel) result = PickupMsgType.BetterItemEquipped;
+            else if(chestLevel === p.chestLevel) result = PickupMsgType.AlreadyEquipped;
+            else p.chestLevel = chestLevel;
         } else if(this.typeString?.startsWith("helmet")) {
-            p.helmetLevel = parseInt(this.typeString.charAt(7));
+            const helmetLevel = parseInt(this.typeString.charAt(7));
+            if(helmetLevel < p.helmetLevel) result = PickupMsgType.BetterItemEquipped;
+            else if(helmetLevel === p.helmetLevel) result = PickupMsgType.AlreadyEquipped;
+            else p.helmetLevel = helmetLevel;
+        } else {
+            const currentCount: number = p.inventory[this.typeString];
+            const maxCapacity: number = Constants.bagSizes[p.packLevel][this.typeString];
+            if(currentCount + 1 > maxCapacity) result = PickupMsgType.Full;
+            else if(currentCount + this.count > maxCapacity) {
+                const increase = (currentCount + this.count) - maxCapacity;
+                (p.inventory[this.typeString] as number) += increase;
+                this.count -= increase;
+                result = PickupMsgType.Success;
+            }
+        }
+        console.log(result!);
+
+        p.sendPacket(new PickupPacket(p, this.typeString!, this.count, result!));
+        if(result! === PickupMsgType.Success) {
             this.game?.fullDirtyObjects.push(p);
             p.fullDirtyObjects.push(p);
+            p.inventoryDirty = true;
         }
     }
 
