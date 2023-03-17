@@ -195,7 +195,6 @@ export class Game {
                         }
                     }
                 }
-                console.log(p.moving);
 
                 // Animation logic
                 if(p.animActive) p.animTime++;

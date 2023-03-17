@@ -1,11 +1,12 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { Config, distanceBetween, InputType, type SurvivBitStream } from "../../utils";
+import { distanceBetween, InputType, type SurvivBitStream } from "../../utils";
 import { Vec2 } from "planck";
 
 export class InputPacket extends ReceivingPacket {
 
     deserialize(stream: SurvivBitStream): void {
         const p = this.p;
+        if(p.dead) return;
 
         stream.readUint8(); // Discard second byte (this.seq)
 

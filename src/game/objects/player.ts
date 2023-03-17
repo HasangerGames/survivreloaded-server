@@ -255,6 +255,7 @@ export class Player extends GameObject {
         if(this._health < 0) this._health = 0;
         if(this._health === 0) {
             this.dead = true;
+            this.movingLeft = this.movingRight = this.movingUp = this.movingDown = this.shootStart = this.shootHold = false;
             this.setVelocity(0, 0);
             if(this.role === TypeToId.kill_leader) {
                 this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
