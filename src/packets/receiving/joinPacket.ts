@@ -1,7 +1,7 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { Constants, type SurvivBitStream } from "../../utils";
+import { type SurvivBitStream } from "../../utils";
 import { Vec2 } from "planck";
-import { Player } from "../../game/objects/player";
+import { type Player } from "../../game/objects/player";
 
 export class JoinPacket extends ReceivingPacket {
 

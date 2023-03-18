@@ -43,7 +43,16 @@ for(const file of walk("public")) {
 
 app.get("/*", async (res, req) => {
     const path: string = req.getUrl() === "/" ? "/index.html" : req.getUrl();
-    const file = Debug.disableStaticFileCache ? fs.readFileSync("public" + path) : staticFiles[path];
+    let file: Buffer | undefined;
+    if(Debug.disableStaticFileCache) {
+        try {
+            file = fs.readFileSync("public" + path);
+        } catch(e) {
+            file = undefined;
+        }
+    } else {
+        file = staticFiles[path];
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     res.onAborted(() => {});
