@@ -112,36 +112,22 @@ export class Player extends GameObject {
         "50AE": 0,
         "308sub": 0,
         flare: 0,
-        "40mm": 0,
         "45acp": 0,
-        mine: 0,
         frag: 0,
-        heart_frag: 0,
         smoke: 0,
         strobe: 0,
         mirv: 0,
         snowball: 0,
-        water_balloon: 0,
-        skitternade: 0,
-        antiFire: 0,
         potato: 0,
         bandage: 0,
         healthkit: 0,
         soda: 0,
-        chocolateBox: 0,
-        bottle: 0,
-        gunchilada: 0,
-        watermelon: 0,
-        nitroLace: 0,
-        flask: 0,
-        pulseBox: 0,
         painkiller: 0,
         "1xscope": 1,
         "2xscope": 0,
         "4xscope": 0,
         "8xscope": 0,
-        "15xscope": 0,
-        rainbow_ammo: 0
+        "15xscope": 0
     };
 
     activeItems = {
@@ -157,7 +143,7 @@ export class Player extends GameObject {
         },
         melee: {
             typeString: "fists",
-            typeId: 557
+            typeId: 389
         },
         throwable: {
             typeString: "",
@@ -166,7 +152,7 @@ export class Player extends GameObject {
         },
         scope: {
             typeString: "1xscope",
-            typeId: 463
+            typeId: 310
         }
     };
 
@@ -199,13 +185,13 @@ export class Player extends GameObject {
             for(const emote of loadout.emotes) this.loadout.emotes.push(TypeToId[emote]);
         } else {
             this.loadout = {
-                outfit: 690,
-                melee: 557,
+                outfit: 430,
+                melee: 389,
                 meleeType: "fists",
-                heal: 109,
-                boost: 138,
+                heal: 99,
+                boost: 103,
                 deathEffect: 0,
-                emotes: [195, 193, 196, 194, 0, 0]
+                emotes: [130, 128, 131, 129]
             };
         }
         this.activeItems.melee.typeString = this.loadout.meleeType;
@@ -332,38 +318,30 @@ export class Player extends GameObject {
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
-        stream.writeGameType(451 + this.packLevel); // Backpack
-        stream.writeGameType(this.helmetLevel === 0 ? 0 : 454 + this.helmetLevel); // Helmet
-        stream.writeGameType(this.chestLevel === 0 ? 0 : 458 + this.chestLevel); // Vest
+        stream.writeGameType(298 + this.packLevel); // Backpack
+        stream.writeGameType(this.helmetLevel === 0 ? 0 : 301 + this.helmetLevel); // Helmet
+        stream.writeGameType(this.chestLevel === 0 ? 0 : 305 + this.chestLevel); // Vest
         stream.writeGameType(this.loadout.melee); // Active weapon (not necessarily melee)
 
         stream.writeBits(this.layer, 2);
         stream.writeBoolean(this.dead);
         stream.writeBoolean(this.downed);
+
         stream.writeBits(this.animType, 3);
         stream.writeBits(this.animSeq, 3);
-
         stream.writeBits(0, 3); // Action type
-        stream.writeBits(0, 3); // Action sequence
+        stream.writeBits(0, 3); // Action seq
 
         stream.writeBoolean(false); // Wearing pan
         stream.writeBoolean(false); // Indoors
         stream.writeBoolean(false); // Gun loaded
-        stream.writeBoolean(false); // Passive heal
-        stream.writeBoolean(false); // Heal by item effect (healing particles?)
+        stream.writeBoolean(false); // Heal effect?
 
-        stream.writeBoolean(false); // Haste seq dirty
+        stream.writeBits(0, 2); // Unknown bits
 
         stream.writeBoolean(false); // Action item dirty
-
         stream.writeBoolean(false); // Scale dirty
-
-        stream.writeBoolean(false); // Role dirty
-
         stream.writeBoolean(false); // Perks dirty
-
-        stream.writeBits(0, 4); // Event-specific effects
-
         stream.writeAlignToNextByte();
     }
 

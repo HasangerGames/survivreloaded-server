@@ -86,9 +86,6 @@ export class UpdatePacket extends SendingPacket {
             p.boostDirty = false;
         }
 
-        // Misc
-        stream.writeBits(0, 3); // Misc dirty
-
         // Zoom
         stream.writeBoolean(p.zoomDirty);
         if(p.zoomDirty) {
@@ -144,7 +141,7 @@ export class UpdatePacket extends SendingPacket {
         // Red zone data
         if(p.game!.gasDirty || p.firstUpdate) {
             stream.writeUint8(p.game!.gasMode); // Mode
-            stream.writeBits(p.game!.initialGasDuration, 8); // Duration
+            stream.writeFloat32(p.game!.initialGasDuration); // Duration
             stream.writeVec(p.game!.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
             stream.writeVec(p.game!.newGasPosition, 0, 0, 1024, 1024, 16); // New position
             stream.writeFloat(p.game!.oldGasRadius, 0, 2048, 16); // Old radius
@@ -174,19 +171,8 @@ export class UpdatePacket extends SendingPacket {
                 stream.writeString(player.name); // Name
 
                 // Loadout
-                stream.writeGameType(player.loadout.outfit); // Outfit (skin)
                 stream.writeGameType(player.loadout.heal); // Healing particles
                 stream.writeGameType(player.loadout.boost); // Adrenaline particles
-                stream.writeGameType(player.loadout.melee); // Melee
-                stream.writeGameType(player.loadout.deathEffect); // Death effect
-
-                for(let i = 0; i < Constants.EmoteSlot.Count; i++) {
-                    stream.writeGameType(player.loadout.emotes[i]);
-                }
-
-                // Misc
-                stream.writeUint32(player.id); // User account ID
-                stream.writeBoolean(false); // Is unlinked (doesn't have account)
                 stream.writeAlignToNextByte(); // Padding
             }
         }
@@ -214,9 +200,8 @@ export class UpdatePacket extends SendingPacket {
 
             stream.writeBoolean(p.role !== 0); // Has role
             if(p.role !== 0) stream.writeGameType(p.role);
-
-            stream.writeAlignToNextByte();
             //}
+            stream.writeAlignToNextByte();
         }
 
         // Group status

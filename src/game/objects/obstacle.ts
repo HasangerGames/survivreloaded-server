@@ -196,26 +196,28 @@ export class Obstacle extends GameObject {
     serializeFull(stream: SurvivBitStream): void {
         stream.writeFloat(this.healthT, 0, 1, 8);
         stream.writeMapType(this.typeId);
-        stream.writeString(this.typeString);
         stream.writeBits(this.layer, 2);
         stream.writeBoolean(this.dead);
-        stream.writeBoolean(this.isDoor);
-        stream.writeUint8(this.teamId);
 
+        stream.writeBoolean(this.isDoor);
         if(this.isDoor) {
             stream.writeBoolean(this.door.open);
             stream.writeBoolean(this.door.canUse);
             stream.writeBoolean(this.door.locked);
             stream.writeBits(0, 5); // door seq
         }
+
         stream.writeBoolean(this.isButton);
         if(this.isButton) {
             stream.writeBoolean(this.button.onOff);
             stream.writeBoolean(this.button.canUse);
             stream.writeBits(0, 6); // button seq
         }
+
         stream.writeBoolean(this.isPuzzlePiece);
+
         stream.writeBoolean(this.isSkin);
+
         stream.writeBits(0, 5); // Padding
     }
 
