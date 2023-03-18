@@ -30,7 +30,7 @@
         "@typescript-eslint/no-unnecessary-type-assertion": 0,
         "@typescript-eslint/no-unused-vars": 2,
         "prefer-arrow-callback": 2,
-        "prefer-template": 2,
+        "prefer-template": 0,
         "@typescript-eslint/curly": 0,
         "@typescript-eslint/keyword-spacing": 0,
         "@typescript-eslint/strict-boolean-expressions": 0,

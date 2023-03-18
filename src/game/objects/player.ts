@@ -223,8 +223,7 @@ export class Player extends GameObject {
             density: 1.0,
             restitution: 0.0,
             filterCategoryBits: CollisionCategory.Player,
-            filterMaskBits: CollisionCategory.Obstacle,
-            filterGroupIndex: 1
+            filterMaskBits: CollisionCategory.Obstacle
         });
     }
 
@@ -237,7 +236,7 @@ export class Player extends GameObject {
     }
 
     get position(): Vec2 {
-        return this.dead ? this.deadPos : this.body.getPosition();
+        return this.deadPos ? this.deadPos : this.body.getPosition();
     }
 
     get zoom(): number {
@@ -262,7 +261,22 @@ export class Player extends GameObject {
             this.dead = true;
             if(this.role === TypeToId.kill_leader) {
                 this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
-                if(this.game!.killLeader === this) {
+
+                // Find a new Kill Leader
+                let highestKillCount = 0;
+                let highestKillsPlayer;
+                for(const p of this.game!.players) {
+                    if(!p.dead && p.kills > 2 && p.kills > highestKillCount) {
+                        highestKillCount = p.kills;
+                        highestKillsPlayer = p;
+                    }
+                }
+
+                // If a new Kill Leader was found, assign the role.
+                // Otherwise, leave it vacant.
+                if(highestKillCount > 0) {
+                    this.game!.assignKillLeader(highestKillsPlayer);
+                } else {
                     this.game!.killLeader = { id: 0, kills: 0 };
                     this.game!.killLeaderDirty = true;
                 }
@@ -276,16 +290,10 @@ export class Player extends GameObject {
                 source.kills++;
                 this.game!.kills.push(new KillPacket(this, source));
                 if(source.kills > 2 && source.kills > this.game!.killLeader.kills) {
-                    this.game!.killLeaderDirty = true;
-                    if(this.game!.killLeader !== source) {
-                        source.role = TypeToId.kill_leader;
-                        //this.game!.dirtyStatusPlayers.push(source);
-                        this.game!.killLeader = source;
-                        this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(source, true, false));
-                    }
+                    this.game!.assignKillLeader(source);
                 }
             }
-            this.deadPos = this.body.getPosition();
+            this.deadPos = this.body.getPosition().clone();
             this.game!.world.destroyBody(this.body);
             this.fullDirtyObjects.push(this);
             this.game!.fullDirtyObjects.push(this);

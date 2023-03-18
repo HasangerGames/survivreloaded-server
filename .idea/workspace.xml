@@ -8,10 +8,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="change the way inputs are handled; fix default ip in config">
+    <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="actually fix collision detection; improve kill leader and item pickup logic; write custom code to handle static files">
+      <change beforePath="$PROJECT_DIR$/.eslintrc.json" beforeDir="false" afterPath="$PROJECT_DIR$/.eslintrc.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ids.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/typeToId.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/game.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/gameObject.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/gameObject.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/map.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/map.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/building.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/building.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/deadBody.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/deadBody.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/loot.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/loot.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/obstacle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/obstacle.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/player.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/structure.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/structure.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/receiving/emotePacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/receiving/emotePacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/receiving/joinPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/receiving/joinPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/receivingPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/receivingPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/aliveCountsPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/aliveCountsPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/joinedPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/joinedPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/killPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/killPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/mapPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/mapPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/pickupPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/pickupPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/roleAnnouncementPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/roleAnnouncementPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/updatePacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/updatePacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sendingPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sendingPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,7 +77,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;jsx.switch.disabled&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/desktopgeek/SynologyDrive/Programming/Node/SurvivReloaded/public/src&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/desktopgeek/SynologyDrive/Programming/Node/SurvivReloaded/data&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -68,6 +91,9 @@
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/packets/sending" />
@@ -77,9 +103,6 @@
     </key>
   </component>
   <component name="RunManager" selected="npm.start">
-    <configuration name="127.0.0.1:8000" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://127.0.0.1:8000">
-      <method v="2" />
-    </configuration>
     <configuration name="start" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="start" />
@@ -105,15 +128,9 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="JavaScript Debug.127.0.0.1:8000" />
       <item itemvalue="npm.test" />
       <item itemvalue="npm.start" />
     </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="JavaScript Debug.127.0.0.1:8000" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -137,6 +154,7 @@
       <workItem from="1678494470722" duration="26534000" />
       <workItem from="1678580566194" duration="38723000" />
       <workItem from="1678794336419" duration="544000" />
+      <workItem from="1679080075216" duration="16802000" />
     </task>
     <task id="LOCAL-00001" summary="more matter.js testing">
       <created>1677886378553</created>
@@ -196,6 +214,7 @@
     <MESSAGE value="rewrite using uWebSockets.js" />
     <MESSAGE value="fix small issue; idleTimeout is in seconds, not milliseconds" />
     <MESSAGE value="change the way inputs are handled; fix default ip in config" />
-    <option name="LAST_COMMIT_MESSAGE" value="change the way inputs are handled; fix default ip in config" />
+    <MESSAGE value="actually fix collision detection; improve kill leader and item pickup logic; write custom code to handle static files" />
+    <option name="LAST_COMMIT_MESSAGE" value="actually fix collision detection; improve kill leader and item pickup logic; write custom code to handle static files" />
   </component>
 </project>

@@ -5,6 +5,7 @@ import {
     Config,
     Debug,
     distanceBetween,
+    Item,
     Maps,
     ObjectKind,
     Objects,
@@ -81,7 +82,11 @@ export class Map {
             //this.genStructure("club_structure_01", Objects["club_structure_01"]);
             //this.genBuildingTest("house_red_01", 1, false);
             this.obstacleTest("crate_01", Vec2(453, 153), 1);
-            //this.obstacleTest("crate_01", Vec2(465, 155), 0.8);
+            this.obstacleTest("crate_01", Vec2(458, 153), 1);
+            this.obstacleTest("crate_01", Vec2(463, 153), 1);
+            (this.game.objects[0] as Obstacle).loot = [new Item("backpack01", 1)];
+            (this.game.objects[1] as Obstacle).loot = [new Item("backpack02", 1)];
+            (this.game.objects[2] as Obstacle).loot = [new Item("backpack03", 1)];
             /*for(let x = 0; x <= 45; x++) {
                 for(let y = 0; y <= 45; y++) {
                     this.obstacleTest("tree_01", Vec2(x * 16, y * 16), 1.6);

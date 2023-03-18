@@ -2,8 +2,10 @@ import crypto from "crypto";
 import {
     type CollisionRecord,
     CollisionType,
-    Config, Constants,
-    Debug, distanceBetween,
+    Config,
+    Constants,
+    Debug,
+    distanceBetween,
     distanceToCircle,
     distanceToRect,
     type Emote,
@@ -27,7 +29,7 @@ import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
 import { Settings, Vec2, World } from "planck";
 import { Obstacle } from "./objects/obstacle";
-import { type RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
+import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 import { Loot } from "./objects/loot";
 
 export class Game {
@@ -342,13 +344,27 @@ export class Game {
     removePlayer(p): void {
         p.direction = Vec2(1, 0);
         p.quit = true;
+        p.deadPos = p.body.getPosition().clone();
+        this.world.destroyBody(p.body);
+
         //this.deletedPlayers.push(p);
-        this.partialDirtyObjects.push(p);
+        this.fullDirtyObjects.push(p);
         removeFrom(this.activePlayers, p);
         removeFrom(this.connectedPlayers, p);
+
         if(!p.dead) {
             this.aliveCount--;
             this.aliveCountDirty = true;
+        }
+    }
+
+    assignKillLeader(p: Player): void {
+        this.killLeaderDirty = true;
+        if(this.killLeader !== p) { // If the player isn't already the Kill Leader...
+            p.role = TypeToId.kill_leader;
+            //this.game!.dirtyStatusPlayers.push(source);
+            this.killLeader = p;
+            this.roleAnnouncements.push(new RoleAnnouncementPacket(p, true, false));
         }
     }
 

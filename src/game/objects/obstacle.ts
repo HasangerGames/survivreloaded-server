@@ -1,6 +1,7 @@
 import {
     bodyFromCollisionData,
-    CollisionType, Debug, Item,
+    CollisionType,
+    Item,
     LootTables,
     ObjectKind,
     type SurvivBitStream,
@@ -117,10 +118,6 @@ export class Obstacle extends GameObject {
     }
 
     private getLoot(tier: string): void {
-        if(Debug.guaranteedLoot) {
-            this.loot.push(new Item(Debug.guaranteedLoot, Debug.guaranteedLootCount));
-            return;
-        }
         const lootTable = LootTables[tier];
         if(!lootTable) {
             //console.warn(`Warning: Loot table not found: ${tier}`);

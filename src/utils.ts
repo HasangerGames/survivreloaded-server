@@ -8,7 +8,9 @@ export const Items = readJson("data/items.json");
 export const Weapons = readJson("data/weapons.json");
 export const Bullets = readJson("data/bullets.json");
 export const LootTables = readJson("data/lootTables.json");
-export const TypeToId = readJson("data/ids.json");
+export const TypeToId = readJson("data/typeToId.json");
+export const IdToGameType = readJson("data/idToGameType.json");
+export const IdToMapType = readJson("data/idToMapType.json");
 export const Config = readJson("config.json");
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
 export const Debug = Config.debug || {};
@@ -458,9 +460,8 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         });
         body.createFixture({
             shape: Circle(data.rad * scale),
-            filterMaskBits: CollisionCategory.Obstacle,
-            filterCategoryBits: CollisionCategory.Player | CollisionCategory.Loot,
-            filterGroupIndex: 1
+            filterCategoryBits: CollisionCategory.Obstacle,
+            filterMaskBits: CollisionCategory.Player | CollisionCategory.Loot
         });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
@@ -473,9 +474,8 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         });
         body.createFixture({
             shape: Box(width / 2, height / 2),
-            filterMaskBits: CollisionCategory.Obstacle,
-            filterCategoryBits: CollisionCategory.Player | CollisionCategory.Loot,
-            filterGroupIndex: 1
+            filterCategoryBits: CollisionCategory.Obstacle,
+            filterMaskBits: CollisionCategory.Player | CollisionCategory.Loot
         });
     }
     return body;
@@ -537,15 +537,6 @@ export function readPostedJson(res, cb, err): any {
 
     /* Register error cb */
     res.onAborted(err);
-}
-
-export async function streamToBuffer(stream): Promise<Buffer> {
-    const chunks: Buffer[] = [];
-    return await new Promise((resolve, reject) => {
-        stream.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
-        stream.on("error", (err) => reject(err));
-        stream.on("end", () => resolve(Buffer.concat(chunks)));
-    });
 }
 
 export function getContentType(filename: string): string {

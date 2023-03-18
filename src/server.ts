@@ -1,24 +1,17 @@
 import { App, DEDICATED_COMPRESSOR_256KB, SSLApp } from "uWebSockets.js";
 import cookie from "cookie";
-import LiveDirectory from "live-directory";
 import fs from "fs";
 
-import {
-    Config,
-    getContentType,
-    log,
-    MsgType,
-    readJson,
-    readPostedJson,
-    streamToBuffer,
-    SurvivBitStream
-} from "./utils";
+import { Config, Debug, getContentType, log, MsgType, readJson, readPostedJson, SurvivBitStream } from "./utils";
 import { Game } from "./game/game.js";
 import { InputPacket } from "./packets/receiving/inputPacket";
 import { EmotePacket } from "./packets/receiving/emotePacket";
 import { JoinPacket } from "./packets/receiving/joinPacket";
 
+// Start the game
 const game = new Game();
+
+// Initialize the server
 let app;
 if(Config.https) {
     app = SSLApp({
@@ -28,13 +21,29 @@ if(Config.https) {
 } else {
     app = App();
 }
-const staticFiles: LiveDirectory = new LiveDirectory("./public", { static: true });
 
-const addr: string = Config.addr || `${Config.host}:${Config.port}`;
+// Set up static files
+const staticFiles = {};
+function walk(dir: string, files: string[] = []): string[] {
+    if(dir.includes(".git") || dir.includes("src") || dir.includes(".vscode") || dir.includes(".idea")) return files;
+    const dirFiles = fs.readdirSync(dir);
+    for(const f of dirFiles) {
+        const stat = fs.lstatSync(dir + "/" + f);
+        if(stat.isDirectory()) {
+            walk(dir + "/" + f, files);
+        } else {
+            files.push(dir.slice(6) + "/" + f);
+        }
+    }
+    return files;
+}
+for(const file of walk("public")) {
+    staticFiles[file] = fs.readFileSync("public" + file);
+}
 
 app.get("/*", async (res, req) => {
     const path: string = req.getUrl() === "/" ? "/index.html" : req.getUrl();
-    const file = staticFiles.get(path);
+    const file = Debug.disableStaticFileCache ? fs.readFileSync("public" + path) : staticFiles[path];
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     res.onAborted(() => {});
@@ -45,13 +54,7 @@ app.get("/*", async (res, req) => {
         return;
     }
 
-    res = res.writeHeader("Content-Type", getContentType(path));
-
-    if(file.cached) {
-        res.end(file.content);
-    } else {
-        res.end(await streamToBuffer(file.stream()));
-    }
+    res.writeHeader("Content-Type", getContentType(path)).end(file);
 });
 
 app.get("/api/site_info", (res) => {
@@ -74,6 +77,7 @@ app.post("/api/user/get_user_prestige", (res) => {
     res.end('"0"');
 });
 
+const addr: string = Config.addr || `${Config.host}:${Config.port}`;
 app.post("/api/find_game", (res) => {
     readPostedJson(res, (body) => {
         res.writeHeader("Content-Type", "application/json");
@@ -170,6 +174,6 @@ process.on("SIGINT", () => {
 log("Surviv Reloaded Server v0.2.1");
 app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
-    log(`Listening on ${Config.https ? "https://" : "http://"}${addr}`);
+    log(`Listening on ${Config.https ? "https://" : "http://"}${Config.host}:${Config.port}`);
     log("Press Ctrl+C to exit.");
 });
