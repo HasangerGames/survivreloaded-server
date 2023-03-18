@@ -8,10 +8,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="upload missing files; improve static file handling">
+    <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="improve static file handling">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/packets/receiving/joinPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/receiving/joinPacket.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +129,7 @@
       <workItem from="1678494470722" duration="26534000" />
       <workItem from="1678580566194" duration="38723000" />
       <workItem from="1678794336419" duration="544000" />
-      <workItem from="1679080075216" duration="18775000" />
+      <workItem from="1679080075216" duration="23812000" />
     </task>
     <task id="LOCAL-00001" summary="more matter.js testing">
       <created>1677886378553</created>
@@ -181,7 +180,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679140734282</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="improve static file handling">
+      <created>1679141159770</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1679141159770</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -207,6 +213,7 @@
     <MESSAGE value="actually fix collision detection; improve kill leader and item pickup logic; write custom code to handle static files" />
     <MESSAGE value="actually fix collision filtering; improve kill leader and item pickup logic; write custom code to handle static files" />
     <MESSAGE value="upload missing files; improve static file handling" />
-    <option name="LAST_COMMIT_MESSAGE" value="upload missing files; improve static file handling" />
+    <MESSAGE value="improve static file handling" />
+    <option name="LAST_COMMIT_MESSAGE" value="improve static file handling" />
   </component>
 </project>
