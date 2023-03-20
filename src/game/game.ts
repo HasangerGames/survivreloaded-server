@@ -361,8 +361,8 @@ export class Game {
             player.fullDirtyObjects.push(p);
             p.fullDirtyObjects.push(player);
         }
-        p.fullDirtyObjects.push(p);
         p.updateVisibleObjects();
+        p.fullDirtyObjects.push(p);
 
         p.sendPacket(new JoinedPacket(p));
         const stream = SurvivBitStream.alloc(32768);

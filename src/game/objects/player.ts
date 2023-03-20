@@ -471,7 +471,6 @@ export class Player extends GameObject {
         stream.writeGameType(298 + this.backpackLevel); // Backpack
         stream.writeGameType(this.helmetLevel === 0 ? 0 : 301 + this.helmetLevel); // Helmet
         stream.writeGameType(this.chestLevel === 0 ? 0 : 305 + this.chestLevel); // Vest
-        console.log(this.loadout.melee);
         stream.writeGameType(this.loadout.melee); // Active weapon (not necessarily melee)
 
         stream.writeBits(this.layer, 2);
