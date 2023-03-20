@@ -361,7 +361,7 @@ export class Game {
             player.fullDirtyObjects.push(p);
             p.fullDirtyObjects.push(player);
         }
-        p.updateVisibleObjects();
+        //p.updateVisibleObjects();
         p.fullDirtyObjects.push(p);
 
         p.sendPacket(new JoinedPacket(p));
