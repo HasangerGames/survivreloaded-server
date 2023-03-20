@@ -14,9 +14,6 @@ export class UpdatePacket extends SendingPacket {
         super.serialize(stream);
         const p = this.p!;
 
-        // TODO Dirty hack, delete me
-        if(p.firstUpdate) p.fullDirtyObjects.push(p);
-
         let valuesChanged = 0;
         if(p.deletedObjects.length) valuesChanged += 1;
         if(p.fullDirtyObjects.length) valuesChanged += 2;
@@ -46,6 +43,7 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Full objects
+        console.log(p.fullDirtyObjects.includes(p));
         if(p.fullDirtyObjects.length) {
             stream.writeUint16(p.fullDirtyObjects.length);
             for(const fullObject of p.fullDirtyObjects) {
