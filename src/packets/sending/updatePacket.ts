@@ -43,6 +43,7 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Full objects
+        console.log(p.fullDirtyObjects.includes(p));
         if(p.fullDirtyObjects.length) {
             stream.writeUint16(p.fullDirtyObjects.length);
             for(const fullObject of p.fullDirtyObjects) {
