@@ -14,6 +14,9 @@ export class UpdatePacket extends SendingPacket {
         super.serialize(stream);
         const p = this.p!;
 
+        // TODO Dirty hack, delete me
+        if(p.firstUpdate) p.fullDirtyObjects.push(p);
+
         let valuesChanged = 0;
         if(p.deletedObjects.length) valuesChanged += 1;
         if(p.fullDirtyObjects.length) valuesChanged += 2;
