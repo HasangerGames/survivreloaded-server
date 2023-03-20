@@ -2,6 +2,7 @@ import { type WebSocket } from "uWebSockets.js";
 
 import {
     CollisionCategory,
+    Config,
     Constants,
     type Emote,
     type Explosion,
@@ -18,6 +19,8 @@ import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Body, Circle, Vec2 } from "planck";
 import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPacket";
+import { GameOverPacket } from "../../packets/sending/gameOverPacket";
+import { Loot } from "./loot";
 
 export class Player extends GameObject {
     socket: WebSocket<any>;
@@ -56,12 +59,12 @@ export class Player extends GameObject {
     meleeCooldown = 0;
 
     private _health = 100; // The player's health. Ranges from 0-100.
-    boost = 0; // The player's adrenaline. Ranges from 0-100.
+    private _boost = 0; // The player's adrenaline. Ranges from 0-100.
 
     kills = 0;
 
     downed = false; // Whether the player is downed (knocked out)
-    quit = false; // Whether the player has left the game
+    disconnected = false; // Whether the player has left the game
     deadPos: Vec2;
 
     damageable = true;
@@ -82,7 +85,6 @@ export class Player extends GameObject {
 
     movesSinceLastUpdate = 0;
 
-    useTouch: boolean;
     isMobile: boolean;
     touchMoveDir: Vec2;
 
@@ -98,10 +100,9 @@ export class Player extends GameObject {
         heal: number
         boost: number
         emotes: number[]
-        deathEffect: number
     };
 
-    packLevel = 0;
+    backpackLevel = 0;
     chestLevel = 0;
     helmetLevel = 0;
     inventory = {
@@ -156,8 +157,26 @@ export class Player extends GameObject {
         }
     };
 
+    actionItem: {
+        typeString: string
+        typeId: number
+        duration: number
+    };
+
+    actionItemUseEnd: number;
+    actionDirty = false;
+    actionType = 0;
+    actionSeq = 0;
+
+    speed = Config.movementSpeed;
+    diagonalSpeed = Config.diagonalSpeed;
+
     role = 0;
     roleLost = false;
+
+    joinTime: number;
+    damageDealt = 0;
+    damageTaken = 0;
 
     constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, username: string, loadout) {
         super(id, "", position, 0);
@@ -170,17 +189,18 @@ export class Player extends GameObject {
         this.groupId = this.game.players.length - 1;
         this.name = username;
         this.zoom = Constants.scopeZoomRadius.desktop["1xscope"];
+        this.actionItem = { typeString: "", typeId: 0, duration: 0 };
+        this.joinTime = Date.now();
 
         // Set loadout
-        if(loadout?.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes && loadout.deathEffect) {
+        if(loadout?.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes) {
             this.loadout = {
                 outfit: TypeToId[loadout.outfit],
                 melee: TypeToId[loadout.melee],
                 meleeType: loadout.melee,
                 heal: TypeToId[loadout.heal],
                 boost: TypeToId[loadout.boost],
-                emotes: [],
-                deathEffect: TypeToId[loadout.deathEffect]
+                emotes: []
             };
             for(const emote of loadout.emotes) this.loadout.emotes.push(TypeToId[emote]);
         } else {
@@ -190,8 +210,7 @@ export class Player extends GameObject {
                 meleeType: "fists",
                 heal: 99,
                 boost: 103,
-                deathEffect: 0,
-                emotes: [130, 128, 131, 129]
+                emotes: [130, 128, 131, 129, 0, 0]
             };
         }
         this.activeItems.melee.typeString = this.loadout.meleeType;
@@ -233,18 +252,49 @@ export class Player extends GameObject {
         this._zoom = zoom;
         this.xCullDist = this._zoom * 1.5;
         this.yCullDist = this._zoom;
+        this.zoomDirty = true;
     }
 
     get health(): number {
         return this._health;
     }
 
-    damage(amount: number, source): void {
-        this._health -= amount;
-        this.healthDirty = true;
+    set health(health: number) {
+        this._health = health;
+        if(this._health > 100) this._health = 100;
         if(this._health < 0) this._health = 0;
+        this.healthDirty = true;
+    }
+
+    get boost(): number {
+        return this._boost;
+    }
+
+    set boost(boost: number) {
+        this._boost = boost;
+        if(this._boost > 100) this._boost = 100;
+        if(this._boost < 0) this._boost = 0;
+        this.boostDirty = true;
+        this.recalculateSpeed();
+    }
+
+    damage(amount: number, source): void {
+        let finalDamage: number = amount;
+        finalDamage -= finalDamage * Constants.chestDamageReductionPercentages[this.chestLevel];
+        finalDamage -= finalDamage * Constants.helmetDamageReductionPercentages[this.helmetLevel];
+        if(this._health - finalDamage < 0) finalDamage += this._health - finalDamage;
+
+        this.damageTaken += finalDamage;
+        if(source instanceof Player) source.damageDealt += finalDamage;
+
+        this._health -= finalDamage;
+        this.healthDirty = true;
+
         if(this._health === 0) {
+            this.boost = 0;
             this.dead = true;
+
+            // Update role
             if(this.role === TypeToId.kill_leader) {
                 this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
 
@@ -252,7 +302,7 @@ export class Player extends GameObject {
                 let highestKillCount = 0;
                 let highestKillsPlayer;
                 for(const p of this.game!.players) {
-                    if(!p.dead && p.kills > 2 && p.kills > highestKillCount) {
+                    if(!p.dead && p.kills > highestKillCount) {
                         highestKillCount = p.kills;
                         highestKillsPlayer = p;
                     }
@@ -260,7 +310,7 @@ export class Player extends GameObject {
 
                 // If a new Kill Leader was found, assign the role.
                 // Otherwise, leave it vacant.
-                if(highestKillCount > 0) {
+                if(highestKillCount > 2) {
                     this.game!.assignKillLeader(highestKillsPlayer);
                 } else {
                     this.game!.killLeader = { id: 0, kills: 0 };
@@ -268,10 +318,14 @@ export class Player extends GameObject {
                 }
             }
             this.roleLost = true;
-            if(!this.quit) {
+
+            // Decrement alive count
+            if(!this.disconnected) {
                 this.game!.aliveCount--;
                 this.game!.aliveCountDirty = true;
             }
+
+            // Increment kill count for killer
             if(source instanceof Player) {
                 source.kills++;
                 this.game!.kills.push(new KillPacket(this, source));
@@ -279,16 +333,108 @@ export class Player extends GameObject {
                     this.game!.assignKillLeader(source);
                 }
             }
+
+            // Set static dead position
             this.deadPos = this.body.getPosition().clone();
             this.game!.world.destroyBody(this.body);
             this.fullDirtyObjects.push(this);
             this.game!.fullDirtyObjects.push(this);
+
+            // Create dead body
             const deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
             this.game!.objects.push(deadBody);
             this.game!.fullDirtyObjects.push(deadBody);
-            //this.game!.deletedPlayers.push(this);
+
+            // Drop loot
+            for(const item in this.inventory) {
+                if(item === "1xscope") continue;
+                if(this.inventory[item] > 0) this.dropLoot(item);
+            }
+            if(this.helmetLevel > 0) this.dropLoot(`helmet0${this.helmetLevel}`);
+            if(this.chestLevel > 0) this.dropLoot(`chest0${this.chestLevel}`);
+            if(this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
+
+            // Remove from active players; send game over
             removeFrom(this.game!.activePlayers, this);
+            if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
         }
+    }
+
+    private dropLoot(type: string): void {
+
+        // Create the loot
+        const loot: Loot = new Loot(
+            this.game!.nextObjectId,
+            type,
+            this.deadPos,
+            this.layer,
+            this.game!,
+            this.inventory[type]
+        );
+
+        // Push the loot in a random direction
+        //loot.body?.setLinearVelocity(Vec2(0.00709, 0.00709));//Vec2(randomFloatSpecial(0.007, 0.008), randomFloatSpecial(0.007, 0.008)));
+
+        // Add the loot to the array of objects
+        this.game!.objects.push(loot);
+        //this.game!.loot.push(loot);
+        this.game!.fullDirtyObjects.push(loot);
+    }
+
+    useItem(typeString: string, duration: number): void {
+        if(this.actionItem.typeId !== 0) return;
+        this.actionItem.typeString = typeString;
+        this.actionItem.typeId = TypeToId[typeString];
+        this.actionItem.duration = duration;
+
+        this.actionItemUseEnd = Date.now() + duration * 1000;
+        this.actionDirty = true;
+
+        this.actionType = Constants.Action.UseItem;
+        this.actionSeq = 1;
+
+        this.recalculateSpeed();
+        this.game!.fullDirtyObjects.push(this);
+        this.fullDirtyObjects.push(this);
+    }
+
+    recalculateSpeed(): void {
+        this.speed = Config.movementSpeed;
+        this.diagonalSpeed = Config.diagonalSpeed;
+        if(this.actionDirty) {
+            this.speed *= 0.5;
+            this.diagonalSpeed *= 0.5;
+        }
+        if(this.boost >= 50) {
+            this.speed *= 1.15;
+            this.diagonalSpeed *= 1.15;
+        }
+    }
+
+    updateVisibleObjects(): void {
+        this.movesSinceLastUpdate = 0;
+        const newVisibleObjects: GameObject[] = [];
+        for(const object of this.game!.objects) {
+            if(this === object) continue;
+            const minX = this.position.x - this.xCullDist,
+                maxX = this.position.x + this.xCullDist,
+                minY = this.position.y - this.yCullDist,
+                maxY = this.position.y + this.yCullDist;
+            if(object.position.x > minX &&
+                object.position.x < maxX &&
+                object.position.y > minY &&
+                object.position.y < maxY) {
+                newVisibleObjects.push(object);
+                if(!this.visibleObjects.includes(object)) {
+                    this.fullDirtyObjects.push(object);
+                }
+            } else { // if object is not visible
+                if(this.visibleObjects.includes(object)) {
+                    this.deletedObjects.push(object);
+                }
+            }
+        }
+        this.visibleObjects = newVisibleObjects;
     }
 
     isOnOtherSide(door): boolean {
@@ -308,7 +454,11 @@ export class Player extends GameObject {
     }
 
     sendData(stream: SurvivBitStream): void {
-        this.socket.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)), true, true);
+        try {
+            this.socket.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)), true, true);
+        } catch(e) {
+            console.warn("Error sending packet. Details:", e);
+        }
     }
 
     serializePartial(stream: SurvivBitStream): void {
@@ -318,7 +468,7 @@ export class Player extends GameObject {
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
-        stream.writeGameType(298 + this.packLevel); // Backpack
+        stream.writeGameType(298 + this.backpackLevel); // Backpack
         stream.writeGameType(this.helmetLevel === 0 ? 0 : 301 + this.helmetLevel); // Helmet
         stream.writeGameType(this.chestLevel === 0 ? 0 : 305 + this.chestLevel); // Vest
         stream.writeGameType(this.loadout.melee); // Active weapon (not necessarily melee)
@@ -329,8 +479,8 @@ export class Player extends GameObject {
 
         stream.writeBits(this.animType, 3);
         stream.writeBits(this.animSeq, 3);
-        stream.writeBits(0, 3); // Action type
-        stream.writeBits(0, 3); // Action seq
+        stream.writeBits(this.actionType, 3);
+        stream.writeBits(this.actionSeq, 3);
 
         stream.writeBoolean(false); // Wearing pan
         stream.writeBoolean(false); // Indoors
@@ -339,7 +489,11 @@ export class Player extends GameObject {
 
         stream.writeBits(0, 2); // Unknown bits
 
-        stream.writeBoolean(false); // Action item dirty
+        stream.writeBoolean(this.actionItem.typeId !== 0);
+        if(this.actionItem.typeId !== 0) {
+            stream.writeGameType(this.actionItem.typeId);
+        }
+
         stream.writeBoolean(false); // Scale dirty
         stream.writeBoolean(false); // Perks dirty
         stream.writeAlignToNextByte();

@@ -9,8 +9,6 @@ export const Weapons = readJson("data/weapons.json");
 export const Bullets = readJson("data/bullets.json");
 export const LootTables = readJson("data/lootTables.json");
 export const TypeToId = readJson("data/typeToId.json");
-export const IdToGameType = readJson("data/idToGameType.json");
-export const IdToMapType = readJson("data/idToMapType.json");
 export const Config = readJson("config.json");
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
 export const Debug = Config.debug || {};
@@ -298,6 +296,8 @@ export const Constants = {
         "8xscope": [1, 1, 1, 1],
         "15xscope": [1, 1, 1, 1]
     },
+    chestDamageReductionPercentages: [0, 0.25, 0.38, 0.45, 0.60],
+    helmetDamageReductionPercentages: [0, 0.075, 0.12, 0.165, 0.21],
     lootRadius: {
         outfit: 1,
         melee: 1.25,
@@ -421,10 +421,24 @@ export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number):
     return a * a > x * x + y * y;
 }
 
-export function rectCollision(min: Vec2, max: Vec2, circlePos: Vec2, circleRad: number): boolean {
+/*export function rectCollision(min: Vec2, max: Vec2, circlePos: Vec2, circleRad: number): boolean {
     const distX = Math.max(min.x, Math.min(max.x, circlePos.x)) - circlePos.x;
     const distY = Math.max(min.y, Math.min(max.y, circlePos.y)) - circlePos.y;
     return distX * distX + distY * distY > circleRad * circleRad;
+}*/
+
+export function rectCollision(min: Vec2, max: Vec2, pos: Vec2, rad: number) {
+    var cpt = Vec2(clamp(pos.x, min.x, max.x), clamp(pos.y, min.y, max.y));
+    var dstSqr = Vec2.lengthSquared(Vec2.sub(pos, cpt));
+    return dstSqr < rad * rad || pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y;
+}
+
+export function clamp(a: number, min: number, max: number) {
+    return a < max ? a > min ? a : min : max;
+}
+
+export function rectRectCollision(min1: Vec2, max1: Vec2, min2: Vec2, max2: Vec2): boolean {
+    return min2.x < max1.x && min2.y < max1.y && min1.x < max2.x && min1.y < max2.y;
 }
 
 export interface CollisionRecord { collided: boolean, distance: number }

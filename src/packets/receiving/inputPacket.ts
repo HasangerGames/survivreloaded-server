@@ -1,5 +1,5 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { distanceBetween, InputType, type SurvivBitStream } from "../../utils";
+import { Constants, distanceBetween, InputType, type SurvivBitStream, TypeToId } from "../../utils";
 import { Vec2 } from "planck";
 
 export class InputPacket extends ReceivingPacket {
@@ -25,6 +25,10 @@ export class InputPacket extends ReceivingPacket {
         stream.readBoolean(); // Portrait
         const touchMoveActive = stream.readBoolean();
         if(touchMoveActive) {
+            if(!p.isMobile) {
+                p.isMobile = true;
+                p.zoom = Constants.scopeZoomRadius.mobile["1xscope"];
+            }
             p.touchMoveDir = stream.readUnitVec(8);
 
             // Detect when the player isn't moving
@@ -68,8 +72,29 @@ export class InputPacket extends ReceivingPacket {
             }
         }
 
-        stream.readGameType(); // Item in use
-        stream.readBits(5); // Padding
+        // Item use logic
+        switch(stream.readGameType()) {
+            case 0:
+                break;
+            case TypeToId.bandage:
+                if(p.health === 100 || p.inventory.bandage === 0) break;
+                p.useItem("bandage", 3);
+                break;
+            case TypeToId.healthkit:
+                if(p.health === 100 || p.inventory.healthkit === 0) break;
+                p.useItem("healthkit", 6);
+                break;
+            case TypeToId.soda:
+                if(p.boost === 100 || p.inventory.soda === 0) break;
+                p.useItem("soda", 3);
+                break;
+            case TypeToId.painkiller:
+                if(p.boost === 100 || p.inventory.painkiller === 0) break;
+                p.useItem("painkiller", 5);
+                break;
+        }
+
+        stream.readBits(6); // Padding
     }
 
 }

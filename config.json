@@ -1,16 +1,15 @@
 {
-  "host": "127.0.0.1",
+  "host": "192.168.1.15",
   "port": 8000,
   "https": false,
   "keyFile": "config/key.pem",
   "certFile": "config/cert.pem",
 
-  "tickDelta": 30,
   "movementSpeed": 0.013,
   "debug": {
     "performanceLog": true,
     "performanceLogInterval": 200,
-    "minimalMapGeneration": false,
+    "disableMapGeneration": false,
     "fixedSpawnLocation": [450, 150],
     "disableStaticFileCache": true
   }

@@ -9,15 +9,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="150bf59f-2a64-47c2-bb06-558b1434c533" name="Changes" comment="improve static file handling">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/typeToId.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/typeToId.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/idToGameType.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/idToMapType.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/lootTables.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/lootTables.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/maps.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/maps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/objects.json" beforeDir="false" afterPath="$PROJECT_DIR$/data/objects.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/site_info.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/site_info.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reference/loadout.json" beforeDir="false" afterPath="$PROJECT_DIR$/json/loadout.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/game.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/game.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/map.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/map.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/objects/building.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/building.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/loot.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/loot.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/obstacle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/obstacle.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/objects/player.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/objects/player.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/packets/sending/mapPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/mapPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/receiving/inputPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/receiving/inputPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/receiving/joinPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/receiving/joinPacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/packets/sending/joinedPacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/joinedPacket.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/packets/sending/updatePacket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/packets/sending/updatePacket.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/server.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/server.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -78,11 +89,11 @@
       <recent name="$PROJECT_DIR$/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/json" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/packets/sending" />
       <recent name="$PROJECT_DIR$/src/game" />
       <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/src/game/objects" />
     </key>
   </component>
   <component name="RunManager" selected="npm.start">
@@ -138,7 +149,7 @@
       <workItem from="1678580566194" duration="38723000" />
       <workItem from="1678794336419" duration="544000" />
       <workItem from="1679080075216" duration="32646000" />
-      <workItem from="1679175741851" duration="1526000" />
+      <workItem from="1679175741851" duration="43931000" />
     </task>
     <task id="LOCAL-00001" summary="more matter.js testing">
       <created>1677886378553</created>

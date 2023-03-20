@@ -2,7 +2,6 @@ import crypto from "crypto";
 import {
     type CollisionRecord,
     CollisionType,
-    Config,
     Constants,
     Debug,
     distanceBetween,
@@ -46,6 +45,8 @@ export class Game {
     partialDirtyObjects: GameObject[] = [];
     fullDirtyObjects: GameObject[] = [];
     deletedObjects: GameObject[] = [];
+    newObjects: GameObject[] = [];
+    //loot: Loot[] = [];
 
     players: Player[] = []; // All players, including dead and disconnected players.
     connectedPlayers: Player[] = []; // All connected players. May be dead.
@@ -105,7 +106,7 @@ export class Game {
 
         this.map = new Map(this, "main");
 
-        this.tick(Config.tickDelta);
+        this.tick(33);
     }
 
     tickTimes: number[] = [];
@@ -118,25 +119,32 @@ export class Game {
             if(!this.active) return;
 
             // Update physics
-            this.world.step(Config.tickDelta);
+            this.world.step(30);
 
             // Create an alive count packet
             if(this.aliveCountDirty) this.aliveCounts = new AliveCountsPacket(this);
 
+            // Update loot positions
+            /*for(const loot of this.loot) {
+                const velocity = loot.body!.getLinearVelocity();
+                if(velocity.x > 0 || velocity.y > 0) this.partialDirtyObjects.push(loot);
+            }*/
+
             // First loop: Calculate movement & animations
             for(const p of this.activePlayers) {
+
                 // Movement
-                if(p.useTouch) {
-                    p.setVelocity(p.touchMoveDir.x * Config.movementSpeed, p.touchMoveDir.y * Config.movementSpeed);
+                if(p.isMobile) {
+                    p.setVelocity(p.touchMoveDir.x * p.speed, p.touchMoveDir.y * p.speed);
                 } else {
-                    if(p.movingUp && p.movingLeft) p.setVelocity(-Config.diagonalSpeed, Config.diagonalSpeed);
-                    else if(p.movingUp && p.movingRight) p.setVelocity(Config.diagonalSpeed, Config.diagonalSpeed);
-                    else if(p.movingDown && p.movingLeft) p.setVelocity(-Config.diagonalSpeed, -Config.diagonalSpeed);
-                    else if(p.movingDown && p.movingRight) p.setVelocity(Config.diagonalSpeed, -Config.diagonalSpeed);
-                    else if(p.movingUp) p.setVelocity(0, Config.movementSpeed);
-                    else if(p.movingDown) p.setVelocity(0, -Config.movementSpeed);
-                    else if(p.movingLeft) p.setVelocity(-Config.movementSpeed, 0);
-                    else if(p.movingRight) p.setVelocity(Config.movementSpeed, 0);
+                    if(p.movingUp && p.movingLeft) p.setVelocity(-p.diagonalSpeed, p.diagonalSpeed);
+                    else if(p.movingUp && p.movingRight) p.setVelocity(p.diagonalSpeed, p.diagonalSpeed);
+                    else if(p.movingDown && p.movingLeft) p.setVelocity(-p.diagonalSpeed, -p.diagonalSpeed);
+                    else if(p.movingDown && p.movingRight) p.setVelocity(p.diagonalSpeed, -p.diagonalSpeed);
+                    else if(p.movingUp) p.setVelocity(0, p.speed);
+                    else if(p.movingDown) p.setVelocity(0, -p.speed);
+                    else if(p.movingLeft) p.setVelocity(-p.speed, 0);
+                    else if(p.movingRight) p.setVelocity(p.speed, 0);
                     else p.setVelocity(0, 0);
                 }
 
@@ -147,6 +155,42 @@ export class Game {
                             object.interact(p);
                         }
                     }
+                }
+
+                // Drain adrenaline
+                if(p.boost) p.boost -= 0.01136;
+
+                // Health regeneration from adrenaline
+                if(p.boost > 0 && p.boost <= 25) p.health += 0.0050303;
+                else if(p.boost > 25 && p.boost <= 50) p.health += 0.012624;
+                else if(p.boost > 50 && p.boost <= 87.5) p.health += 0.01515;
+                else if(p.boost > 87.5 && p.boost <= 100) p.health += 0.01766;
+
+                // Action item logic
+                if(p.actionDirty && Date.now() - p.actionItemUseEnd > 0) {
+                    switch(p.actionItem.typeString) {
+                        case "bandage":
+                            p.health += 15;
+                            break;
+                        case "healthkit":
+                            p.health = 100;
+                            break;
+                        case "soda":
+                            p.boost += 25;
+                            break;
+                        case "painkiller":
+                            p.boost += 50;
+                            break;
+                    }
+                    p.inventory[p.actionItem.typeString]--;
+                    p.inventoryDirty = true;
+                    p.actionItem.typeString = "";
+                    p.actionItem.typeId = 0;
+                    p.actionDirty = false;
+                    p.actionType = 0;
+                    p.actionSeq = 0;
+                    this.fullDirtyObjects.push(p);
+                    p.fullDirtyObjects.push(p);
                 }
 
                 // Melee logic
@@ -215,31 +259,10 @@ export class Game {
 
             // Second loop: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
+
                 // Calculate visible objects
                 if(p.movesSinceLastUpdate > 8 || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
-                    p.movesSinceLastUpdate = 0;
-                    const newVisibleObjects: GameObject[] = [];
-                    for(const object of this.objects) {
-                        if(p === object) continue;
-                        const minX = p.position.x - p.xCullDist,
-                            maxX = p.position.x + p.xCullDist,
-                            minY = p.position.y - p.yCullDist,
-                            maxY = p.position.y + p.yCullDist;
-                        if(object.position.x > minX &&
-                            object.position.x < maxX &&
-                            object.position.y > minY &&
-                            object.position.y < maxY) {
-                            newVisibleObjects.push(object);
-                            if(!p.visibleObjects.includes(object)) {
-                                p.fullDirtyObjects.push(object);
-                            }
-                        } else { // if object is not visible
-                            if(p.visibleObjects.includes(object)) {
-                                p.deletedObjects.push(object);
-                            }
-                        }
-                    }
-                    p.visibleObjects = newVisibleObjects;
+                    p.updateVisibleObjects();
                 }
 
                 // Update role
@@ -256,18 +279,21 @@ export class Game {
                 // TODO Determine which explosions should be displayed to the player
                 if(this.explosions.length) p.explosions = this.explosions;
 
+                // Full objects
                 if(this.fullDirtyObjects.length) {
                     for(const object of this.fullDirtyObjects) {
                         if(p.visibleObjects.includes(object)) p.fullDirtyObjects.push(object);
                     }
                 }
 
+                // Partial objects
                 if(this.partialDirtyObjects.length) {
                     for(const object of this.partialDirtyObjects) {
                         if(p.visibleObjects.includes(object)) p.partialDirtyObjects.push(object);
                     }
                 }
 
+                // Deleted objects
                 if(this.deletedObjects.length) {
                     for(const object of this.deletedObjects) {
                         //if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
@@ -275,6 +301,7 @@ export class Game {
                     }
                 }
 
+                // Send packets
                 p.sendPacket(new UpdatePacket(p));
                 if(this.aliveCountDirty) p.sendPacket(this.aliveCounts);
                 for(const kill of this.kills) p.sendPacket(kill);
@@ -309,7 +336,7 @@ export class Game {
                     this.tickTimes = [];
                 }
             }
-            const newDelay: number = Math.max(0, Config.tickDelta - tickTime);
+            const newDelay: number = Math.max(0, 30 - tickTime);
             this.tick(newDelay);
         }, delay);
     }
@@ -329,11 +356,17 @@ export class Game {
         this.aliveCount++;
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
+        for(const player of this.players) {
+            if(player === p) continue;
+            player.fullDirtyObjects.push(p);
+            p.fullDirtyObjects.push(player);
+        }
+        p.fullDirtyObjects.push(p);
+        p.updateVisibleObjects();
 
         p.sendPacket(new JoinedPacket(p));
         const stream = SurvivBitStream.alloc(32768);
         new MapPacket(p).serialize(stream);
-        p.fullDirtyObjects.push(p);
         new UpdatePacket(p).serialize(stream);
         new AliveCountsPacket(this).serialize(stream);
         p.sendData(stream);
@@ -343,7 +376,7 @@ export class Game {
 
     removePlayer(p): void {
         p.direction = Vec2(1, 0);
-        p.quit = true;
+        p.disconnected = true;
         p.deadPos = p.body.getPosition().clone();
         this.world.destroyBody(p.body);
 
@@ -362,7 +395,10 @@ export class Game {
         this.killLeaderDirty = true;
         if(this.killLeader !== p) { // If the player isn't already the Kill Leader...
             p.role = TypeToId.kill_leader;
-            //this.game!.dirtyStatusPlayers.push(source);
+            /*this.dirtyStatusPlayers.push(p);
+            if(this.killLeader instanceof Player) {
+                this.dirtyStatusPlayers.push(this.killLeader);
+            }*/
             this.killLeader = p;
             this.roleAnnouncements.push(new RoleAnnouncementPacket(p, true, false));
         }
