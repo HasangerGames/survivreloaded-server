@@ -13,6 +13,7 @@ export class UpdatePacket extends SendingPacket {
     serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
         const p = this.p!;
+        console.log("testing testing");
 
         let valuesChanged = 0;
         if(p.deletedObjects.length) valuesChanged += 1;
