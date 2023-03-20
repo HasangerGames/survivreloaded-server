@@ -13,7 +13,6 @@ export class UpdatePacket extends SendingPacket {
     serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
         const p = this.p!;
-        console.log("testing testing");
 
         let valuesChanged = 0;
         if(p.deletedObjects.length) valuesChanged += 1;
@@ -44,7 +43,6 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Full objects
-        console.log(p.fullDirtyObjects.includes(p));
         if(p.fullDirtyObjects.length) {
             stream.writeUint16(p.fullDirtyObjects.length);
             for(const fullObject of p.fullDirtyObjects) {
