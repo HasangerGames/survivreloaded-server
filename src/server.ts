@@ -146,6 +146,7 @@ app.ws("/play", {
         );
     },
     open: (socket) => {
+        console.log("got here");
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
         log(`${socket.player.name} joined the game`);
     },
