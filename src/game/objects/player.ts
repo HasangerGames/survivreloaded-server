@@ -429,7 +429,7 @@ export class Player extends GameObject {
                     this.fullDirtyObjects.push(object);
                 }
             } else { // if object is not visible
-                if(this.visibleObjects.includes(object)) {
+                if(this.visibleObjects.includes(object) && !(object instanceof Player)) {
                     this.deletedObjects.push(object);
                 }
             }
