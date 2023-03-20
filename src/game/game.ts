@@ -356,15 +356,11 @@ export class Game {
         this.aliveCount++;
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
+        p.updateVisibleObjects();
         for(const player of this.players) {
-            if(player === p) continue;
             player.fullDirtyObjects.push(p);
             p.fullDirtyObjects.push(player);
         }
-        p.updateVisibleObjects();
-        p.fullDirtyObjects.push(p);
-        console.log(p.fullDirtyObjects.length);
-        console.log(p.fullDirtyObjects.includes(p));
 
         p.sendPacket(new JoinedPacket(p));
         const stream = SurvivBitStream.alloc(32768);
