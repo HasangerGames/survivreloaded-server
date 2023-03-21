@@ -1,10 +1,14 @@
 import {
     bodyFromCollisionData,
     CollisionType,
+    distanceBetween,
+    Explosion,
     Item,
     LootTables,
-    ObjectKind, Objects,
+    ObjectKind,
+    Objects,
     type SurvivBitStream,
+    TypeToId,
     weightedRandom
 } from "../../utils";
 import { type Game } from "../game";
@@ -47,6 +51,7 @@ export class Obstacle extends GameObject {
     reflectBullets: boolean;
     destructible: boolean;
     destroyType = "";
+    explosion = "";
 
     loot: Item[] = [];
 
@@ -102,6 +107,7 @@ export class Obstacle extends GameObject {
         this.destructible = data.destructible;
         this.damageable = data.destructible;
         this.destroyType = data.destroyType;
+        this.explosion = data.explosion;
         if(this.collidable) {
             this.body = bodyFromCollisionData(this.game!.world, data.collision, position, orientation, scale);
         }
@@ -141,7 +147,7 @@ export class Obstacle extends GameObject {
         return this._position;
     }
 
-    damage(amount: number): void {
+    damage(amount: number, source): void {
         this.health -= amount;
         if(this.health <= 0) {
             this.health = this.healthT = 0;
@@ -161,6 +167,13 @@ export class Obstacle extends GameObject {
                 );
                 this.game!.objects.push(replacementObject);
                 this.game!.fullDirtyObjects.push(replacementObject);
+            }
+            if(this.explosion) {
+                const explosion: Explosion = new Explosion(this.position, TypeToId[this.explosion], 0);
+                this.game!.explosions.push(explosion);
+                for(const player of this.game!.players) {
+                    if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this);
+                }
             }
             this.game!.world.destroyBody(this.body!);
             this.game!.fullDirtyObjects.push(this);

@@ -289,7 +289,7 @@ export class Player extends GameObject {
         this.recalculateSpeed();
     }
 
-    damage(amount: number, source): void {
+    damage(amount: number, source, objectUsed?): void {
         let finalDamage: number = amount;
         finalDamage -= finalDamage * Constants.chestDamageReductionPercentages[this.chestLevel];
         finalDamage -= finalDamage * Constants.helmetDamageReductionPercentages[this.helmetLevel];
@@ -339,7 +339,6 @@ export class Player extends GameObject {
             // Increment kill count for killer
             if(source instanceof Player) {
                 source.kills++;
-                this.game!.kills.push(new KillPacket(this, source));
                 if(source.kills > 2 && source.kills > this.game!.killLeader.kills) {
                     this.game!.assignKillLeader(source);
                 }
@@ -365,8 +364,9 @@ export class Player extends GameObject {
             if(this.chestLevel > 0) this.dropLoot(`chest0${this.chestLevel}`);
             if(this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
 
-            // Remove from active players; send game over
+            // Remove from active players; send packets
             removeFrom(this.game!.activePlayers, this);
+            this.game!.kills.push(new KillPacket(this, source, objectUsed));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
         }
     }
