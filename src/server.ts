@@ -186,6 +186,6 @@ app.listen(Config.host, Config.port, () => {
     log(`Listening on ${Config.https ? "https://" : "http://"}${Config.host}:${Config.port}`);
     log("Press Ctrl+C to exit.");
     if(Debug.autoStopServer) {
-        setTimeout(() => process.exit(), Debug.autoStopAfter);
+        setTimeout(() => process.exit(1), Debug.autoStopAfter);
     }
 });
