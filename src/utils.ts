@@ -8,9 +8,12 @@ export const Items = readJson("data/items.json");
 export const Weapons = readJson("data/weapons.json");
 export const Bullets = readJson("data/bullets.json");
 export const LootTables = readJson("data/lootTables.json");
+export const AllowedSkins = readJson("data/allowedSkins.json");
+export const AllowedMelee = readJson("data/allowedMelee.json");
+export const AllowedEmotes = readJson("data/allowedEmotes.json");
+export const AllowedHeal = readJson("data/allowedHeal.json");
+export const AllowedBoost = readJson("data/allowedBoost.json");
 export const TypeToId = readJson("data/typeToId.json");
-export const IdToGameType = readJson("data/idToGameType.json");
-export const IdToMapType = readJson("data/idToMapType.json");
 export const Config = readJson("config.json");
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
 export const Debug = Config.debug || {};
@@ -26,6 +29,7 @@ export class Item {
 }
 
 export const Constants = {
+    protocolVersion: 76,
     Input: {
         MoveLeft: 0,
         MoveRight: 1,
@@ -63,8 +67,7 @@ export const Constants = {
         Fullscreen: 33,
         HideUI: 34,
         TeamPingSingle: 35,
-        UseEventItem: 36,
-        Count: 37
+        Count: 36
     },
     EmoteSlot: {
         Top: 0,
@@ -88,12 +91,7 @@ export const Constants = {
         Bleeding: 1,
         Gas: 2,
         Airdrop: 3,
-        Airstrike: 4,
-        Freeze: 5,
-        Weather: 6,
-        Npc: 7,
-        Burning: 8,
-        Phoenix: 9
+        Airstrike: 4
     },
     Action: {
         None: 0,
@@ -109,8 +107,7 @@ export const Constants = {
         Throw: 3,
         CrawlForward: 4,
         CrawlBackward: 5,
-        Revive: 6,
-        ChangePose: 7
+        Revive: 6
     },
     GasMode: {
         Inactive: 0,
@@ -120,12 +117,6 @@ export const Constants = {
     Plane: {
         Airdrop: 0,
         Airstrike: 1
-    },
-    HasteType: {
-        None: 0,
-        Windwalk: 1,
-        Takedown: 2,
-        Inspire: 3
     },
     map: {
         gridSize: 16,
@@ -138,20 +129,20 @@ export const Constants = {
         maxInteractionRad: 3.5,
         health: 100,
         reviveHealth: 24,
-        boostBreakpoints: [1, 1, 1.5, 0.5],
-        baseSwitchDelay: 0.25,
+        boostBreakpoints: [1, 1, 1.5, .5],
+        baseSwitchDelay: .25,
         freeSwitchCooldown: 1,
         bleedTickRate: 1,
         reviveDuration: 8,
         reviveRange: 5,
-        crawlTime: 0.75,
+        crawlTime: .75,
         emoteSoftCooldown: 2,
         emoteHardCooldown: 6,
         emoteThreshold: 6,
         throwableMaxMouseDist: 18,
-        cookTime: 0.1,
-        throwTime: 0.3,
-        meleeHeight: 0.25,
+        cookTime: .1,
+        throwTime: .3,
+        meleeHeight: .25,
         touchLootRadMult: 1.4,
         medicHealRange: 8,
         medicReviveRange: 6
@@ -164,7 +155,7 @@ export const Constants = {
         planeVel: 48,
         planeRad: 150,
         soundRangeMult: 2.5,
-        soundRangeDelta: 0.25,
+        soundRangeDelta: .25,
         soundRangeMax: 92,
         fallOff: 0
     },
@@ -181,15 +172,94 @@ export const Constants = {
         soundRangeMax: 48,
         fallOff: 1.25
     },
+    groupColors: [16776960, 16711935, 65535, 16733184],
+    teamColors: [13369344, 32511],
     bullet: {
         maxReflect: 3,
         reflectDistDecay: 1.5,
-        height: 0.25
+        height: .25
     },
     projectile: {
         maxHeight: 5
     },
     structureLayerCount: 2,
+    tracerColors: {
+        "9mm": {
+            regular: 16704198,
+            saturated: 16767411,
+            chambered: 16744192,
+            alphaRate: .92,
+            alphaMin: .14
+        },
+        "9mm_suppressed_bonus": {
+            regular: 16704198,
+            saturated: 16767411,
+            chambered: 16744192,
+            alphaRate: .96,
+            alphaMin: .28
+        },
+        "9mm_cursed": {
+            regular: 1247488,
+            saturated: 1247488,
+            chambered: 1247488,
+            alphaRate: .92,
+            alphaMin: .14
+        },
+        "762mm": {
+            regular: 12965630,
+            saturated: 11257087,
+            chambered: 19711,
+            alphaRate: .94,
+            alphaMin: .2
+        },
+        "12gauge": {
+            regular: 16702684,
+            saturated: 16702684,
+            chambered: 16711680
+        },
+        "556mm": {
+            regular: 11141010,
+            saturated: 11141010,
+            chambered: 3604224,
+            alphaRate: .92,
+            alphaMin: .14
+        },
+        "50AE": {
+            regular: 16773256,
+            saturated: 16773256,
+            chambered: 16768768
+        },
+        "308sub": {
+            regular: 2435840,
+            saturated: 4608e3,
+            chambered: 1250816,
+            alphaRate: .92,
+            alphaMin: .07
+        },
+        flare: {
+            regular: 14869218,
+            saturated: 14869218,
+            chambered: 12895428
+        },
+        "45acp": {
+            regular: 15515391,
+            saturated: 15183103,
+            chambered: 11862271
+        },
+        shrapnel: {
+            regular: 3355443,
+            saturated: 3355443
+        },
+        frag: {
+            regular: 13303808,
+            saturated: 13303808
+        },
+        potato: {
+            regular: 0,
+            saturated: 0,
+            chambered: 0
+        }
+    },
     scopeZoomRadius: {
         desktop: {
             "1xscope": 28,
@@ -214,37 +284,25 @@ export const Constants = {
         "50AE": [49, 98, 147, 196],
         "308sub": [10, 20, 40, 80],
         flare: [2, 4, 6, 8],
-        "40mm": [10, 20, 30, 40],
         "45acp": [90, 180, 240, 300],
-        mine: [3, 6, 9, 12],
         frag: [3, 6, 9, 12],
-        heart_frag: [3, 6, 9, 12],
         smoke: [3, 6, 9, 12],
         strobe: [2, 3, 4, 5],
         mirv: [2, 4, 6, 8],
         snowball: [10, 20, 30, 40],
-        water_balloon: [10, 20, 30, 40],
-        skitternade: [10, 20, 30, 40],
-        antiFire: [10, 20, 30, 40],
         potato: [10, 20, 30, 40],
         bandage: [5, 10, 15, 30],
         healthkit: [1, 2, 3, 4],
         soda: [2, 5, 10, 15],
-        chocolateBox: [2, 5, 10, 15],
-        bottle: [2, 5, 10, 15],
-        gunchilada: [2, 5, 10, 15],
-        watermelon: [2, 5, 10, 15],
-        nitroLace: [2, 5, 10, 15],
-        flask: [2, 5, 10, 15],
-        pulseBox: [2, 5, 10, 15],
         painkiller: [1, 2, 3, 4],
         "1xscope": [1, 1, 1, 1],
         "2xscope": [1, 1, 1, 1],
         "4xscope": [1, 1, 1, 1],
         "8xscope": [1, 1, 1, 1],
-        "15xscope": [1, 1, 1, 1],
-        rainbow_ammo: [1, 1, 1, 1]
+        "15xscope": [1, 1, 1, 1]
     },
+    chestDamageReductionPercentages: [0, 0.25, 0.38, 0.45, 0.60],
+    helmetDamageReductionPercentages: [0, 0.075, 0.12, 0.165, 0.21],
     lootRadius: {
         outfit: 1,
         melee: 1.25,
@@ -368,10 +426,24 @@ export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number):
     return a * a > x * x + y * y;
 }
 
-export function rectCollision(min: Vec2, max: Vec2, circlePos: Vec2, circleRad: number): boolean {
+/*export function rectCollision(min: Vec2, max: Vec2, circlePos: Vec2, circleRad: number): boolean {
     const distX = Math.max(min.x, Math.min(max.x, circlePos.x)) - circlePos.x;
     const distY = Math.max(min.y, Math.min(max.y, circlePos.y)) - circlePos.y;
     return distX * distX + distY * distY > circleRad * circleRad;
+}*/
+
+export function rectCollision(min: Vec2, max: Vec2, pos: Vec2, rad: number) {
+    var cpt = Vec2(clamp(pos.x, min.x, max.x), clamp(pos.y, min.y, max.y));
+    var dstSqr = Vec2.lengthSquared(Vec2.sub(pos, cpt));
+    return dstSqr < rad * rad || pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y;
+}
+
+export function clamp(a: number, min: number, max: number) {
+    return a < max ? a > min ? a : min : max;
+}
+
+export function rectRectCollision(min1: Vec2, max1: Vec2, min2: Vec2, max2: Vec2): boolean {
+    return min2.x < max1.x && min2.y < max1.y && min1.x < max2.x && min1.y < max2.y;
 }
 
 export interface CollisionRecord { collided: boolean, distance: number }
@@ -617,11 +689,11 @@ export class SurvivBitStream extends BitStream {
     }
 
     writeGameType(id): void {
-        this.writeBits(id, 11);
+        this.writeBits(id, 10);
     }
 
     readGameType(): number {
-        return this.readBits(11);
+        return this.readBits(10);
     }
 
     writeMapType(id): void {

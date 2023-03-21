@@ -1,4 +1,4 @@
-import { bodyFromCollisionData, ObjectKind, type SurvivBitStream } from "../../utils";
+import { bodyFromCollisionData, ObjectKind, rotateRect, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 import { Vec2 } from "planck";
 import { Game } from "../game";
@@ -10,6 +10,8 @@ export class Building extends GameObject {
     occupied = false;
     ceilingDamaged = false;
     hasPuzzle = false;
+
+    mapObstacleBounds: any[] = [];
 
     constructor(id: number,
                 typeString: string,
@@ -24,7 +26,11 @@ export class Building extends GameObject {
 
         this.showOnMap = showOnMap;
         if(data.mapObstacleBounds) {
-            this.body = bodyFromCollisionData(game.world, data.mapObstacleBounds[0], this.position);
+            for(const bounds of data.mapObstacleBounds) {
+                this.mapObstacleBounds.push(rotateRect(position, bounds.min, bounds.max, 1, this.orientation!));
+            }
+        } else {
+            console.warn(`No obstacle bounds specified for building: ${typeString}`);
         }
     }
 

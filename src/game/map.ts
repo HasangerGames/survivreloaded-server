@@ -1,17 +1,19 @@
 import {
     addAdjust,
     addOrientations,
-    bodyFromCollisionData,
-    Config,
+    circleCollision,
+    CollisionType,
     Debug,
     distanceBetween,
-    Item,
     Maps,
     ObjectKind,
     Objects,
     random,
     randomFloat,
     randomVec,
+    rectCollision,
+    rectRectCollision,
+    rotateRect,
     TypeToId,
     weightedRandom
 } from "../utils";
@@ -64,7 +66,7 @@ export class Map {
             this.places.push(new Place(place.name, Vec2(place.x, place.y)));
         }
 
-        if(!Debug.minimalMapGeneration) {
+        if(!Debug.disableMapGeneration) {
             for(const type in mapInfo.objects) {
                 const data = Objects[type];
                 const count = mapInfo.objects[type];
@@ -80,13 +82,20 @@ export class Map {
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             //this.genStructure("club_structure_01", Objects["club_structure_01"]);
-            //this.genBuildingTest("house_red_01", 1, false);
-            this.obstacleTest("crate_01", Vec2(453, 153), 1);
-            this.obstacleTest("crate_01", Vec2(458, 153), 1);
-            this.obstacleTest("crate_01", Vec2(463, 153), 1);
-            (this.game.objects[0] as Obstacle).loot = [new Item("backpack01", 1)];
-            (this.game.objects[1] as Obstacle).loot = [new Item("backpack02", 1)];
-            (this.game.objects[2] as Obstacle).loot = [new Item("backpack03", 1)];
+
+            this.genBuildingTest("barn_01", 0, false);
+
+            // Healing items test
+            //this.obstacleTest("crate_01", Vec2(453, 153), 1);
+            //this.obstacleTest("crate_01", Vec2(458, 153), 1);
+            //this.obstacleTest("crate_01", Vec2(463, 153), 1);
+            //this.obstacleTest("crate_01", Vec2(468, 153), 1);
+            //(this.game.objects[0] as Obstacle).loot = [new Item("bandage", 5)];
+            //(this.game.objects[1] as Obstacle).loot = [new Item("healthkit", 1)];
+            //(this.game.objects[2] as Obstacle).loot = [new Item("soda", 2)];
+            //(this.game.objects[3] as Obstacle).loot = [new Item("painkiller", 1)];
+
+            // Object culling test
             /*for(let x = 0; x <= 45; x++) {
                 for(let y = 0; y <= 45; y++) {
                     this.obstacleTest("tree_01", Vec2(x * 16, y * 16), 1.6);
@@ -98,19 +107,17 @@ export class Map {
     }
 
     private obstacleTest(type: string, position: Vec2, scale: number): void {
-        this.genObstacle(type, position, 0, 0, scale, Objects[type]);
+        this.genObstacle(type, position, 0, 1, scale, Objects[type]);
     }
 
     private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {
-        let position;
-        if(setPosition) position = setPosition;
-        else if(Config.debugMode) position = Vec2(450, 150);
-        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, 1);
-
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
-        else if(Config.debugMode) orientation = 0;
         else orientation = random(0, 3);
+
+        let position;
+        if(setPosition) position = setPosition;
+        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, orientation, 1);
 
         const layerObjIds: number[] = [];
 
@@ -141,7 +148,7 @@ export class Map {
     }
 
     private genBuildingTest(type: string, orientation: number, markers: boolean): void {
-        this.genBuilding(type, Objects[type], undefined, orientation, undefined, true);
+        this.genBuilding(type, Objects[type], Vec2(450, 150), orientation, undefined, true);
     }
 
     private genBuilding(typeString: string,
@@ -150,14 +157,12 @@ export class Map {
                         setOrientation?: number,
                         setLayer?: number,
                         debug = false): void {
-        let position;
-        if(setPosition) position = setPosition;
-        else if(Config.debugMode) position = Vec2(450, 150);
-        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData.mapObstacleBounds ? buildingData.mapObstacleBounds[0] : null); // TODO Add support for multiple bounds
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
-        else if(Config.debugMode) orientation = 0;
         else orientation = random(0, 3);
+        let position;
+        if(setPosition) position = setPosition;
+        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1);
 
         let layer;
         if(setLayer !== undefined) layer = setLayer;
@@ -206,7 +211,7 @@ export class Map {
                 // console.warn(`Unknown object type: ${part.type}`);
             }
         }
-        this.game.objects.push(new Building(
+        const building: Building = new Building(
             this.game.nextObjectId,
             typeString,
             position,
@@ -215,6 +220,28 @@ export class Map {
             this.game,
             buildingData.map ? buildingData.map.display : false,
             buildingData
+        );
+        if(debug) {
+            for(const bounds of building.mapObstacleBounds) {
+                this.placeDebugMarker(bounds.min);
+                this.placeDebugMarker(bounds.max);
+                this.placeDebugMarker(Vec2(bounds.min.x, bounds.max.y));
+                this.placeDebugMarker(Vec2(bounds.max.x, bounds.min.y));
+            }
+        }
+        this.game.objects.push(building);
+    }
+
+    private placeDebugMarker(position: Vec2): void {
+        this.game.objects.push(new Obstacle(
+            this.game.nextObjectId,
+            "house_column_1",
+            position,
+            0,
+            0,
+            this.game,
+            0.125,
+            Objects.house_column_1
         ));
     }
 
@@ -241,7 +268,7 @@ export class Map {
             const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
             this.genObstacle(
                 typeString,
-                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, scale),
+                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, 0, scale),
                 0,
                 0,
                 scale,
@@ -250,42 +277,85 @@ export class Map {
         }
     }
 
-    private getRandomPositionFor(kind: ObjectKind, collisionData, scale?): Vec2 {
-        if(!scale) scale = 1;
+    private getRandomPositionFor(kind: ObjectKind, collisionData, orientation: number, scale: number): Vec2 {
         let foundPosition = false;
-        let position;
+        let thisPos;
         while(!foundPosition) {
-            position = randomVec(75, this.width - 75, 75, this.height - 75);
+            thisPos = randomVec(75, this.width - 75, 75, this.height - 75);
             let shouldContinue = false;
 
             for(const river of this.rivers) {
                 const minRiverDist = (kind === ObjectKind.Building || kind === ObjectKind.Structure) ? river.width * 5 : river.width * 2.5;
                 for(const point of river.points) {
-                    if(distanceBetween(position, point) < minRiverDist) {
+                    if(distanceBetween(thisPos, point) < minRiverDist) {
                         shouldContinue = true;
                         break;
                     }
                 }
+                if(shouldContinue) break;
             }
             if(shouldContinue) continue;
             if(!collisionData) break;
-            const collider = bodyFromCollisionData(collisionData, position, scale);
-            if(collider == null) break;
 
-            for(const object of this.game.objects) {
-                if(!object.body) continue;
-                // @ts-expect-error The 3rd argument for Collision.collides is optional
-                const collisionResult = Collision.collides(collider, object.body);
-                if(collisionResult?.collided) {
-                    shouldContinue = true;
-                    break;
+            let thisMin, thisMax, thisRad;
+            if(collisionData.type === CollisionType.Rectangle) {
+                thisMin = Vec2.add(thisPos, collisionData.min);
+                thisMax = Vec2.add(thisPos, collisionData.max);
+            } else if(collisionData.type === CollisionType.Circle) {
+                thisRad = collisionData.rad;
+            }
+
+            for(const that of this.game.objects) {
+                if(that instanceof Building) {
+                    for(const thatBounds of that.mapObstacleBounds) {
+                        if(collisionData.mapObstacleBounds) {
+                            for(const bounds2 of collisionData.mapObstacleBounds) {
+                                const thisBounds = rotateRect(thisPos, bounds2.min, bounds2.max, 1, orientation);
+                                if(rectRectCollision(thatBounds.min, thatBounds.max, thisBounds.min, thisBounds.max)) {
+                                    shouldContinue = true;
+                                    break;
+                                }
+                            }
+                        } else if(collisionData.type === CollisionType.Circle) {
+                            if(rectCollision(thatBounds.min, thatBounds.max, thisPos, thisRad)) {
+                                shouldContinue = true;
+                            }
+                        } else if(collisionData.type === CollisionType.Rectangle) {
+                            if(rectRectCollision(thatBounds.min, thatBounds.max, thisMin, thisMax)) {
+                                shouldContinue = true;
+                            }
+                        }
+                    }
+                } else if(that instanceof Obstacle) {
+                    if(collisionData.type === CollisionType.Circle) {
+                        if(that.collision.type === CollisionType.Circle) {
+                            if(circleCollision(that.position, that.collision.rad, thisPos, thisRad)) {
+                                shouldContinue = true;
+                            }
+                        } else if(that.collision.type === CollisionType.Rectangle) {
+                            if(rectCollision(that.collision.min, that.collision.max, thisPos, thisRad)) {
+                                shouldContinue = true;
+                            }
+                        }
+                    } else if(collisionData.type === CollisionType.Rectangle) {
+                        if(that.collision.type === CollisionType.Circle) {
+                            if(rectCollision(thisMin, thisMax, that.position, that.collision.rad)) {
+                                shouldContinue = true;
+                            }
+                        } else if(that.collision.type === CollisionType.Rectangle) {
+                            if(rectRectCollision(that.collision.min, that.collision.max, thisMin, thisMax)) {
+                                shouldContinue = true;
+                            }
+                        }
+                    }
                 }
+                if(shouldContinue) break;
             }
             if(shouldContinue) continue;
 
             foundPosition = true;
         }
-        return position;
+        return thisPos;
     }
 
 }

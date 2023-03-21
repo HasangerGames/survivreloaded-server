@@ -3,7 +3,7 @@ import {
     CollisionType,
     Item,
     LootTables,
-    ObjectKind,
+    ObjectKind, Objects,
     type SurvivBitStream,
     weightedRandom
 } from "../../utils";
@@ -46,6 +46,7 @@ export class Obstacle extends GameObject {
     collidable: boolean;
     reflectBullets: boolean;
     destructible: boolean;
+    destroyType = "";
 
     loot: Item[] = [];
 
@@ -75,19 +76,6 @@ export class Obstacle extends GameObject {
         this.isSkin = false;
         this.showOnMap = data.map ? data.map.display : false;
 
-        this.collidable = data.collidable;
-        this.reflectBullets = data.reflectBullets;
-        this.destructible = this.damageable = data.destructible;
-        if(this.collidable) {
-            this.body = bodyFromCollisionData(this.game!.world, data.collision, position, orientation, scale);
-        }
-
-        this.collision = JSON.parse(JSON.stringify(data.collision)); // JSON.parse(JSON.stringify(x)) to deep copy object
-        if(this.collision.type === CollisionType.Rectangle) {
-            this.collision.min = this.position.clone().add(Vec2.mul(this.collision.min, this.scale));
-            this.collision.max = this.position.clone().add(Vec2.mul(this.collision.max, this.scale));
-        }
-
         this.isDoor = data.door !== undefined;
         if(this.isDoor) {
             this.door = {
@@ -108,6 +96,21 @@ export class Obstacle extends GameObject {
         }
 
         this.isPuzzlePiece = false;
+
+        this.collidable = data.collidable && !this.isDoor; // TODO THIS DISABLES DOOR COLLISIONS
+        this.reflectBullets = data.reflectBullets;
+        this.destructible = data.destructible;
+        this.damageable = data.destructible;
+        this.destroyType = data.destroyType;
+        if(this.collidable) {
+            this.body = bodyFromCollisionData(this.game!.world, data.collision, position, orientation, scale);
+        }
+
+        this.collision = JSON.parse(JSON.stringify(data.collision)); // JSON.parse(JSON.stringify(x)) to deep copy object
+        if(this.collision.type === CollisionType.Rectangle) {
+            this.collision.min = this.position.clone().add(Vec2.mul(this.collision.min, this.scale));
+            this.collision.max = this.position.clone().add(Vec2.mul(this.collision.max, this.scale));
+        }
 
         if(data.loot) {
             this.loot = [];
@@ -145,11 +148,26 @@ export class Obstacle extends GameObject {
             this.dead = true;
             this.collidable = false;
             if(this.door) this.door.canUse = false;
+            if(this.destroyType) {
+                const replacementObject: Obstacle = new Obstacle(
+                    this.game!.nextObjectId,
+                    this.destroyType,
+                    this.position,
+                    this.layer,
+                    this.orientation!,
+                    this.game!,
+                    1,
+                    Objects[this.destroyType]
+                );
+                this.game!.objects.push(replacementObject);
+                this.game!.fullDirtyObjects.push(replacementObject);
+            }
             this.game!.world.destroyBody(this.body!);
             this.game!.fullDirtyObjects.push(this);
             for(const item of this.loot) {
                 const loot: Loot = new Loot(this.game!.nextObjectId, item.type, this.position, 0, this.game!, item.count);
                 this.game!.objects.push(loot);
+                //this.game!.loot.push(loot);
                 this.game!.fullDirtyObjects.push(loot);
             }
         } else {
@@ -196,26 +214,28 @@ export class Obstacle extends GameObject {
     serializeFull(stream: SurvivBitStream): void {
         stream.writeFloat(this.healthT, 0, 1, 8);
         stream.writeMapType(this.typeId);
-        stream.writeString(this.typeString);
         stream.writeBits(this.layer, 2);
         stream.writeBoolean(this.dead);
-        stream.writeBoolean(this.isDoor);
-        stream.writeUint8(this.teamId);
 
+        stream.writeBoolean(this.isDoor);
         if(this.isDoor) {
             stream.writeBoolean(this.door.open);
             stream.writeBoolean(this.door.canUse);
             stream.writeBoolean(this.door.locked);
             stream.writeBits(0, 5); // door seq
         }
+
         stream.writeBoolean(this.isButton);
         if(this.isButton) {
             stream.writeBoolean(this.button.onOff);
             stream.writeBoolean(this.button.canUse);
             stream.writeBits(0, 6); // button seq
         }
+
         stream.writeBoolean(this.isPuzzlePiece);
+
         stream.writeBoolean(this.isSkin);
+
         stream.writeBits(0, 5); // Padding
     }
 

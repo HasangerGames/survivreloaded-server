@@ -13,6 +13,13 @@
       "drawers_02": 0.2
     }
   },
+  "bookshelf_random": {
+    "type": "random",
+    "weights": {
+      "bookshelf_01": 0.8,
+      "bookshelf_02": 0.2
+    }
+  },
   "crate_random_warehouse": {
     "type": "random",
     "weights": {
@@ -33590,6 +33597,20 @@
         "scale": 1,
         "ori": 0
       }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -8,
+          "y": -7
+        },
+        "max": {
+          "x": 12,
+          "y": 6.5
+        },
+        "height": 0
+      }
     ]
   },
   "shack_01x": {
@@ -53320,6 +53341,7 @@
         "ori": 0
       },
       {
+        "type": "toilet_random",
         "pos": {
           "x": 8,
           "y": 10
@@ -53337,6 +53359,7 @@
         "ori": 3
       },
       {
+        "type": "drawers_random",
         "pos": {
           "x": 7.75,
           "y": -6
@@ -53436,7 +53459,6 @@
         "ori": 0
       },
       {
-        "type": "toilet_random",
         "pos": {
           "x": -9.75,
           "y": -8.25
@@ -54748,6 +54770,7 @@
         "ori": 0
       },
       {
+        "type": "toilet_01",
         "pos": {
           "x": -11.75,
           "y": 0.5
@@ -54765,6 +54788,7 @@
         "ori": 0
       },
       {
+        "type": "drawers_random",
         "pos": {
           "x": -3.75,
           "y": 11
@@ -54773,6 +54797,7 @@
         "ori": 0
       },
       {
+        "type": "bookshelf_random",
         "pos": {
           "x": 13,
           "y": -3
@@ -88575,6 +88600,20 @@
         "scale": 1,
         "ori": 0
       }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -5,
+          "y": -9
+        },
+        "max": {
+          "x": 5,
+          "y": 10.5
+        },
+        "height": 0
+      }
     ]
   },
   "container_02": {
@@ -88685,6 +88724,20 @@
         },
         "scale": 1,
         "ori": 0
+      }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -5,
+          "y": -9
+        },
+        "max": {
+          "x": 5,
+          "y": 10.5
+        },
+        "height": 0
       }
     ]
   },
@@ -88797,6 +88850,20 @@
         "scale": 1,
         "ori": 0
       }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -5,
+          "y": -9
+        },
+        "max": {
+          "x": 5,
+          "y": 10.5
+        },
+        "height": 0
+      }
     ]
   },
   "container_04": {
@@ -88898,6 +88965,20 @@
         },
         "scale": 1,
         "ori": 0
+      }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -5,
+          "y": -9
+        },
+        "max": {
+          "x": 5,
+          "y": 10.5
+        },
+        "height": 0
       }
     ]
   },
