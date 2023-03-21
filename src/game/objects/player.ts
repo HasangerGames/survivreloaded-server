@@ -337,7 +337,7 @@ export class Player extends GameObject {
             }
 
             // Increment kill count for killer
-            if(source instanceof Player) {
+            if(source instanceof Player && source !== this) {
                 source.kills++;
                 if(source.kills > 2 && source.kills > this.game!.killLeader.kills) {
                     this.game!.assignKillLeader(source);
