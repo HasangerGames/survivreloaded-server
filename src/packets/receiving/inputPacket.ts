@@ -92,6 +92,21 @@ export class InputPacket extends ReceivingPacket {
                 if(p.boost === 100 || p.inventory.painkiller === 0) break;
                 p.useItem("painkiller", 5);
                 break;
+            case TypeToId["1xscope"]:
+                p.setScope("1xscope");
+                break;
+            case TypeToId["2xscope"]:
+                p.setScope("2xscope");
+                break;
+            case TypeToId["4xscope"]:
+                p.setScope("4xscope");
+                break;
+            case TypeToId["8xscope"]:
+                p.setScope("8xscope");
+                break;
+            case TypeToId["15xscope"]:
+                p.setScope("15xscope");
+                break;
         }
 
         stream.readBits(6); // Padding
