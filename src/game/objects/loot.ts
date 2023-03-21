@@ -1,4 +1,4 @@
-import { CollisionCategory, Constants, ObjectKind, removeFrom, type SurvivBitStream, TypeToId } from "../../utils";
+import { CollisionCategory, Constants, ObjectKind, removeFrom, type SurvivBitStream, TypeToId, Items } from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Player } from "./player";
@@ -47,10 +47,8 @@ export class Loot extends GameObject {
             if(p.inventory[this.typeString] > 0) result = PickupMsgType.AlreadyEquipped;
             else {
                 p.inventory[this.typeString]++;
-                p.activeItems.scope.typeString = this.typeString;
-                p.activeItems.scope.typeId = TypeToId[this.typeString];
-                if(p.isMobile) p.zoom = Constants.scopeZoomRadius.mobile[this.typeString];
-                else p.zoom = Constants.scopeZoomRadius.desktop[this.typeString];
+                if (Items[this.typeString].level > Items[p.activeItems.scope.typeString].level)
+                    p.setScope(this.typeString);
             }
         } else if(this.typeString.startsWith("backpack")) {
             result = this.pickUpTieredItem("backpack", p);

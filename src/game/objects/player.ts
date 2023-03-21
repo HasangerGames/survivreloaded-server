@@ -266,6 +266,16 @@ export class Player extends GameObject {
         this.zoomDirty = true;
     }
 
+    setScope(scope: string): void {
+        if (!this.inventory[scope]) return;
+
+        this.activeItems.scope.typeString = scope;
+        this.activeItems.scope.typeId = TypeToId[scope];
+
+        if (this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[scope]
+        else this.zoom = Constants.scopeZoomRadius.desktop[scope];
+    }
+
     get health(): number {
         return this._health;
     }
