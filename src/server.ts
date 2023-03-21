@@ -180,7 +180,7 @@ process.on("SIGINT", () => {
     process.exit();
 });
 
-log("Surviv Reloaded Server v0.2.1");
+log("Surviv Reloaded Server v0.3.0");
 app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
     log(`Listening on ${Config.https ? "https://" : "http://"}${Config.host}:${Config.port}`);
