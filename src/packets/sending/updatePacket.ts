@@ -22,7 +22,7 @@ export class UpdatePacket extends SendingPacket {
         if(p.game!.gasCircleDirty || p.firstUpdate) valuesChanged += 16;
         if(p.game!.playerInfosDirty) valuesChanged += 32;
         if(p.game!.deletedPlayers.length) valuesChanged += 64;
-        if(p.game!.dirtyStatusPlayers.length || p.firstUpdate) valuesChanged += 128;
+        if(/*p.game!.dirtyStatusPlayers.length || */p.firstUpdate) valuesChanged += 128;
         if(p.groupStatusDirty) valuesChanged += 256;
         if(p.bulletsDirty) valuesChanged += 512;
         if(p.explosions.length) valuesChanged += 1024;
@@ -190,20 +190,22 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Player status
-        const dirtyStatusPlayers: Player[] = p.firstUpdate ? p.game!.players : p.game!.dirtyStatusPlayers;
-        if(dirtyStatusPlayers.length) {
-            stream.writeUint8(dirtyStatusPlayers.length);
-            for(const player of dirtyStatusPlayers) {
+        //const dirtyStatusPlayers: Player[] = p.firstUpdate ? p.game!.players : p.game!.dirtyStatusPlayers;
+        //if(dirtyStatusPlayers.length) {
+        if(p.firstUpdate) {
+            //stream.writeUint8(dirtyStatusPlayers.length); // Player count
+            stream.writeUint8(1);
+            //for(const player of dirtyStatusPlayers) {
                 stream.writeBoolean(true); // Has data
 
-                stream.writeVec(player.position, 0, 0, 1024, 1024, 11); // Position. Yes, 11 bits is correct!
+                stream.writeVec(p.position, 0, 0, 1024, 1024, 11); // Position. Yes, 11 bits is correct!
                 stream.writeBoolean(true); // Visible
-                stream.writeBoolean(player.dead); // Dead
-                stream.writeBoolean(player.downed); // Downed
+                stream.writeBoolean(p.dead); // Dead
+                stream.writeBoolean(p.downed); // Downed
 
-                stream.writeBoolean(player.role !== 0); // Has role
-                if(player.role !== 0) stream.writeGameType(player.role);
-            }
+                stream.writeBoolean(p.role !== 0); // Has role
+                if(p.role !== 0) stream.writeGameType(p.role);
+            //}
             stream.writeAlignToNextByte();
         }
 

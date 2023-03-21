@@ -55,7 +55,7 @@ export class Game {
     newPlayers: Player[] = [];
 
     deletedPlayers: Player[] = [];
-    dirtyStatusPlayers: Player[] = [];
+    //dirtyStatusPlayers: Player[] = [];
 
     playerInfosDirty = false;
 
@@ -316,7 +316,7 @@ export class Game {
 
             this.newPlayers = [];
             this.deletedPlayers = [];
-            this.dirtyStatusPlayers = [];
+            //this.dirtyStatusPlayers = [];
 
             this.emotes = [];
             this.explosions = [];
@@ -396,10 +396,10 @@ export class Game {
         this.killLeaderDirty = true;
         if(this.killLeader !== p) { // If the player isn't already the Kill Leader...
             p.role = TypeToId.kill_leader;
-            this.dirtyStatusPlayers.push(p);
+            /*this.dirtyStatusPlayers.push(p);
             if(this.killLeader instanceof Player) {
                 this.dirtyStatusPlayers.push(this.killLeader);
-            }
+            }*/
             this.killLeader = p;
             this.roleAnnouncements.push(new RoleAnnouncementPacket(p, true, false));
         }
