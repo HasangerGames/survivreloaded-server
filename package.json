@@ -1,25 +1,25 @@
 {
   "name": "survivreloaded",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A community-made resurrection of the defunct online game surviv.io.",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
     "start": "node --enable-source-maps dist/server.js",
-    "br": "tsc && node --enable-source-maps dist/server.js",
+    "test": "tsc && node --enable-source-maps dist/server.js",
     "lint": "eslint . --fix --ext .ts",
     "lint:ci": "eslint . --ext .ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/hasanger/survivreloaded.git"
+    "url": "git+https://github.com/SurvivReloaded/survivreloaded-server.git"
   },
   "author": "Henry Sanger",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://gitlab.com/hasanger/survivreloaded/issues"
+    "url": "https://github.com/SurvivReloaded/survivreloaded-server/issues"
   },
-  "homepage": "https://survivreloaded.com",
+  "homepage": "https://resurviv.io",
   "dependencies": {
     "bit-buffer": "^0.2.5",
     "cookie": "^0.5.0",

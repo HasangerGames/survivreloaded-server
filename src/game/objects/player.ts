@@ -1,6 +1,9 @@
 import { type WebSocket } from "uWebSockets.js";
 
 import {
+    AllowedBoost, AllowedEmotes, AllowedHeal,
+    AllowedMelee,
+    AllowedSkins,
     CollisionCategory,
     Config,
     Constants,
@@ -193,7 +196,12 @@ export class Player extends GameObject {
         this.joinTime = Date.now();
 
         // Set loadout
-        if(loadout?.outfit && loadout.melee && loadout.heal && loadout.boost && loadout.emotes) {
+        if(AllowedSkins.includes(loadout?.outfit) &&
+            AllowedMelee.includes(loadout.melee) &&
+            AllowedHeal.includes(loadout.heal) &&
+            AllowedBoost.includes(loadout.boost) &&
+            loadout.emotes &&
+            loadout.emotes.length === 6) {
             this.loadout = {
                 outfit: TypeToId[loadout.outfit],
                 melee: TypeToId[loadout.melee],
@@ -202,15 +210,18 @@ export class Player extends GameObject {
                 boost: TypeToId[loadout.boost],
                 emotes: []
             };
-            for(const emote of loadout.emotes) this.loadout.emotes.push(TypeToId[emote]);
+            for(const emote of loadout.emotes) {
+                if(AllowedEmotes.includes(emote)) this.loadout.emotes.push(TypeToId[emote]);
+                else this.loadout.emotes.push(TypeToId.emote_happyface);
+            }
         } else {
             this.loadout = {
-                outfit: 430,
-                melee: 389,
+                outfit: TypeToId.outfitBase,
+                melee: TypeToId.fists,
                 meleeType: "fists",
-                heal: 99,
-                boost: 103,
-                emotes: [130, 128, 131, 129, 0, 0]
+                heal: TypeToId.heal_basic,
+                boost: TypeToId.boost_basic,
+                emotes: [TypeToId.emote_happyface, TypeToId.emote_thumbsup, TypeToId.emote_surviv, TypeToId.emote_sadface, 0, 0]
             };
         }
         this.activeItems.melee.typeString = this.loadout.meleeType;

@@ -189,6 +189,7 @@ export class Game {
                     p.actionDirty = false;
                     p.actionType = 0;
                     p.actionSeq = 0;
+                    p.recalculateSpeed();
                     this.fullDirtyObjects.push(p);
                     p.fullDirtyObjects.push(p);
                 }
