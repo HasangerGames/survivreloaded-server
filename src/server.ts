@@ -22,6 +22,8 @@ if(Config.https) {
     app = App();
 }
 
+const playerCounts = {};
+
 // Set up static files
 const staticFiles = {};
 function walk(dir: string, files: string[] = []): string[] {
@@ -130,6 +132,10 @@ app.post("/api/user/get_pass", (res) => {
     res.end(fs.readFileSync("json/get_pass.json"));
 });
 
+function getIP(socket): string {
+    return new TextDecoder().decode(socket.getRemoteAddressAsText());
+}
+
 // noinspection TypeScriptValidateJSTypes
 app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
@@ -146,6 +152,12 @@ app.ws("/play", {
         );
     },
     open: (socket) => {
+
+        // Prevent too many players from joining from one IP
+        const ip: string = getIP(socket);
+        playerCounts[ip]++;
+        if(playerCounts[ip] > 10) socket.close();
+
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
         log(`${socket.player.name} joined the game`);
     },
@@ -170,6 +182,8 @@ app.ws("/play", {
     },
     close: (socket) => {
         log(`${socket.player.name} left the game`);
+        const ip: string = getIP(socket);
+        playerCounts[ip]--;
         game.removePlayer(socket.player);
     }
 });
