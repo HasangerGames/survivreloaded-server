@@ -172,8 +172,6 @@ export const Constants = {
         soundRangeMax: 48,
         fallOff: 1.25
     },
-    groupColors: [16776960, 16711935, 65535, 16733184],
-    teamColors: [13369344, 32511],
     bullet: {
         maxReflect: 3,
         reflectDistDecay: 1.5,
@@ -183,83 +181,6 @@ export const Constants = {
         maxHeight: 5
     },
     structureLayerCount: 2,
-    tracerColors: {
-        "9mm": {
-            regular: 16704198,
-            saturated: 16767411,
-            chambered: 16744192,
-            alphaRate: .92,
-            alphaMin: .14
-        },
-        "9mm_suppressed_bonus": {
-            regular: 16704198,
-            saturated: 16767411,
-            chambered: 16744192,
-            alphaRate: .96,
-            alphaMin: .28
-        },
-        "9mm_cursed": {
-            regular: 1247488,
-            saturated: 1247488,
-            chambered: 1247488,
-            alphaRate: .92,
-            alphaMin: .14
-        },
-        "762mm": {
-            regular: 12965630,
-            saturated: 11257087,
-            chambered: 19711,
-            alphaRate: .94,
-            alphaMin: .2
-        },
-        "12gauge": {
-            regular: 16702684,
-            saturated: 16702684,
-            chambered: 16711680
-        },
-        "556mm": {
-            regular: 11141010,
-            saturated: 11141010,
-            chambered: 3604224,
-            alphaRate: .92,
-            alphaMin: .14
-        },
-        "50AE": {
-            regular: 16773256,
-            saturated: 16773256,
-            chambered: 16768768
-        },
-        "308sub": {
-            regular: 2435840,
-            saturated: 4608e3,
-            chambered: 1250816,
-            alphaRate: .92,
-            alphaMin: .07
-        },
-        flare: {
-            regular: 14869218,
-            saturated: 14869218,
-            chambered: 12895428
-        },
-        "45acp": {
-            regular: 15515391,
-            saturated: 15183103,
-            chambered: 11862271
-        },
-        shrapnel: {
-            regular: 3355443,
-            saturated: 3355443
-        },
-        frag: {
-            regular: 13303808,
-            saturated: 13303808
-        },
-        potato: {
-            regular: 0,
-            saturated: 0,
-            chambered: 0
-        }
-    },
     scopeZoomRadius: {
         desktop: {
             "1xscope": 28,
@@ -378,6 +299,10 @@ export enum DamageType {
     Freeze, Weather, Npc, Burning, Phoenix
 }
 
+export enum WeaponType {
+    Gun, Melee, Throwable
+}
+
 export enum CollisionType {
     Circle, Rectangle
 }
@@ -432,13 +357,13 @@ export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number):
     return distX * distX + distY * distY > circleRad * circleRad;
 }*/
 
-export function rectCollision(min: Vec2, max: Vec2, pos: Vec2, rad: number) {
+export function rectCollision(min: Vec2, max: Vec2, pos: Vec2, rad: number): boolean {
     var cpt = Vec2(clamp(pos.x, min.x, max.x), clamp(pos.y, min.y, max.y));
     var dstSqr = Vec2.lengthSquared(Vec2.sub(pos, cpt));
     return dstSqr < rad * rad || pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y;
 }
 
-export function clamp(a: number, min: number, max: number) {
+export function clamp(a: number, min: number, max: number): number {
     return a < max ? a > min ? a : min : max;
 }
 

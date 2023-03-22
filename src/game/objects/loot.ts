@@ -1,4 +1,12 @@
-import { CollisionCategory, Constants, ObjectKind, removeFrom, type SurvivBitStream, TypeToId, Items } from "../../utils";
+import {
+    CollisionCategory,
+    Constants,
+    Items,
+    ObjectKind,
+    removeFrom,
+    type SurvivBitStream,
+    Weapons
+} from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Player } from "./player";
@@ -47,8 +55,9 @@ export class Loot extends GameObject {
             if(p.inventory[this.typeString] > 0) result = PickupMsgType.AlreadyEquipped;
             else {
                 p.inventory[this.typeString]++;
-                if (Items[this.typeString].level > Items[p.activeItems.scope.typeString].level)
+                if(Items[this.typeString].level > Items[p.scope.typeString].level) {
                     p.setScope(this.typeString);
+                }
             }
         } else if(this.typeString.startsWith("backpack")) {
             result = this.pickUpTieredItem("backpack", p);
@@ -59,7 +68,7 @@ export class Loot extends GameObject {
         } else if(this.typeString.startsWith("helmet")) {
             result = this.pickUpTieredItem("helmet", p);
             playerDirty = true;
-        } else {
+        } else if(Constants.bagSizes[this.typeString]) {
             const currentCount: number = p.inventory[this.typeString];
             const maxCapacity: number = Constants.bagSizes[this.typeString][p.backpackLevel];
             if(currentCount + this.count <= maxCapacity) {
@@ -72,6 +81,22 @@ export class Loot extends GameObject {
                 this.game!.fullDirtyObjects.push(this);
                 deleteItem = false;
             }
+        } else {
+            if(p.weapons.primaryGun.typeId === 0) {
+                p.weapons.primaryGun.typeString = this.typeString;
+                p.weapons.primaryGun.typeId = this.typeId;
+                p.switchSlot(0);
+                p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
+            } else if(p.weapons.primaryGun.typeId !== 0 && p.weapons.secondaryGun.typeId === 0) {
+                p.weapons.secondaryGun.typeString = this.typeString;
+                p.weapons.secondaryGun.typeId = this.typeId;
+                p.switchSlot(1);
+                p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
+            } else {
+                result = PickupMsgType.Full;
+            }
+            p.weaponsDirty = true;
+            playerDirty = true;
         }
 
         if(!(p.isMobile && result !== PickupMsgType.Success)) {

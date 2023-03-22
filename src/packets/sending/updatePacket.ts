@@ -13,24 +13,25 @@ export class UpdatePacket extends SendingPacket {
     serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
         const p = this.p!;
+        const game = p.game!;
 
         let valuesChanged = 0;
         if(p.deletedObjects.length) valuesChanged += 1;
         if(p.fullDirtyObjects.length) valuesChanged += 2;
         if(p.activePlayerIdDirty) valuesChanged += 4;
-        if(p.game!.gasDirty || p.firstUpdate) valuesChanged += 8;
-        if(p.game!.gasCircleDirty || p.firstUpdate) valuesChanged += 16;
-        if(p.game!.playerInfosDirty) valuesChanged += 32;
-        if(p.game!.deletedPlayers.length) valuesChanged += 64;
-        if(/*p.game!.dirtyStatusPlayers.length || */p.firstUpdate) valuesChanged += 128;
+        if(game.gasDirty || p.firstUpdate) valuesChanged += 8;
+        if(game.gasCircleDirty || p.firstUpdate) valuesChanged += 16;
+        if(game.playerInfosDirty) valuesChanged += 32;
+        if(game.deletedPlayers.length) valuesChanged += 64;
+        if(/*game.dirtyStatusPlayers.length || */p.firstUpdate) valuesChanged += 128;
         if(p.groupStatusDirty) valuesChanged += 256;
-        if(p.bulletsDirty) valuesChanged += 512;
+        if(game.dirtyBullets.length) valuesChanged += 512;
         if(p.explosions.length) valuesChanged += 1024;
         if(p.emotes.length) valuesChanged += 2048;
         if(p.planesDirty) valuesChanged += 4096;
         if(p.airstrikeZonesDirty) valuesChanged += 8192;
         if(p.mapIndicatorsDirty) valuesChanged += 16384;
-        if(p.game!.killLeaderDirty || p.firstUpdate) valuesChanged += 32768;
+        if(game.killLeaderDirty || p.firstUpdate) valuesChanged += 32768;
         stream.writeUint16(valuesChanged);
 
         // Deleted objects
@@ -96,7 +97,7 @@ export class UpdatePacket extends SendingPacket {
         // Action
         stream.writeBoolean(p.actionDirty);
         if(p.actionDirty) {
-            stream.writeFloat(3 - ((p.actionItemUseEnd - Date.now()) / 1000), 0, 8.5, 8);
+            stream.writeFloat(p.actionItem.duration - ((p.actionItem.useEnd - Date.now()) / 1000), 0, 8.5, 8);
             stream.writeFloat(p.actionItem.duration, 0, 8.5, 8);
             stream.writeUint16(p.id); // Target ID
         }
@@ -104,7 +105,7 @@ export class UpdatePacket extends SendingPacket {
         // Inventory
         stream.writeBoolean(p.inventoryDirty);
         if(p.inventoryDirty) {
-            stream.writeGameType(p.activeItems.scope.typeId);
+            stream.writeGameType(p.scope.typeId);
             for(const value of Object.values(p.inventory)) {
                 const hasItem: boolean = (value as number) > 0;
                 stream.writeBoolean(hasItem);
@@ -116,23 +117,23 @@ export class UpdatePacket extends SendingPacket {
         stream.writeBoolean(p.weaponsDirty);
         if(p.weaponsDirty) {
             // Current weapon slot
-            stream.writeBits(2, 2);
+            stream.writeBits(p.weapons.activeSlot, 2);
 
             // Primary
-            stream.writeGameType(p.activeItems.primaryGun.typeId); // Primary
-            stream.writeUint8(p.activeItems.primaryGun.ammo); // Ammo
+            stream.writeGameType(p.weapons.primaryGun.typeId);
+            stream.writeUint8(p.weapons.primaryGun.ammo);
 
             // Secondary
-            stream.writeGameType(p.activeItems.secondaryGun.typeId); // Secondary
-            stream.writeUint8(p.activeItems.secondaryGun.ammo); // Ammo
+            stream.writeGameType(p.weapons.secondaryGun.typeId);
+            stream.writeUint8(p.weapons.secondaryGun.ammo);
 
             // Melee
-            stream.writeGameType(p.activeItems.melee.typeId);
+            stream.writeGameType(p.weapons.melee.typeId);
             stream.writeUint8(0);
 
             // Throwable
-            stream.writeGameType(p.activeItems.throwable.typeId);
-            stream.writeUint8(p.activeItems.throwable.count);
+            stream.writeGameType(p.weapons.throwable.typeId);
+            stream.writeUint8(p.weapons.throwable.count);
 
             p.weaponsDirty = false;
         }
@@ -145,26 +146,26 @@ export class UpdatePacket extends SendingPacket {
         //
 
         // Red zone data
-        if(p.game!.gasDirty || p.firstUpdate) {
-            stream.writeUint8(p.game!.gasMode); // Mode
-            stream.writeFloat32(p.game!.initialGasDuration); // Duration
-            stream.writeVec(p.game!.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
-            stream.writeVec(p.game!.newGasPosition, 0, 0, 1024, 1024, 16); // New position
-            stream.writeFloat(p.game!.oldGasRadius, 0, 2048, 16); // Old radius
-            stream.writeFloat(p.game!.newGasRadius, 0, 2048, 16); // New radius
+        if(game.gasDirty || p.firstUpdate) {
+            stream.writeUint8(game.gasMode); // Mode
+            stream.writeFloat32(game.initialGasDuration); // Duration
+            stream.writeVec(game.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
+            stream.writeVec(game.newGasPosition, 0, 0, 1024, 1024, 16); // New position
+            stream.writeFloat(game.oldGasRadius, 0, 2048, 16); // Old radius
+            stream.writeFloat(game.newGasRadius, 0, 2048, 16); // New radius
         }
 
         // Red zone time data
-        if(p.game!.gasCircleDirty || p.firstUpdate) {
+        if(game.gasCircleDirty || p.firstUpdate) {
             stream.writeFloat(0, 0, 1, 16); // Indicates red zone time (gasT)
         }
 
         // Player info
         let playerInfosSource;
         if(p.firstUpdate) {
-            playerInfosSource = p.game!.players;
-        } else if(p.game!.playerInfosDirty) {
-            playerInfosSource = p.game!.newPlayers;
+            playerInfosSource = game.players;
+        } else if(game.playerInfosDirty) {
+            playerInfosSource = game.newPlayers;
         }
         if(playerInfosSource) {
             stream.writeUint8(playerInfosSource.length); // Player info count
@@ -184,13 +185,13 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Player IDs to delete
-        if(p.game!.deletedPlayers.length > 0) {
-            stream.writeUint8(p.game!.deletedPlayers.length);
-            for(const player of p.game!.deletedPlayers) stream.writeUint16(player.id);
+        if(game.deletedPlayers.length > 0) {
+            stream.writeUint8(game.deletedPlayers.length);
+            for(const player of game.deletedPlayers) stream.writeUint16(player.id);
         }
 
         // Player status
-        //const dirtyStatusPlayers: Player[] = p.firstUpdate ? p.game!.players : p.game!.dirtyStatusPlayers;
+        //const dirtyStatusPlayers: Player[] = p.firstUpdate ? game.players : game.dirtyStatusPlayers;
         //if(dirtyStatusPlayers.length) {
         if(p.firstUpdate) {
             //stream.writeUint8(dirtyStatusPlayers.length); // Player count
@@ -212,6 +213,42 @@ export class UpdatePacket extends SendingPacket {
         // Group status
 
         // Bullets
+        if(game.dirtyBullets.length) {
+            stream.writeUint8(game.dirtyBullets.length);
+            for(const bullet of game.dirtyBullets) {
+                stream.writeUint16(bullet.playerId);
+                stream.writeVec(bullet.position, 0, 0, 1024, 1024, 16);
+                stream.writeUnitVec(bullet.direction, 8);
+                stream.writeGameType(bullet.typeId);
+                stream.writeBits(bullet.layer, 2);
+                stream.writeFloat(bullet.varianceT, 0, 1, 4);
+                stream.writeBits(bullet.distAdjIdx, 4);
+                stream.writeBoolean(bullet.clipDistance);
+                if(bullet.clipDistance) {
+                    stream.writeFloat(bullet.distance, 0, 1024, 16);
+                }
+                stream.writeBoolean(bullet.shotFx);
+                if(bullet.shotFx) {
+                    stream.writeGameType(bullet.shotSourceType);
+                    stream.writeBoolean(bullet.shotOffhand);
+                    stream.writeBoolean(bullet.lastShot);
+                }
+                stream.writeBoolean(bullet.reflect);
+                if(bullet.reflect) {
+                    stream.writeBits(bullet.reflectCount, 2);
+                    stream.writeUint16(bullet.reflectObjId);
+                }
+                stream.writeBoolean(bullet.splinter);
+                if(bullet.splinter) {
+                    stream.writeBoolean(bullet.splinterSmall);
+                }
+                stream.writeBoolean(bullet.trailFx);
+                if(bullet.trailFx) {
+                    stream.writeBoolean(bullet.trailSaturated);
+                    stream.writeBoolean(bullet.trailThick);
+                }
+            }
+        }
 
         // Explosions
         if(p.explosions.length) {
@@ -247,9 +284,9 @@ export class UpdatePacket extends SendingPacket {
         // Map indicators
 
         // Kill leader
-        if(p.game!.killLeaderDirty || p.firstUpdate) {
-            stream.writeUint16(p.game!.killLeader.id);
-            stream.writeUint8(p.game!.killLeader.kills);
+        if(game.killLeaderDirty || p.firstUpdate) {
+            stream.writeUint16(game.killLeader.id);
+            stream.writeUint8(game.killLeader.kills);
         }
 
         if(p.firstUpdate) p.firstUpdate = false;

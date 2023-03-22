@@ -4,7 +4,7 @@ import {
     circleCollision,
     CollisionType,
     Debug,
-    distanceBetween,
+    distanceBetween, Item,
     Maps,
     ObjectKind,
     Objects,
@@ -83,17 +83,17 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects["club_structure_01"]);
 
-            this.genBuildingTest("barn_01", 0, false);
+            //this.genBuildingTest("barn_01", 0, false);
 
-            // Healing items test
-            //this.obstacleTest("crate_01", Vec2(453, 153), 1);
-            //this.obstacleTest("crate_01", Vec2(458, 153), 1);
-            //this.obstacleTest("crate_01", Vec2(463, 153), 1);
-            //this.obstacleTest("crate_01", Vec2(468, 153), 1);
-            //(this.game.objects[0] as Obstacle).loot = [new Item("bandage", 5)];
-            //(this.game.objects[1] as Obstacle).loot = [new Item("healthkit", 1)];
-            //(this.game.objects[2] as Obstacle).loot = [new Item("soda", 2)];
-            //(this.game.objects[3] as Obstacle).loot = [new Item("painkiller", 1)];
+            // Items test
+            this.obstacleTest("crate_01", Vec2(453, 153), 1);
+            this.obstacleTest("crate_01", Vec2(458, 153), 1);
+            this.obstacleTest("crate_01", Vec2(463, 153), 1);
+            this.obstacleTest("crate_01", Vec2(468, 153), 1);
+            (this.game.objects[0] as Obstacle).loot = [new Item("m9", 1)];
+            (this.game.objects[1] as Obstacle).loot = [new Item("9mm", 1)];
+            (this.game.objects[2] as Obstacle).loot = [new Item("ump9", 2)];
+            (this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];
 
             // Object culling test
             /*for(let x = 0; x <= 45; x++) {

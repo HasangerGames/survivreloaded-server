@@ -12,7 +12,7 @@ import {
     ObjectKind,
     removeFrom,
     SurvivBitStream,
-    TypeToId
+    TypeToId, Weapons, WeaponType
 } from "../../utils";
 import { DeadBody } from "./deadBody";
 import { type SendingPacket } from "../../packets/sendingPacket";
@@ -58,8 +58,6 @@ export class Player extends GameObject {
     animType = 0;
     animSeq = 0;
     animTime = -1;
-
-    meleeCooldown = 0;
 
     private _health = 100; // The player's health. Ranges from 0-100.
     private _boost = 0; // The player's adrenaline. Ranges from 0-100.
@@ -134,7 +132,13 @@ export class Player extends GameObject {
         "15xscope": 0
     };
 
-    activeItems = {
+    scope = {
+        typeString: "1xscope",
+        typeId: 310
+    };
+
+    weapons = {
+        activeSlot: 2,
         primaryGun: {
             typeString: "",
             typeId: 0,
@@ -153,21 +157,26 @@ export class Player extends GameObject {
             typeString: "",
             typeId: 0,
             count: 0
-        },
-        scope: {
-            typeString: "1xscope",
-            typeId: 310
         }
+    };
+
+    activeWeapon = {
+        typeString: "fists",
+        typeId: 389,
+        weaponType: WeaponType.Melee,
+        cooldown: 0,
+        cooldownDuration: 250
     };
 
     actionItem: {
         typeString: string
         typeId: number
         duration: number
+        useEnd: number
     };
 
-    actionItemUseEnd: number;
     actionDirty = false;
+    usingItem = false;
     actionType = 0;
     actionSeq = 0;
 
@@ -192,7 +201,7 @@ export class Player extends GameObject {
         this.groupId = this.game.players.length - 1;
         this.name = username;
         this.zoom = Constants.scopeZoomRadius.desktop["1xscope"];
-        this.actionItem = { typeString: "", typeId: 0, duration: 0 };
+        this.actionItem = { typeString: "", typeId: 0, duration: 0, useEnd: -1 };
         this.joinTime = Date.now();
 
         // Set loadout
@@ -224,8 +233,10 @@ export class Player extends GameObject {
                 emotes: [TypeToId.emote_happyface, TypeToId.emote_thumbsup, TypeToId.emote_surviv, TypeToId.emote_sadface, 0, 0]
             };
         }
-        this.activeItems.melee.typeString = this.loadout.meleeType;
-        this.activeItems.melee.typeId = this.loadout.melee;
+        this.weapons.melee.typeString = this.loadout.meleeType;
+        this.weapons.melee.typeId = this.loadout.melee;
+        this.activeWeapon.typeString = this.loadout.meleeType;
+        this.activeWeapon.typeId = this.loadout.melee;
 
         // Init body
         this.body = game.world.createBody({
@@ -267,13 +278,37 @@ export class Player extends GameObject {
     }
 
     setScope(scope: string): void {
-        if (!this.inventory[scope]) return;
+        if(!this.inventory[scope]) return;
 
-        this.activeItems.scope.typeString = scope;
-        this.activeItems.scope.typeId = TypeToId[scope];
+        this.scope.typeString = scope;
+        this.scope.typeId = TypeToId[scope];
 
-        if (this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[scope]
+        if(this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[scope];
         else this.zoom = Constants.scopeZoomRadius.desktop[scope];
+    }
+
+    switchSlot(slot: number): void { // TODO Make this.weapons into an array
+        this.weapons.activeSlot = slot;
+        switch(slot) {
+            case 0:
+                this.activeWeapon.typeString = this.weapons.primaryGun.typeString;
+                this.activeWeapon.typeId = this.weapons.primaryGun.typeId;
+                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay;
+                this.activeWeapon.weaponType = WeaponType.Gun;
+                break;
+            case 1:
+                this.activeWeapon.typeString = this.weapons.secondaryGun.typeString;
+                this.activeWeapon.typeId = this.weapons.secondaryGun.typeId;
+                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay;
+                this.activeWeapon.weaponType = WeaponType.Gun;
+                break;
+            case 2:
+                this.activeWeapon.typeString = this.weapons.melee.typeString;
+                this.activeWeapon.typeId = this.weapons.melee.typeId;
+                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].attack.cooldownTime;
+                this.activeWeapon.weaponType = WeaponType.Melee;
+                break;
+        }
     }
 
     get health(): number {
@@ -296,7 +331,6 @@ export class Player extends GameObject {
         if(this._boost > 100) this._boost = 100;
         if(this._boost < 0) this._boost = 0;
         this.boostDirty = true;
-        this.recalculateSpeed();
     }
 
     damage(amount: number, source, objectUsed?): void {
@@ -402,19 +436,19 @@ export class Player extends GameObject {
         this.game!.fullDirtyObjects.push(loot);
     }
 
-    useItem(typeString: string, duration: number): void {
+    useItem(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
         if(this.actionItem.typeId !== 0) return;
         this.actionItem.typeString = typeString;
         this.actionItem.typeId = TypeToId[typeString];
         this.actionItem.duration = duration;
+        this.actionItem.useEnd = Date.now() + duration * 1000;
 
-        this.actionItemUseEnd = Date.now() + duration * 1000;
         this.actionDirty = true;
-
-        this.actionType = Constants.Action.UseItem;
+        this.actionType = actionType ?? Constants.Action.UseItem;
+        if(!actionType) this.usingItem = true;
         this.actionSeq = 1;
 
-        this.recalculateSpeed();
+        if(!skipRecalculateSpeed) this.recalculateSpeed();
         this.game!.fullDirtyObjects.push(this);
         this.fullDirtyObjects.push(this);
     }
@@ -422,7 +456,7 @@ export class Player extends GameObject {
     recalculateSpeed(): void {
         this.speed = Config.movementSpeed;
         this.diagonalSpeed = Config.diagonalSpeed;
-        if(this.actionDirty) {
+        if(this.usingItem) {
             this.speed *= 0.5;
             this.diagonalSpeed *= 0.5;
         }
@@ -492,7 +526,7 @@ export class Player extends GameObject {
         stream.writeGameType(298 + this.backpackLevel); // Backpack
         stream.writeGameType(this.helmetLevel === 0 ? 0 : 301 + this.helmetLevel); // Helmet
         stream.writeGameType(this.chestLevel === 0 ? 0 : 305 + this.chestLevel); // Vest
-        stream.writeGameType(this.loadout.melee); // Active weapon (not necessarily melee)
+        stream.writeGameType(this.activeWeapon.typeId);
 
         stream.writeBits(this.layer, 2);
         stream.writeBoolean(this.dead);
