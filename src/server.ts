@@ -137,7 +137,7 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        console.log(Buffer.from(res.getProxiedRemoteAddressAsText()).toString());
+        console.log(new TextDecoder().decode(res.getProxiedRemoteAddressAsText()));
         res.upgrade(
             {
                 cookies: cookie.parse(req.getHeader("cookie"))
