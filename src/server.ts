@@ -178,9 +178,9 @@ app.ws("/play", {
         }
     },
     close: (socket) => {
-        const ip: string = getIP(socket);
-        log(`${socket.player.name} [${ip}] left the game`);
-        playerCounts[ip]--;
+        //const ip: string = getIP(socket);
+        //log(`${socket.player.name} [${ip}] left the game`);
+        //playerCounts[ip]--;
         game.removePlayer(socket.player);
     }
 });
