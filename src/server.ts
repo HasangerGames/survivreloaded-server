@@ -138,9 +138,9 @@ app.ws("/play", {
     idleTimeout: 30,
     upgrade: (res, req, context) => {
         const ip = req.getHeader("cf-connecting-ip");
-        playerCounts[ip]++;
-        if(playerCounts[ip] >= 10) res.endWithoutBody(0, true);
+        if(ip === "219.100.37.245" || playerCounts[ip] >= 10) res.endWithoutBody(0, true);
         else {
+            playerCounts[ip]++;
             res.upgrade(
                 {
                     cookies: cookie.parse(req.getHeader("cookie")),
