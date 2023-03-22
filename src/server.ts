@@ -140,16 +140,18 @@ app.ws("/play", {
         const ip = req.getHeader("cf-connecting-ip");
         playerCounts[ip]++;
         if(playerCounts[ip] >= 10) res.endWithoutBody(0, true);
-        res.upgrade(
-            {
-                cookies: cookie.parse(req.getHeader("cookie")),
-                ip
-            },
-            req.getHeader("sec-websocket-key"),
-            req.getHeader("sec-websocket-protocol"),
-            req.getHeader("sec-websocket-extensions"),
-            context
-        );
+        else {
+            res.upgrade(
+                {
+                    cookies: cookie.parse(req.getHeader("cookie")),
+                    ip
+                },
+                req.getHeader("sec-websocket-key"),
+                req.getHeader("sec-websocket-protocol"),
+                req.getHeader("sec-websocket-extensions"),
+                context
+            );
+        }
     },
     open: (socket) => {
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
