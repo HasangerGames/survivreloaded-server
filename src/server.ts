@@ -137,10 +137,13 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        console.log(req.getHeader("cf-connecting-ip"));
+        const ip = req.getHeader("cf-connecting-ip");
+        playerCounts[ip]++;
+        if(playerCounts[ip] >= 10) res.endWithoutBody(0, true);
         res.upgrade(
             {
-                cookies: cookie.parse(req.getHeader("cookie"))
+                cookies: cookie.parse(req.getHeader("cookie")),
+                ip
             },
             req.getHeader("sec-websocket-key"),
             req.getHeader("sec-websocket-protocol"),
@@ -149,14 +152,8 @@ app.ws("/play", {
         );
     },
     open: (socket) => {
-
-        // Prevent too many players from joining from one IP
-        const ip: string = socket;
-        if(playerCounts[ip] >= 10) socket.close();
-        playerCounts[ip]++;
-
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
-        log(`${socket.player.name} [${ip}] joined the game`);
+        log(`${socket.player.name} [${socket.ip}] joined the game`);
     },
     message: (socket, message) => {
         const stream = new SurvivBitStream(message, 0);
@@ -178,9 +175,8 @@ app.ws("/play", {
         }
     },
     close: (socket) => {
-        //const ip: string = getIP(socket);
-        //log(`${socket.player.name} [${ip}] left the game`);
-        //playerCounts[ip]--;
+        playerCounts[socket.ip]--;
+        log(`${socket.player.name} [${socket.ip}] left the game`);
         game.removePlayer(socket.player);
     }
 });
