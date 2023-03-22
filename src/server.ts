@@ -132,15 +132,12 @@ app.post("/api/user/get_pass", (res) => {
     res.end(fs.readFileSync("json/get_pass.json"));
 });
 
-function getIP(socket): string {
-    return new TextDecoder().decode(socket.getRemoteAddressAsText());
-}
-
 // noinspection TypeScriptValidateJSTypes
 app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
+        console.log(Buffer.from(res.getProxiedRemoteAddressAsText()).toString());
         res.upgrade(
             {
                 cookies: cookie.parse(req.getHeader("cookie"))
@@ -154,9 +151,9 @@ app.ws("/play", {
     open: (socket) => {
 
         // Prevent too many players from joining from one IP
-        const ip: string = getIP(socket);
+        const ip: string = socket;
+        if(playerCounts[ip] >= 10) socket.close();
         playerCounts[ip]++;
-        if(playerCounts[ip] > 10) socket.close();
 
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
         log(`${socket.player.name} [${ip}] joined the game`);
