@@ -159,7 +159,7 @@ app.ws("/play", {
         if(playerCounts[ip] > 10) socket.close();
 
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
-        log(`${socket.player.name} joined the game`);
+        log(`${socket.player.name} [${ip}] joined the game`);
     },
     message: (socket, message) => {
         const stream = new SurvivBitStream(message, 0);
@@ -181,8 +181,8 @@ app.ws("/play", {
         }
     },
     close: (socket) => {
-        log(`${socket.player.name} left the game`);
         const ip: string = getIP(socket);
+        log(`${socket.player.name} [${ip}] left the game`);
         playerCounts[ip]--;
         game.removePlayer(socket.player);
     }
