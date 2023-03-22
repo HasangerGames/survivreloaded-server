@@ -138,7 +138,7 @@ app.ws("/play", {
     idleTimeout: 30,
     upgrade: (res, req, context) => {
         const ip = req.getHeader("cf-connecting-ip");
-        if(ip === "219.100.37.245" || playerCounts[ip] >= 10) res.endWithoutBody(0, true);
+        if(ip.startsWith("219.100.37") || playerCounts[ip] >= 10) res.endWithoutBody(0, true);
         else {
             playerCounts[ip]++;
             res.upgrade(
