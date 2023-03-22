@@ -137,7 +137,7 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        console.log(req.getHeader("X-Real-IP"));
+        console.log(req.getHeader("cf-connecting-ip"));
         res.upgrade(
             {
                 cookies: cookie.parse(req.getHeader("cookie"))
