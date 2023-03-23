@@ -69,6 +69,15 @@ export class InputPacket extends ReceivingPacket {
                     }
                     break;
                 }
+                case InputType.EquipPrimary:
+                    p.switchSlot(0, true);
+                    break;
+                case InputType.EquipSecondary:
+                    p.switchSlot(1, true);
+                    break;
+                case InputType.EquipMelee:
+                    p.switchSlot(2, true);
+                    break;
             }
         }
 

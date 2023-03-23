@@ -173,8 +173,6 @@ export const Constants = {
         soundRangeMax: 48,
         fallOff: 1.25
     },
-    groupColors: [16776960, 16711935, 65535, 16733184],
-    teamColors: [13369344, 32511],
     bullet: {
         maxReflect: 3,
         reflectDistDecay: 1.5,
@@ -184,83 +182,6 @@ export const Constants = {
         maxHeight: 5
     },
     structureLayerCount: 2,
-    tracerColors: {
-        "9mm": {
-            regular: 16704198,
-            saturated: 16767411,
-            chambered: 16744192,
-            alphaRate: 0.92,
-            alphaMin: 0.14
-        },
-        "9mm_suppressed_bonus": {
-            regular: 16704198,
-            saturated: 16767411,
-            chambered: 16744192,
-            alphaRate: 0.96,
-            alphaMin: 0.28
-        },
-        "9mm_cursed": {
-            regular: 1247488,
-            saturated: 1247488,
-            chambered: 1247488,
-            alphaRate: 0.92,
-            alphaMin: 0.14
-        },
-        "762mm": {
-            regular: 12965630,
-            saturated: 11257087,
-            chambered: 19711,
-            alphaRate: 0.94,
-            alphaMin: 0.2
-        },
-        "12gauge": {
-            regular: 16702684,
-            saturated: 16702684,
-            chambered: 16711680
-        },
-        "556mm": {
-            regular: 11141010,
-            saturated: 11141010,
-            chambered: 3604224,
-            alphaRate: 0.92,
-            alphaMin: 0.14
-        },
-        "50AE": {
-            regular: 16773256,
-            saturated: 16773256,
-            chambered: 16768768
-        },
-        "308sub": {
-            regular: 2435840,
-            saturated: 4608e3,
-            chambered: 1250816,
-            alphaRate: 0.92,
-            alphaMin: 0.07
-        },
-        flare: {
-            regular: 14869218,
-            saturated: 14869218,
-            chambered: 12895428
-        },
-        "45acp": {
-            regular: 15515391,
-            saturated: 15183103,
-            chambered: 11862271
-        },
-        shrapnel: {
-            regular: 3355443,
-            saturated: 3355443
-        },
-        frag: {
-            regular: 13303808,
-            saturated: 13303808
-        },
-        potato: {
-            regular: 0,
-            saturated: 0,
-            chambered: 0
-        }
-    },
     scopeZoomRadius: {
         desktop: {
             "1xscope": 28,
@@ -377,6 +298,10 @@ export enum InputType {
 export enum DamageType {
     Player, Bleeding, Gas, Airdrop, Airstrike,
     Freeze, Weather, Npc, Burning, Phoenix
+}
+
+export enum WeaponType {
+    Gun, Melee, Throwable
 }
 
 export enum CollisionType {
@@ -556,6 +481,10 @@ export function unitVecToRadians(v: Vec2): number {
 export function vec2Rotate(v: Vec2, angle: number): Vec2 {
     const cos = Math.cos(angle), sin = Math.sin(angle);
     return Vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
+}
+
+export function degreesToRadians(degrees: number): number {
+    return degrees * Math.PI / 180;
 }
 
 export function readJson(path: string): any {

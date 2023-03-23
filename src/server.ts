@@ -176,9 +176,9 @@ app.ws("/play", {
         }
     },
     open: (socket) => {
-        let name: string = socket.cookies["player-name"] ?? "Player";
-        if(name.length > 16) name = "Player";
-        socket.player = game.addPlayer(socket, name, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
+        let playerName: string = socket.cookies["player-name"];
+        if(!playerName || playerName.length > 16) playerName = "Player";
+        socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null)
         log(`${socket.player.name} joined the game`);
     },
     message: (socket, message) => {
