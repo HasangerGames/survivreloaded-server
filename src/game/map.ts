@@ -91,8 +91,8 @@ export class Map {
             this.obstacleTest("crate_01", Vec2(463, 153), 1);
             this.obstacleTest("crate_01", Vec2(468, 153), 1);
             (this.game.objects[0] as Obstacle).loot = [new Item("m9", 1)];
-            (this.game.objects[1] as Obstacle).loot = [new Item("9mm", 1)];
-            (this.game.objects[2] as Obstacle).loot = [new Item("ump9", 2)];
+            (this.game.objects[1] as Obstacle).loot = [new Item("m249", 1)];
+            (this.game.objects[2] as Obstacle).loot = [new Item("mac10", 2)];
             (this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];
 
             // Object culling test

@@ -95,6 +95,7 @@ export class Loot extends GameObject {
             } else {
                 result = PickupMsgType.Full;
             }
+            console.log(p.weapons.primaryGun.typeId, p.weapons.secondaryGun.typeId);
             p.weaponsDirty = true;
             playerDirty = true;
         }

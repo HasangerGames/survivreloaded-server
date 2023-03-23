@@ -51,7 +51,7 @@ export class Bullet {
         this.typeString = typeString;
         this.typeId = TypeToId[typeString];
         this.shotSourceType = shotSourceType;
-        this.body = game.world.createBody({
+        /*this.body = game.world.createBody({
             type: "dynamic",
             position,
             bullet: true
@@ -63,11 +63,11 @@ export class Bullet {
             restitution: 1.0,
             filterCategoryBits: CollisionCategory.Player,
             filterMaskBits: CollisionCategory.Obstacle
-        });
+        });*/
     }
 
     get position(): Vec2 {
-        return this.body.getPosition();
+        return this.initialPosition;
     }
 
 }

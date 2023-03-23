@@ -4,12 +4,14 @@ import {
     CollisionType,
     Constants,
     Debug,
+    degreesToRadians,
     distanceBetween,
     distanceToCircle,
     distanceToRect,
     type Emote,
     type Explosion,
     log,
+    randomFloat,
     randomVec,
     removeFrom,
     SurvivBitStream,
@@ -162,7 +164,7 @@ export class Game {
                 }
 
                 // Drain adrenaline
-                if(p.boost) p.boost -= 0.01136;
+                if(p.boost > 0) p.boost -= 0.01136;
 
                 // Health regeneration from adrenaline
                 if(p.boost > 0 && p.boost <= 25) p.health += 0.0050303;
@@ -202,7 +204,7 @@ export class Game {
                 // Weapon logic
                 if(p.shootStart) {
                     p.shootStart = false;
-                    if(Date.now() - p.activeWeapon.cooldown >= p.activeWeapon.cooldownDuration) {
+                    if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         if(p.activeWeapon.weaponType === WeaponType.Melee) { // Melee logic
                             // Start punching animation
@@ -247,7 +249,8 @@ export class Game {
                             }
                         } else if(p.activeWeapon.weaponType === WeaponType.Gun) { // Gun logic
                             const weapon = Weapons[p.activeWeapon.typeString];
-                            const angle = unitVecToRadians(p.direction);
+                            const spread = degreesToRadians(weapon.shotSpread);
+                            const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
                             const bullet: Bullet = new Bullet(
                                 p.id,
                                 Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
@@ -260,6 +263,24 @@ export class Game {
                             this.bullets.push(bullet);
                             this.dirtyBullets.push(bullet);
                         }
+                    }
+                } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && Weapons[p.activeWeapon.typeString].fireMode === "auto") {
+                    if(p.weaponCooldownOver()) {
+                        p.activeWeapon.cooldown = Date.now();
+                        const weapon = Weapons[p.activeWeapon.typeString];
+                        const spread = degreesToRadians(weapon.shotSpread);
+                        const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
+                        const bullet: Bullet = new Bullet(
+                            p.id,
+                            Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
+                            p.direction,
+                            weapon.bulletType,
+                            p.activeWeapon.typeId,
+                            0,
+                            this
+                        );
+                        this.bullets.push(bullet);
+                        this.dirtyBullets.push(bullet);
                     }
                 }
 

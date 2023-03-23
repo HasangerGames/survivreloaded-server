@@ -287,28 +287,38 @@ export class Player extends GameObject {
         else this.zoom = Constants.scopeZoomRadius.desktop[scope];
     }
 
-    switchSlot(slot: number): void { // TODO Make this.weapons into an array
+    switchSlot(slot: number, updatePlayer?: boolean): void { // TODO Make this.weapons into an array
         this.weapons.activeSlot = slot;
         switch(slot) {
             case 0:
                 this.activeWeapon.typeString = this.weapons.primaryGun.typeString;
                 this.activeWeapon.typeId = this.weapons.primaryGun.typeId;
-                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay;
+                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 900;
                 this.activeWeapon.weaponType = WeaponType.Gun;
                 break;
             case 1:
                 this.activeWeapon.typeString = this.weapons.secondaryGun.typeString;
                 this.activeWeapon.typeId = this.weapons.secondaryGun.typeId;
-                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay;
+                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 1000;
                 this.activeWeapon.weaponType = WeaponType.Gun;
                 break;
             case 2:
                 this.activeWeapon.typeString = this.weapons.melee.typeString;
                 this.activeWeapon.typeId = this.weapons.melee.typeId;
-                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].attack.cooldownTime;
+                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].attack.cooldownTime * 1000;
                 this.activeWeapon.weaponType = WeaponType.Melee;
                 break;
         }
+        if(updatePlayer) {
+            this.weaponsDirty = true;
+            this.inventoryDirty = true;
+            this.game!.fullDirtyObjects.push(this);
+            this.fullDirtyObjects.push(this);
+        }
+    }
+
+    weaponCooldownOver(): boolean {
+        return Date.now() - this.activeWeapon.cooldown >= this.activeWeapon.cooldownDuration;
     }
 
     get health(): number {

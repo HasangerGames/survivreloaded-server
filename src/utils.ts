@@ -487,6 +487,10 @@ export function vec2Rotate(v: Vec2, angle: number): Vec2 {
     return Vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
 }
 
+export function degreesToRadians(degrees: number): number {
+    return degrees * Math.PI / 180;
+}
+
 export function readJson(path: string): any {
     return JSON.parse(fs.readFileSync(path) as unknown as string);
 }
