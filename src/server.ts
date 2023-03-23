@@ -140,11 +140,10 @@ app.ws("/play", {
     upgrade: (res, req, context) => {
         if(Config.botProtection) {
             const ip = req.getHeader("cf-connecting-ip");
-            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5) {
-                res.endWithoutBody(0, true);
-                if(!bannedIPs.includes(ip)) bannedIPs.push(ip);
-            } else {
+            if(playerCounts[ip] >= 5) bannedIPs.push(ip);
+            else {
                 playerCounts[ip]++;
+                log(`${playerCounts[ip]} simultaneous connections: ${ip}`);
                 res.upgrade(
                     {
                         cookies: cookie.parse(req.getHeader("cookie")),
@@ -169,6 +168,11 @@ app.ws("/play", {
         }
     },
     open: (socket) => {
+        if(bannedIPs.includes(socket.ip)) {
+            log(`BANNED: ${socket.ip}`);
+            socket.close();
+            return;
+        }
         socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
         log(`${socket.player.name} joined the game`);
     },
