@@ -22,7 +22,9 @@ if(Config.https) {
     app = App();
 }
 
-//const playerCounts = {};
+const playerCounts = {};
+let connectionAttempts = {};
+const bannedIPs: string[] = [];
 
 // Set up static files
 const staticFiles = {};
@@ -137,26 +139,46 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        //const ip = req.getHeader("cf-connecting-ip");
-        //if(playerCounts[ip] >= 10) res.endWithoutBody(0, true);
-        //else {
-        //    playerCounts[ip]++;
+        if(Config.botProtection) {
+            const ip = req.getHeader("cf-connecting-ip");
+            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 15) {
+                if(!bannedIPs.includes(ip)) bannedIPs.push(ip);
+                res.endWithoutBody(0, true);
+                log(`Connection blocked: ${ip}`);
+            } else {
+                if(!playerCounts[ip]) playerCounts[ip] = 1;
+                else playerCounts[ip]++;
+                if(!connectionAttempts[ip]) connectionAttempts[ip] = 1;
+                else connectionAttempts[ip]++;
+                log(`${playerCounts[ip]} simultaneous connections: ${ip}`);
+                log(`${connectionAttempts[ip]} connection attempts in the last 30 seconds: ${ip}`);
+                res.upgrade(
+                    {
+                        cookies: cookie.parse(req.getHeader("cookie")),
+                        ip
+                    },
+                    req.getHeader("sec-websocket-key"),
+                    req.getHeader("sec-websocket-protocol"),
+                    req.getHeader("sec-websocket-extensions"),
+                    context
+                );
+            }
+        } else {
             res.upgrade(
                 {
                     cookies: cookie.parse(req.getHeader("cookie"))
-                   // ip
                 },
                 req.getHeader("sec-websocket-key"),
                 req.getHeader("sec-websocket-protocol"),
                 req.getHeader("sec-websocket-extensions"),
                 context
             );
-        //}
+        }
     },
     open: (socket) => {
         let playerName: string = socket.cookies["player-name"];
         if(!playerName || playerName.length > 16) playerName = "Player";
-        socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
+        socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null)
         log(`${socket.player.name} joined the game`);
     },
     message: (socket, message) => {
@@ -179,7 +201,7 @@ app.ws("/play", {
         }
     },
     close: (socket) => {
-        //playerCounts[socket.ip]--;
+        if(Config.botProtection) playerCounts[socket.ip]--;
         log(`${socket.player.name} left the game`);
         game.removePlayer(socket.player);
     }
@@ -200,3 +222,9 @@ app.listen(Config.host, Config.port, () => {
         setTimeout(() => process.exit(1), Debug.autoStopAfter);
     }
 });
+
+if(Config.botProtection) {
+    setTimeout(() => {
+        connectionAttempts = {};
+    }, 30000);
+}

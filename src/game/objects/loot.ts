@@ -11,7 +11,7 @@ import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Player } from "./player";
 import { PickupMsgType, PickupPacket } from "../../packets/sending/pickupPacket";
-import { Circle, type Vec2 } from "planck";
+import { Circle, Vec2 } from "planck";
 
 export class Loot extends GameObject {
 
@@ -19,28 +19,34 @@ export class Loot extends GameObject {
     interactable = true;
     interactionRad = 1;
 
-    constructor(id: number,
+    oldPos: Vec2;
+
+    constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
-                game: Game,
-                count: number) {
-        super(id, typeString, position, layer, undefined, game);
+                count: number,
+                spreadOut?: boolean) {
+        super(game, typeString, position, layer);
         this.kind = ObjectKind.Loot;
         this.count = count;
+        this.oldPos = position;
         this.body = game.world.createBody({
             type: "dynamic",
-            position,
-            fixedRotation: true
+            position
         });
         this.body.createFixture({
-            shape: Circle(position, 1),
+            shape: Circle(1),
             restitution: 0.0,
-            density: 10.0,
-            friction: 0.0,
-            filterCategoryBits: CollisionCategory.Loot,
-            filterMaskBits: CollisionCategory.Obstacle
+            density: 1.0,
+            friction: 1.0,
+            userData: this
         });
+        if(spreadOut) {
+            const angle: number = Math.random() * Math.PI * 2;
+            this.body.setLinearVelocity(Vec2(Math.cos(angle), Math.sin(angle)).mul(0.00005));
+        }
+        game.loot.push(this);
     }
 
     get position(): Vec2 {
@@ -78,7 +84,7 @@ export class Loot extends GameObject {
             } else if(currentCount + this.count > maxCapacity) {
                 (p.inventory[this.typeString] as number) = maxCapacity;
                 this.count = (currentCount + this.count) - maxCapacity;
-                this.game!.fullDirtyObjects.push(this);
+                this.game.fullDirtyObjects.push(this);
                 deleteItem = false;
             }
         } else {
@@ -105,10 +111,10 @@ export class Loot extends GameObject {
         }
         if(result! === PickupMsgType.Success) {
             if(deleteItem) {
-                removeFrom(this.game!.objects, this);
-                //removeFrom(this.game!.loot, this);
-                this.game!.deletedObjects.push(this);
-                this.game!.world.destroyBody(this.body!);
+                removeFrom(this.game.objects, this);
+                removeFrom(this.game.loot, this);
+                this.game.deletedObjects.push(this);
+                this.game.world.destroyBody(this.body!);
                 this.interactable = false;
             }
             if(playerDirty) {
@@ -116,6 +122,7 @@ export class Loot extends GameObject {
                 p.fullDirtyObjects.push(p);
             }
             p.inventoryDirty = true;
+            p.inventoryEmpty = false;
         }
     }
 
@@ -128,10 +135,9 @@ export class Loot extends GameObject {
             p[`${type}Level`] = newLevel;
             if(oldLevel !== 0) { // If oldLevel === 0, the player didn't have an item of this type equipped, so don't drop loot
                 // Example: if type = helmet and p.helmetLevel = 1, typeString = helmet01
-                const oldItem: Loot = new Loot(this.game!.nextObjectId, `${type}0${oldLevel}`, this.position, this.layer, this.game!, 1);
-                this.game!.objects.push(oldItem);
-                //this.game!.loot.push(oldItem);
-                this.game!.fullDirtyObjects.push(oldItem);
+                const oldItem: Loot = new Loot(this.game, `${type}0${oldLevel}`, this.position, this.layer, 1);
+                this.game.objects.push(oldItem);
+                this.game.fullDirtyObjects.push(oldItem);
             }
         }
         return PickupMsgType.Success;

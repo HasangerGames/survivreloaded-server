@@ -24,6 +24,7 @@ import { type Body, Circle, Vec2 } from "planck";
 import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPacket";
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot } from "./loot";
+import { Obstacle } from "./obstacle";
 
 export class Player extends GameObject {
     socket: WebSocket<any>;
@@ -81,6 +82,7 @@ export class Player extends GameObject {
     healthDirty = true;
     boostDirty = true;
     inventoryDirty = true;
+    inventoryEmpty = true;
     zoomDirty = true;
     weaponsDirty = true;
 
@@ -151,7 +153,7 @@ export class Player extends GameObject {
         },
         melee: {
             typeString: "fists",
-            typeId: 389
+            typeId: TypeToId.fists
         },
         throwable: {
             typeString: "",
@@ -190,16 +192,16 @@ export class Player extends GameObject {
     damageDealt = 0;
     damageTaken = 0;
 
-    constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, username: string, loadout) {
-        super(id, "", position, 0);
+    constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, name: string, loadout) {
+        super(game, "", position, 0);
         this.kind = ObjectKind.Player;
 
         // Misc
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
-        this.groupId = this.game.players.length - 1;
-        this.name = username;
+        this.groupId = this.game.nextGroupId;
+        this.name = name;
         this.zoom = Constants.scopeZoomRadius.desktop["1xscope"];
         this.actionItem = { typeString: "", typeId: 0, duration: 0, useEnd: -1 };
         this.joinTime = Date.now();
@@ -249,8 +251,7 @@ export class Player extends GameObject {
             friction: 0.0,
             density: 1.0,
             restitution: 0.0,
-            filterCategoryBits: CollisionCategory.Player,
-            filterMaskBits: CollisionCategory.Obstacle
+            userData: this
         });
     }
 
@@ -361,12 +362,12 @@ export class Player extends GameObject {
 
             // Update role
             if(this.role === TypeToId.kill_leader) {
-                this.game!.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
+                this.game.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
 
                 // Find a new Kill Leader
                 let highestKillCount = 0;
                 let highestKillsPlayer;
-                for(const p of this.game!.players) {
+                for(const p of this.game.players) {
                     if(!p.dead && p.kills > highestKillCount) {
                         highestKillCount = p.kills;
                         highestKillsPlayer = p;
@@ -376,38 +377,38 @@ export class Player extends GameObject {
                 // If a new Kill Leader was found, assign the role.
                 // Otherwise, leave it vacant.
                 if(highestKillCount > 2) {
-                    this.game!.assignKillLeader(highestKillsPlayer);
+                    this.game.assignKillLeader(highestKillsPlayer);
                 } else {
-                    this.game!.killLeader = { id: 0, kills: 0 };
-                    this.game!.killLeaderDirty = true;
+                    this.game.killLeader = { id: 0, kills: 0 };
+                    this.game.killLeaderDirty = true;
                 }
             }
             this.roleLost = true;
 
             // Decrement alive count
             if(!this.disconnected) {
-                this.game!.aliveCount--;
-                this.game!.aliveCountDirty = true;
+                this.game.aliveCount--;
+                this.game.aliveCountDirty = true;
             }
 
             // Increment kill count for killer
             if(source instanceof Player && source !== this) {
                 source.kills++;
-                if(source.kills > 2 && source.kills > this.game!.killLeader.kills) {
-                    this.game!.assignKillLeader(source);
+                if(source.kills > 2 && source.kills > this.game.killLeader.kills) {
+                    this.game.assignKillLeader(source);
                 }
             }
 
             // Set static dead position
             this.deadPos = this.body.getPosition().clone();
-            this.game!.world.destroyBody(this.body);
+            this.game.world.destroyBody(this.body);
             this.fullDirtyObjects.push(this);
-            this.game!.fullDirtyObjects.push(this);
+            this.game.fullDirtyObjects.push(this);
 
             // Create dead body
-            const deadBody = new DeadBody(this.game!.nextObjectId, this.layer, this.position, this.id);
-            this.game!.objects.push(deadBody);
-            this.game!.fullDirtyObjects.push(deadBody);
+            const deadBody = new DeadBody(this.game, this.layer, this.position, this.id);
+            this.game.objects.push(deadBody);
+            this.game.fullDirtyObjects.push(deadBody);
 
             // Drop loot
             for(const item in this.inventory) {
@@ -419,8 +420,8 @@ export class Player extends GameObject {
             if(this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
 
             // Remove from active players; send packets
-            removeFrom(this.game!.activePlayers, this);
-            this.game!.kills.push(new KillPacket(this, source, objectUsed));
+            removeFrom(this.game.activePlayers, this);
+            this.game.kills.push(new KillPacket(this, source, objectUsed));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
         }
     }
@@ -429,21 +430,16 @@ export class Player extends GameObject {
 
         // Create the loot
         const loot: Loot = new Loot(
-            this.game!.nextObjectId,
+            this.game,
             type,
             this.deadPos,
             this.layer,
-            this.game!,
             this.inventory[type]
         );
 
-        // Push the loot in a random direction
-        //loot.body?.setLinearVelocity(Vec2(0.00709, 0.00709));//Vec2(randomFloatSpecial(0.007, 0.008), randomFloatSpecial(0.007, 0.008)));
-
         // Add the loot to the array of objects
-        this.game!.objects.push(loot);
-        //this.game!.loot.push(loot);
-        this.game!.fullDirtyObjects.push(loot);
+        this.game.objects.push(loot);
+        this.game.fullDirtyObjects.push(loot);
     }
 
     useItem(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
@@ -479,7 +475,7 @@ export class Player extends GameObject {
     updateVisibleObjects(): void {
         this.movesSinceLastUpdate = 0;
         const newVisibleObjects: GameObject[] = [];
-        for(const object of this.game!.objects) {
+        for(const object of this.game.objects) {
             if(this === object) continue;
             const minX = this.position.x - this.xCullDist,
                 maxX = this.position.x + this.xCullDist,

@@ -140,7 +140,7 @@ export class Map {
                 // console.warn(`Unsupported object type: ${layer.type}`);
             }
         }
-        this.game.objects.push(new Structure(this.game.nextObjectId, typeString, position, orientation, layerObjIds));
+        this.game.objects.push(new Structure(this.game, typeString, position, orientation, layerObjIds));
     }
 
     private genBuildings(count, type, building): void {
@@ -212,12 +212,11 @@ export class Map {
             }
         }
         const building: Building = new Building(
-            this.game.nextObjectId,
+            this.game,
             typeString,
             position,
             setLayer !== undefined ? setLayer : 0,
             orientation,
-            this.game,
             buildingData.map ? buildingData.map.display : false,
             buildingData
         );
@@ -234,12 +233,11 @@ export class Map {
 
     private placeDebugMarker(position: Vec2): void {
         this.game.objects.push(new Obstacle(
-            this.game.nextObjectId,
+            this.game,
             "house_column_1",
             position,
             0,
             0,
-            this.game,
             0.125,
             Objects.house_column_1
         ));
@@ -252,12 +250,11 @@ export class Map {
                         scale: number,
                         obstacleData): void {
         this.game.objects.push(new Obstacle(
-            this.game.nextObjectId,
+            this.game,
             typeString,
             position,
             layer !== undefined ? layer : 0,
             orientation,
-            this.game,
             scale,
             obstacleData
         ));

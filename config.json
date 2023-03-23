@@ -6,6 +6,7 @@
   "certFile": "config/cert.pem",
 
   "movementSpeed": 0.013,
+  "botProtection": false,
   "debug": {
     "performanceLog": true,
     "performanceLogInterval": 200,

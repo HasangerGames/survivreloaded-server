@@ -1,18 +1,19 @@
 import { ObjectKind, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
+import { Game } from "../game";
 
 export class Structure extends GameObject {
     showOnMap = false;
 
     layerObjIds: number[];
 
-    constructor(id: number,
+    constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 orientation: number,
                 layerObjIds: number[]) {
-        super(id, typeString, position, 0, orientation);
+        super(game, typeString, position, 0, orientation);
         this.kind = ObjectKind.Structure;
         this.layerObjIds = layerObjIds;
     }
