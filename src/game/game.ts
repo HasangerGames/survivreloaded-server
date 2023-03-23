@@ -380,6 +380,9 @@ export class Game {
         p.disconnected = true;
         p.deadPos = p.body.getPosition().clone();
         this.world.destroyBody(p.body);
+        if(p.inventoryEmpty) {
+
+        }
 
         //this.deletedPlayers.push(p);
         this.fullDirtyObjects.push(p);
