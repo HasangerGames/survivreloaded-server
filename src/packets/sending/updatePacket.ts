@@ -18,11 +18,11 @@ export class UpdatePacket extends SendingPacket {
         if(p.deletedObjects.length) valuesChanged += 1;
         if(p.fullDirtyObjects.length) valuesChanged += 2;
         if(p.activePlayerIdDirty) valuesChanged += 4;
-        if(p.game!.gasDirty || p.firstUpdate) valuesChanged += 8;
-        if(p.game!.gasCircleDirty || p.firstUpdate) valuesChanged += 16;
-        if(p.game!.playerInfosDirty) valuesChanged += 32;
-        if(p.game!.deletedPlayers.length) valuesChanged += 64;
-        if(/*p.game!.dirtyStatusPlayers.length || */p.firstUpdate) valuesChanged += 128;
+        if(p.game.gasDirty || p.firstUpdate) valuesChanged += 8;
+        if(p.game.gasCircleDirty || p.firstUpdate) valuesChanged += 16;
+        if(p.game.playerInfosDirty) valuesChanged += 32;
+        if(p.game.deletedPlayers.length) valuesChanged += 64;
+        if(/*p.game.dirtyStatusPlayers.length || */p.firstUpdate) valuesChanged += 128;
         if(p.groupStatusDirty) valuesChanged += 256;
         if(p.bulletsDirty) valuesChanged += 512;
         if(p.explosions.length) valuesChanged += 1024;
@@ -30,7 +30,7 @@ export class UpdatePacket extends SendingPacket {
         if(p.planesDirty) valuesChanged += 4096;
         if(p.airstrikeZonesDirty) valuesChanged += 8192;
         if(p.mapIndicatorsDirty) valuesChanged += 16384;
-        if(p.game!.killLeaderDirty || p.firstUpdate) valuesChanged += 32768;
+        if(p.game.killLeaderDirty || p.firstUpdate) valuesChanged += 32768;
         stream.writeUint16(valuesChanged);
 
         // Deleted objects
@@ -145,26 +145,26 @@ export class UpdatePacket extends SendingPacket {
         //
 
         // Red zone data
-        if(p.game!.gasDirty || p.firstUpdate) {
-            stream.writeUint8(p.game!.gasMode); // Mode
-            stream.writeFloat32(p.game!.initialGasDuration); // Duration
-            stream.writeVec(p.game!.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
-            stream.writeVec(p.game!.newGasPosition, 0, 0, 1024, 1024, 16); // New position
-            stream.writeFloat(p.game!.oldGasRadius, 0, 2048, 16); // Old radius
-            stream.writeFloat(p.game!.newGasRadius, 0, 2048, 16); // New radius
+        if(p.game.gasDirty || p.firstUpdate) {
+            stream.writeUint8(p.game.gasMode); // Mode
+            stream.writeFloat32(p.game.initialGasDuration); // Duration
+            stream.writeVec(p.game.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
+            stream.writeVec(p.game.newGasPosition, 0, 0, 1024, 1024, 16); // New position
+            stream.writeFloat(p.game.oldGasRadius, 0, 2048, 16); // Old radius
+            stream.writeFloat(p.game.newGasRadius, 0, 2048, 16); // New radius
         }
 
         // Red zone time data
-        if(p.game!.gasCircleDirty || p.firstUpdate) {
+        if(p.game.gasCircleDirty || p.firstUpdate) {
             stream.writeFloat(0, 0, 1, 16); // Indicates red zone time (gasT)
         }
 
         // Player info
         let playerInfosSource;
         if(p.firstUpdate) {
-            playerInfosSource = p.game!.players;
-        } else if(p.game!.playerInfosDirty) {
-            playerInfosSource = p.game!.newPlayers;
+            playerInfosSource = p.game.players;
+        } else if(p.game.playerInfosDirty) {
+            playerInfosSource = p.game.newPlayers;
         }
         if(playerInfosSource) {
             stream.writeUint8(playerInfosSource.length); // Player info count
@@ -184,13 +184,13 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Player IDs to delete
-        if(p.game!.deletedPlayers.length > 0) {
-            stream.writeUint8(p.game!.deletedPlayers.length);
-            for(const player of p.game!.deletedPlayers) stream.writeUint16(player.id);
+        if(p.game.deletedPlayers.length > 0) {
+            stream.writeUint8(p.game.deletedPlayers.length);
+            for(const player of p.game.deletedPlayers) stream.writeUint16(player.id);
         }
 
         // Player status
-        //const dirtyStatusPlayers: Player[] = p.firstUpdate ? p.game!.players : p.game!.dirtyStatusPlayers;
+        //const dirtyStatusPlayers: Player[] = p.firstUpdate ? p.game.players : p.game.dirtyStatusPlayers;
         //if(dirtyStatusPlayers.length) {
         if(p.firstUpdate) {
             //stream.writeUint8(dirtyStatusPlayers.length); // Player count
@@ -247,9 +247,9 @@ export class UpdatePacket extends SendingPacket {
         // Map indicators
 
         // Kill leader
-        if(p.game!.killLeaderDirty || p.firstUpdate) {
-            stream.writeUint16(p.game!.killLeader.id);
-            stream.writeUint8(p.game!.killLeader.kills);
+        if(p.game.killLeaderDirty || p.firstUpdate) {
+            stream.writeUint16(p.game.killLeader.id);
+            stream.writeUint8(p.game.killLeader.kills);
         }
 
         if(p.firstUpdate) p.firstUpdate = false;

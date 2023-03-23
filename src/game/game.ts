@@ -10,6 +10,7 @@ import {
     type Emote,
     type Explosion,
     log,
+    ObjectKind,
     randomVec,
     removeFrom,
     SurvivBitStream,
@@ -26,7 +27,7 @@ import { JoinedPacket } from "../packets/sending/joinedPacket";
 import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
-import { Settings, Vec2, World } from "planck";
+import { Fixture, Settings, Vec2, World } from "planck";
 import { Obstacle } from "./objects/obstacle";
 import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 import { Loot } from "./objects/loot";
@@ -41,12 +42,13 @@ export class Game {
 
     objects: GameObject[] = []; // An array of all the objects in the world
     _nextObjectId = -1;
+    _nextGroupId = -1;
 
     partialDirtyObjects: GameObject[] = [];
     fullDirtyObjects: GameObject[] = [];
     deletedObjects: GameObject[] = [];
     newObjects: GameObject[] = [];
-    //loot: Loot[] = [];
+    loot: Loot[] = [];
 
     players: Player[] = []; // All players, including dead and disconnected players.
     connectedPlayers: Player[] = []; // All connected players. May be dead.
@@ -102,11 +104,31 @@ export class Game {
         this.world = new World({
             gravity: Vec2(0, 0)
         });
-        Settings.maxLinearCorrection = 0; // This prevents collision jitter
+
+        // If maxLinearCorrection is set to 0, player collisions work perfectly, but loot doesn't spread out.
+        // If maxLinearCorrection is set to 0.2, loot spreads out, but player collisions are jittery.
+        // This code solves the dilemma by setting maxLinearCorrection to the appropriate value for the object.
+        this.world.on("pre-solve", contact => {
+            // @ts-expect-error asdfasdf
+            if(contact.getFixtureA().getUserData().kind === ObjectKind.Loot || contact.getFixtureB().getUserData().kind === ObjectKind.Loot) Settings.maxLinearCorrection = 0.2;
+            else Settings.maxLinearCorrection = 0;
+        });
+
+        // Collision filtering code:
+        // - Players should collide with obstacles, but not with each other or with loot.
+        // - Loot should collide with obstacles and other loot.
+        Fixture.prototype.shouldCollide = function(that): boolean {
+            const thisObject: GameObject = this.getUserData() as GameObject;
+            const thatObject: GameObject = that.getUserData() as GameObject;
+            if(!(thisObject.layer === thatObject.layer)) return false;
+            if(thisObject.kind === ObjectKind.Player) return thatObject.kind === ObjectKind.Obstacle;
+            else if(thisObject.kind === ObjectKind.Loot) return thatObject.kind === ObjectKind.Obstacle || thatObject.kind === ObjectKind.Loot;
+            else return false;
+        };
 
         this.map = new Map(this, "main");
 
-        this.tick(33);
+        this.tick(30);
     }
 
     tickTimes: number[] = [];
@@ -125,10 +147,12 @@ export class Game {
             if(this.aliveCountDirty) this.aliveCounts = new AliveCountsPacket(this);
 
             // Update loot positions
-            /*for(const loot of this.loot) {
-                const velocity = loot.body!.getLinearVelocity();
-                if(velocity.x > 0 || velocity.y > 0) this.partialDirtyObjects.push(loot);
-            }*/
+            for(const loot of this.loot) {
+                if(loot.oldPos.x !== loot.position.x || loot.oldPos.y !== loot.position.y) {
+                    this.partialDirtyObjects.push(loot);
+                }
+                loot.oldPos = loot.position.clone();
+            }
 
             // First loop: Calculate movement & animations
             for(const p of this.activePlayers) {
@@ -342,12 +366,12 @@ export class Game {
         }, delay);
     }
 
-    addPlayer(socket, username, loadout): Player {
+    addPlayer(socket, name, loadout): Player {
         let spawnPosition;
         if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
         else spawnPosition = randomVec(75, this.map.width - 75, 75, this.map.height - 75);
 
-        const p = new Player(this.nextObjectId, spawnPosition, socket, this, username, loadout);
+        const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
         this.objects.push(p);
         this.players.push(p);
         this.connectedPlayers.push(p);
@@ -375,21 +399,26 @@ export class Game {
         return p;
     }
 
-    removePlayer(p): void {
-        p.direction = Vec2(1, 0);
-        p.disconnected = true;
-        p.deadPos = p.body.getPosition().clone();
+    removePlayer(p: Player): void {
         this.world.destroyBody(p.body);
         if(p.inventoryEmpty) {
-
+            removeFrom(this.players, p);
+            removeFrom(this.objects, p);
+            removeFrom(this.partialDirtyObjects, p);
+            removeFrom(this.fullDirtyObjects, p);
+            this.deletedPlayers.push(p);
+            this.deletedObjects.push(p);
+        } else {
+            p.direction = Vec2(1, 0);
+            p.disconnected = true;
+            p.deadPos = p.body.getPosition().clone();
+            this.fullDirtyObjects.push(p);
         }
 
-        //this.deletedPlayers.push(p);
-        this.fullDirtyObjects.push(p);
         removeFrom(this.activePlayers, p);
         removeFrom(this.connectedPlayers, p);
 
-        if(!p.dead) {
+        if(!p.dead) { // If player is dead, alive count has already been decremented
             this.aliveCount--;
             this.aliveCountDirty = true;
         }
@@ -415,6 +444,11 @@ export class Game {
     get nextObjectId(): number {
         this._nextObjectId++;
         return this._nextObjectId;
+    }
+
+    get nextGroupId(): number {
+        this._nextGroupId++;
+        return this._nextGroupId;
     }
 
 }

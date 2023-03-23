@@ -22,17 +22,16 @@ export abstract class GameObject {
     interactionRad: number;
     damageable = false;
 
-    game?: Game;
+    game: Game;
 
     body: Body | null;
 
-    protected constructor(id: number,
+    protected constructor(game: Game,
                           typeString: string,
                           position: Vec2,
                           layer: number,
-                          orientation?: number,
-                          game?: Game) {
-        this.id = id;
+                          orientation?: number) {
+        this.id = game.nextObjectId;
         this.typeString = typeString;
         if(this.typeString) this.typeId = TypeToId[typeString];
         this._position = position;

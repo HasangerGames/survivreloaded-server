@@ -23,6 +23,7 @@ if(Config.https) {
 }
 
 const playerCounts = {};
+let connectionAttempts = {};
 const bannedIPs: string[] = [];
 
 // Set up static files
@@ -140,14 +141,17 @@ app.ws("/play", {
     upgrade: (res, req, context) => {
         if(Config.botProtection) {
             const ip = req.getHeader("cf-connecting-ip");
-            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5) {
+            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 15) {
                 if(!bannedIPs.includes(ip)) bannedIPs.push(ip);
                 res.endWithoutBody(0, true);
                 log(`Connection blocked: ${ip}`);
             } else {
                 if(!playerCounts[ip]) playerCounts[ip] = 1;
                 else playerCounts[ip]++;
+                if(!connectionAttempts[ip]) connectionAttempts[ip] = 1;
+                else connectionAttempts[ip]++;
                 log(`${playerCounts[ip]} simultaneous connections: ${ip}`);
+                log(`${connectionAttempts[ip]} connection attempts in the last 30 seconds: ${ip}`);
                 res.upgrade(
                     {
                         cookies: cookie.parse(req.getHeader("cookie")),
@@ -172,7 +176,9 @@ app.ws("/play", {
         }
     },
     open: (socket) => {
-        socket.player = game.addPlayer(socket, socket.cookies["player-name"] ? socket.cookies["player-name"] : "Player", socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
+        let name: string = socket.cookies["player-name"] ?? "Player";
+        if(name.length > 16) name = "Player";
+        socket.player = game.addPlayer(socket, name, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
         log(`${socket.player.name} joined the game`);
     },
     message: (socket, message) => {
@@ -216,3 +222,9 @@ app.listen(Config.host, Config.port, () => {
         setTimeout(() => process.exit(1), Debug.autoStopAfter);
     }
 });
+
+if(Config.botProtection) {
+    setTimeout(() => {
+        connectionAttempts = {};
+    }, 30000);
+}

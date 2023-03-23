@@ -1,4 +1,4 @@
-import { bodyFromCollisionData, ObjectKind, rotateRect, type SurvivBitStream } from "../../utils";
+import { ObjectKind, rotateRect, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 import { Vec2 } from "planck";
 import { Game } from "../game";
@@ -13,15 +13,14 @@ export class Building extends GameObject {
 
     mapObstacleBounds: any[] = [];
 
-    constructor(id: number,
+    constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
                 orientation: number,
-                game: Game,
                 showOnMap: boolean,
                 data) {
-        super(id, typeString, position, layer, orientation, game);
+        super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Building;
 
         this.showOnMap = showOnMap;

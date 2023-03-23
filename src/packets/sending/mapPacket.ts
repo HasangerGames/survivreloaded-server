@@ -39,7 +39,7 @@ export class MapPacket extends SendingPacket {
             stream.writeVec(place.position, 0, 0, 1024, 1024, 16);
         }
 
-        const objects = p.game!.objects.filter(obj => obj.showOnMap);
+        const objects = p.game.objects.filter(obj => obj.showOnMap);
         stream.writeUint16(objects.length);
         for(const obj of objects) {
             stream.writeVec(obj.position, 0, 0, 1024, 1024, 16);

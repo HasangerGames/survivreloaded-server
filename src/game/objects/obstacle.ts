@@ -8,7 +8,7 @@ import {
     ObjectKind,
     Objects,
     type SurvivBitStream,
-    TypeToId,
+    TypeToId, Weapons,
     weightedRandom
 } from "../../utils";
 import { type Game } from "../game";
@@ -57,15 +57,14 @@ export class Obstacle extends GameObject {
 
     collision;
 
-    constructor(id: number,
+    constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
                 orientation: number,
-                game: Game,
                 scale: number,
                 data) {
-        super(id, typeString, position, layer, orientation, game);
+        super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Obstacle;
 
         this._position = position;
@@ -109,7 +108,7 @@ export class Obstacle extends GameObject {
         this.destroyType = data.destroyType;
         this.explosion = data.explosion;
         if(this.collidable) {
-            this.body = bodyFromCollisionData(this.game!.world, data.collision, position, orientation, scale);
+            this.body = bodyFromCollisionData(this.game.world, data.collision, position, orientation, scale, this);
         }
 
         this.collision = JSON.parse(JSON.stringify(data.collision)); // JSON.parse(JSON.stringify(x)) to deep copy object
@@ -140,7 +139,15 @@ export class Obstacle extends GameObject {
         }
         const selectedItem = weightedRandom(items, weights);
         if(lootTable.metaTier) this.getLoot(selectedItem);
-        else this.loot.push(new Item(selectedItem, lootTable[selectedItem].count));
+        else {
+            this.loot.push(new Item(selectedItem, lootTable[selectedItem].count));
+            const weapon = Weapons[selectedItem];
+            if(weapon) {
+                const count: number = weapon.ammoSpawnCount / 2;
+                this.loot.push(new Item(weapon.ammo, count));
+                this.loot.push(new Item(weapon.ammo, count));
+            }
+        }
     }
 
     get position(): Vec2 {
@@ -156,32 +163,30 @@ export class Obstacle extends GameObject {
             if(this.door) this.door.canUse = false;
             if(this.destroyType) {
                 const replacementObject: Obstacle = new Obstacle(
-                    this.game!.nextObjectId,
+                    this.game,
                     this.destroyType,
                     this.position,
                     this.layer,
                     this.orientation!,
-                    this.game!,
                     1,
                     Objects[this.destroyType]
                 );
-                this.game!.objects.push(replacementObject);
-                this.game!.fullDirtyObjects.push(replacementObject);
+                this.game.objects.push(replacementObject);
+                this.game.fullDirtyObjects.push(replacementObject);
             }
             if(this.explosion) {
                 const explosion: Explosion = new Explosion(this.position, TypeToId[this.explosion], 0);
-                this.game!.explosions.push(explosion);
-                for(const player of this.game!.players) {
+                this.game.explosions.push(explosion);
+                for(const player of this.game.players) {
                     if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this);
                 }
             }
-            this.game!.world.destroyBody(this.body!);
-            this.game!.fullDirtyObjects.push(this);
+            this.game.world.destroyBody(this.body!);
+            this.game.fullDirtyObjects.push(this);
             for(const item of this.loot) {
-                const loot: Loot = new Loot(this.game!.nextObjectId, item.type, this.position, 0, this.game!, item.count);
-                this.game!.objects.push(loot);
-                //this.game!.loot.push(loot);
-                this.game!.fullDirtyObjects.push(loot);
+                const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count, true);
+                this.game.objects.push(loot);
+                this.game.fullDirtyObjects.push(loot);
             }
         } else {
             this.healthT = this.health / this.maxHealth;
@@ -196,8 +201,7 @@ export class Obstacle extends GameObject {
                     shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
                 }
             }
-            //Body.scale(this.body!, scaleFactor, scaleFactor);
-            this.game!.partialDirtyObjects.push(this);
+            this.game.partialDirtyObjects.push(this);
         }
     }
 

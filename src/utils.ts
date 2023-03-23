@@ -1,6 +1,7 @@
 import { BitStream } from "bit-buffer";
 import fs from "fs";
 import { type Body, Box, Circle, Vec2, type World } from "planck";
+import { Obstacle } from "./game/objects/obstacle";
 
 export const Objects = readJson("data/objects.json");
 export const Maps = readJson("data/maps.json");
@@ -129,20 +130,20 @@ export const Constants = {
         maxInteractionRad: 3.5,
         health: 100,
         reviveHealth: 24,
-        boostBreakpoints: [1, 1, 1.5, .5],
-        baseSwitchDelay: .25,
+        boostBreakpoints: [1, 1, 1.5, 0.5],
+        baseSwitchDelay: 0.25,
         freeSwitchCooldown: 1,
         bleedTickRate: 1,
         reviveDuration: 8,
         reviveRange: 5,
-        crawlTime: .75,
+        crawlTime: 0.75,
         emoteSoftCooldown: 2,
         emoteHardCooldown: 6,
         emoteThreshold: 6,
         throwableMaxMouseDist: 18,
-        cookTime: .1,
-        throwTime: .3,
-        meleeHeight: .25,
+        cookTime: 0.1,
+        throwTime: 0.3,
+        meleeHeight: 0.25,
         touchLootRadMult: 1.4,
         medicHealRange: 8,
         medicReviveRange: 6
@@ -155,7 +156,7 @@ export const Constants = {
         planeVel: 48,
         planeRad: 150,
         soundRangeMult: 2.5,
-        soundRangeDelta: .25,
+        soundRangeDelta: 0.25,
         soundRangeMax: 92,
         fallOff: 0
     },
@@ -177,7 +178,7 @@ export const Constants = {
     bullet: {
         maxReflect: 3,
         reflectDistDecay: 1.5,
-        height: .25
+        height: 0.25
     },
     projectile: {
         maxHeight: 5
@@ -188,29 +189,29 @@ export const Constants = {
             regular: 16704198,
             saturated: 16767411,
             chambered: 16744192,
-            alphaRate: .92,
-            alphaMin: .14
+            alphaRate: 0.92,
+            alphaMin: 0.14
         },
         "9mm_suppressed_bonus": {
             regular: 16704198,
             saturated: 16767411,
             chambered: 16744192,
-            alphaRate: .96,
-            alphaMin: .28
+            alphaRate: 0.96,
+            alphaMin: 0.28
         },
         "9mm_cursed": {
             regular: 1247488,
             saturated: 1247488,
             chambered: 1247488,
-            alphaRate: .92,
-            alphaMin: .14
+            alphaRate: 0.92,
+            alphaMin: 0.14
         },
         "762mm": {
             regular: 12965630,
             saturated: 11257087,
             chambered: 19711,
-            alphaRate: .94,
-            alphaMin: .2
+            alphaRate: 0.94,
+            alphaMin: 0.2
         },
         "12gauge": {
             regular: 16702684,
@@ -221,8 +222,8 @@ export const Constants = {
             regular: 11141010,
             saturated: 11141010,
             chambered: 3604224,
-            alphaRate: .92,
-            alphaMin: .14
+            alphaRate: 0.92,
+            alphaMin: 0.14
         },
         "50AE": {
             regular: 16773256,
@@ -233,8 +234,8 @@ export const Constants = {
             regular: 2435840,
             saturated: 4608e3,
             chambered: 1250816,
-            alphaRate: .92,
-            alphaMin: .07
+            alphaRate: 0.92,
+            alphaMin: 0.07
         },
         flare: {
             regular: 14869218,
@@ -432,13 +433,13 @@ export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number):
     return distX * distX + distY * distY > circleRad * circleRad;
 }*/
 
-export function rectCollision(min: Vec2, max: Vec2, pos: Vec2, rad: number) {
-    var cpt = Vec2(clamp(pos.x, min.x, max.x), clamp(pos.y, min.y, max.y));
-    var dstSqr = Vec2.lengthSquared(Vec2.sub(pos, cpt));
-    return dstSqr < rad * rad || pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y;
+export function rectCollision(min: Vec2, max: Vec2, pos: Vec2, rad: number): boolean {
+    const cpt = Vec2(clamp(pos.x, min.x, max.x), clamp(pos.y, min.y, max.y));
+    const dstSqr = Vec2.lengthSquared(Vec2.sub(pos, cpt));
+    return (dstSqr < rad * rad) || (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y);
 }
 
-export function clamp(a: number, min: number, max: number) {
+export function clamp(a: number, min: number, max: number): number {
     return a < max ? a > min ? a : min : max;
 }
 
@@ -518,10 +519,7 @@ export function rotateRect(pos: Vec2, min: Vec2, max: Vec2, scale: number, orien
     };
 }
 
-export function bodyFromCollisionData(world: World, data, position: Vec2, orientation = 0, scale = 1): Body | null {
-    if(!data?.type) {
-        // console.error("Missing collision data");
-    }
+export function bodyFromCollisionData(world: World, data, position: Vec2, orientation = 0, scale = 1, obstacle?: Obstacle): Body | null {
     let body;
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
@@ -532,8 +530,7 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         });
         body.createFixture({
             shape: Circle(data.rad * scale),
-            filterCategoryBits: CollisionCategory.Obstacle,
-            filterMaskBits: CollisionCategory.Player | CollisionCategory.Loot
+            userData: obstacle
         });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
@@ -546,8 +543,7 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         });
         body.createFixture({
             shape: Box(width / 2, height / 2),
-            filterCategoryBits: CollisionCategory.Obstacle,
-            filterMaskBits: CollisionCategory.Player | CollisionCategory.Loot
+            userData: obstacle
         });
     }
     return body;
