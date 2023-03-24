@@ -1,12 +1,14 @@
-import { type Body, Circle, type Vec2 } from "planck";
-import { CollisionCategory, TypeToId } from "../utils";
+import { type Body, Circle, Vec2 } from "planck";
+import { CollisionCategory, ObjectKind, TypeToId, unitVecToRadians } from "../utils";
 import { type Game } from "./game";
+import { Player } from "./objects/player";
 
 export class Bullet {
+    isBullet = true;
 
     body: Body;
 
-    playerId: number;
+    shooter: Player;
 
     initialPosition: Vec2;
     direction: Vec2;
@@ -39,31 +41,39 @@ export class Bullet {
     trailSaturated = false;
     trailThick = false;
 
-    constructor(playerId: number,
+    constructor(shooter: Player,
                 position: Vec2,
                 direction: Vec2,
                 typeString: string,
                 shotSourceType: number,
                 layer: number,
                 game: Game) {
+        this.shooter = shooter;
         this.initialPosition = position;
         this.direction = direction;
         this.typeString = typeString;
         this.typeId = TypeToId[typeString];
         this.shotSourceType = shotSourceType;
-        /*this.body = game.world.createBody({
+        this.layer = layer;
+        this.body = game.world.createBody({
             type: "dynamic",
             position,
-            bullet: true
+            bullet: true,
+            fixedRotation: true
         });
         this.body.createFixture({
-            shape: Circle(0.1),
+            shape: Circle(0),
             friction: 0.0,
-            density: 1.0,
-            restitution: 1.0,
-            filterCategoryBits: CollisionCategory.Player,
-            filterMaskBits: CollisionCategory.Obstacle
-        });*/
+            density: 0.0,
+            restitution: 0.0,
+            userData: this
+        });
+        this.body.setMassData({
+            I: 0,
+            center: Vec2(0, 0),
+            mass: 0.0
+        });
+        this.body.setLinearVelocity(direction);
     }
 
     get position(): Vec2 {

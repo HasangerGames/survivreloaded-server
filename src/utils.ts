@@ -2,6 +2,9 @@ import { BitStream } from "bit-buffer";
 import fs from "fs";
 import { type Body, Box, Circle, Vec2, type World } from "planck";
 import { Obstacle } from "./game/objects/obstacle";
+import { GameObject } from "./game/gameObject";
+import { Bullet } from "./game/bullet";
+import { Player } from "./game/objects/player";
 
 export const Objects = readJson("data/objects.json");
 export const Maps = readJson("data/maps.json");
@@ -241,6 +244,19 @@ export const Constants = {
         xp: 1
     }
 };
+
+export class DamageRecord {
+    damaged: GameObject;
+    damager: Player;
+    bullet: Bullet;
+
+    constructor(damaged: GameObject, damager: Player, bullet: Bullet) {
+        this.damaged = damaged;
+        this.damager = damager;
+        this.bullet = bullet;
+    }
+
+}
 
 export class Emote {
     playerId: number;

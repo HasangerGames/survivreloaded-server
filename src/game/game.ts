@@ -1,8 +1,9 @@
 import crypto from "crypto";
 import {
+    Bullets,
     type CollisionRecord,
     CollisionType,
-    Constants,
+    Constants, DamageRecord,
     Debug,
     degreesToRadians,
     distanceBetween,
@@ -11,8 +12,8 @@ import {
     type Emote,
     type Explosion,
     log,
-    randomFloat,
     ObjectKind,
+    randomFloat,
     randomVec,
     removeFrom,
     SurvivBitStream,
@@ -30,7 +31,7 @@ import { JoinedPacket } from "../packets/sending/joinedPacket";
 import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
-import { Fixture, Settings, Vec2, World } from "planck";
+import { Box, Fixture, Settings, Vec2, World } from "planck";
 import { Obstacle } from "./objects/obstacle";
 import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 import { Loot } from "./objects/loot";
@@ -78,6 +79,7 @@ export class Game {
     aliveCounts: AliveCountsPacket;
     kills: KillPacket[] = []; // All kills this tick
     roleAnnouncements: RoleAnnouncementPacket[] = []; // All role announcements this tick
+    damageRecords: DamageRecord[] = [];
 
     // Red zone
     gasMode: number;
@@ -111,11 +113,27 @@ export class Game {
             gravity: Vec2(0, 0)
         });
 
+        // Create world boundaries
+        this.createWorldBoundary(360, -0.25, 360, 0);
+        this.createWorldBoundary(-0.25, 360, 0, 360);
+        this.createWorldBoundary(360, 720.25, 360, 0);
+        this.createWorldBoundary(720.25, 360, 0, 360);
+
+        this.world.on("begin-contact", contact => {
+            const objectA: any = contact.getFixtureA().getUserData();
+            const objectB: any = contact.getFixtureB().getUserData();
+            if(objectA instanceof Bullet && objectB.damageable) {
+                this.damageRecords.push(new DamageRecord(objectB, objectA.shooter, objectA));
+            } else if(objectB instanceof Bullet && objectA.damageable) {
+                this.damageRecords.push(new DamageRecord(objectA, objectB.shooter, objectB));
+            }
+        });
+
         // If maxLinearCorrection is set to 0, player collisions work perfectly, but loot doesn't spread out.
         // If maxLinearCorrection is set to 0.2, loot spreads out, but player collisions are jittery.
         // This code solves the dilemma by setting maxLinearCorrection to the appropriate value for the object.
         this.world.on("pre-solve", contact => {
-            // @ts-expect-error asdfasdf
+            // @ts-expect-error getUserData() should always be a GameObject
             if(contact.getFixtureA().getUserData().kind === ObjectKind.Loot || contact.getFixtureB().getUserData().kind === ObjectKind.Loot) Settings.maxLinearCorrection = 0.2;
             else Settings.maxLinearCorrection = 0;
         });
@@ -124,10 +142,11 @@ export class Game {
         // - Players should collide with obstacles, but not with each other or with loot.
         // - Loot should collide with obstacles and other loot.
         Fixture.prototype.shouldCollide = function(that): boolean {
-            const thisObject: GameObject = this.getUserData() as GameObject;
-            const thatObject: GameObject = that.getUserData() as GameObject;
-            if(!(thisObject.layer === thatObject.layer)) return false;
-            if(thisObject.kind === ObjectKind.Player) return thatObject.kind === ObjectKind.Obstacle;
+            const thisObject: any = this.getUserData();
+            const thatObject: any = that.getUserData();
+            if(thisObject.layer !== thatObject.layer) return false;
+            if(thisObject.kind === ObjectKind.Player) return thatObject.kind === ObjectKind.Obstacle || thatObject.isBullet;
+            else if(thisObject.isBullet) return thatObject.kind !== ObjectKind.Loot && (thatObject.kind === ObjectKind.Player || thatObject.kind === ObjectKind.Obstacle || thatObject.isBullet);
             else if(thisObject.kind === ObjectKind.Loot) return thatObject.kind === ObjectKind.Obstacle || thatObject.kind === ObjectKind.Loot;
             else return false;
         };
@@ -135,6 +154,17 @@ export class Game {
         this.map = new Map(this, "main");
 
         this.tick(30);
+    }
+
+    private createWorldBoundary(x: number, y: number, width: number, height: number): void {
+        const boundary = this.world.createBody({
+            type: "static",
+            position: Vec2(x, y)
+        });
+        boundary.createFixture({
+            shape: Box(width, height),
+            userData: { kind: ObjectKind.Obstacle, layer: 0 }
+        });
     }
 
     tickTimes: number[] = [];
@@ -158,6 +188,12 @@ export class Game {
                     this.partialDirtyObjects.push(loot);
                 }
                 loot.oldPos = loot.position.clone();
+            }
+
+            for(const damageRecord of this.damageRecords) {
+                damageRecord.damaged.damage(Bullets[damageRecord.bullet.typeString].damage, damageRecord.damager);
+                this.world.destroyBody(damageRecord.bullet.body);
+                removeFrom(this.bullets, damageRecord.bullet);
             }
 
             // First loop: Calculate movement & animations
@@ -198,29 +234,31 @@ export class Game {
 
                 // Action item logic
                 if(p.actionDirty && Date.now() - p.actionItem.useEnd > 0) {
-                    switch(p.actionItem.typeString) {
-                        case "bandage":
-                            p.health += 15;
-                            break;
-                        case "healthkit":
-                            p.health = 100;
-                            break;
-                        case "soda":
-                            p.boost += 25;
-                            break;
-                        case "painkiller":
-                            p.boost += 50;
-                            break;
+                    if(p.actionType === Constants.Action.UseItem) {
+                        switch(p.actionItem.typeString) {
+                            case "bandage":
+                                p.health += 15;
+                                break;
+                            case "healthkit":
+                                p.health = 100;
+                                break;
+                            case "soda":
+                                p.boost += 25;
+                                break;
+                            case "painkiller":
+                                p.boost += 50;
+                                break;
+                        }
+                        p.inventory[p.actionItem.typeString]--;
+                        p.inventoryDirty = true;
+                        p.usingItem = false;
+                        p.recalculateSpeed();
                     }
-                    p.inventory[p.actionItem.typeString]--;
-                    p.inventoryDirty = true;
                     p.actionItem.typeString = "";
                     p.actionItem.typeId = 0;
                     p.actionDirty = false;
-                    p.usingItem = false;
                     p.actionType = 0;
                     p.actionSeq = 0;
-                    p.recalculateSpeed();
                     this.fullDirtyObjects.push(p);
                     p.fullDirtyObjects.push(p);
                 }
@@ -276,7 +314,7 @@ export class Game {
                             const spread = degreesToRadians(weapon.shotSpread);
                             const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
                             const bullet: Bullet = new Bullet(
-                                p.id,
+                                p,
                                 Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
                                 p.direction,
                                 weapon.bulletType,
@@ -295,7 +333,7 @@ export class Game {
                         const spread = degreesToRadians(weapon.shotSpread);
                         const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
                         const bullet: Bullet = new Bullet(
-                            p.id,
+                            p,
                             Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
                             p.direction,
                             weapon.bulletType,
@@ -388,6 +426,7 @@ export class Game {
             this.dirtyBullets = [];
             this.kills = [];
             this.roleAnnouncements = [];
+            this.damageRecords = [];
 
             this.gasDirty = false;
             this.gasCircleDirty = false;
@@ -444,7 +483,6 @@ export class Game {
     removePlayer(p: Player): void {
         this.world.destroyBody(p.body);
         if(p.inventoryEmpty) {
-            removeFrom(this.players, p);
             removeFrom(this.objects, p);
             removeFrom(this.partialDirtyObjects, p);
             removeFrom(this.fullDirtyObjects, p);
@@ -470,10 +508,6 @@ export class Game {
         this.killLeaderDirty = true;
         if(this.killLeader !== p) { // If the player isn't already the Kill Leader...
             p.role = TypeToId.kill_leader;
-            /*this.dirtyStatusPlayers.push(p);
-            if(this.killLeader instanceof Player) {
-                this.dirtyStatusPlayers.push(this.killLeader);
-            }*/
             this.killLeader = p;
             this.roleAnnouncements.push(new RoleAnnouncementPacket(p, true, false));
         }

@@ -292,18 +292,21 @@ export class Player extends GameObject {
         this.weapons.activeSlot = slot;
         switch(slot) {
             case 0:
+                if(this.weapons.primaryGun.typeId === 0) break;
                 this.activeWeapon.typeString = this.weapons.primaryGun.typeString;
                 this.activeWeapon.typeId = this.weapons.primaryGun.typeId;
                 this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 900;
                 this.activeWeapon.weaponType = WeaponType.Gun;
                 break;
             case 1:
+                if(this.weapons.secondaryGun.typeId === 0) break;
                 this.activeWeapon.typeString = this.weapons.secondaryGun.typeString;
                 this.activeWeapon.typeId = this.weapons.secondaryGun.typeId;
                 this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 1000;
                 this.activeWeapon.weaponType = WeaponType.Gun;
                 break;
             case 2:
+                if(this.weapons.melee.typeId === 0) break;
                 this.activeWeapon.typeString = this.weapons.melee.typeString;
                 this.activeWeapon.typeId = this.weapons.melee.typeId;
                 this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].attack.cooldownTime * 1000;
@@ -344,7 +347,7 @@ export class Player extends GameObject {
         this.boostDirty = true;
     }
 
-    damage(amount: number, source, objectUsed?): void {
+    damage(amount: number, source, objectUsed?, usedObstacle?: boolean): void {
         let finalDamage: number = amount;
         finalDamage -= finalDamage * Constants.chestDamageReductionPercentages[this.chestLevel];
         finalDamage -= finalDamage * Constants.helmetDamageReductionPercentages[this.helmetLevel];
@@ -421,7 +424,7 @@ export class Player extends GameObject {
 
             // Remove from active players; send packets
             removeFrom(this.game.activePlayers, this);
-            this.game.kills.push(new KillPacket(this, source, objectUsed));
+            this.game.kills.push(new KillPacket(this, source, objectUsed, usedObstacle));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
         }
     }

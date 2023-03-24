@@ -22,4 +22,7 @@ export class DeadBody extends GameObject {
         stream.writeUint16(this.playerId);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    damage(amount: number, source): void {}
+
 }

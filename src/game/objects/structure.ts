@@ -31,4 +31,7 @@ export class Structure extends GameObject {
         stream.writeUint16(this.layerObjIds[1]); // Layer 2 ID
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    damage(amount: number, source): void {}
+
 }

@@ -216,7 +216,7 @@ export class UpdatePacket extends SendingPacket {
         if(game.dirtyBullets.length) {
             stream.writeUint8(game.dirtyBullets.length);
             for(const bullet of game.dirtyBullets) {
-                stream.writeUint16(bullet.playerId);
+                stream.writeUint16(bullet.shooter.id);
                 stream.writeVec(bullet.position, 0, 0, 1024, 1024, 16);
                 stream.writeUnitVec(bullet.direction, 8);
                 stream.writeGameType(bullet.typeId);

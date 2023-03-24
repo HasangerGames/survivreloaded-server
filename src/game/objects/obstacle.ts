@@ -142,7 +142,7 @@ export class Obstacle extends GameObject {
         else {
             this.loot.push(new Item(selectedItem, lootTable[selectedItem].count));
             const weapon = Weapons[selectedItem];
-            if(weapon) {
+            if(weapon?.ammo) {
                 const count: number = weapon.ammoSpawnCount / 2;
                 this.loot.push(new Item(weapon.ammo, count));
                 this.loot.push(new Item(weapon.ammo, count));
@@ -178,7 +178,7 @@ export class Obstacle extends GameObject {
                 const explosion: Explosion = new Explosion(this.position, TypeToId[this.explosion], 0);
                 this.game.explosions.push(explosion);
                 for(const player of this.game.players) {
-                    if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this);
+                    if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this, true);
                 }
             }
             this.game.world.destroyBody(this.body!);

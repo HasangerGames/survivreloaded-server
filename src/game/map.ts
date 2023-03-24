@@ -65,6 +65,7 @@ export class Map {
         for(const place of mapInfo.places) {
             this.places.push(new Place(place.name, Vec2(place.x, place.y)));
         }
+        this.groundPatches = [];
 
         if(!Debug.disableMapGeneration) {
             for(const type in mapInfo.objects) {
@@ -81,19 +82,19 @@ export class Map {
             }
             // 2 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
-            //this.genStructure("club_structure_01", Objects["club_structure_01"]);
+            //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            //this.genBuildingTest("barn_01", 0, false);
+            this.genBuildingTest("club_complex_01", 1, false);
 
             // Items test
-            this.obstacleTest("crate_01", Vec2(453, 153), 1);
-            this.obstacleTest("crate_01", Vec2(458, 153), 1);
-            this.obstacleTest("crate_01", Vec2(463, 153), 1);
-            this.obstacleTest("crate_01", Vec2(468, 153), 1);
-            (this.game.objects[0] as Obstacle).loot = [new Item("m9", 1)];
-            (this.game.objects[1] as Obstacle).loot = [new Item("m249", 1)];
-            (this.game.objects[2] as Obstacle).loot = [new Item("mac10", 2)];
-            (this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];
+            //this.obstacleTest("crate_01", Vec2(453, 153), 1);
+            //this.obstacleTest("crate_01", Vec2(458, 153), 1);
+            //this.obstacleTest("crate_01", Vec2(463, 153), 1);
+            //this.obstacleTest("crate_01", Vec2(468, 153), 1);
+            //(this.game.objects[0] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 15), new Item("762mm", 15)];
+            //(this.game.objects[1] as Obstacle).loot = [new Item("762mm", 20)];
+            //(this.game.objects[2] as Obstacle).loot = [new Item("mac10", 2)];
+            //(this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];
 
             // Object culling test
             /*for(let x = 0; x <= 45; x++) {
@@ -102,8 +103,6 @@ export class Map {
                 }
             }*/
         }
-
-        this.groundPatches = [];
     }
 
     private obstacleTest(type: string, position: Vec2, scale: number): void {
@@ -209,6 +208,19 @@ export class Map {
                 // Ignored
             } else {
                 // console.warn(`Unknown object type: ${part.type}`);
+            }
+        }
+        if(buildingData.mapGroundPatches) {
+            for(const groundPatch of buildingData.mapGroundPatches) {
+                this.groundPatches.push(new GroundPatch(
+                    addAdjust(position, groundPatch.bound.min, orientation),
+                    addAdjust(position, groundPatch.bound.max, orientation),
+                    groundPatch.color,
+                    groundPatch.roughness,
+                    groundPatch.offsetDist,
+                    groundPatch.order,
+                    groundPatch.useAsMapShape ?? true
+                ));
             }
         }
         const building: Building = new Building(

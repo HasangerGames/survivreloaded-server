@@ -48,4 +48,7 @@ export class Building extends GameObject {
         stream.writeBits(this.layer, 2);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    damage(amount: number, source): void {}
+
 }

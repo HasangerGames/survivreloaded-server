@@ -7,7 +7,7 @@
     "tier_medical": { "count": 1, "weight": 1 },
     "tier_throwables": { "count": 1, "weight": 1 },
     "tier_ammo": { "count": 1, "weight": 1 },
-    "tier_guns": { "count": 1, "weight": 1 }
+    "tier_guns": { "count": 1, "weight": 10 }
   },
   "tier_container": {
     "metaTier": true,

@@ -47,4 +47,6 @@ export abstract class GameObject {
     abstract serializePartial(stream: SurvivBitStream): void;
     abstract serializeFull(stream: SurvivBitStream): void;
 
+    abstract damage(amount: number, source): void;
+
 }

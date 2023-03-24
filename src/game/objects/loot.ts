@@ -91,17 +91,16 @@ export class Loot extends GameObject {
             if(p.weapons.primaryGun.typeId === 0) {
                 p.weapons.primaryGun.typeString = this.typeString;
                 p.weapons.primaryGun.typeId = this.typeId;
-                p.switchSlot(0);
+                p.switchSlot(0, true);
                 p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
             } else if(p.weapons.primaryGun.typeId !== 0 && p.weapons.secondaryGun.typeId === 0) {
                 p.weapons.secondaryGun.typeString = this.typeString;
                 p.weapons.secondaryGun.typeId = this.typeId;
-                p.switchSlot(1);
+                p.switchSlot(1, true);
                 p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
             } else {
                 result = PickupMsgType.Full;
             }
-            console.log(p.weapons.primaryGun.typeId, p.weapons.secondaryGun.typeId);
             p.weaponsDirty = true;
             playerDirty = true;
         }
@@ -156,5 +155,8 @@ export class Loot extends GameObject {
         stream.writeBoolean(false); // Has owner
         stream.writeBits(0, 1); // Padding
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    damage(amount: number, source): void {}
 
 }
