@@ -49,8 +49,6 @@ export class MapPacket extends SendingPacket {
             stream.writeBits(0, 2); // Padding
         }
 
-        // Outfit, pack, helmet, chest, melee, 0, false, false, animType, animSeq, actionSeq, actionType, actionItem, false, false, false, false, false, false, 0, "", [], false, (50, 50), (0, -1)
-
         stream.writeUint8(p.map.groundPatches.length);
         for(const groundPatch of p.map.groundPatches) {
             stream.writeVec(groundPatch.min, 0, 0, 1024, 1024, 16);

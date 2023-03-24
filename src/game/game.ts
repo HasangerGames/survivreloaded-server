@@ -119,22 +119,23 @@ export class Game {
         this.createWorldBoundary(360, 720.25, 360, 0);
         this.createWorldBoundary(720.25, 360, 0, 360);
 
+        // Handle bullet collisions
         this.world.on("begin-contact", contact => {
             const objectA: any = contact.getFixtureA().getUserData();
             const objectB: any = contact.getFixtureB().getUserData();
-            if(objectA instanceof Bullet && objectB.damageable) {
+            if(objectA instanceof Bullet && objectB.damageable && objectA.distance <= objectA.maxDistance) {
                 this.damageRecords.push(new DamageRecord(objectB, objectA.shooter, objectA));
-            } else if(objectB instanceof Bullet && objectA.damageable) {
+            } else if(objectB instanceof Bullet && objectA.damageable && objectB.distance <= objectB.maxDistance) {
                 this.damageRecords.push(new DamageRecord(objectA, objectB.shooter, objectB));
             }
         });
 
         // If maxLinearCorrection is set to 0, player collisions work perfectly, but loot doesn't spread out.
-        // If maxLinearCorrection is set to 0.2, loot spreads out, but player collisions are jittery.
+        // If maxLinearCorrection is greater than 0, loot spreads out, but player collisions are jittery.
         // This code solves the dilemma by setting maxLinearCorrection to the appropriate value for the object.
         this.world.on("pre-solve", contact => {
             // @ts-expect-error getUserData() should always be a GameObject
-            if(contact.getFixtureA().getUserData().kind === ObjectKind.Loot || contact.getFixtureB().getUserData().kind === ObjectKind.Loot) Settings.maxLinearCorrection = 0.2;
+            if(contact.getFixtureA().getUserData().kind === ObjectKind.Loot || contact.getFixtureB().getUserData().kind === ObjectKind.Loot) Settings.maxLinearCorrection = 0.055;
             else Settings.maxLinearCorrection = 0;
         });
 
@@ -190,13 +191,22 @@ export class Game {
                 loot.oldPos = loot.position.clone();
             }
 
+            // Update bullets
+            for(const bullet of this.bullets) {
+                if(bullet.distance >= bullet.maxDistance) {
+                    this.world.destroyBody(bullet.body);
+                    removeFrom(this.bullets, bullet);
+                }
+            }
+
+            // Do damage to objects hit by bullets
             for(const damageRecord of this.damageRecords) {
                 damageRecord.damaged.damage(Bullets[damageRecord.bullet.typeString].damage, damageRecord.damager);
                 this.world.destroyBody(damageRecord.bullet.body);
                 removeFrom(this.bullets, damageRecord.bullet);
             }
 
-            // First loop: Calculate movement & animations
+            // First loop over players: Calculate movement & animations
             for(const p of this.activePlayers) {
 
                 // Movement
@@ -288,7 +298,7 @@ export class Game {
                             const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2(1, 0).mul(p.scale - 1));
                             const position: Vec2 = p.position.clone().add(vec2Rotate(offset, angle));
                             for(const object of p.visibleObjects) {
-                                if(object.body && !object.dead && object !== p && object.damageable) {
+                                if(object.body && !object.dead && object !== p && (object.damageable || (object instanceof Obstacle && object.destructible))) {
                                     let record: CollisionRecord;
                                     if(object instanceof Obstacle) {
                                         if(object.collision.type === CollisionType.Circle) {
@@ -312,18 +322,23 @@ export class Game {
                         } else if(p.activeWeapon.weaponType === WeaponType.Gun) { // Gun logic
                             const weapon = Weapons[p.activeWeapon.typeString];
                             const spread = degreesToRadians(weapon.shotSpread);
-                            const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
-                            const bullet: Bullet = new Bullet(
-                                p,
-                                Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
-                                p.direction,
-                                weapon.bulletType,
-                                p.activeWeapon.typeId,
-                                0,
-                                this
-                            );
-                            this.bullets.push(bullet);
-                            this.dirtyBullets.push(bullet);
+                            let shotFx = true;
+                            for(let i = 0; i < weapon.bulletCount; i++) {
+                                const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
+                                const bullet: Bullet = new Bullet(
+                                    p,
+                                    Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
+                                    Vec2(Math.cos(angle), Math.sin(angle)),
+                                    weapon.bulletType,
+                                    p.activeWeapon.typeId,
+                                    shotFx,
+                                    0,
+                                    this
+                                );
+                                this.bullets.push(bullet);
+                                this.dirtyBullets.push(bullet);
+                                shotFx = false;
+                            }
                         }
                     }
                 } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && Weapons[p.activeWeapon.typeString].fireMode === "auto") {
@@ -331,18 +346,23 @@ export class Game {
                         p.activeWeapon.cooldown = Date.now();
                         const weapon = Weapons[p.activeWeapon.typeString];
                         const spread = degreesToRadians(weapon.shotSpread);
-                        const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
-                        const bullet: Bullet = new Bullet(
-                            p,
-                            Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
-                            p.direction,
-                            weapon.bulletType,
-                            p.activeWeapon.typeId,
-                            0,
-                            this
-                        );
-                        this.bullets.push(bullet);
-                        this.dirtyBullets.push(bullet);
+                        let shotFx = true;
+                        for(let i = 0; i < weapon.bulletCount; i++) {
+                            const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
+                            const bullet: Bullet = new Bullet(
+                                p,
+                                Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
+                                Vec2(Math.cos(angle), Math.sin(angle)),
+                                weapon.bulletType,
+                                p.activeWeapon.typeId,
+                                shotFx,
+                                0,
+                                this
+                            );
+                            this.bullets.push(bullet);
+                            this.dirtyBullets.push(bullet);
+                            shotFx = false;
+                        }
                     }
                 }
 
@@ -361,7 +381,7 @@ export class Game {
                 p.moving = false;
             }
 
-            // Second loop: calculate visible objects & send packets
+            // Second loop over players: calculate visible objects & send packets
             for(const p of this.connectedPlayers) {
 
                 // Calculate visible objects
@@ -401,7 +421,7 @@ export class Game {
                 if(this.deletedObjects.length) {
                     for(const object of this.deletedObjects) {
                         //if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
-                        p.deletedObjects.push(object);
+                        if(object !== p) p.deletedObjects.push(object);
                     }
                 }
 
@@ -481,7 +501,6 @@ export class Game {
     }
 
     removePlayer(p: Player): void {
-        this.world.destroyBody(p.body);
         if(p.inventoryEmpty) {
             removeFrom(this.objects, p);
             removeFrom(this.partialDirtyObjects, p);
@@ -494,6 +513,12 @@ export class Game {
             p.deadPos = p.body.getPosition().clone();
             this.fullDirtyObjects.push(p);
         }
+        p.movingUp = false;
+        p.movingDown = false;
+        p.movingLeft = false;
+        p.movingRight = false;
+        p.shootStart = false;
+        p.shootHold = false;
 
         removeFrom(this.activePlayers, p);
         removeFrom(this.connectedPlayers, p);

@@ -27,6 +27,14 @@
       "crate_02": 0.25
     }
   },
+  "planter_random": {
+    "type": "random",
+    "weights": {
+      "planter_01": 1,
+      "planter_02": 1,
+      "planter_03": 1
+    }
+  },
   "barrel_01": {
     "type": "obstacle",
     "obstacleType": "barrel",
@@ -19592,6 +19600,7 @@
         "ori": 3
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": -4.5,
           "y": 14.5
@@ -19600,6 +19609,7 @@
         "ori": 0
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": -7,
           "y": 2.5
@@ -19608,6 +19618,7 @@
         "ori": 1
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": -7,
           "y": -2.5
@@ -19616,6 +19627,7 @@
         "ori": 1
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": -4.5,
           "y": -14.5
@@ -19624,6 +19636,7 @@
         "ori": 0
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": 4.5,
           "y": 14.5
@@ -19632,6 +19645,7 @@
         "ori": 0
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": 7,
           "y": 2.5
@@ -19640,6 +19654,7 @@
         "ori": 1
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": 7,
           "y": -2.5
@@ -19648,6 +19663,7 @@
         "ori": 1
       },
       {
+        "type": "planter_random",
         "pos": {
           "x": 4.5,
           "y": -14.5

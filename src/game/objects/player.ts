@@ -249,7 +249,7 @@ export class Player extends GameObject {
         this.body.createFixture({
             shape: Circle(1),
             friction: 0.0,
-            density: 1.0,
+            density: 1000.0,
             restitution: 0.0,
             userData: this
         });
@@ -347,7 +347,9 @@ export class Player extends GameObject {
         this.boostDirty = true;
     }
 
-    damage(amount: number, source, objectUsed?, usedObstacle?: boolean): void {
+    damage(amount: number, source, objectUsed?): void {
+        if(this._health === 0) return;
+
         let finalDamage: number = amount;
         finalDamage -= finalDamage * Constants.chestDamageReductionPercentages[this.chestLevel];
         finalDamage -= finalDamage * Constants.helmetDamageReductionPercentages[this.helmetLevel];
@@ -406,7 +408,9 @@ export class Player extends GameObject {
             this.deadPos = this.body.getPosition().clone();
             this.game.world.destroyBody(this.body);
             this.fullDirtyObjects.push(this);
-            this.game.fullDirtyObjects.push(this);
+            //this.game.fullDirtyObjects.push(this);
+            removeFrom(this.game.objects, this);
+            this.game.deletedObjects.push(this);
 
             // Create dead body
             const deadBody = new DeadBody(this.game, this.layer, this.position, this.id);
@@ -424,7 +428,7 @@ export class Player extends GameObject {
 
             // Remove from active players; send packets
             removeFrom(this.game.activePlayers, this);
-            this.game.kills.push(new KillPacket(this, source, objectUsed, usedObstacle));
+            this.game.kills.push(new KillPacket(this, source, objectUsed));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
         }
     }
@@ -437,7 +441,8 @@ export class Player extends GameObject {
             type,
             this.deadPos,
             this.layer,
-            this.inventory[type]
+            this.inventory[type],
+            true
         );
 
         // Add the loot to the array of objects

@@ -38,13 +38,13 @@ export class Loot extends GameObject {
         this.body.createFixture({
             shape: Circle(1),
             restitution: 0.0,
-            density: 1.0,
-            friction: 1.0,
+            density: 0.0,
+            friction: 0.0,
             userData: this
         });
         if(spreadOut) {
             const angle: number = Math.random() * Math.PI * 2;
-            this.body.setLinearVelocity(Vec2(Math.cos(angle), Math.sin(angle)).mul(0.00005));
+            this.body.setLinearVelocity(Vec2(Math.cos(angle), Math.sin(angle)).mul(0.005));
         }
         game.loot.push(this);
     }

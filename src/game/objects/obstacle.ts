@@ -155,6 +155,7 @@ export class Obstacle extends GameObject {
     }
 
     damage(amount: number, source): void {
+        if(this.health === 0) return;
         this.health -= amount;
         if(this.health <= 0) {
             this.health = this.healthT = 0;
@@ -178,7 +179,7 @@ export class Obstacle extends GameObject {
                 const explosion: Explosion = new Explosion(this.position, TypeToId[this.explosion], 0);
                 this.game.explosions.push(explosion);
                 for(const player of this.game.players) {
-                    if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this, true);
+                    if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this);
                 }
             }
             this.game.world.destroyBody(this.body!);

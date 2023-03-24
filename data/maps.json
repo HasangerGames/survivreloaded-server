@@ -3,6 +3,12 @@
     "width": 720,
     "height": 720,
     "objects": {
+      "club_complex_01": 1,
+      "mansion_01": 1,
+      "police_01": 1,
+      "bank_01": 1,
+      "greenhouse_01": 1,
+      "cabin_01": 2,
       "barn_01": 1,
       "barn_02": 1,
       "warehouse_01": 2,

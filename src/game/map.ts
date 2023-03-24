@@ -84,14 +84,14 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            this.genBuildingTest("club_complex_01", 1, false);
+            //this.genBuildingTest("club_complex_01", 1, false);
 
             // Items test
-            //this.obstacleTest("crate_01", Vec2(453, 153), 1);
+            this.obstacleTest("crate_01", Vec2(453, 153), 1);
             //this.obstacleTest("crate_01", Vec2(458, 153), 1);
             //this.obstacleTest("crate_01", Vec2(463, 153), 1);
             //this.obstacleTest("crate_01", Vec2(468, 153), 1);
-            //(this.game.objects[0] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 15), new Item("762mm", 15)];
+            (this.game.objects[0] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 15), new Item("762mm", 15)];
             //(this.game.objects[1] as Obstacle).loot = [new Item("762mm", 20)];
             //(this.game.objects[2] as Obstacle).loot = [new Item("mac10", 2)];
             //(this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];

@@ -1,5 +1,5 @@
 import { type Body, Circle, Vec2 } from "planck";
-import { CollisionCategory, ObjectKind, TypeToId, unitVecToRadians } from "../utils";
+import { Bullets, CollisionCategory, distanceBetween, ObjectKind, TypeToId, unitVecToRadians } from "../utils";
 import { type Game } from "./game";
 import { Player } from "./objects/player";
 
@@ -23,9 +23,8 @@ export class Bullet {
     distAdjIdx = 0;
 
     clipDistance = false;
-    distance = 0;
 
-    shotFx = true;
+    shotFx: boolean;
     shotSourceType: number;
     shotOffhand = false;
     lastShot = false;
@@ -41,11 +40,14 @@ export class Bullet {
     trailSaturated = false;
     trailThick = false;
 
+    maxDistance: number;
+
     constructor(shooter: Player,
                 position: Vec2,
                 direction: Vec2,
                 typeString: string,
                 shotSourceType: number,
+                shotFx: boolean,
                 layer: number,
                 game: Game) {
         this.shooter = shooter;
@@ -54,6 +56,8 @@ export class Bullet {
         this.typeString = typeString;
         this.typeId = TypeToId[typeString];
         this.shotSourceType = shotSourceType;
+        this.shotFx = shotFx;
+        this.maxDistance = Bullets[typeString].distance;
         this.layer = layer;
         this.body = game.world.createBody({
             type: "dynamic",
@@ -78,6 +82,10 @@ export class Bullet {
 
     get position(): Vec2 {
         return this.initialPosition;
+    }
+
+    get distance(): number {
+        return distanceBetween(this.initialPosition, this.body.getPosition());
     }
 
 }
