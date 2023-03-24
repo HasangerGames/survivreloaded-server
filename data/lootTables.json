@@ -7,7 +7,7 @@
     "tier_medical": { "count": 1, "weight": 1 },
     "tier_throwables": { "count": 1, "weight": 1 },
     "tier_ammo": { "count": 1, "weight": 1 },
-    "tier_guns": { "count": 1, "weight": 1 }
+    "tier_guns": { "count": 1, "weight": 2.25 }
   },
   "tier_container": {
     "metaTier": true,
@@ -107,6 +107,6 @@
     "flare_gun": { "count": 1, "weight": 0.1 },
     "flare_gun_dual": { "count": 1, "weight": 0.00017 },
     "groza": { "count": 1, "weight": 0.8 },
-    "scout_elite": { "count": 10, "weight": 0.05 }
+    "scout_elite": { "count": 1, "weight": 0.05 }
   }
 }
