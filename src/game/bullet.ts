@@ -62,7 +62,6 @@ export class Bullet {
         this.body = game.world.createBody({
             type: "dynamic",
             position,
-            bullet: true,
             fixedRotation: true
         });
         this.body.createFixture({
