@@ -48668,10 +48668,7 @@
         "scale": 0.55,
         "ori": 0
       }
-    ],
-    "mapObstacleBounds": [
-      
-    ],
+    ]
   },
   "bank_01b": {
     "type": "building",
