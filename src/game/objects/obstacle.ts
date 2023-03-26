@@ -9,7 +9,8 @@ import {
     Objects, random,
     type SurvivBitStream,
     TypeToId, Weapons,
-    weightedRandom
+    weightedRandom,
+    rotateRect
 } from "../../utils";
 import { type Game } from "../game";
 import { type Player } from "./player";
@@ -113,8 +114,9 @@ export class Obstacle extends GameObject {
 
         this.collision = JSON.parse(JSON.stringify(data.collision)); // JSON.parse(JSON.stringify(x)) to deep copy object
         if(this.collision.type === CollisionType.Rectangle) {
-            this.collision.min = this.position.clone().add(Vec2.mul(this.collision.min, this.scale));
-            this.collision.max = this.position.clone().add(Vec2.mul(this.collision.max, this.scale));
+            const rotatedRect = rotateRect(this.position, this.collision.min, this.collision.max, this.scale, this.orientation);
+            this.collision.min = rotatedRect.min;
+            this.collision.max = rotatedRect.max;
         }
 
         if(data.loot) {
@@ -198,10 +200,18 @@ export class Obstacle extends GameObject {
             const shape: any = this.body!.getFixtureList()!.getShape();
             if(this.collision.type === CollisionType.Circle) {
                 shape.m_radius = shape.m_radius * scaleFactor;
+                this.collision.rad *= scaleFactor;
             } else if(this.collision.type === CollisionType.Rectangle) {
                 for(let i = 0; i < shape.m_vertices.length; i++) {
                     shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
                 }
+
+                const rotatedRect = rotateRect(this.position,
+                                               Vec2.sub(this.collision.min, this.position),
+                                               Vec2.sub(this.collision.max, this.position),
+                                               scaleFactor, 0);
+                this.collision.min = rotatedRect.min;
+                this.collision.max = rotatedRect.max;
             }
             this.game.partialDirtyObjects.push(this);
         }
