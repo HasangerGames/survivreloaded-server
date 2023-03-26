@@ -4,7 +4,7 @@ import { type SurvivBitStream, ItemSlot, log, IdToGameType } from "../../utils";
 export class DropItemPacket extends ReceivingPacket {
     deserialize(stream: SurvivBitStream): void {
         //stream.readAlignToNextByte();
-        const itemId = stream.readUint8();
+        const itemId = stream.readGameType();
         const itemSlot = stream.readUint8();
         const item: string = IdToGameType[String(itemId)];
         switch(itemSlot) {
@@ -21,5 +21,6 @@ export class DropItemPacket extends ReceivingPacket {
                 log(`Item dropped from unknown slot (${itemSlot}): ` + item);
                 break;
         }
+        stream.readBits(6); // Padding
     }
 }
