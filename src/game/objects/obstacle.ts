@@ -6,7 +6,7 @@ import {
     Item,
     LootTables,
     ObjectKind,
-    Objects,
+    Objects, random,
     type SurvivBitStream,
     TypeToId, Weapons,
     weightedRandom
@@ -120,7 +120,8 @@ export class Obstacle extends GameObject {
         if(data.loot) {
             this.loot = [];
             for(const loot of data.loot) {
-                this.getLoot(loot.tier);
+                const count: number = random(loot.min, loot.max);
+                for(let i = 0; i < count; i++) this.getLoot(loot.tier);
             }
         }
     }

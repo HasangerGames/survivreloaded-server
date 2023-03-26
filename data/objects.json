@@ -48668,7 +48668,10 @@
         "scale": 0.55,
         "ori": 0
       }
-    ]
+    ],
+    "mapObstacleBounds": [
+      
+    ],
   },
   "bank_01b": {
     "type": "building",
@@ -51676,6 +51679,19 @@
         "ori": 0,
         "inheritOri": false,
         "ignoreMapSpawnReplacement": true
+      }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -45,
+          "y": -27
+        },
+        "max": {
+          "x": 45,
+          "y": 26
+        }
       }
     ]
   },
@@ -56450,6 +56466,19 @@
         "scale": 0.9,
         "ori": 0
       }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -20,
+          "y": -17
+        },
+        "max": {
+          "x": 20,
+          "y": 17
+        }
+      }
     ]
   },
   "cabin_01x": {
@@ -59185,6 +59214,19 @@
         },
         "scale": 0.7,
         "ori": 0
+      }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -33,
+          "y": -28
+        },
+        "max": {
+          "x": 33,
+          "y": 29
+        }
       }
     ]
   },

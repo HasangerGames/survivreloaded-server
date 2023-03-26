@@ -147,7 +147,7 @@ export class Game {
             const thatObject: any = that.getUserData();
             if(thisObject.layer !== thatObject.layer) return false;
             if(thisObject.kind === ObjectKind.Player) return thatObject.kind === ObjectKind.Obstacle || thatObject.isBullet;
-            else if(thisObject.isBullet) return thatObject.kind !== ObjectKind.Loot && (thatObject.kind === ObjectKind.Player || thatObject.kind === ObjectKind.Obstacle || thatObject.isBullet);
+            else if(thisObject.isBullet) return thatObject.kind === ObjectKind.Player || thatObject.kind === ObjectKind.Obstacle;
             else if(thisObject.kind === ObjectKind.Loot) return thatObject.kind === ObjectKind.Obstacle || thatObject.kind === ObjectKind.Loot;
             else return false;
         };

@@ -7,7 +7,7 @@
     "tier_medical": { "count": 1, "weight": 1 },
     "tier_throwables": { "count": 1, "weight": 1 },
     "tier_ammo": { "count": 1, "weight": 1 },
-    "tier_guns": { "count": 1, "weight": 2.25 }
+    "tier_guns": { "count": 1, "weight": 1.5 }
   },
   "tier_container": {
     "metaTier": true,
@@ -27,6 +27,16 @@
     "tier_medical": { "count": 1, "weight": 0.2 },
     "tier_throwables": { "count": 1, "weight": 0.1 },
     "tier_ammo": { "count": 1, "weight": 0.1 }
+  },
+  "tier_soviet": {
+    "metaTier": true,
+    "tier_scopes": { "count": 1, "weight": 1 },
+    "tier_armor": { "count": 1, "weight": 1 },
+    "tier_packs": { "count": 1, "weight": 1 },
+    "tier_medical": { "count": 1, "weight": 1.5 },
+    "tier_throwables": { "count": 1, "weight": 0.8 },
+    "tier_ammo": { "count": 1, "weight": 1 },
+    "tier_guns": { "count": 1, "weight": 4 }
   },
   "tier_toilet": {
     "metaTier": true,
@@ -72,9 +82,7 @@
     "12gauge": { "count": 10, "weight": 3 }
   },
   "tier_shotgunsTest": {
-    "m870": { "count": 1, "weight": 9 },
-    "m1100": { "count": 1, "weight": 6 },
-    "mp220": { "count": 1, "weight": 2 }
+    "mp220": { "count": 1, "weight": 1 }
   },
   "tier_guns": {
     "famas": { "count": 1, "weight": 0.9 },
