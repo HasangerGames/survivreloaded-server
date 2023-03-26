@@ -1,10 +1,10 @@
 import { BitStream } from "bit-buffer";
 import fs from "fs";
 import { type Body, Box, Circle, Vec2, type World } from "planck";
-import { Obstacle } from "./game/objects/obstacle";
-import { GameObject } from "./game/gameObject";
-import { Bullet } from "./game/bullet";
-import { Player } from "./game/objects/player";
+import { type Obstacle } from "./game/objects/obstacle";
+import { type GameObject } from "./game/gameObject";
+import { type Bullet } from "./game/bullet";
+import { type Player } from "./game/objects/player";
 
 export const Objects = readJson("data/objects.json");
 export const Maps = readJson("data/maps.json");
@@ -17,6 +17,8 @@ export const AllowedMelee = readJson("data/allowedMelee.json");
 export const AllowedEmotes = readJson("data/allowedEmotes.json");
 export const AllowedHeal = readJson("data/allowedHeal.json");
 export const AllowedBoost = readJson("data/allowedBoost.json");
+export const IdToMapType = readJson("data/idToMapType.json");
+export const IdToGameType = readJson("data/idToGameType.json");
 export const TypeToId = readJson("data/typeToId.json");
 export const Config = readJson("config.json");
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
@@ -320,6 +322,10 @@ export enum WeaponType {
     Gun, Melee, Throwable
 }
 
+export enum ItemSlot {
+    Primary = 1, Secondary = 5, Melee = 9
+}
+
 export enum CollisionType {
     Circle, Rectangle
 }
@@ -335,6 +341,13 @@ export function removeFrom(array: any[], object: any): void {
 export function log(message: string): void {
     const date: Date = new Date();
     console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
+}
+
+export function IdToType(id: number): string {
+    for(const type in TypeToId) {
+        if(TypeToId[type] === id) return type;
+    }
+    return "";
 }
 
 export function randomFloat(min: number, max: number): number {

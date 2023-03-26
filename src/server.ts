@@ -7,6 +7,7 @@ import { Game } from "./game/game.js";
 import { InputPacket } from "./packets/receiving/inputPacket";
 import { EmotePacket } from "./packets/receiving/emotePacket";
 import { JoinPacket } from "./packets/receiving/joinPacket";
+import { DropItemPacket } from "./packets/receiving/dropItemPacket";
 
 // Start the game
 const game = new Game();
@@ -178,7 +179,7 @@ app.ws("/play", {
     open: (socket) => {
         let playerName: string = socket.cookies["player-name"];
         if(!playerName || playerName.length > 16) playerName = "Player";
-        socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null)
+        socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
         log(`${socket.player.name} joined the game`);
     },
     message: (socket, message) => {
@@ -188,6 +189,9 @@ app.ws("/play", {
             switch(msgType) {
                 case MsgType.Input:
                     new InputPacket(socket.player).deserialize(stream);
+                    break;
+                case MsgType.DropItem:
+                    new DropItemPacket(socket.player).deserialize(stream);
                     break;
                 case MsgType.Emote:
                     new EmotePacket(socket.player).deserialize(stream);
