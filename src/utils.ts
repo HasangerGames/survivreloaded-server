@@ -323,7 +323,7 @@ export enum WeaponType {
 }
 
 export enum ItemSlot {
-    Primary = 1, Secondary = 5, Melee = 9
+    Primary, Secondary, Melee, Throwable
 }
 
 export enum CollisionType {
