@@ -1,7 +1,7 @@
 import { type Body, Circle, Vec2 } from "planck";
-import { Bullets, CollisionCategory, distanceBetween, ObjectKind, TypeToId, unitVecToRadians } from "../utils";
+import { Bullets, distanceBetween, TypeToId } from "../utils";
 import { type Game } from "./game";
-import { Player } from "./objects/player";
+import { type Player } from "./objects/player";
 
 export class Bullet {
     isBullet = true;
