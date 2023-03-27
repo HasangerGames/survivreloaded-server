@@ -10,7 +10,7 @@ import {
     type SurvivBitStream,
     TypeToId, Weapons,
     weightedRandom,
-    rotateRect
+    rotateRect, deepCopy
 } from "../../utils";
 import { type Game } from "../game";
 import { type Player } from "./player";
@@ -112,7 +112,7 @@ export class Obstacle extends GameObject {
             this.body = bodyFromCollisionData(this.game.world, data.collision, position, orientation, scale, this);
         }
 
-        this.collision = JSON.parse(JSON.stringify(data.collision)); // JSON.parse(JSON.stringify(x)) to deep copy object
+        this.collision = deepCopy(data.collision); // JSON.parse(JSON.stringify(x)) to deep copy object
         if(this.collision.type === CollisionType.Rectangle) {
             const rotatedRect = rotateRect(this.position, this.collision.min, this.collision.max, this.scale, this.orientation);
             this.collision.min = rotatedRect.min;
@@ -188,7 +188,7 @@ export class Obstacle extends GameObject {
             this.game.world.destroyBody(this.body!);
             this.game.fullDirtyObjects.push(this);
             for(const item of this.loot) {
-                const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count, true);
+                const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count);
                 this.game.objects.push(loot);
                 this.game.fullDirtyObjects.push(loot);
             }

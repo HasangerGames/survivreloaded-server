@@ -4,7 +4,8 @@ import {
     circleCollision,
     CollisionType,
     Debug,
-    distanceBetween, Item,
+    distanceBetween,
+    Item,
     Maps,
     ObjectKind,
     Objects,
@@ -286,15 +287,20 @@ export class Map {
         }
     }
 
-    private getRandomPositionFor(kind: ObjectKind, collisionData, orientation: number, scale: number): Vec2 {
+    getRandomPositionFor(kind: ObjectKind, collisionData, orientation: number, scale: number): Vec2 {
+        const isBuilding = (kind === ObjectKind.Building || kind === ObjectKind.Structure);
+        if(kind === ObjectKind.Player) {
+            collisionData = { type: CollisionType.Circle, rad: 1 };
+        }
         let foundPosition = false;
         let thisPos;
         while(!foundPosition) {
-            thisPos = randomVec(75, this.width - 75, 75, this.height - 75);
+            const minEdgeDist = isBuilding ? 125 : 75;
+            thisPos = randomVec(minEdgeDist, this.width - minEdgeDist, minEdgeDist, this.height - minEdgeDist);
             let shouldContinue = false;
 
             for(const river of this.rivers) {
-                const minRiverDist = (kind === ObjectKind.Building || kind === ObjectKind.Structure) ? river.width * 5 : river.width * 2.5;
+                const minRiverDist = isBuilding ? river.width * 5 : river.width * 2.5;
                 for(const point of river.points) {
                     if(distanceBetween(thisPos, point) < minRiverDist) {
                         shouldContinue = true;
@@ -317,15 +323,7 @@ export class Map {
             for(const that of this.game.objects) {
                 if(that instanceof Building) {
                     for(const thatBounds of that.mapObstacleBounds) {
-                        if(collisionData.mapObstacleBounds) {
-                            for(const bounds2 of collisionData.mapObstacleBounds) {
-                                const thisBounds = rotateRect(thisPos, bounds2.min, bounds2.max, 1, orientation);
-                                if(rectRectCollision(thatBounds.min, thatBounds.max, thisBounds.min, thisBounds.max)) {
-                                    shouldContinue = true;
-                                    break;
-                                }
-                            }
-                        } else if(collisionData.type === CollisionType.Circle) {
+                         if(collisionData.type === CollisionType.Circle) {
                             if(rectCollision(thatBounds.min, thatBounds.max, thisPos, thisRad)) {
                                 shouldContinue = true;
                             }
@@ -333,7 +331,15 @@ export class Map {
                             if(rectRectCollision(thatBounds.min, thatBounds.max, thisMin, thisMax)) {
                                 shouldContinue = true;
                             }
-                        }
+                        } else if(collisionData.mapObstacleBounds) {
+                             for(const bounds2 of collisionData.mapObstacleBounds) {
+                                 const thisBounds = rotateRect(thisPos, bounds2.min, bounds2.max, 1, orientation);
+                                 if(rectRectCollision(thatBounds.min, thatBounds.max, thisBounds.min, thisBounds.max)) {
+                                     shouldContinue = true;
+                                     break;
+                                 }
+                             }
+                         }
                     }
                 } else if(that instanceof Obstacle) {
                     if(collisionData.type === CollisionType.Circle) {

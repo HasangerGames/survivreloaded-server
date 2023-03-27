@@ -1,17 +1,23 @@
 import { type WebSocket } from "uWebSockets.js";
 
 import {
-    AllowedBoost, AllowedEmotes, AllowedHeal,
+    AllowedBoost,
+    AllowedEmotes,
+    AllowedHeal,
     AllowedMelee,
     AllowedSkins,
     Config,
-    Constants, DamageType,
+    Constants,
+    DamageType,
+    deepCopy,
     Emote,
     type Explosion,
     ObjectKind,
     removeFrom,
     SurvivBitStream,
-    TypeToId, Weapons, WeaponType
+    TypeToId,
+    Weapons,
+    WeaponType
 } from "../../utils";
 import { DeadBody } from "./deadBody";
 import { type SendingPacket } from "../../packets/sendingPacket";
@@ -286,8 +292,7 @@ export class Player extends GameObject {
         else this.zoom = Constants.scopeZoomRadius.desktop[scope];
     }
 
-    switchSlot(slot: number, updatePlayer?: boolean): void { // TODO Make this.weapons into an array
-        this.weapons.activeSlot = slot;
+    switchSlot(slot: number): void { // TODO Make this.weapons into an array
         switch(slot) {
             case 0:
                 if(this.weapons.primaryGun.typeId === 0) break;
@@ -295,6 +300,7 @@ export class Player extends GameObject {
                 this.activeWeapon.typeId = this.weapons.primaryGun.typeId;
                 this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 900;
                 this.activeWeapon.weaponType = WeaponType.Gun;
+                this.weapons.activeSlot = slot;
                 break;
             case 1:
                 if(this.weapons.secondaryGun.typeId === 0) break;
@@ -302,6 +308,7 @@ export class Player extends GameObject {
                 this.activeWeapon.typeId = this.weapons.secondaryGun.typeId;
                 this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 1000;
                 this.activeWeapon.weaponType = WeaponType.Gun;
+                this.weapons.activeSlot = slot;
                 break;
             case 2:
                 if(this.weapons.melee.typeId === 0) break;
@@ -309,14 +316,48 @@ export class Player extends GameObject {
                 this.activeWeapon.typeId = this.weapons.melee.typeId;
                 this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].attack.cooldownTime * 1000;
                 this.activeWeapon.weaponType = WeaponType.Melee;
+                this.weapons.activeSlot = slot;
                 break;
         }
-        if(updatePlayer) {
+        this.weaponsDirty = true;
+        this.inventoryDirty = true;
+        this.game!.fullDirtyObjects.push(this);
+        this.fullDirtyObjects.push(this);
+    }
+
+    static readonly slots = ["primaryGun", "secondaryGun", "melee"];
+
+    dropItemInSlot(slot: number, item: string): void {
+        const slotIndex = Player.slots[slot];
+        if(this.weapons[slotIndex].typeString === item) {
+            // Only drop the gun if it's the same as the one we have, AND it's in the primary slot
+            if(slot === 2) { // Melee
+                this.weapons[slotIndex] = {
+                    typeString: "fists",
+                    typeId: TypeToId.fists,
+                    ammo: 0
+                };
+            } else {
+                this.weapons[slotIndex] = {
+                    typeString: "",
+                    typeId: 0,
+                    ammo: 0
+                };
+            }
+            if(this.weapons.activeSlot === slot) this.switchSlot(2);
             this.weaponsDirty = true;
-            this.inventoryDirty = true;
-            this.game!.fullDirtyObjects.push(this);
-            this.fullDirtyObjects.push(this);
+            const loot = new Loot(this.game, item, this.position, this.layer, 1);
+            this.game.objects.push(loot);
+            this.game.fullDirtyObjects.push(loot);
         }
+    }
+
+    swapWeaponSlots(): void {
+        const primary = deepCopy(this.weapons.primaryGun);
+        this.weapons.primaryGun = deepCopy(this.weapons.secondaryGun);
+        this.weapons.secondaryGun = primary;
+        if(this.weapons.activeSlot === 0) this.switchSlot(1);
+        else if(this.weapons.activeSlot === 1) this.switchSlot(0);
     }
 
     weaponCooldownOver(): boolean {
@@ -406,7 +447,6 @@ export class Player extends GameObject {
             this.deadPos = this.body.getPosition().clone();
             this.game.world.destroyBody(this.body);
             this.fullDirtyObjects.push(this);
-            //this.game.fullDirtyObjects.push(this);
             removeFrom(this.game.objects, this);
             this.game.deletedObjects.push(this);
 
@@ -428,11 +468,20 @@ export class Player extends GameObject {
             if(this.helmetLevel > 0) this.dropLoot(`helmet0${this.helmetLevel}`);
             if(this.chestLevel > 0) this.dropLoot(`chest0${this.chestLevel}`);
             if(this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
+            this.weapons.activeSlot = 2;
+            this.weaponsDirty = true;
+            this.inventoryDirty = true;
 
             // Remove from active players; send packets
             removeFrom(this.game.activePlayers, this);
             this.game.kills.push(new KillPacket(this, damageType, source, objectUsed));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
+
+            if(this.game.aliveCount === 1) {
+                const lastManStanding: Player = this.game.activePlayers[0];
+                lastManStanding.sendPacket(new GameOverPacket(lastManStanding, true));
+                this.game.over = true;
+            }
         }
     }
 
@@ -444,8 +493,7 @@ export class Player extends GameObject {
             type,
             this.deadPos,
             this.layer,
-            this.inventory[type],
-            true
+            this.inventory[type]
         );
 
         // Add the loot to the array of objects
@@ -489,9 +537,9 @@ export class Player extends GameObject {
         for(const object of this.game.objects) {
             if(this === object) continue;
             const minX = this.position.x - this.xCullDist,
-                maxX = this.position.x + this.xCullDist,
-                minY = this.position.y - this.yCullDist,
-                maxY = this.position.y + this.yCullDist;
+                  minY = this.position.y - this.yCullDist,
+                  maxX = this.position.x + this.xCullDist,
+                  maxY = this.position.y + this.yCullDist;
             if(object.position.x > minX &&
                 object.position.x < maxX &&
                 object.position.y > minY &&
@@ -501,7 +549,7 @@ export class Player extends GameObject {
                     this.fullDirtyObjects.push(object);
                 }
             } else { // if object is not visible
-                if(this.visibleObjects.includes(object) && !(object instanceof Player)) {
+                if(this.visibleObjects.includes(object)) {
                     this.deletedObjects.push(object);
                 }
             }

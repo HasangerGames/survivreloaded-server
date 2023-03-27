@@ -24,12 +24,13 @@ export class Loot extends GameObject {
                 typeString: string,
                 position: Vec2,
                 layer: number,
-                count: number,
-                spreadOut?: boolean) {
+                count: number) {
         super(game, typeString, position, layer);
         this.kind = ObjectKind.Loot;
         this.count = count;
         this.oldPos = position;
+
+        // Create the body
         this.body = game.world.createBody({
             type: "dynamic",
             position
@@ -41,10 +42,11 @@ export class Loot extends GameObject {
             friction: 0.0,
             userData: this
         });
-        if(spreadOut) {
-            const angle: number = Math.random() * Math.PI * 2;
-            this.body.setLinearVelocity(Vec2(Math.cos(angle), Math.sin(angle)).mul(0.005));
-        }
+
+        // Push the loot in a random direction
+        const angle: number = Math.random() * Math.PI * 2;
+        this.body.setLinearVelocity(Vec2(Math.cos(angle), Math.sin(angle)).mul(0.005));
+
         game.loot.push(this);
     }
 
@@ -90,12 +92,12 @@ export class Loot extends GameObject {
             if(p.weapons.primaryGun.typeId === 0) {
                 p.weapons.primaryGun.typeString = this.typeString;
                 p.weapons.primaryGun.typeId = this.typeId;
-                p.switchSlot(0, true);
+                p.switchSlot(0);
                 p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
             } else if(p.weapons.primaryGun.typeId !== 0 && p.weapons.secondaryGun.typeId === 0) {
                 p.weapons.secondaryGun.typeString = this.typeString;
                 p.weapons.secondaryGun.typeId = this.typeId;
-                p.switchSlot(1, true);
+                p.switchSlot(1);
                 p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
             } else {
                 result = PickupMsgType.Full;

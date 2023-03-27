@@ -18,7 +18,6 @@ import {
     ObjectKind,
     randomFloat,
     randomPointInsideCircle,
-    randomVec,
     RedZoneStages,
     removeFrom,
     SurvivBitStream,
@@ -108,7 +107,7 @@ export class Game {
     gasDirty = false;
     gasCircleDirty = false;
 
-    active = true; // Whether this game is active. This is set to false to stop the tick loop.
+    over = false; // Whether this game is over. This is set to true to stop the tick loop.
     started = false; // Whether there are more than 2 players, meaning the game has started.
 
     /**
@@ -181,9 +180,6 @@ export class Game {
     tick(delay: number): void {
         setTimeout(() => {
             const tickStart = Date.now();
-
-            // Stop the tick loop if the game is no longer active
-            if(!this.active) return;
 
             // Update physics
             this.world.step(30);
@@ -271,7 +267,7 @@ export class Game {
                 else if(p.boost > 87.5 && p.boost <= 100) p.health += 0.01766;
 
                 // Red zone damage
-                if(gasDamage && distanceBetween(p.position, this.gas.currentPos) >= this.gas.currentRad) {
+                if(gasDamage && this.isInRedZone(p.position)) {
                     p.damage(this.gas.damage, undefined, undefined, DamageType.Gas);
                 }
 
@@ -439,21 +435,27 @@ export class Game {
                 // Full objects
                 if(this.fullDirtyObjects.length) {
                     for(const object of this.fullDirtyObjects) {
-                        if(p.visibleObjects.includes(object)) p.fullDirtyObjects.push(object);
+                        if(p.visibleObjects.includes(object) && !p.fullDirtyObjects.includes(object)) {
+                            p.fullDirtyObjects.push(object);
+                        }
                     }
                 }
 
                 // Partial objects
                 if(this.partialDirtyObjects.length) {
                     for(const object of this.partialDirtyObjects) {
-                        if(p.visibleObjects.includes(object)) p.partialDirtyObjects.push(object);
+                        if(p.visibleObjects.includes(object) && !p.fullDirtyObjects.includes(object)) {
+                            p.partialDirtyObjects.push(object);
+                        }
                     }
                 }
 
                 // Deleted objects
                 if(this.deletedObjects.length) {
                     for(const object of this.deletedObjects) {
-                        //if(p.visibleObjects.includes(object)) p.deletedObjects.push(object);
+                        /*if(p.visibleObjects.includes(object) && object !== p) {
+                            p.deletedObjects.push(object);
+                        }*/
                         if(object !== p) p.deletedObjects.push(object);
                     }
                 }
@@ -485,6 +487,17 @@ export class Game {
             this.gasCircleDirty = false;
             this.aliveCountDirty = false;
 
+            // Stop the tick loop if the game is over
+            if(this.over) {
+                for(const player of this.connectedPlayers) {
+                    try {
+                        player.socket.close();
+                    } catch(e) {}
+                }
+                return;
+            }
+
+            // Record performance and start the next tick
             const tickTime: number = Date.now() - tickStart;
             if(Debug.performanceLog) {
                 this.tickTimes.push(tickTime);
@@ -500,10 +513,20 @@ export class Game {
         }, delay);
     }
 
+    isInRedZone(position: Vec2): boolean {
+        return distanceBetween(position, this.gas.currentPos) >= this.gas.currentRad;
+    }
+
     addPlayer(socket, name, loadout): Player {
         let spawnPosition;
         if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
-        else spawnPosition = randomVec(75, this.map.width - 75, 75, this.map.height - 75);
+        else {
+            let foundPosition = false;
+            while(!foundPosition) {
+                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 1);
+                if(!this.isInRedZone(spawnPosition)) foundPosition = true;
+            }
+        }
 
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
         this.objects.push(p);
@@ -516,11 +539,6 @@ export class Game {
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
         p.updateVisibleObjects();
-        for(const player of this.players) {
-            if(player === p) continue;
-            player.fullDirtyObjects.push(p);
-            p.fullDirtyObjects.push(player);
-        }
         p.fullDirtyObjects.push(p);
 
         p.sendPacket(new JoinedPacket(p));
@@ -607,7 +625,7 @@ export class Game {
     }
 
     end(): void {
-        this.active = false;
+        this.over = false;
     }
 
     get nextObjectId(): number {

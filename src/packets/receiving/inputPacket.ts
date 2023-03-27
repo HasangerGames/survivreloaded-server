@@ -70,13 +70,22 @@ export class InputPacket extends ReceivingPacket {
                     break;
                 }
                 case InputType.EquipPrimary:
-                    p.switchSlot(0, true);
+                    p.switchSlot(0);
                     break;
                 case InputType.EquipSecondary:
-                    p.switchSlot(1, true);
+                    p.switchSlot(1);
                     break;
                 case InputType.EquipMelee:
-                    p.switchSlot(2, true);
+                    p.switchSlot(2);
+                    break;
+                case InputType.EquipPrevWeap:
+                    p.switchSlot((p.weapons.activeSlot - 1) % 4);
+                    break;
+                case InputType.EquipNextWeap:
+                    p.switchSlot((p.weapons.activeSlot + 1) % 4);
+                    break;
+                case InputType.SwapWeapSlots:
+                    p.swapWeaponSlots();
                     break;
             }
         }

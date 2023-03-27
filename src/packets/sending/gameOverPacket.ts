@@ -4,8 +4,11 @@ import { type Player } from "../../game/objects/player";
 
 export class GameOverPacket extends SendingPacket {
 
-    constructor(p: Player) {
+    readonly won;
+
+    constructor(p: Player, won = false) {
         super(p);
+        this.won = won;
         this.msgType = MsgType.GameOver;
         this.allocBytes = 32;
     }
@@ -15,9 +18,9 @@ export class GameOverPacket extends SendingPacket {
         const p = this.p!;
 
         stream.writeUint8(1); // Team ID (not duo/squad ID, for 50v50?)
-        stream.writeUint8(p.game.aliveCount + 1); // Team rank
-        stream.writeUint8(0); // Game over
-        stream.writeUint8(0); // Winning team ID
+        stream.writeUint8(p.game.aliveCount + (this.won ? 0 : 1)); // Team rank
+        stream.writeUint8(p.game.over ? 1 : 0); // Game over
+        stream.writeUint8(this.won ? 1 : 0); // Winning team ID
 
         stream.writeUint8(1); // Player stats count
 

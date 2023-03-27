@@ -599,6 +599,10 @@ export function lerp(t, a, b): number {
     return a * (1.0 - t) + b * t;
 }
 
+export function deepCopy(object): any {
+    return JSON.parse(JSON.stringify(object));
+}
+
 export class SurvivBitStream extends BitStream {
 
     constructor(source, byteOffset = 0, byteLength = 0) {
