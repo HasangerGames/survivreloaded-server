@@ -12,6 +12,7 @@ export const Items = readJson("data/items.json");
 export const Weapons = readJson("data/weapons.json");
 export const Bullets = readJson("data/bullets.json");
 export const LootTables = readJson("data/lootTables.json");
+export const RedZoneStages = readJson("data/redZoneStages.json");
 export const AllowedSkins = readJson("data/allowedSkins.json");
 export const AllowedMelee = readJson("data/allowedMelee.json");
 export const AllowedEmotes = readJson("data/allowedEmotes.json");
@@ -563,6 +564,26 @@ export function getContentType(filename: string): string {
     else if(filename.endsWith(".ico")) contentType = "image/vnd.microsoft.icon";
     else if(filename.endsWith(".jpg")) contentType = "image/jpeg";
     return contentType;
+}
+
+// https://stackoverflow.com/a/51727716/5905216
+export function randomPointInsideCircle(position: Vec2, radius: number): Vec2 {
+    let x: number, y: number;
+    do {
+        x = 2 * Math.random() - 1.0; // range [-1, +1)
+        y = 2 * Math.random() - 1.0;
+    } while ((x * x + y * y) >= 1); // check unit circle
+
+    // scale and translate the points
+    return Vec2(x * radius + position.x, y * radius + position.y);
+}
+
+export function vecLerp(t, a, b): Vec2 {
+    return Vec2.add(Vec2.mul(a, 1.0 - t), Vec2.mul(b, t));
+}
+
+export function lerp(t, a, b): number {
+    return a * (1.0 - t) + b * t;
 }
 
 export class SurvivBitStream extends BitStream {

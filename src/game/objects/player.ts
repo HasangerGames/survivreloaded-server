@@ -6,8 +6,8 @@ import {
     AllowedSkins,
     CollisionCategory,
     Config,
-    Constants,
-    type Emote,
+    Constants, DamageType,
+    Emote,
     type Explosion,
     ObjectKind,
     removeFrom,
@@ -347,7 +347,7 @@ export class Player extends GameObject {
         this.boostDirty = true;
     }
 
-    damage(amount: number, source, objectUsed?): void {
+    damage(amount: number, source?, objectUsed?, damageType = DamageType.Player): void {
         if(this._health === 0) return;
 
         let finalDamage: number = amount;
@@ -412,6 +412,11 @@ export class Player extends GameObject {
             removeFrom(this.game.objects, this);
             this.game.deletedObjects.push(this);
 
+            // Send death emote
+            if(this.loadout.emotes[5] !== 0) {
+                this.game.emotes.push(new Emote(this.id, this.position, this.loadout.emotes[5], false));
+            }
+
             // Create dead body
             const deadBody = new DeadBody(this.game, this.layer, this.position, this.id);
             this.game.objects.push(deadBody);
@@ -428,7 +433,7 @@ export class Player extends GameObject {
 
             // Remove from active players; send packets
             removeFrom(this.game.activePlayers, this);
-            this.game.kills.push(new KillPacket(this, source, objectUsed));
+            this.game.kills.push(new KillPacket(this, damageType, source, objectUsed));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
         }
     }

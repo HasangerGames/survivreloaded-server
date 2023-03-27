@@ -3,7 +3,9 @@ import {
     Bullets,
     type CollisionRecord,
     CollisionType,
-    Constants, DamageRecord,
+    Constants,
+    DamageRecord,
+    DamageType,
     Debug,
     degreesToRadians,
     distanceBetween,
@@ -11,15 +13,19 @@ import {
     distanceToRect,
     type Emote,
     type Explosion,
+    lerp,
     log,
     ObjectKind,
     randomFloat,
+    randomPointInsideCircle,
     randomVec,
+    RedZoneStages,
     removeFrom,
     SurvivBitStream,
     TypeToId,
     unitVecToRadians,
     vec2Rotate,
+    vecLerp,
     Weapons,
     WeaponType
 } from "../utils";
@@ -82,32 +88,34 @@ export class Game {
     damageRecords: DamageRecord[] = [];
 
     // Red zone
-    gasMode: number;
-    initialGasDuration: number;
-    oldGasPosition: Vec2;
-    newGasPosition: Vec2;
-    oldGasRadius: number;
-    newGasRadius: number;
+    readonly gas = {
+        stage: 0,
+        mode: 0, // 0 = inactive, 1 = waiting, 2 = moving
+        initialDuration: 0,
+        countdownStart: 0,
+        duration: 0,
+        posOld: Vec2(360, 360),
+        posNew: Vec2(360, 360),
+        radOld: 534.6,
+        radNew: 534.6,
+        currentPos: Vec2(360, 360),
+        currentRad: 534.6,
+        damage: 0
+    };
+
+    ticksSinceLastGasDamage = 0;
+
     gasDirty = false;
     gasCircleDirty = false;
 
-    /**
-     * Whether this game is active. This is set to false to stop the tick loop.
-     */
-    active = true;
+    active = true; // Whether this game is active. This is set to false to stop the tick loop.
+    started = false; // Whether there are more than 2 players, meaning the game has started.
 
     /**
      * Creates a new Game. Doesn't take any arguments.
      */
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
-
-        this.gasMode = 0;
-        this.initialGasDuration = 0;
-        this.oldGasPosition = Vec2(360, 360);
-        this.newGasPosition = Vec2(360, 360);
-        this.oldGasRadius = 2048;
-        this.newGasRadius = 2048;
 
         this.world = new World({
             gravity: Vec2(0, 0)
@@ -123,9 +131,9 @@ export class Game {
         this.world.on("begin-contact", contact => {
             const objectA: any = contact.getFixtureA().getUserData();
             const objectB: any = contact.getFixtureB().getUserData();
-            if(objectA instanceof Bullet && objectB.damageable && objectA.distance <= objectA.maxDistance) {
+            if(objectA instanceof Bullet && objectA.distance <= objectA.maxDistance) {
                 this.damageRecords.push(new DamageRecord(objectB, objectA.shooter, objectA));
-            } else if(objectB instanceof Bullet && objectA.damageable && objectB.distance <= objectB.maxDistance) {
+            } else if(objectB instanceof Bullet && objectB.distance <= objectB.maxDistance) {
                 this.damageRecords.push(new DamageRecord(objectA, objectB.shooter, objectB));
             }
         });
@@ -201,9 +209,29 @@ export class Game {
 
             // Do damage to objects hit by bullets
             for(const damageRecord of this.damageRecords) {
-                damageRecord.damaged.damage(Bullets[damageRecord.bullet.typeString].damage, damageRecord.damager);
+                if(damageRecord.damaged.damageable) {
+                    damageRecord.damaged.damage(Bullets[damageRecord.bullet.typeString].damage, damageRecord.damager);
+                }
                 this.world.destroyBody(damageRecord.bullet.body);
                 removeFrom(this.bullets, damageRecord.bullet);
+            }
+
+            // Update red zone
+            if(this.gas.mode !== 0) {
+                this.gas.duration = (Date.now() - this.gas.countdownStart) / 1000 / this.gas.initialDuration;
+                this.gasCircleDirty = true;
+            }
+
+            // Red zone damage
+            this.ticksSinceLastGasDamage++;
+            let gasDamage = false;
+            if(this.ticksSinceLastGasDamage >= 67) {
+                this.ticksSinceLastGasDamage = 0;
+                gasDamage = true;
+                if(this.gas.mode === 2) {
+                    this.gas.currentPos = vecLerp(this.gas.duration, this.gas.posOld, this.gas.posNew);
+                    this.gas.currentRad = lerp(this.gas.duration, this.gas.radOld, this.gas.radNew);
+                }
             }
 
             // First loop over players: Calculate movement & animations
@@ -241,6 +269,11 @@ export class Game {
                 else if(p.boost > 25 && p.boost <= 50) p.health += 0.012624;
                 else if(p.boost > 50 && p.boost <= 87.5) p.health += 0.01515;
                 else if(p.boost > 87.5 && p.boost <= 100) p.health += 0.01766;
+
+                // Red zone damage
+                if(gasDamage && distanceBetween(p.position, this.gas.currentPos) >= this.gas.currentRad) {
+                    p.damage(this.gas.damage, undefined, undefined, DamageType.Gas);
+                }
 
                 // Action item logic
                 if(p.actionDirty && Date.now() - p.actionItem.useEnd > 0) {
@@ -396,11 +429,11 @@ export class Game {
                 }
 
                 // Emotes
-                // TODO Determine which emotes should be displayed to the player
+                // TODO Determine which emotes should be sent to the client
                 if(this.emotes.length) p.emotes = this.emotes;
 
                 // Explosions
-                // TODO Determine which explosions should be displayed to the player
+                // TODO Determine which explosions should be sent to the client
                 if(this.explosions.length) p.explosions = this.explosions;
 
                 // Full objects
@@ -497,22 +530,43 @@ export class Game {
         new AliveCountsPacket(this).serialize(stream);
         p.sendData(stream);
 
+        if(this.aliveCount > 1 && !this.started) {
+            this.started = true;
+            Game.advanceRedZone(this);
+        }
+
         return p;
     }
 
-    removePlayer(p: Player): void {
-        if(p.inventoryEmpty) {
-            removeFrom(this.objects, p);
-            removeFrom(this.partialDirtyObjects, p);
-            removeFrom(this.fullDirtyObjects, p);
-            this.deletedPlayers.push(p);
-            this.deletedObjects.push(p);
-        } else {
-            p.direction = Vec2(1, 0);
-            p.disconnected = true;
-            p.deadPos = p.body.getPosition().clone();
-            this.fullDirtyObjects.push(p);
+    static advanceRedZone(game: Game): void {
+        const currentStage = RedZoneStages[game.gas.stage + 1];
+        if(!currentStage) return;
+        game.gas.stage++;
+        game.gas.mode = currentStage.mode;
+        game.gas.initialDuration = currentStage.duration;
+        game.gas.duration = 1;
+        game.gas.countdownStart = Date.now();
+        if(currentStage.mode === 1) {
+            game.gas.posOld = game.gas.posNew.clone();
+            if(currentStage.radNew !== 0) {
+                game.gas.posNew = randomPointInsideCircle(game.gas.posOld, currentStage.radOld - currentStage.radNew);
+            } else {
+                game.gas.posNew = game.gas.posOld.clone();
+            }
+            game.gas.currentPos = game.gas.posOld.clone();
+            game.gas.currentRad = currentStage.radOld;
         }
+        game.gas.radOld = currentStage.radOld;
+        game.gas.radNew = currentStage.radNew;
+        game.gas.damage = currentStage.damage;
+        game.gasDirty = true;
+        game.gasCircleDirty = true;
+        if(currentStage.duration !== 0) {
+            setTimeout(() => Game.advanceRedZone(game), currentStage.duration * 1000);
+        }
+    }
+
+    removePlayer(p: Player): void {
         p.movingUp = false;
         p.movingDown = false;
         p.movingLeft = false;
@@ -523,9 +577,23 @@ export class Game {
         removeFrom(this.activePlayers, p);
         removeFrom(this.connectedPlayers, p);
 
-        if(!p.dead) { // If player is dead, alive count has already been decremented
+        if(!p.dead) {
+            // If player is dead, alive count has already been decremented
             this.aliveCount--;
             this.aliveCountDirty = true;
+
+            if(p.inventoryEmpty) {
+                removeFrom(this.objects, p);
+                removeFrom(this.partialDirtyObjects, p);
+                removeFrom(this.fullDirtyObjects, p);
+                this.deletedPlayers.push(p);
+                this.deletedObjects.push(p);
+            } else {
+                p.direction = Vec2(1, 0);
+                p.disconnected = true;
+                p.deadPos = p.body.getPosition().clone();
+                this.fullDirtyObjects.push(p);
+            }
         }
     }
 

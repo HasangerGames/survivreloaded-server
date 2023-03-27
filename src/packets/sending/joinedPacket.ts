@@ -13,7 +13,7 @@ export class JoinedPacket extends SendingPacket {
         stream.writeUint8(MsgType.Joined);
         stream.writeUint8(1); // Team mode
         stream.writeUint16(this.p!.id); // Player ID
-        stream.writeBoolean(true); // Game started
+        stream.writeBoolean(this.p!.game.started); // Game started
         stream.writeUint8(6); // Emote count
         for(let i = 0; i < 6; i++) { stream.writeGameType(this.p!.loadout.emotes[i]); }
     }

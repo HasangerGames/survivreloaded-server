@@ -147,17 +147,17 @@ export class UpdatePacket extends SendingPacket {
 
         // Red zone data
         if(game.gasDirty || p.firstUpdate) {
-            stream.writeUint8(game.gasMode); // Mode
-            stream.writeFloat32(game.initialGasDuration); // Duration
-            stream.writeVec(game.oldGasPosition, 0, 0, 1024, 1024, 16); // Old position
-            stream.writeVec(game.newGasPosition, 0, 0, 1024, 1024, 16); // New position
-            stream.writeFloat(game.oldGasRadius, 0, 2048, 16); // Old radius
-            stream.writeFloat(game.newGasRadius, 0, 2048, 16); // New radius
+            stream.writeUint8(game.gas.mode); // Mode
+            stream.writeFloat32(game.gas.initialDuration); // Duration
+            stream.writeVec(game.gas.posOld, 0, 0, 1024, 1024, 16);
+            stream.writeVec(game.gas.posNew, 0, 0, 1024, 1024, 16);
+            stream.writeFloat(game.gas.radOld, 0, 2048, 16);
+            stream.writeFloat(game.gas.radNew, 0, 2048, 16);
         }
 
         // Red zone time data
         if(game.gasCircleDirty || p.firstUpdate) {
-            stream.writeFloat(0, 0, 1, 16); // Indicates red zone time (gasT)
+            stream.writeFloat(game.gas.duration, 0, 1, 16); // Indicates red zone time (gasT)
         }
 
         // Player info
