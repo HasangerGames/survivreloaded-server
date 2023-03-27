@@ -1,5 +1,4 @@
 import {
-    CollisionCategory,
     Constants,
     Items,
     ObjectKind,
@@ -37,7 +36,7 @@ export class Loot extends GameObject {
         });
         this.body.createFixture({
             shape: Circle(1),
-            restitution: 0.0,
+            restitution: 0.5,
             density: 0.0,
             friction: 0.0,
             userData: this

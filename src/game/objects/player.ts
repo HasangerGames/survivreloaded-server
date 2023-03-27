@@ -4,7 +4,6 @@ import {
     AllowedBoost, AllowedEmotes, AllowedHeal,
     AllowedMelee,
     AllowedSkins,
-    CollisionCategory,
     Config,
     Constants, DamageType,
     Emote,
@@ -24,7 +23,6 @@ import { type Body, Circle, Vec2 } from "planck";
 import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPacket";
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot } from "./loot";
-import { Obstacle } from "./obstacle";
 
 export class Player extends GameObject {
     socket: WebSocket<any>;
@@ -361,7 +359,7 @@ export class Player extends GameObject {
         this._health -= finalDamage;
         this.healthDirty = true;
 
-        if(this._health === 0) {
+        if(this._health <= 0) {
             this.boost = 0;
             this.dead = true;
 
@@ -371,7 +369,7 @@ export class Player extends GameObject {
 
                 // Find a new Kill Leader
                 let highestKillCount = 0;
-                let highestKillsPlayer;
+                let highestKillsPlayer: Player | null = null;
                 for(const p of this.game.players) {
                     if(!p.dead && p.kills > highestKillCount) {
                         highestKillCount = p.kills;
@@ -381,7 +379,7 @@ export class Player extends GameObject {
 
                 // If a new Kill Leader was found, assign the role.
                 // Otherwise, leave it vacant.
-                if(highestKillCount > 2) {
+                if(highestKillsPlayer && highestKillCount > 2) {
                     this.game.assignKillLeader(highestKillsPlayer);
                 } else {
                     this.game.killLeader = { id: 0, kills: 0 };

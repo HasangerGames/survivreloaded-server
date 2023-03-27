@@ -1,7 +1,7 @@
 import { ObjectKind, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
-import { Game } from "../game";
+import { type Game } from "../game";
 
 export class Structure extends GameObject {
     showOnMap = false;
