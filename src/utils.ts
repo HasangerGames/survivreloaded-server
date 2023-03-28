@@ -25,6 +25,10 @@ export const Config = readJson("config.json");
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
 export const Debug = Config.debug || {};
 
+export const AmmoTypes = ["9mm", "762mm", "556mm", "12gauge", "50AE", "308sub", "flare", "45acp"];
+export const MedTypes = ["bandage", "healthkit", "soda", "painkiller"];
+export const ScopeTypes = ["1xscope", "2xscope", "4xscope", "8xscope", "15xscope"];
+
 export class Item {
     type: string;
     count: number;

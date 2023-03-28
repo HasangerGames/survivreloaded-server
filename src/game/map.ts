@@ -5,7 +5,6 @@ import {
     CollisionType,
     Debug,
     distanceBetween,
-    Item,
     Maps,
     ObjectKind,
     Objects,
@@ -88,14 +87,14 @@ export class Map {
             // this.genBuildingTest("mansion_01", 0);
 
             // Items test
-            this.obstacleTest("crate_01", Vec2(453, 153), 1);
-            this.obstacleTest("crate_01", Vec2(458, 153), 1);
-            this.obstacleTest("crate_01", Vec2(463, 153), 1);
-            this.obstacleTest("crate_01", Vec2(468, 153), 1);
-            (this.game.objects[0] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 15), new Item("762mm", 15)];
-            (this.game.objects[1] as Obstacle).loot = [new Item("762mm", 20)];
-            (this.game.objects[2] as Obstacle).loot = [new Item("mac10", 2)];
-            (this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];
+            // this.obstacleTest("crate_01", Vec2(453, 153), 1);
+            // this.obstacleTest("crate_01", Vec2(458, 153), 1);
+            // this.obstacleTest("crate_01", Vec2(463, 153), 1);
+            // this.obstacleTest("crate_01", Vec2(468, 153), 1);
+            // (this.game.objects[0] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 15), new Item("762mm", 15)];
+            // (this.game.objects[1] as Obstacle).loot = [new Item("762mm", 20)];
+            // (this.game.objects[2] as Obstacle).loot = [new Item("mac10", 2)];
+            // (this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];
 
             // Object culling test
             /*for(let x = 0; x <= 45; x++) {
@@ -103,6 +102,41 @@ export class Map {
                     this.obstacleTest("tree_01", Vec2(x * 16, y * 16), 1.6);
                 }
             }*/
+
+            // Dropping items test
+            /*this.obstacleTest("crate_01", Vec2(453, 153), 1);
+            this.obstacleTest("crate_01", Vec2(458, 153), 1);
+            this.obstacleTest("crate_01", Vec2(463, 153), 1);
+            this.obstacleTest("crate_01", Vec2(468, 153), 1);
+
+            this.obstacleTest("crate_01", Vec2(453, 148), 1);
+            this.obstacleTest("crate_01", Vec2(458, 148), 1);
+            this.obstacleTest("crate_01", Vec2(463, 148), 1);
+            this.obstacleTest("crate_01", Vec2(468, 148), 1);
+
+            this.obstacleTest("crate_01", Vec2(453, 143), 1);
+            this.obstacleTest("crate_01", Vec2(458, 143), 1);
+            this.obstacleTest("crate_01", Vec2(463, 143), 1);
+            this.obstacleTest("crate_01", Vec2(468, 143), 1);
+
+            this.obstacleTest("crate_01", Vec2(453, 158), 1);
+
+            (this.game.objects[0] as Obstacle).loot = [new Item("2xscope", 1)];
+            (this.game.objects[1] as Obstacle).loot = [new Item("4xscope", 1)];
+            (this.game.objects[2] as Obstacle).loot = [new Item("8xscope", 1)];
+            (this.game.objects[3] as Obstacle).loot = [new Item("15xscope", 1)];
+
+            (this.game.objects[4] as Obstacle).loot = [new Item("chest02", 1)];
+            (this.game.objects[5] as Obstacle).loot = [new Item("chest03", 1)];
+            (this.game.objects[6] as Obstacle).loot = [new Item("helmet02", 1)];
+            (this.game.objects[7] as Obstacle).loot = [new Item("helmet03", 1)];
+
+            (this.game.objects[8] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 120)];
+            (this.game.objects[9] as Obstacle).loot = [new Item("vector", 1), new Item("9mm", 120)];
+            (this.game.objects[10] as Obstacle).loot = [new Item("m249", 1), new Item("556mm", 120)];
+            (this.game.objects[11] as Obstacle).loot = [new Item("saiga", 1), new Item("12gauge", 120)];
+
+            (this.game.objects[12] as Obstacle).loot = [new Item("backpack03", 1)];*/
         }
     }
 

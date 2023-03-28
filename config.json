@@ -11,7 +11,7 @@
     "performanceLog": true,
     "performanceLogInterval": 200,
     "disableMapGeneration": false,
-    "fixedSpawnLocation": [450, 150],
+    "fixedSpawnLocation": [440, 150],
     "disableStaticFileCache": true,
     "autoStopServer": false,
     "autoStopAfter": 300000

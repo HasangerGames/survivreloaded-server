@@ -161,3 +161,13 @@ export class Loot extends GameObject {
     damage(amount: number, source): void {}
 
 }
+
+export function splitUpLoot(player: Player, item: string, amount: number): Loot[] {
+    const loot: Loot[] = [];
+    const dropCount = Math.floor(amount / 30);
+    for(let i = 0; i < dropCount; i++) {
+        loot.push(new Loot(player.game, item, player.position, player.layer, 30));
+    }
+    if(amount % 30 !== 0) loot.push(new Loot(player.game, item, player.position, player.layer, amount % 30));
+    return loot;
+}
