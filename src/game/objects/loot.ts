@@ -8,7 +8,7 @@ import {
 } from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
-import { type Player } from "./player";
+import { Player } from "./player";
 import { PickupMsgType, PickupPacket } from "../../packets/sending/pickupPacket";
 import { Circle, Vec2 } from "planck";
 
@@ -76,6 +76,7 @@ export class Loot extends GameObject {
             result = this.pickUpTieredItem("helmet", p);
             playerDirty = true;
         } else if(Constants.bagSizes[this.typeString]) {
+            // if it is a bag
             const currentCount: number = p.inventory[this.typeString];
             const maxCapacity: number = Constants.bagSizes[this.typeString][p.backpackLevel];
             if(currentCount + this.count <= maxCapacity) {
@@ -89,6 +90,7 @@ export class Loot extends GameObject {
                 deleteItem = false;
             }
         } else {
+            // if it is a gun
             if(p.weapons.primaryGun.typeId === 0) {
                 p.weapons.primaryGun.typeString = this.typeString;
                 p.weapons.primaryGun.typeId = this.typeId;
@@ -99,9 +101,22 @@ export class Loot extends GameObject {
                 p.weapons.secondaryGun.typeId = this.typeId;
                 p.switchSlot(1);
                 p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
-            } else {
-                result = PickupMsgType.Full;
-            }
+            } else if(p.weapons.activeSlot === 0 || p.weapons.activeSlot === 1) {
+                const slotName = Player.slots[p.weapons.activeSlot];
+                const slot = p.weapons[slotName];
+                if(slot.typeString === this.typeString) result = PickupMsgType.AlreadyEquipped;
+                else {
+                    // create the swapped gun item
+                    const loot = new Loot(this.game, slot.typeString, p.position, p.layer, 1);
+                    this.game.objects.push(loot);
+                    this.game.fullDirtyObjects.push(loot);
+
+                    p.weapons[slotName].typeString = this.typeString;
+                    p.weapons[slotName].typeId = this.typeId;
+                    p.switchSlot(p.weapons.activeSlot);
+                    p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
+                }
+            } else result = PickupMsgType.Full;
             p.weaponsDirty = true;
             playerDirty = true;
         }
