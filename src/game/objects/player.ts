@@ -5,17 +5,17 @@ import {
     AllowedEmotes,
     AllowedHeal,
     AllowedMelee,
-    AllowedSkins, AmmoTypes,
+    AllowedSkins, AmmoTypes, CollisionRecord, CollisionType,
     Config,
     Constants,
     DamageType,
-    deepCopy,
+    deepCopy, degreesToRadians, distanceToCircle, distanceToRect,
     Emote,
     type Explosion, ItemSlot, MedTypes,
-    ObjectKind,
+    ObjectKind, randomFloat,
     removeFrom, ScopeTypes,
     SurvivBitStream,
-    TypeToId,
+    TypeToId, unitVecToRadians, vec2Rotate,
     Weapons,
     WeaponType
 } from "../../utils";
@@ -29,8 +29,22 @@ import { type Body, Circle, Vec2 } from "planck";
 import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPacket";
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
+import { Bullet } from "../bullet";
+import { Obstacle } from "./obstacle";
 
 export class Player extends GameObject {
+
+    isPlayer = true;
+    isObstacle = false;
+    isBullet = false;
+    isLoot = false;
+    collidesWith = {
+        player: false,
+        obstacle: true,
+        bullet: true,
+        loot: false
+    };
+
     socket: WebSocket<any>;
     map: Map;
 
@@ -436,6 +450,75 @@ export class Player extends GameObject {
         return Date.now() - this.activeWeapon.cooldown >= this.activeWeapon.cooldownDuration;
     }
 
+    useMelee(): void {
+        // Start punching animation
+        if(!this.animActive) {
+            this.animActive = true;
+            this.animType = 1;
+            this.animSeq = 1;
+            this.animTime = 0;
+            this.fullDirtyObjects.push(this);
+            this.fullDirtyObjects.push(this);
+        }
+
+        // If the player is punching anything, damage the closest object
+        let minDist = Number.MAX_VALUE;
+        let closestObject;
+
+        const weapon = Weapons[this.activeWeapon.typeString];
+        const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2(1, 0).mul(this.scale - 1));
+        const angle: number = unitVecToRadians(this.direction);
+
+        const position: Vec2 = this.position.clone().add(vec2Rotate(offset, angle));
+        const radius: number = weapon.attack.rad;
+
+        for(const object of this.visibleObjects) {
+            if(!object.dead && object !== this && object.layer === this.layer && object.damageable && object.body) {
+                let record: CollisionRecord;
+                if(object instanceof Obstacle) {
+                    if(object.collision.type === CollisionType.Circle) {
+                        record = distanceToCircle(object.position, object.collision.rad, position, radius);
+                    } else if(object.collision.type === CollisionType.Rectangle) {
+                        record = distanceToRect(object.collision.min, object.collision.max, position, radius);
+                    }
+                } else if(object instanceof Player) {
+                    record = distanceToCircle(object.position, object.scale, position, radius);
+                }
+                if(record!.collided && record!.distance < minDist) {
+                    minDist = record!.distance;
+                    closestObject = object;
+                }
+            }
+        }
+
+        if(closestObject) {
+            closestObject.damage(weapon.damage, this);
+            if(closestObject.interactable) closestObject.interact(this);
+        }
+    }
+
+    shootGun(): void {
+        const weapon = Weapons[this.activeWeapon.typeString];
+        const spread = degreesToRadians(weapon.shotSpread);
+        let shotFx = true;
+        for(let i = 0; i < weapon.bulletCount; i++) {
+            const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
+            const bullet: Bullet = new Bullet(
+                this,
+                Vec2(this.position.x + weapon.barrelLength * Math.cos(angle), this.position.y + weapon.barrelLength * Math.sin(angle)),
+                Vec2(Math.cos(angle), Math.sin(angle)),
+                weapon.bulletType,
+                this.activeWeapon.typeId,
+                shotFx,
+                this.layer,
+                this.game
+            );
+            this.game.bullets.push(bullet);
+            this.game.dirtyBullets.push(bullet);
+            shotFx = false;
+        }
+    }
+
     get health(): number {
         return this._health;
     }
@@ -549,10 +632,24 @@ export class Player extends GameObject {
             this.game.kills.push(new KillPacket(this, damageType, source, objectUsed));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
 
-            if(this.game.aliveCount === 1) {
-                const lastManStanding: Player = this.game.activePlayers[0];
-                lastManStanding.sendPacket(new GameOverPacket(lastManStanding, true));
-                setTimeout(() => this.game.end(), 2000);
+            // Winning logic
+            if(this.game.aliveCount <= 1) {
+                if(this.game.aliveCount === 1) {
+                    const lastManStanding: Player = this.game.activePlayers[0];
+
+                    // Send game over
+                    lastManStanding.sendPacket(new GameOverPacket(lastManStanding, true));
+
+                    // End the game in 750ms
+                    setTimeout(() => {
+                        if(lastManStanding.loadout.emotes[4] !== 0) { // Win emote
+                            this.game.emotes.push(new Emote(lastManStanding.id, lastManStanding.position, lastManStanding.loadout.emotes[4], false));
+                        }
+                        this.game.end();
+                    }, 750);
+                } else {
+                    setTimeout(() => this.game.end(), 750);
+                }
             }
         }
     }

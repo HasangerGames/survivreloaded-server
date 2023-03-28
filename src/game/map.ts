@@ -9,7 +9,7 @@ import {
     ObjectKind,
     Objects,
     random,
-    randomFloat,
+    randomFloat, randomPointInsideCircle,
     randomVec,
     rectCollision,
     rectRectCollision,
@@ -84,7 +84,7 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            // this.genBuildingTest("mansion_01", 0);
+            //this.genBuildingTest("bank_01", 0);
 
             // Items test
             // this.obstacleTest("crate_01", Vec2(453, 153), 1);

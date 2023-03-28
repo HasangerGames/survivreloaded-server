@@ -248,6 +248,7 @@ export class UpdatePacket extends SendingPacket {
                     stream.writeBoolean(bullet.trailThick);
                 }
             }
+            stream.writeAlignToNextByte();
         }
 
         // Explosions
@@ -272,7 +273,7 @@ export class UpdatePacket extends SendingPacket {
                 stream.writeGameType(0); // Item type
                 stream.writeBoolean(emote.isPing);
                 if(emote.isPing) stream.writeVec(emote.position, 0, 0, 1024, 1024, 16);
-                stream.writeBits(0, 1); // Padding
+                stream.writeBits(0, 3); // Padding
             }
             p.emotes = [];
         }

@@ -81,6 +81,9 @@
     "556mm": { "count": 60, "weight": 3 },
     "12gauge": { "count": 10, "weight": 3 }
   },
+  "tier_vending_soda": {
+    "soda": { "count": 1, "weight": 1 }
+  },
   "tier_shotgunsTest": {
     "mp220": { "count": 1, "weight": 1 }
   },
@@ -90,7 +93,7 @@
     "mk12": { "count": 1, "weight": 0.1 },
     "pkp": { "count": 1, "weight": 0.005 },
     "m249": { "count": 1, "weight": 0.006 },
-    "ak": { "count": 1, "weight": 2.7 },
+    "ak47": { "count": 1, "weight": 2.7 },
     "scar": { "count": 1, "weight": 0.01 },
     "dp28": { "count": 1, "weight": 0.5 },
     "mosin": { "count": 1, "weight": 0.1 },

@@ -22,6 +22,17 @@ import { Vec2 } from "planck";
 
 export class Obstacle extends GameObject {
 
+    isPlayer = false;
+    isObstacle = true;
+    isBullet = false;
+    isLoot = false;
+    collidesWith = {
+        player: true,
+        obstacle: false,
+        bullet: true,
+        loot: true
+    };
+
     minScale: number;
     maxScale: number;
 
@@ -122,8 +133,14 @@ export class Obstacle extends GameObject {
         if(data.loot) {
             this.loot = [];
             for(const loot of data.loot) {
-                const count: number = random(loot.min, loot.max);
-                for(let i = 0; i < count; i++) this.getLoot(loot.tier);
+                let count: number;
+                if(loot.type) {
+                    count = loot.count;
+                    for(let i = 0; i < count; i++) this.addLoot(loot.type, count);
+                } else {
+                    count = random(loot.min, loot.max);
+                    for(let i = 0; i < count; i++) this.getLoot(loot.tier);
+                }
             }
         }
     }
@@ -143,9 +160,21 @@ export class Obstacle extends GameObject {
         const selectedItem = weightedRandom(items, weights);
         if(lootTable.metaTier) this.getLoot(selectedItem);
         else {
-            this.loot.push(new Item(selectedItem, lootTable[selectedItem].count));
-            const weapon = Weapons[selectedItem];
-            if(weapon?.ammo) {
+            if(!TypeToId[selectedItem]) {
+                console.warn(`Unknown loot item: ${selectedItem}`);
+                return;
+            }
+            this.addLoot(selectedItem, lootTable[selectedItem].count);
+        }
+    }
+
+    private addLoot(type: string, count: number): void {
+        this.loot.push(new Item(type, count));
+        const weapon = Weapons[type];
+        if(weapon?.ammo) {
+            if(weapon.ammoSpawnCount === 1) {
+                this.loot.push(new Item(weapon.ammo, 1));
+            } else {
                 const count: number = weapon.ammoSpawnCount / 2;
                 this.loot.push(new Item(weapon.ammo, count));
                 this.loot.push(new Item(weapon.ammo, count));

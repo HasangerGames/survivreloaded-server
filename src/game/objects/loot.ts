@@ -14,6 +14,17 @@ import { Circle, Vec2 } from "planck";
 
 export class Loot extends GameObject {
 
+    isPlayer = false;
+    isObstacle = false;
+    isBullet = false;
+    isLoot = true;
+    collidesWith = {
+        player: false,
+        obstacle: true,
+        bullet: false,
+        loot: true
+    };
+
     count: number;
     interactable = true;
     interactionRad = 1;
@@ -58,6 +69,7 @@ export class Loot extends GameObject {
         let result: PickupMsgType = PickupMsgType.Success;
         let deleteItem = true;
         let playerDirty = false;
+        let ignore = false;
         if(this.typeString.endsWith("scope")) {
             if(p.inventory[this.typeString] > 0) result = PickupMsgType.AlreadyEquipped;
             else {
@@ -116,7 +128,7 @@ export class Loot extends GameObject {
                     p.switchSlot(p.weapons.activeSlot);
                     p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
                 }
-            } else result = PickupMsgType.Full;
+            } else ignore = true;
             p.weaponsDirty = true;
             playerDirty = true;
         }
@@ -124,7 +136,7 @@ export class Loot extends GameObject {
         if(!(p.isMobile && result !== PickupMsgType.Success)) {
             p.sendPacket(new PickupPacket(this.typeString!, this.count, result!));
         }
-        if(result! === PickupMsgType.Success) {
+        if(result! === PickupMsgType.Success && !ignore) {
             if(deleteItem) {
                 removeFrom(this.game.objects, this);
                 removeFrom(this.game.loot, this);

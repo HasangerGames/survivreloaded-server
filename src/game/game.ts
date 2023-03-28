@@ -41,6 +41,7 @@ import { Obstacle } from "./objects/obstacle";
 import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
+import exp from "constants";
 
 export class Game {
 
@@ -102,10 +103,9 @@ export class Game {
         damage: 0
     };
 
-    ticksSinceLastGasDamage = 0;
-
     gasDirty = false;
     gasCircleDirty = false;
+    ticksSinceLastGasDamage = 0;
 
     over = false; // Whether this game is over. This is set to true to stop the tick loop.
     started = false; // Whether there are more than 2 players, meaning the game has started.
@@ -148,14 +148,17 @@ export class Game {
 
         // Collision filtering code:
         // - Players should collide with obstacles, but not with each other or with loot.
-        // - Loot should collide with obstacles and other loot.
+        // - Bullets should collide with players and obstacles, but not with each other or with loot.
+        // - Loot should only collide with obstacles and other loot.
         Fixture.prototype.shouldCollide = function(that): boolean {
             const thisObject: any = this.getUserData();
             const thatObject: any = that.getUserData();
             if(thisObject.layer !== thatObject.layer) return false;
-            if(thisObject.kind === ObjectKind.Player) return thatObject.kind === ObjectKind.Obstacle || thatObject.isBullet;
-            else if(thisObject.isBullet) return thatObject.kind === ObjectKind.Player || thatObject.kind === ObjectKind.Obstacle;
-            else if(thisObject.kind === ObjectKind.Loot) return thatObject.kind === ObjectKind.Obstacle || thatObject.kind === ObjectKind.Loot;
+
+            if(thisObject.isPlayer) return thatObject.collidesWith.player;
+            else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;
+            else if(thisObject.isBullet) return thatObject.collidesWith.bullet;
+            else if(thisObject.isLoot) return thatObject.collidesWith.loot;
             else return false;
         };
 
@@ -237,15 +240,14 @@ export class Game {
                 if(p.isMobile) {
                     p.setVelocity(p.touchMoveDir.x * p.speed, p.touchMoveDir.y * p.speed);
                 } else {
-                    if(p.movingUp && p.movingLeft) p.setVelocity(-p.diagonalSpeed, p.diagonalSpeed);
-                    else if(p.movingUp && p.movingRight) p.setVelocity(p.diagonalSpeed, p.diagonalSpeed);
-                    else if(p.movingDown && p.movingLeft) p.setVelocity(-p.diagonalSpeed, -p.diagonalSpeed);
-                    else if(p.movingDown && p.movingRight) p.setVelocity(p.diagonalSpeed, -p.diagonalSpeed);
-                    else if(p.movingUp) p.setVelocity(0, p.speed);
-                    else if(p.movingDown) p.setVelocity(0, -p.speed);
-                    else if(p.movingLeft) p.setVelocity(-p.speed, 0);
-                    else if(p.movingRight) p.setVelocity(p.speed, 0);
-                    else p.setVelocity(0, 0);
+                    // This system allows opposite movement keys to cancel each other out.
+                    let xMovement = 0, yMovement = 0;
+                    if(p.movingUp) yMovement++;
+                    if(p.movingDown) yMovement--;
+                    if(p.movingLeft) xMovement--;
+                    if(p.movingRight) xMovement++;
+                    const speed: number = (xMovement !== 0 && yMovement !== 0) ? p.diagonalSpeed : p.speed;
+                    p.setVelocity(xMovement * speed, yMovement * speed);
                 }
 
                 // Pick up nearby items if on mobile
@@ -308,90 +310,15 @@ export class Game {
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         if(p.activeWeapon.weaponType === WeaponType.Melee) { // Melee logic
-                            // Start punching animation
-                            if(!p.animActive) {
-                                p.animActive = true;
-                                p.animType = 1;
-                                p.animSeq = 1;
-                                p.animTime = 0;
-                                this.fullDirtyObjects.push(p);
-                                p.fullDirtyObjects.push(p);
-                            }
-
-                            // If the player is punching anything, damage the closest object
-                            let minDist = Number.MAX_VALUE;
-                            let closestObject;
-                            const weapon = Weapons[p.weapons.melee.typeString];
-                            const radius: number = weapon.attack.rad;
-                            const angle: number = unitVecToRadians(p.direction);
-                            const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2(1, 0).mul(p.scale - 1));
-                            const position: Vec2 = p.position.clone().add(vec2Rotate(offset, angle));
-                            for(const object of p.visibleObjects) {
-                                if(object.body && !object.dead && object !== p && (object.damageable || (object instanceof Obstacle && object.destructible))) {
-                                    let record: CollisionRecord;
-                                    if(object instanceof Obstacle) {
-                                        if(object.collision.type === CollisionType.Circle) {
-                                            record = distanceToCircle(object.position, object.collision.rad, position, radius);
-                                        } else if(object.collision.type === CollisionType.Rectangle) {
-                                            record = distanceToRect(object.collision.min, object.collision.max, position, radius);
-                                        }
-                                    } else if(object instanceof Player) {
-                                        record = distanceToCircle(object.position, object.scale, position, radius);
-                                    }
-                                    if(record!.collided && record!.distance < minDist) {
-                                        minDist = record!.distance;
-                                        closestObject = object;
-                                    }
-                                }
-                            }
-                            if(closestObject) {
-                                closestObject.damage(24, p);
-                                if(closestObject.interactable) closestObject.interact(p);
-                            }
-                        } else if(p.activeWeapon.weaponType === WeaponType.Gun) { // Gun logic
-                            const weapon = Weapons[p.activeWeapon.typeString];
-                            const spread = degreesToRadians(weapon.shotSpread);
-                            let shotFx = true;
-                            for(let i = 0; i < weapon.bulletCount; i++) {
-                                const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
-                                const bullet: Bullet = new Bullet(
-                                    p,
-                                    Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
-                                    Vec2(Math.cos(angle), Math.sin(angle)),
-                                    weapon.bulletType,
-                                    p.activeWeapon.typeId,
-                                    shotFx,
-                                    0,
-                                    this
-                                );
-                                this.bullets.push(bullet);
-                                this.dirtyBullets.push(bullet);
-                                shotFx = false;
-                            }
+                            p.useMelee();
+                        } else if(p.activeWeapon.weaponType === WeaponType.Gun) {
+                            p.shootGun();
                         }
                     }
                 } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && Weapons[p.activeWeapon.typeString].fireMode === "auto") {
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
-                        const weapon = Weapons[p.activeWeapon.typeString];
-                        const spread = degreesToRadians(weapon.shotSpread);
-                        let shotFx = true;
-                        for(let i = 0; i < weapon.bulletCount; i++) {
-                            const angle = unitVecToRadians(p.direction) + randomFloat(-spread, spread);
-                            const bullet: Bullet = new Bullet(
-                                p,
-                                Vec2(p.position.x + weapon.barrelLength * Math.cos(angle), p.position.y + weapon.barrelLength * Math.sin(angle)),
-                                Vec2(Math.cos(angle), Math.sin(angle)),
-                                weapon.bulletType,
-                                p.activeWeapon.typeId,
-                                shotFx,
-                                0,
-                                this
-                            );
-                            this.bullets.push(bullet);
-                            this.dirtyBullets.push(bullet);
-                            shotFx = false;
-                        }
+                        p.shootGun();
                     }
                 }
 
@@ -404,7 +331,7 @@ export class Game {
                     p.animType = p.animSeq = 0;
                     p.animTime = -1;
                 } else if(p.moving) {
-                    p.game?.partialDirtyObjects.push(p);
+                    p.game.partialDirtyObjects.push(p);
                     p.partialDirtyObjects.push(p);
                 }
                 p.moving = false;
@@ -426,11 +353,15 @@ export class Game {
 
                 // Emotes
                 // TODO Determine which emotes should be sent to the client
-                if(this.emotes.length) p.emotes = this.emotes;
+                if(this.emotes.length) {
+                    for(const emote of this.emotes) p.emotes.push(emote);
+                }
 
                 // Explosions
                 // TODO Determine which explosions should be sent to the client
-                if(this.explosions.length) p.explosions = this.explosions;
+                if(this.explosions.length) {
+                    for(const explosion of this.explosions) p.explosions.push(explosion);
+                }
 
                 // Full objects
                 if(this.fullDirtyObjects.length) {
@@ -514,7 +445,6 @@ export class Game {
     }
 
     isInRedZone(position: Vec2): boolean {
-        if(this.gas.currentRad < 1) return false;
         return distanceBetween(position, this.gas.currentPos) >= this.gas.currentRad;
     }
 

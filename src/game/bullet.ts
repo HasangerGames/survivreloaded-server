@@ -4,7 +4,17 @@ import { type Game } from "./game";
 import { type Player } from "./objects/player";
 
 export class Bullet {
+
+    isPlayer = false;
+    isObstacle = false;
     isBullet = true;
+    isLoot = false;
+    collidesWith = {
+        player: true,
+        obstacle: true,
+        bullet: false,
+        loot: false
+    };
 
     body: Body;
 
