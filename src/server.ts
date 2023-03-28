@@ -10,7 +10,7 @@ import { JoinPacket } from "./packets/receiving/joinPacket";
 import { DropItemPacket } from "./packets/receiving/dropItemPacket";
 
 // Start the game
-const game = new Game();
+let game = new Game();
 
 // Initialize the server
 let app;
@@ -177,6 +177,7 @@ app.ws("/play", {
         }
     },
     open: (socket) => {
+        if(game.over) game = new Game(); // Start a new game if the old one is over
         let playerName: string = socket.cookies["player-name"];
         if(!playerName || playerName.length > 16) playerName = "Player";
         socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);

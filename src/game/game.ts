@@ -514,6 +514,7 @@ export class Game {
     }
 
     isInRedZone(position: Vec2): boolean {
+        if(this.gas.currentRad < 1) return false;
         return distanceBetween(position, this.gas.currentPos) >= this.gas.currentRad;
     }
 
@@ -625,7 +626,10 @@ export class Game {
     }
 
     end(): void {
-        this.over = false;
+        this.over = true;
+        for(const p of this.connectedPlayers) {
+            if(!p.disconnected) p.socket.close();
+        }
     }
 
     get nextObjectId(): number {

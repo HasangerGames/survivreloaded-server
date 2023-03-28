@@ -480,7 +480,7 @@ export class Player extends GameObject {
             if(this.game.aliveCount === 1) {
                 const lastManStanding: Player = this.game.activePlayers[0];
                 lastManStanding.sendPacket(new GameOverPacket(lastManStanding, true));
-                this.game.over = true;
+                setTimeout(() => this.game.end(), 2000);
             }
         }
     }
