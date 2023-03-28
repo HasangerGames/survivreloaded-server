@@ -5,15 +5,15 @@ import {
     AllowedEmotes,
     AllowedHeal,
     AllowedMelee,
-    AllowedSkins,
+    AllowedSkins, AmmoTypes,
     Config,
     Constants,
     DamageType,
     deepCopy,
     Emote,
-    type Explosion,
+    type Explosion, ItemSlot, MedTypes,
     ObjectKind,
-    removeFrom,
+    removeFrom, ScopeTypes,
     SurvivBitStream,
     TypeToId,
     Weapons,
@@ -28,7 +28,7 @@ import { GameObject } from "../gameObject";
 import { type Body, Circle, Vec2 } from "planck";
 import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPacket";
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
-import { Loot } from "./loot";
+import { Loot, splitUpLoot } from "./loot";
 
 export class Player extends GameObject {
     socket: WebSocket<any>;
@@ -329,9 +329,10 @@ export class Player extends GameObject {
 
     dropItemInSlot(slot: number, item: string): void {
         const slotIndex = Player.slots[slot];
+        // For guns
         if(this.weapons[slotIndex].typeString === item) {
             // Only drop the gun if it's the same as the one we have, AND it's in the primary slot
-            if(slot === 2) { // Melee
+            if(slot === ItemSlot.Melee) {
                 this.weapons[slotIndex] = {
                     typeString: "fists",
                     typeId: TypeToId.fists,
@@ -349,6 +350,77 @@ export class Player extends GameObject {
             const loot = new Loot(this.game, item, this.position, this.layer, 1);
             this.game.objects.push(loot);
             this.game.fullDirtyObjects.push(loot);
+        }
+        // For individual items
+        if(slot === ItemSlot.Primary) {
+            const inventoryCount = this.inventory[item];
+
+            const isHelmet = item.startsWith("helmet");
+            const isVest = item.startsWith("chest");
+
+            if(isHelmet || isVest) {
+                if(isHelmet) {
+                    const level = this.helmetLevel;
+                    if(level === 0) return;
+
+                    const loot = new Loot(this.game, `helmet0${this.helmetLevel}`, this.position, this.layer, 1);
+                    this.helmetLevel = 0;
+
+                    this.fullDirtyObjects.push(this);
+                    this.game.objects.push(loot);
+                    this.game.fullDirtyObjects.push(loot, this);
+                } else {
+                    const level = this.chestLevel;
+                    if(level === 0) return;
+
+                    const loot = new Loot(this.game, `chest0${this.chestLevel}`, this.position, this.layer, 1);
+                    this.chestLevel = 0;
+
+                    this.fullDirtyObjects.push(this);
+                    this.game.objects.push(loot);
+                    this.game.fullDirtyObjects.push(loot, this);
+                }
+            }
+
+            if(inventoryCount) {
+                const isAmmo = AmmoTypes.includes(item);
+                const isMed = MedTypes.includes(item);
+                const isScope = ScopeTypes.includes(item);
+
+                if(isScope) {
+                    if(inventoryCount === "1xscope") return;
+                    let scopeToSwitchTo: string = ScopeTypes[ScopeTypes.indexOf(item) - 1];
+
+                    let timeout = 0;
+                    while(!this.inventory[scopeToSwitchTo]) {
+                        scopeToSwitchTo = ScopeTypes[ScopeTypes.indexOf(scopeToSwitchTo) - 1];
+                        if(++timeout > 8) return;
+                    }
+
+                    this.inventoryDirty = true;
+                    this.inventory[item] = 0;
+
+                    const loot = new Loot(this.game, item, this.position, this.layer, 1);
+                    this.game.objects.push(loot);
+                    this.game.fullDirtyObjects.push(loot);
+                    return this.setScope(scopeToSwitchTo);
+                }
+
+                let amountToDrop = Math.floor(inventoryCount / 2);
+                if(isMed && inventoryCount <= 3) amountToDrop = Math.ceil(inventoryCount / 2);
+
+                amountToDrop = Math.max(1, amountToDrop);
+                if(amountToDrop < 5 && isAmmo) amountToDrop = Math.min(5, inventoryCount);
+
+                this.inventory[item] = inventoryCount - amountToDrop;
+
+                this.inventoryDirty = true;
+                const loot = splitUpLoot(this, item, amountToDrop);
+                for(const l of loot) {
+                    this.game.objects.push(l);
+                    this.game.fullDirtyObjects.push(l);
+                }
+            }
         }
     }
 

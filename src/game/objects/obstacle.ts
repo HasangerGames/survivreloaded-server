@@ -18,7 +18,7 @@ import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
 import { Vec2 } from "planck";
 
-enum DoorOpenState { Closed, Open, OpenAlt }
+// enum DoorOpenState { Closed, Open, OpenAlt }
 
 export class Obstacle extends GameObject {
 
