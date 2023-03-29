@@ -16,7 +16,7 @@ export class DropItemPacket extends ReceivingPacket {
                 break;
             case ItemSlot.Melee:
                 if(item === "fists") break;
-                this.p.dropItemInSlot(2, item);
+                //this.p.dropItemInSlot(2, item);
                 break;
             default:
                 break;

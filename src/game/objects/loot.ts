@@ -110,7 +110,7 @@ export class Loot extends GameObject {
             if(p.activeWeapon.ammo === 0 && this.typeString === p.activeWeaponInfo.ammo) p.reload();
         } else if(Weapons[this.typeString]?.type === "melee") {
             if(p.weapons[2].typeString !== "fists") {
-                p.dropItemInSlot(2, p.weapons[2].typeString, true);
+                //p.dropItemInSlot(2, p.weapons[2].typeString, true);
             } // TODO Do item type check in drop item packet, not in drop item method
             p.weapons[2].typeString = this.typeString;
             p.weapons[2].typeId = this.typeId;
