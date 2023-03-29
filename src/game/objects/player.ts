@@ -332,6 +332,10 @@ export class Player extends GameObject {
     }
 
     switchSlot(slot: number): void {
+        if(!this.weapons[slot]) {
+            console.warn("No weapon in slot: " + slot);
+            return;
+        }
         if(this.weapons[slot].typeId === 0) return;
         this.cancelAction();
         this.selectedWeaponSlot = slot;

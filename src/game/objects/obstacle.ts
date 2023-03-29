@@ -10,7 +10,7 @@ import {
     type SurvivBitStream,
     TypeToId, Weapons,
     weightedRandom,
-    rotateRect, deepCopy
+    rotateRect, deepCopy, Items
 } from "../../utils";
 import { type Game } from "../game";
 import { type Player } from "./player";
@@ -160,10 +160,6 @@ export class Obstacle extends GameObject {
         const selectedItem = weightedRandom(items, weights);
         if(lootTable.metaTier) this.getLoot(selectedItem);
         else {
-            if(!TypeToId[selectedItem]) {
-                console.warn(`Unknown loot item: ${selectedItem}`);
-                return;
-            }
             this.addLoot(selectedItem, lootTable[selectedItem].count);
         }
     }

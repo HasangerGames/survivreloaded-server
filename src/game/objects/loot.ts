@@ -36,6 +36,10 @@ export class Loot extends GameObject {
                 position: Vec2,
                 layer: number,
                 count: number) {
+        if(!Items[typeString] && !Weapons[typeString]) {
+            console.warn(`Unknown loot item: ${typeString}`);
+            typeString = "9mm";
+        }
         super(game, typeString, position, layer);
         this.kind = ObjectKind.Loot;
         this.count = count;
