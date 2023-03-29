@@ -39,6 +39,7 @@ export class Loot extends GameObject {
         if(!TypeToId[typeString]) {
             log(`[WARNING] Unknown loot item: ${typeString}`);
             typeString = "9mm";
+            count = 60;
         }
         super(game, typeString, position, layer);
         this.kind = ObjectKind.Loot;
