@@ -84,6 +84,7 @@ export class Player extends GameObject {
     movingLeft = false;
     movingRight = false;
 
+    shooting = false;
     shootStart = false;
     shootHold = false;
 
@@ -582,6 +583,7 @@ export class Player extends GameObject {
     }
 
     reload(): void {
+        if(this.activeWeapon.weaponType !== WeaponType.Gun || !this.shooting) return;
         const weaponInfo = this.activeWeaponInfo;
         if(this.activeWeapon.ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
             this.doAction(this.activeWeapon.typeString, weaponInfo.reloadTime, Constants.Action.Reload, true);

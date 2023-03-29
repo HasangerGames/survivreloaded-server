@@ -14,7 +14,6 @@
     "tier_armor": { "count": 1, "weight": 0.1 },
     "tier_packs": { "count": 1, "weight": 0.09 },
     "tier_medical": { "count": 1, "weight": 0.17 },
-    "tier_throwables": { "count": 1, "weight": 0.05 },
     "tier_ammo": { "count": 1, "weight": 0.04 },
     "tier_guns": { "count": 1, "weight": 0.20 }
   },
@@ -24,7 +23,6 @@
     "tier_armor": { "count": 1, "weight": 0.2 },
     "tier_packs": { "count": 1, "weight": 0.2 },
     "tier_medical": { "count": 1, "weight": 0.2 },
-    "tier_throwables": { "count": 1, "weight": 0.1 },
     "tier_ammo": { "count": 1, "weight": 0.1 }
   },
   "tier_soviet": {
@@ -33,7 +31,6 @@
     "tier_armor": { "count": 1, "weight": 1 },
     "tier_packs": { "count": 1, "weight": 1 },
     "tier_medical": { "count": 1, "weight": 1.5 },
-    "tier_throwables": { "count": 1, "weight": 0.8 },
     "tier_ammo": { "count": 1, "weight": 1 },
     "tier_guns": { "count": 1, "weight": 4 }
   },
@@ -41,8 +38,7 @@
     "metaTier": true,
     "tier_scopes": { "count": 1, "weight": 0.1 },
     "tier_guns": { "count": 1, "weight": 0.2 },
-    "tier_medical": { "count": 1, "weight": 0.6 },
-    "tier_throwables": { "count": 1, "weight": 0.1 }
+    "tier_medical": { "count": 1, "weight": 0.6 }
   },
   "tier_scopes": {
     "2xscope": { "count": 1, "weight": 0.75 },
