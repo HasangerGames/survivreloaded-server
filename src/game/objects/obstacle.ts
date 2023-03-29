@@ -158,8 +158,9 @@ export class Obstacle extends GameObject {
             weights.push(lootTable[item].weight);
         }
         const selectedItem = weightedRandom(items, weights);
-        if(lootTable.metaTier) this.getLoot(selectedItem);
-        else {
+        if(lootTable.metaTier) {
+            this.getLoot(selectedItem);
+        } else {
             this.addLoot(selectedItem, lootTable[selectedItem].count);
         }
     }

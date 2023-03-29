@@ -1,9 +1,9 @@
 import {
     Constants,
-    Items,
+    Items, log,
     ObjectKind,
     removeFrom,
-    type SurvivBitStream,
+    type SurvivBitStream, TypeToId,
     Weapons
 } from "../../utils";
 import { type Game } from "../game";
@@ -36,8 +36,8 @@ export class Loot extends GameObject {
                 position: Vec2,
                 layer: number,
                 count: number) {
-        if(!Items[typeString] && !Weapons[typeString]) {
-            console.warn(`Unknown loot item: ${typeString}`);
+        if(!TypeToId[typeString]) {
+            log(`[WARNING] Unknown loot item: ${typeString}`);
             typeString = "9mm";
         }
         super(game, typeString, position, layer);
