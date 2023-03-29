@@ -587,7 +587,7 @@ export class Player extends GameObject {
     }
 
     reload(): void {
-        //if(this.shooting) return;
+        if(this.shooting) return;
         const weaponInfo = this.activeWeaponInfo;
         if(this.activeWeapon.ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
             this.doAction(this.activeWeapon.typeString, weaponInfo.reloadTime, Constants.Action.Reload, true);
