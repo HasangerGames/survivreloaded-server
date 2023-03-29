@@ -526,7 +526,12 @@ export class Player extends GameObject {
     }
 
     shootGun(): void {
-        if(this.activeWeapon.ammo === 0) return;
+        if(this.activeWeapon.ammo === 0) {
+            this.shooting = false;
+            this.reload();
+            return;
+        }
+        this.shooting = true;
         const weapon = Weapons[this.activeWeapon.typeString];
         const spread = degreesToRadians(weapon.shotSpread);
         let shotFx = true;
@@ -548,7 +553,6 @@ export class Player extends GameObject {
         }
         this.activeWeapon.ammo--;
         this.weaponsDirty = true;
-        if(this.activeWeapon.ammo === 0) this.reload();
     }
 
     doAction(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
@@ -583,7 +587,7 @@ export class Player extends GameObject {
     }
 
     reload(): void {
-        if(this.activeWeapon.weaponType !== WeaponType.Gun || !this.shooting) return;
+        //if(this.shooting) return;
         const weaponInfo = this.activeWeaponInfo;
         if(this.activeWeapon.ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
             this.doAction(this.activeWeapon.typeString, weaponInfo.reloadTime, Constants.Action.Reload, true);

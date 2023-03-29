@@ -5,8 +5,8 @@
     "tier_armor": { "count": 1, "weight": 1 },
     "tier_packs": { "count": 1, "weight": 1 },
     "tier_medical": { "count": 1, "weight": 1 },
-    "tier_ammo": { "count": 1, "weight": 0.75 },
-    "tier_guns": { "count": 1, "weight": 2.25 }
+    "tier_ammo": { "count": 1, "weight": 0.55 },
+    "tier_guns": { "count": 1, "weight": 2.2 }
   },
   "tier_container": {
     "metaTier": true,

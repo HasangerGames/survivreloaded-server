@@ -116,29 +116,34 @@ export class Loot extends GameObject {
             p.weapons[2].typeId = this.typeId;
             p.switchSlot(2);
         } else {
+            let slotSwitchingTo: number;
             // if it is a gun
             if(p.weapons[0].typeId === 0) {
                 p.weapons[0].typeString = this.typeString;
                 p.weapons[0].typeId = this.typeId;
-                p.switchSlot(0);
+                slotSwitchingTo = 0;
             } else if(p.weapons[0].typeId !== 0 && p.weapons[1].typeId === 0) {
                 p.weapons[1].typeString = this.typeString;
                 p.weapons[1].typeId = this.typeId;
-                p.switchSlot(1);
+                slotSwitchingTo = 1;
             } else if(p.selectedWeaponSlot === 0 || p.selectedWeaponSlot === 1) {
                 if(p.activeWeapon.typeString === this.typeString) ignore = true;
                 else {
                     p.dropItemInSlot(p.selectedWeaponSlot, p.activeWeapon.typeString, true);
                     p.activeWeapon.typeString = this.typeString;
                     p.activeWeapon.typeId = this.typeId;
-                    p.switchSlot(p.selectedWeaponSlot);
+                    slotSwitchingTo = p.selectedWeaponSlot;
                 }
             } else ignore = true;
-            p.weaponsDirty = true;
-            playerDirty = true;
+            if(!ignore) {
+                p.weaponsDirty = true;
+                playerDirty = true;
+                p.cancelAction();
+                p.switchSlot(slotSwitchingTo!);
+            }
         }
 
-        if(!(p.isMobile && result !== PickupMsgType.Success)) {
+        if(!(p.isMobile && result !== PickupMsgType.Success) && !ignore) {
             p.sendPacket(new PickupPacket(this.typeString!, this.count, result!));
         }
         if(result! === PickupMsgType.Success && !ignore) {

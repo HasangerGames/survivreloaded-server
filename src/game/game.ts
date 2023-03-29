@@ -313,7 +313,6 @@ export class Game {
                 // Weapon logic
                 if(p.shootStart) {
                     p.shootStart = false;
-                    p.shooting = true;
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         if(p.activeWeapon.weaponType === WeaponType.Melee) { // Melee logic
@@ -323,7 +322,6 @@ export class Game {
                         }
                     }
                 } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && Weapons[p.activeWeapon.typeString].fireMode === "auto") {
-                    p.shooting = true;
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         p.shootGun();
