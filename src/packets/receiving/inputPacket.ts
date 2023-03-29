@@ -79,10 +79,10 @@ export class InputPacket extends ReceivingPacket {
                     p.switchSlot(2);
                     break;
                 case InputType.EquipPrevWeap:
-                    p.switchSlot((p.selectedWeaponSlot - 1) % 4);
+                    p.switchSlot(p.selectedWeaponSlot - 1, true);
                     break;
                 case InputType.EquipNextWeap:
-                    p.switchSlot((p.selectedWeaponSlot + 1) % 4);
+                    p.switchSlot(p.selectedWeaponSlot + 1, true);
                     break;
                 case InputType.SwapWeapSlots:
                     p.swapWeaponSlots();

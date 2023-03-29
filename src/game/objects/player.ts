@@ -44,7 +44,7 @@ import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import { Obstacle } from "./obstacle";
-import { Building } from "./building";
+// import { Building } from "./building";
 
 export class Player extends GameObject {
 
@@ -332,17 +332,24 @@ export class Player extends GameObject {
         return Weapons[this.activeWeapon.typeString];
     }
 
-    switchSlot(slot: number): void {
-        if(!this.weapons[slot]) {
-            console.warn("No weapon in slot: " + slot);
-            return;
-        }
-        if(this.weapons[slot].typeId === 0) return;
+    switchSlot(slot: number, skipSlots?: boolean): void {
+        let chosenSlot = slot;
+        if(!this.weapons[chosenSlot]?.typeId && skipSlots) {
+            const wrapSlots = (n: number): number => ((n % 4) + 4) % 4;
+
+            if(!this.weapons[0].typeId && !this.weapons[1].typeId) return;
+            const direction = this.selectedWeaponSlot < slot ? 1 : -1;
+            chosenSlot = wrapSlots(chosenSlot + direction);
+            while(!this.weapons[chosenSlot]?.typeId) {
+                chosenSlot = wrapSlots(chosenSlot + direction);
+            }
+        } else if(!this.weapons[chosenSlot]?.typeId) return;
+
         this.cancelAction();
-        this.selectedWeaponSlot = slot;
-        if(slot === 2) this.activeWeapon.cooldownDuration = this.activeWeaponInfo.attack.cooldownTime * 1000;
+        this.selectedWeaponSlot = chosenSlot;
+        if(chosenSlot === 2) this.activeWeapon.cooldownDuration = this.activeWeaponInfo.attack.cooldownTime * 1000;
         else this.activeWeapon.cooldownDuration = this.activeWeaponInfo.fireDelay * 1000;
-        if((slot === 0 || slot === 1) && this.activeWeapon.ammo === 0) this.reload();
+        if((chosenSlot === 0 || chosenSlot === 1) && this.activeWeapon.ammo === 0) this.reload();
         this.weaponsDirty = true;
         this.game!.fullDirtyObjects.push(this);
         this.fullDirtyObjects.push(this);
