@@ -207,6 +207,7 @@ export class Player extends GameObject {
     ];
 
     selectedWeaponSlot = 2;
+    lastWeaponSlot = 2;
 
     actionItem: {
         typeString: string
@@ -346,10 +347,13 @@ export class Player extends GameObject {
         } else if(!this.weapons[chosenSlot]?.typeId) return;
 
         this.cancelAction();
+        this.lastWeaponSlot = this.selectedWeaponSlot;
         this.selectedWeaponSlot = chosenSlot;
         if(chosenSlot === 2) this.activeWeapon.cooldownDuration = this.activeWeaponInfo.attack.cooldownTime * 1000;
+
         else this.activeWeapon.cooldownDuration = this.activeWeaponInfo.fireDelay * 1000;
         if((chosenSlot === 0 || chosenSlot === 1) && this.activeWeapon.ammo === 0) this.reload();
+
         this.weaponsDirty = true;
         this.game!.fullDirtyObjects.push(this);
         this.fullDirtyObjects.push(this);
