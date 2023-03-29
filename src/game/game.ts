@@ -532,7 +532,7 @@ export class Game {
         }
 
         // Auto-restart the server after 5 seconds if the red zone shrinks completely
-        if(game.gas.stage >= RedZoneStages.length - 1) {
+        if(game.gas.stage >= RedZoneStages.length) {
             setTimeout(() => game.end(), 5000);
         }
 
