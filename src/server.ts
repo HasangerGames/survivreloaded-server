@@ -140,7 +140,9 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        if(Config.botProtection) {
+        if(!game.allowJoin) {
+            res.endWithoutBody(0, true);
+        } else if(Config.botProtection) {
             const ip = req.getHeader("cf-connecting-ip");
             if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 30) {
                 if(!bannedIPs.includes(ip)) bannedIPs.push(ip);

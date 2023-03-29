@@ -99,6 +99,7 @@ export class Game {
 
     over = false; // Whether this game is over. This is set to true to stop the tick loop.
     started = false; // Whether there are more than 2 players, meaning the game has started.
+    allowJoin = true; // Whether new players should be able to join
 
     /**
      * Creates a new Game. Doesn't take any arguments.
@@ -258,13 +259,13 @@ export class Game {
                 }
 
                 // Pick up nearby items if on mobile
-                if(p.isMobile) {
+                /*if(p.isMobile) {
                     for(const object of p.visibleObjects) {
                         if(object instanceof Loot && distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
                             object.interact(p);
                         }
                     }
-                }
+                }*/
 
                 // Drain adrenaline
                 if(p.boost > 0) p.boost -= 0.01136;
@@ -524,6 +525,13 @@ export class Game {
         game.gas.damage = currentStage.damage;
         game.gasDirty = true;
         game.gasCircleDirty = true;
+
+        // Prevent new players from joining if the game has progressed far enough
+        if(game.gas.stage >= RedZoneStages.length - 2) {
+            game.allowJoin = false;
+        }
+
+        // Start the next stage
         if(currentStage.duration !== 0) {
             setTimeout(() => Game.advanceRedZone(game), currentStage.duration * 1000);
         }
