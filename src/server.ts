@@ -142,7 +142,7 @@ app.ws("/play", {
     upgrade: (res, req, context) => {
         if(Config.botProtection) {
             const ip = req.getHeader("cf-connecting-ip");
-            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 15) {
+            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 30) {
                 if(!bannedIPs.includes(ip)) bannedIPs.push(ip);
                 res.endWithoutBody(0, true);
                 log(`Connection blocked: ${ip}`);
