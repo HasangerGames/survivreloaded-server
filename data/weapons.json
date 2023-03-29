@@ -944,7 +944,7 @@
     "extendedClip": 40,
     "extendedReload": 40,
     "reloadTime": 2.5,
-    "fireDelay": 0.1,
+    "fireDelay": 0.07,
     "switchDelay": 0.75,
     "barrelLength": 3.15,
     "barrelOffset": 0,
