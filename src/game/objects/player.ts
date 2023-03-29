@@ -685,6 +685,9 @@ export class Player extends GameObject {
             this.game.fullDirtyObjects.push(deadBody);
 
             // Drop loot
+            this.dropItemInSlot(0, this.weapons[0].typeString, true);
+            this.dropItemInSlot(1, this.weapons[1].typeString, true);
+            if(this.weapons[2].typeString !== "fists") this.dropItemInSlot(2, this.weapons[2].typeString, true);
             for(const item in this.inventory) {
                 if(item === "1xscope") continue;
                 if(this.inventory[item] > 0) this.dropLoot(item);
@@ -695,9 +698,6 @@ export class Player extends GameObject {
             this.selectedWeaponSlot = 2;
             this.weaponsDirty = true;
             this.inventoryDirty = true;
-            this.dropItemInSlot(0, this.weapons[0].typeString, true);
-            this.dropItemInSlot(1, this.weapons[1].typeString, true);
-            if(this.weapons[2].typeString !== "fists") this.dropItemInSlot(2, this.weapons[2].typeString, true);
 
             // Remove from active players; send packets
             removeFrom(this.game.activePlayers, this);

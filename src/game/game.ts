@@ -457,6 +457,7 @@ export class Game {
     addPlayer(socket, name, loadout): Player {
         let spawnPosition;
         if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
+        else if(this.gas.currentRad <= 16) spawnPosition = this.gas.currentPos.clone();
         else {
             let foundPosition = false;
             while(!foundPosition) {
