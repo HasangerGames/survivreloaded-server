@@ -787,7 +787,7 @@ export class Player extends GameObject {
                     this.fullDirtyObjects.push(object);
                 }
             } else {
-                if(this.visibleObjects.includes(object)) {
+                if(this.visibleObjects.includes(object) && !(object instanceof Player)) {
                     this.deletedObjects.push(object);
                 }
             }
