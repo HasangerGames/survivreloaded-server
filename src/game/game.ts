@@ -476,6 +476,11 @@ export class Game {
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
         p.updateVisibleObjects();
+        for(const player of this.players) {
+            if(player === p) continue;
+            player.fullDirtyObjects.push(p);
+            p.fullDirtyObjects.push(player);
+        }
         p.fullDirtyObjects.push(p);
 
         p.sendPacket(new JoinedPacket(p));
