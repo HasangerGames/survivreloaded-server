@@ -1,29 +1,21 @@
 import crypto from "crypto";
 import {
     Bullets,
-    type CollisionRecord,
-    CollisionType,
     Constants,
     DamageRecord,
     DamageType,
     Debug,
-    degreesToRadians,
     distanceBetween,
-    distanceToCircle,
-    distanceToRect,
     type Emote,
     type Explosion,
     lerp,
     log,
     ObjectKind,
-    randomFloat,
     randomPointInsideCircle,
     RedZoneStages,
     removeFrom,
     SurvivBitStream,
     TypeToId,
-    unitVecToRadians,
-    vec2Rotate,
     vecLerp,
     Weapons,
     WeaponType
@@ -37,11 +29,9 @@ import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
 import { Box, Fixture, Settings, Vec2, World } from "planck";
-import { Obstacle } from "./objects/obstacle";
 import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
-import exp from "constants";
 
 export class Game {
 
@@ -142,7 +132,7 @@ export class Game {
         // This code solves the dilemma by setting maxLinearCorrection to the appropriate value for the object.
         this.world.on("pre-solve", contact => {
             // @ts-expect-error getUserData() should always be a GameObject
-            if(contact.getFixtureA().getUserData().kind === ObjectKind.Loot || contact.getFixtureB().getUserData().kind === ObjectKind.Loot) Settings.maxLinearCorrection = 0.055;
+            if(contact.getFixtureA().getUserData().isLoot || contact.getFixtureB().getUserData().isLoot) Settings.maxLinearCorrection = 0.055;
             else Settings.maxLinearCorrection = 0;
         });
 
@@ -151,8 +141,12 @@ export class Game {
         // - Bullets should collide with players and obstacles, but not with each other or with loot.
         // - Loot should only collide with obstacles and other loot.
         Fixture.prototype.shouldCollide = function(that): boolean {
+
+            // Get the objects
             const thisObject: any = this.getUserData();
             const thatObject: any = that.getUserData();
+
+            // Make sure the objects are on the same layer
             if(thisObject.layer !== thatObject.layer) return false;
 
             if(thisObject.isPlayer) return thatObject.collidesWith.player;
@@ -174,7 +168,20 @@ export class Game {
         });
         boundary.createFixture({
             shape: Box(width, height),
-            userData: { kind: ObjectKind.Obstacle, layer: 0 }
+            userData: {
+                kind: ObjectKind.Obstacle,
+                layer: 0,
+                isPlayer: false,
+                isObstacle: true,
+                isBullet: false,
+                isLoot: false,
+                collidesWith: {
+                    player: true,
+                    obstacle: false,
+                    bullet: true,
+                    loot: false
+                }
+            }
         });
     }
 
@@ -292,16 +299,15 @@ export class Game {
                         }
                         p.inventory[p.actionItem.typeString]--;
                         p.inventoryDirty = true;
-                        p.usingItem = false;
-                        p.recalculateSpeed();
+                    } else if(p.actionType === Constants.Action.Reload) {
+                        const weaponInfo = p.activeWeaponInfo;
+                        const difference: number = Math.min(p.inventory[weaponInfo.ammo], weaponInfo.maxClip - p.activeWeapon.ammo);
+                        (p.activeWeapon.ammo as number) += difference;
+                        p.inventory[weaponInfo.ammo] -= difference;
+                        p.weaponsDirty = true;
+                        p.inventoryDirty = true;
                     }
-                    p.actionItem.typeString = "";
-                    p.actionItem.typeId = 0;
-                    p.actionDirty = false;
-                    p.actionType = 0;
-                    p.actionSeq = 0;
-                    this.fullDirtyObjects.push(p);
-                    p.fullDirtyObjects.push(p);
+                    p.cancelAction();
                 }
 
                 // Weapon logic

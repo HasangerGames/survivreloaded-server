@@ -117,23 +117,23 @@ export class UpdatePacket extends SendingPacket {
         stream.writeBoolean(p.weaponsDirty);
         if(p.weaponsDirty) {
             // Current weapon slot
-            stream.writeBits(p.weapons.activeSlot, 2);
+            stream.writeBits(p.selectedWeaponSlot, 2);
 
             // Primary
-            stream.writeGameType(p.weapons.primaryGun.typeId);
-            stream.writeUint8(p.weapons.primaryGun.ammo);
+            stream.writeGameType(p.weapons[0].typeId);
+            stream.writeUint8(p.weapons[0].ammo!);
 
             // Secondary
-            stream.writeGameType(p.weapons.secondaryGun.typeId);
-            stream.writeUint8(p.weapons.secondaryGun.ammo);
+            stream.writeGameType(p.weapons[1].typeId);
+            stream.writeUint8(p.weapons[1].ammo!);
 
             // Melee
-            stream.writeGameType(p.weapons.melee.typeId);
+            stream.writeGameType(p.weapons[2].typeId);
             stream.writeUint8(0);
 
             // Throwable
-            stream.writeGameType(p.weapons.throwable.typeId);
-            stream.writeUint8(p.weapons.throwable.count);
+            stream.writeGameType(p.weapons[3].typeId);
+            stream.writeUint8(p.weapons[3].count!);
 
             p.weaponsDirty = false;
         }

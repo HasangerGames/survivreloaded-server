@@ -24,7 +24,7 @@ export class Building extends GameObject {
         this.kind = ObjectKind.Building;
 
         this.showOnMap = showOnMap;
-        if(data.mapObstacleBounds) {
+        if(data.mapObstacleBounds?.length) {
             for(const bounds of data.mapObstacleBounds) {
                 this.mapObstacleBounds.push(rotateRect(position, bounds.min, bounds.max, 1, this.orientation!));
             }

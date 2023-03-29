@@ -79,13 +79,19 @@ export class InputPacket extends ReceivingPacket {
                     p.switchSlot(2);
                     break;
                 case InputType.EquipPrevWeap:
-                    p.switchSlot((p.weapons.activeSlot - 1) % 4);
+                    p.switchSlot((p.selectedWeaponSlot - 1) % 4);
                     break;
                 case InputType.EquipNextWeap:
-                    p.switchSlot((p.weapons.activeSlot + 1) % 4);
+                    p.switchSlot((p.selectedWeaponSlot + 1) % 4);
                     break;
                 case InputType.SwapWeapSlots:
                     p.swapWeaponSlots();
+                    break;
+                case InputType.Reload:
+                    p.reload();
+                    break;
+                case InputType.Cancel:
+                    p.cancelAction();
                     break;
             }
         }
@@ -96,19 +102,19 @@ export class InputPacket extends ReceivingPacket {
                 break;
             case TypeToId.bandage:
                 if(p.health === 100 || p.inventory.bandage === 0) break;
-                p.useItem("bandage", 3);
+                p.doAction("bandage", 3);
                 break;
             case TypeToId.healthkit:
                 if(p.health === 100 || p.inventory.healthkit === 0) break;
-                p.useItem("healthkit", 6);
+                p.doAction("healthkit", 6);
                 break;
             case TypeToId.soda:
                 if(p.boost === 100 || p.inventory.soda === 0) break;
-                p.useItem("soda", 3);
+                p.doAction("soda", 3);
                 break;
             case TypeToId.painkiller:
                 if(p.boost === 100 || p.inventory.painkiller === 0) break;
-                p.useItem("painkiller", 5);
+                p.doAction("painkiller", 5);
                 break;
             case TypeToId["1xscope"]:
                 p.setScope("1xscope");

@@ -4,7 +4,7 @@ import {
     circleCollision,
     CollisionType,
     Debug,
-    distanceBetween,
+    distanceBetween, Item,
     Maps,
     ObjectKind,
     Objects,
@@ -84,7 +84,7 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            //this.genBuildingTest("bank_01", 0);
+            this.genBuildingTest("police_01", 0);
 
             // Items test
             // this.obstacleTest("crate_01", Vec2(453, 153), 1);
@@ -134,7 +134,7 @@ export class Map {
             (this.game.objects[8] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 120)];
             (this.game.objects[9] as Obstacle).loot = [new Item("vector", 1), new Item("9mm", 120)];
             (this.game.objects[10] as Obstacle).loot = [new Item("m249", 1), new Item("556mm", 120)];
-            (this.game.objects[11] as Obstacle).loot = [new Item("saiga", 1), new Item("12gauge", 120)];
+            (this.game.objects[11] as Obstacle).loot = [new Item("saiga", 1), new Item("12gauge", 15)];
 
             (this.game.objects[12] as Obstacle).loot = [new Item("backpack03", 1)];*/
         }

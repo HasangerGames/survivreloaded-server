@@ -5,17 +5,30 @@ import {
     AllowedEmotes,
     AllowedHeal,
     AllowedMelee,
-    AllowedSkins, AmmoTypes, CollisionRecord, CollisionType,
+    AllowedSkins,
+    AmmoTypes,
+    type CollisionRecord,
+    CollisionType,
     Config,
     Constants,
     DamageType,
-    deepCopy, degreesToRadians, distanceToCircle, distanceToRect,
+    deepCopy,
+    degreesToRadians,
+    distanceToCircle,
+    distanceToRect,
     Emote,
-    type Explosion, ItemSlot, MedTypes,
-    ObjectKind, randomFloat,
-    removeFrom, ScopeTypes,
+    type Explosion,
+    ItemSlot,
+    MedTypes,
+    ObjectKind,
+    randomFloat,
+    rectRectCollision,
+    removeFrom,
+    ScopeTypes,
     SurvivBitStream,
-    TypeToId, unitVecToRadians, vec2Rotate,
+    TypeToId,
+    unitVecToRadians,
+    vec2Rotate,
     Weapons,
     WeaponType
 } from "../../utils";
@@ -31,6 +44,7 @@ import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import { Obstacle } from "./obstacle";
+import { Building } from "./building";
 
 export class Player extends GameObject {
 
@@ -154,39 +168,44 @@ export class Player extends GameObject {
 
     scope = {
         typeString: "1xscope",
-        typeId: 310
+        typeId: TypeToId["1xscope"]
     };
 
-    weapons = {
-        activeSlot: 2,
-        primaryGun: {
+    weapons = [
+        {
             typeString: "",
             typeId: 0,
-            ammo: 0
+            ammo: 0,
+            cooldown: 0,
+            cooldownDuration: 0,
+            weaponType: WeaponType.Gun
         },
-        secondaryGun: {
+        {
             typeString: "",
             typeId: 0,
-            ammo: 0
+            ammo: 0,
+            cooldown: 0,
+            cooldownDuration: 0,
+            weaponType: WeaponType.Gun
         },
-        melee: {
+        {
             typeString: "fists",
-            typeId: TypeToId.fists
+            typeId: TypeToId.fists,
+            cooldown: 0,
+            cooldownDuration: 250,
+            weaponType: WeaponType.Melee
         },
-        throwable: {
+        {
             typeString: "",
             typeId: 0,
-            count: 0
+            count: 0,
+            cooldown: 0,
+            cooldownDuration: 0,
+            weaponType: WeaponType.Throwable
         }
-    };
+    ];
 
-    activeWeapon = {
-        typeString: "fists",
-        typeId: 389,
-        weaponType: WeaponType.Melee,
-        cooldown: 0,
-        cooldownDuration: 250
-    };
+    selectedWeaponSlot = 2;
 
     actionItem: {
         typeString: string
@@ -253,10 +272,8 @@ export class Player extends GameObject {
                 emotes: [TypeToId.emote_happyface, TypeToId.emote_thumbsup, TypeToId.emote_surviv, TypeToId.emote_sadface, 0, 0]
             };
         }
-        this.weapons.melee.typeString = this.loadout.meleeType;
-        this.weapons.melee.typeId = this.loadout.melee;
-        this.activeWeapon.typeString = this.loadout.meleeType;
-        this.activeWeapon.typeId = this.loadout.melee;
+        this.weapons[2].typeString = this.loadout.meleeType;
+        this.weapons[2].typeId = this.loadout.melee;
 
         // Init body
         this.body = game.world.createBody({
@@ -292,7 +309,7 @@ export class Player extends GameObject {
     set zoom(zoom: number) {
         this._zoom = zoom;
         this.xCullDist = this._zoom * 1.5;
-        this.yCullDist = this._zoom;
+        this.yCullDist = this._zoom * 1.25;
         this.zoomDirty = true;
     }
 
@@ -306,60 +323,66 @@ export class Player extends GameObject {
         else this.zoom = Constants.scopeZoomRadius.desktop[scope];
     }
 
-    switchSlot(slot: number): void { // TODO Make this.weapons into an array
-        switch(slot) {
-            case 0:
-                if(this.weapons.primaryGun.typeId === 0) break;
-                this.activeWeapon.typeString = this.weapons.primaryGun.typeString;
-                this.activeWeapon.typeId = this.weapons.primaryGun.typeId;
-                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 900;
-                this.activeWeapon.weaponType = WeaponType.Gun;
-                this.weapons.activeSlot = slot;
-                break;
-            case 1:
-                if(this.weapons.secondaryGun.typeId === 0) break;
-                this.activeWeapon.typeString = this.weapons.secondaryGun.typeString;
-                this.activeWeapon.typeId = this.weapons.secondaryGun.typeId;
-                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].fireDelay * 1000;
-                this.activeWeapon.weaponType = WeaponType.Gun;
-                this.weapons.activeSlot = slot;
-                break;
-            case 2:
-                if(this.weapons.melee.typeId === 0) break;
-                this.activeWeapon.typeString = this.weapons.melee.typeString;
-                this.activeWeapon.typeId = this.weapons.melee.typeId;
-                this.activeWeapon.cooldownDuration = Weapons[this.activeWeapon.typeString].attack.cooldownTime * 1000;
-                this.activeWeapon.weaponType = WeaponType.Melee;
-                this.weapons.activeSlot = slot;
-                break;
-        }
+    get activeWeapon(): any {
+        return this.weapons[this.selectedWeaponSlot];
+    }
+
+    get activeWeaponInfo(): any {
+        return Weapons[this.activeWeapon.typeString];
+    }
+
+    switchSlot(slot: number): void {
+        if(this.weapons[slot].typeId === 0) return;
+        this.cancelAction();
+        this.selectedWeaponSlot = slot;
+        if(slot === 2) this.activeWeapon.cooldownDuration = this.activeWeaponInfo.attack.cooldownTime * 1000;
+        else this.activeWeapon.cooldownDuration = this.activeWeaponInfo.fireDelay * 1000;
+        if((slot === 0 || slot === 1) && this.activeWeapon.ammo === 0) this.reload();
         this.weaponsDirty = true;
-        this.inventoryDirty = true;
         this.game!.fullDirtyObjects.push(this);
         this.fullDirtyObjects.push(this);
     }
 
-    static readonly slots = ["primaryGun", "secondaryGun", "melee"];
-
-    dropItemInSlot(slot: number, item: string): void {
-        const slotIndex = Player.slots[slot];
+    dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
         // For guns
-        if(this.weapons[slotIndex].typeString === item) {
-            // Only drop the gun if it's the same as the one we have, AND it's in the primary slot
+        if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
+            if(this.activeWeapon.ammo > 0) {
+                // Put the ammo in the gun back in the inventory
+                const ammoType: string = this.activeWeaponInfo.ammo;
+                (this.inventory[ammoType] as number) += (this.activeWeapon.ammo as number); // TODO Make this.inventory a Map to prevent this mess
+
+                // If the new amount is more than the inventory can hold, drop the extra
+                const overAmount: number = this.inventory[ammoType] - Constants.bagSizes[ammoType][this.backpackLevel];
+                if(overAmount > 0) {
+                    const droppedAmmo = splitUpLoot(this, ammoType, overAmount);
+                    for(const l of droppedAmmo) {
+                        this.game.objects.push(l);
+                        this.game.fullDirtyObjects.push(l);
+                    }
+                    (this.inventory[ammoType] as number) -= overAmount;
+                }
+            }
             if(slot === ItemSlot.Melee) {
-                this.weapons[slotIndex] = {
+                this.weapons[slot] = {
                     typeString: "fists",
                     typeId: TypeToId.fists,
-                    ammo: 0
+                    ammo: 0,
+                    cooldown: 0,
+                    cooldownDuration: 250,
+                    weaponType: WeaponType.Melee
                 };
             } else {
-                this.weapons[slotIndex] = {
+                this.weapons[slot] = {
                     typeString: "",
                     typeId: 0,
-                    ammo: 0
+                    ammo: 0,
+                    cooldown: 0,
+                    cooldownDuration: 0,
+                    weaponType: WeaponType.Gun
                 };
             }
-            if(this.weapons.activeSlot === slot) this.switchSlot(2);
+            if(this.selectedWeaponSlot === slot && !skipItemSwitch) this.switchSlot(2);
+            this.cancelAction();
             this.weaponsDirty = true;
             const loot = new Loot(this.game, item, this.position, this.layer, 1);
             this.game.objects.push(loot);
@@ -439,11 +462,11 @@ export class Player extends GameObject {
     }
 
     swapWeaponSlots(): void {
-        const primary = deepCopy(this.weapons.primaryGun);
-        this.weapons.primaryGun = deepCopy(this.weapons.secondaryGun);
-        this.weapons.secondaryGun = primary;
-        if(this.weapons.activeSlot === 0) this.switchSlot(1);
-        else if(this.weapons.activeSlot === 1) this.switchSlot(0);
+        const primary = deepCopy(this.weapons[0]);
+        this.weapons[0] = deepCopy(this.weapons[1]);
+        this.weapons[1] = primary;
+        if(this.selectedWeaponSlot === 0) this.switchSlot(1);
+        else if(this.selectedWeaponSlot === 1) this.switchSlot(0);
     }
 
     weaponCooldownOver(): boolean {
@@ -498,6 +521,7 @@ export class Player extends GameObject {
     }
 
     shootGun(): void {
+        if(this.activeWeapon.ammo === 0) return;
         const weapon = Weapons[this.activeWeapon.typeString];
         const spread = degreesToRadians(weapon.shotSpread);
         let shotFx = true;
@@ -516,6 +540,47 @@ export class Player extends GameObject {
             this.game.bullets.push(bullet);
             this.game.dirtyBullets.push(bullet);
             shotFx = false;
+        }
+        this.activeWeapon.ammo--;
+        this.weaponsDirty = true;
+        if(this.activeWeapon.ammo === 0) this.reload();
+    }
+
+    doAction(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
+        if(this.actionDirty) return;
+        this.actionItem.typeString = typeString;
+        this.actionItem.typeId = TypeToId[typeString];
+        this.actionItem.duration = duration;
+        this.actionItem.useEnd = Date.now() + duration * 1000;
+
+        this.actionDirty = true;
+        this.actionType = actionType ?? Constants.Action.UseItem;
+        if(!actionType) this.usingItem = true;
+        this.actionSeq = 1;
+
+        if(!skipRecalculateSpeed) this.recalculateSpeed();
+        this.game!.fullDirtyObjects.push(this);
+        this.fullDirtyObjects.push(this);
+    }
+
+    cancelAction(): void {
+        if(this.actionType === Constants.Action.UseItem) {
+            this.usingItem = false;
+            this.recalculateSpeed();
+        }
+        this.actionItem.typeString = "";
+        this.actionItem.typeId = 0;
+        this.actionDirty = false;
+        this.actionType = 0;
+        this.actionSeq = 0;
+        this.game.fullDirtyObjects.push(this);
+        this.fullDirtyObjects.push(this);
+    }
+
+    reload(): void {
+        const weaponInfo = this.activeWeaponInfo;
+        if(this.activeWeapon.ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
+            this.doAction(this.activeWeapon.typeString, weaponInfo.reloadTime, Constants.Action.Reload, true);
         }
     }
 
@@ -623,9 +688,12 @@ export class Player extends GameObject {
             if(this.helmetLevel > 0) this.dropLoot(`helmet0${this.helmetLevel}`);
             if(this.chestLevel > 0) this.dropLoot(`chest0${this.chestLevel}`);
             if(this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
-            this.weapons.activeSlot = 2;
+            this.selectedWeaponSlot = 2;
             this.weaponsDirty = true;
             this.inventoryDirty = true;
+            this.dropItemInSlot(0, this.weapons[0].typeString, true);
+            this.dropItemInSlot(1, this.weapons[1].typeString, true);
+            if(this.weapons[2].typeString !== "fists") this.dropItemInSlot(2, this.weapons[2].typeString, true);
 
             // Remove from active players; send packets
             removeFrom(this.game.activePlayers, this);
@@ -670,23 +738,6 @@ export class Player extends GameObject {
         this.game.fullDirtyObjects.push(loot);
     }
 
-    useItem(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
-        if(this.actionItem.typeId !== 0) return;
-        this.actionItem.typeString = typeString;
-        this.actionItem.typeId = TypeToId[typeString];
-        this.actionItem.duration = duration;
-        this.actionItem.useEnd = Date.now() + duration * 1000;
-
-        this.actionDirty = true;
-        this.actionType = actionType ?? Constants.Action.UseItem;
-        if(!actionType) this.usingItem = true;
-        this.actionSeq = 1;
-
-        if(!skipRecalculateSpeed) this.recalculateSpeed();
-        this.game!.fullDirtyObjects.push(this);
-        this.fullDirtyObjects.push(this);
-    }
-
     recalculateSpeed(): void {
         this.speed = Config.movementSpeed;
         this.diagonalSpeed = Config.diagonalSpeed;
@@ -705,19 +756,33 @@ export class Player extends GameObject {
         const newVisibleObjects: GameObject[] = [];
         for(const object of this.game.objects) {
             if(this === object) continue;
+            let isVisible = false;
             const minX = this.position.x - this.xCullDist,
-                  minY = this.position.y - this.yCullDist,
-                  maxX = this.position.x + this.xCullDist,
-                  maxY = this.position.y + this.yCullDist;
-            if(object.position.x > minX &&
-                object.position.x < maxX &&
-                object.position.y > minY &&
-                object.position.y < maxY) {
+                minY = this.position.y - this.yCullDist,
+                maxX = this.position.x + this.xCullDist,
+                maxY = this.position.y + this.yCullDist;
+            if((object as any).mapObstacleBounds) { // TODO This is janky, find a better way
+                const min = Vec2(minX, minY),
+                      max = Vec2(maxX, maxY);
+                for(const bounds of (object as any).mapObstacleBounds) {
+                    if(rectRectCollision(min, max, bounds.min, bounds.max)) {
+                        isVisible = true;
+                        break;
+                    }
+                }
+            } else {
+                isVisible = object.position.x > minX &&
+                            object.position.x < maxX &&
+                            object.position.y > minY &&
+                            object.position.y < maxY;
+            }
+
+            if(isVisible) {
                 newVisibleObjects.push(object);
                 if(!this.visibleObjects.includes(object)) {
                     this.fullDirtyObjects.push(object);
                 }
-            } else { // if object is not visible
+            } else {
                 if(this.visibleObjects.includes(object)) {
                     this.deletedObjects.push(object);
                 }

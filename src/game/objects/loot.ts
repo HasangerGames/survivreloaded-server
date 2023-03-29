@@ -88,7 +88,7 @@ export class Loot extends GameObject {
             result = this.pickUpTieredItem("helmet", p);
             playerDirty = true;
         } else if(Constants.bagSizes[this.typeString]) {
-            // if it is a bag
+            // if it is ammo or a healing item
             const currentCount: number = p.inventory[this.typeString];
             const maxCapacity: number = Constants.bagSizes[this.typeString][p.backpackLevel];
             if(currentCount + this.count <= maxCapacity) {
@@ -101,32 +101,33 @@ export class Loot extends GameObject {
                 this.game.fullDirtyObjects.push(this);
                 deleteItem = false;
             }
+
+            // Reload active gun if the player picks up the correct ammo
+            if(p.activeWeapon.ammo === 0 && this.typeString === p.activeWeaponInfo.ammo) p.reload();
+        } else if(Weapons[this.typeString]?.type === "melee") {
+            if(p.weapons[2].typeString !== "fists") {
+                p.dropItemInSlot(2, p.weapons[2].typeString, true);
+            } // TODO Do item type check in drop item packet, not in drop item method
+            p.weapons[2].typeString = this.typeString;
+            p.weapons[2].typeId = this.typeId;
+            p.switchSlot(2);
         } else {
             // if it is a gun
-            if(p.weapons.primaryGun.typeId === 0) {
-                p.weapons.primaryGun.typeString = this.typeString;
-                p.weapons.primaryGun.typeId = this.typeId;
+            if(p.weapons[0].typeId === 0) {
+                p.weapons[0].typeString = this.typeString;
+                p.weapons[0].typeId = this.typeId;
                 p.switchSlot(0);
-                p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
-            } else if(p.weapons.primaryGun.typeId !== 0 && p.weapons.secondaryGun.typeId === 0) {
-                p.weapons.secondaryGun.typeString = this.typeString;
-                p.weapons.secondaryGun.typeId = this.typeId;
+            } else if(p.weapons[0].typeId !== 0 && p.weapons[1].typeId === 0) {
+                p.weapons[1].typeString = this.typeString;
+                p.weapons[1].typeId = this.typeId;
                 p.switchSlot(1);
-                p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
-            } else if(p.weapons.activeSlot === 0 || p.weapons.activeSlot === 1) {
-                const slotName = Player.slots[p.weapons.activeSlot];
-                const slot = p.weapons[slotName];
-                if(slot.typeString === this.typeString) result = PickupMsgType.AlreadyEquipped;
+            } else if(p.selectedWeaponSlot === 0 || p.selectedWeaponSlot === 1) {
+                if(p.activeWeapon.typeString === this.typeString) ignore = true;
                 else {
-                    // create the swapped gun item
-                    const loot = new Loot(this.game, slot.typeString, p.position, p.layer, 1);
-                    this.game.objects.push(loot);
-                    this.game.fullDirtyObjects.push(loot);
-
-                    p.weapons[slotName].typeString = this.typeString;
-                    p.weapons[slotName].typeId = this.typeId;
-                    p.switchSlot(p.weapons.activeSlot);
-                    p.useItem(this.typeString, Weapons[this.typeString].reloadTime, Constants.Action.Reload, true);
+                    p.dropItemInSlot(p.selectedWeaponSlot, p.activeWeapon.typeString, true);
+                    p.activeWeapon.typeString = this.typeString;
+                    p.activeWeapon.typeId = this.typeId;
+                    p.switchSlot(p.selectedWeaponSlot);
                 }
             } else ignore = true;
             p.weaponsDirty = true;
