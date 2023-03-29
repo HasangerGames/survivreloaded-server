@@ -526,9 +526,14 @@ export class Game {
         game.gasDirty = true;
         game.gasCircleDirty = true;
 
-        // Prevent new players from joining if the game has progressed far enough
+        // Prevent new players from joining if the red zone shrinks far enough
         if(game.gas.stage >= RedZoneStages.length - 2) {
             game.allowJoin = false;
+        }
+
+        // Auto-restart the server after 5 seconds if the red zone shrinks completely
+        if(game.gas.stage >= RedZoneStages.length - 1) {
+            setTimeout(() => game.end(), 5000);
         }
 
         // Start the next stage

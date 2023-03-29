@@ -140,9 +140,13 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        if(!game.allowJoin) {
+        if(game.over) { // Start a new game if the old one is over
+            game = new Game();
+        } else if(!game.allowJoin) {
             res.endWithoutBody(0, true);
-        } else if(Config.botProtection) {
+            return;
+        }
+        if(Config.botProtection) {
             const ip = req.getHeader("cf-connecting-ip");
             if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 30) {
                 if(!bannedIPs.includes(ip)) bannedIPs.push(ip);
@@ -179,7 +183,6 @@ app.ws("/play", {
         }
     },
     open: (socket) => {
-        if(game.over) game = new Game(); // Start a new game if the old one is over
         let playerName: string = socket.cookies["player-name"];
         if(!playerName || playerName.length > 16) playerName = "Player";
         socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
@@ -220,7 +223,7 @@ process.on("SIGINT", () => {
     process.exit();
 });
 
-log("Surviv Reloaded Server v0.3.0");
+log("Surviv Reloaded Server v0.4.0");
 app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
     log(`Listening on ${Config.https ? "https://" : "http://"}${Config.host}:${Config.port}`);
