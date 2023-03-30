@@ -29,6 +29,8 @@ export class Loot extends GameObject {
     interactable = true;
     interactionRad = 1;
 
+    isGun = false;
+
     oldPos: Vec2;
 
     constructor(game: Game,
@@ -44,6 +46,7 @@ export class Loot extends GameObject {
         super(game, typeString, position, layer);
         this.kind = ObjectKind.Loot;
         this.count = count;
+        this.isGun = Weapons[typeString]?.type === "gun";
         this.oldPos = position;
 
         // Create the body

@@ -259,13 +259,14 @@ export class Game {
                 }
 
                 // Pick up nearby items if on mobile
-                /*if(p.isMobile) {
+                if(p.isMobile) {
                     for(const object of p.visibleObjects) {
-                        if(object instanceof Loot && distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
+                        if(object instanceof Loot && (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) &&
+                            distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
                             object.interact(p);
                         }
                     }
-                }*/
+                }
 
                 // Drain adrenaline
                 if(p.boost > 0) p.boost -= 0.01136;
