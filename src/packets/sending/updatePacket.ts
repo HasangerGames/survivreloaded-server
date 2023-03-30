@@ -19,11 +19,11 @@ export class UpdatePacket extends SendingPacket {
         if(p.deletedObjects.length) valuesChanged += 1;
         if(p.fullDirtyObjects.length) valuesChanged += 2;
         if(p.activePlayerIdDirty) valuesChanged += 4;
-        if(game.gasDirty || p.firstUpdate) valuesChanged += 8;
-        if(game.gasCircleDirty || p.firstUpdate) valuesChanged += 16;
+        if(game.gasDirty || p.fullUpdate) valuesChanged += 8;
+        if(game.gasCircleDirty || p.fullUpdate) valuesChanged += 16;
         if(game.playerInfosDirty) valuesChanged += 32;
         if(game.deletedPlayers.length) valuesChanged += 64;
-        if(/*game.dirtyStatusPlayers.length || */p.firstUpdate) valuesChanged += 128;
+        if(/*game.dirtyStatusPlayers.length || */p.fullUpdate) valuesChanged += 128;
         if(p.groupStatusDirty) valuesChanged += 256;
         if(game.dirtyBullets.length) valuesChanged += 512;
         if(p.explosions.length) valuesChanged += 1024;
@@ -31,7 +31,7 @@ export class UpdatePacket extends SendingPacket {
         if(p.planesDirty) valuesChanged += 4096;
         if(p.airstrikeZonesDirty) valuesChanged += 8192;
         if(p.mapIndicatorsDirty) valuesChanged += 16384;
-        if(game.killLeaderDirty || p.firstUpdate) valuesChanged += 32768;
+        if(game.killLeaderDirty || p.fullUpdate) valuesChanged += 32768;
         stream.writeUint16(valuesChanged);
 
         // Deleted objects
@@ -138,7 +138,13 @@ export class UpdatePacket extends SendingPacket {
             p.weaponsDirty = false;
         }
 
-        stream.writeBoolean(false); // Spectator count dirty
+        // Spectator count
+        stream.writeBoolean(p.spectatorCountDirty);
+        if(p.spectatorCountDirty) {
+            stream.writeUint8(p.spectators.length);
+            p.spectatorCountDirty = false;
+        }
+
         stream.writeAlignToNextByte(); // Padding
 
         //
@@ -146,7 +152,7 @@ export class UpdatePacket extends SendingPacket {
         //
 
         // Red zone data
-        if(game.gasDirty || p.firstUpdate) {
+        if(game.gasDirty || p.fullUpdate) {
             stream.writeUint8(game.gas.mode); // Mode
             stream.writeFloat32(game.gas.initialDuration); // Duration
             stream.writeVec(game.gas.posOld, 0, 0, 1024, 1024, 16);
@@ -156,13 +162,13 @@ export class UpdatePacket extends SendingPacket {
         }
 
         // Red zone time data
-        if(game.gasCircleDirty || p.firstUpdate) {
+        if(game.gasCircleDirty || p.fullUpdate) {
             stream.writeFloat(game.gas.duration, 0, 1, 16); // Indicates red zone time (gasT)
         }
 
         // Player info
         let playerInfosSource;
-        if(p.firstUpdate) {
+        if(p.fullUpdate) {
             playerInfosSource = game.players;
         } else if(game.playerInfosDirty) {
             playerInfosSource = game.newPlayers;
@@ -193,7 +199,7 @@ export class UpdatePacket extends SendingPacket {
         // Player status
         //const dirtyStatusPlayers: Player[] = p.firstUpdate ? game.players : game.dirtyStatusPlayers;
         //if(dirtyStatusPlayers.length) {
-        if(p.firstUpdate) {
+        if(p.fullUpdate) {
             //stream.writeUint8(dirtyStatusPlayers.length); // Player count
             stream.writeUint8(1);
             //for(const player of dirtyStatusPlayers) {
@@ -285,12 +291,12 @@ export class UpdatePacket extends SendingPacket {
         // Map indicators
 
         // Kill leader
-        if(game.killLeaderDirty || p.firstUpdate) {
+        if(game.killLeaderDirty || p.fullUpdate) {
             stream.writeUint16(game.killLeader.id);
             stream.writeUint8(game.killLeader.kills);
         }
 
-        if(p.firstUpdate) p.firstUpdate = false;
+        if(p.fullUpdate) p.fullUpdate = false;
 
         stream.writeUint8(0); // "Ack" msg
     }

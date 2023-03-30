@@ -104,20 +104,20 @@ export class Player extends GameObject {
 
     damageable = true;
 
-    firstUpdate = true;
+    fullUpdate = true;
     playerStatusDirty = true;
     groupStatusDirty = false;
-    bulletsDirty = false;
     planesDirty = false;
     airstrikeZonesDirty = false;
     mapIndicatorsDirty = false;
     activePlayerIdDirty = true;
     healthDirty = true;
     boostDirty = true;
-    inventoryDirty = true;
-    inventoryEmpty = true;
     zoomDirty = true;
     weaponsDirty = true;
+    inventoryDirty = true;
+    inventoryEmpty = true;
+    spectatorCountDirty = false;
 
     movesSinceLastUpdate = 0;
 
@@ -230,6 +230,17 @@ export class Player extends GameObject {
     joinTime: number;
     damageDealt = 0;
     damageTaken = 0;
+
+    killedBy?: Player;
+
+    spectators: Player[] = [];
+    spectating?: Player;
+
+    isSpectator = false;
+    spectateBegin = false;
+    spectateNext = false;
+    spectatePrevious = false;
+    spectateForce = false;
 
     constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, name: string, loadout) {
         super(game, "", position, 0);
@@ -660,6 +671,9 @@ export class Player extends GameObject {
             this.boost = 0;
             this.dead = true;
 
+            // Set killedBy
+            if(source instanceof Player && source !== this) this.killedBy = source;
+
             // Update role
             if(this.role === TypeToId.kill_leader) {
                 this.game.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
@@ -752,8 +766,16 @@ export class Player extends GameObject {
                         this.game.end();
                     }, 750);
                 } else {
-                    setTimeout(() => this.game.end(), 750);
+                    this.game.end();
                 }
+            } else {
+                let toSpectate;
+                if(source instanceof Player && source !== this) toSpectate = source;
+                else toSpectate = this.game.randomPlayer();
+                for(const spectator of this.spectators) {
+                    spectator.spectate(toSpectate);
+                }
+                this.spectators = [];
             }
         }
     }
@@ -825,6 +847,28 @@ export class Player extends GameObject {
             }
         }
         this.visibleObjects = newVisibleObjects;
+    }
+
+    spectate(spectating: Player): void {
+        this.isSpectator = true;
+        if(this.spectating) {
+            removeFrom(this.spectating.spectators, this);
+            this.spectating.spectatorCountDirty = true;
+        }
+        this.spectating = spectating;
+        spectating.spectators.push(this);
+        spectating.healthDirty = true;
+        spectating.boostDirty = true;
+        spectating.zoomDirty = true;
+        spectating.weaponsDirty = true;
+        spectating.inventoryDirty = true;
+        spectating.activePlayerIdDirty = true;
+        spectating.spectatorCountDirty = true;
+        for(const object of spectating.visibleObjects) {
+            spectating.fullDirtyObjects.push(object);
+        }
+        spectating.fullDirtyObjects.push(spectating);
+        spectating.fullUpdate = true;
     }
 
     isOnOtherSide(door): boolean {
