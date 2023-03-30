@@ -501,21 +501,22 @@ export class Game {
         this.players.push(p);
         this.connectedPlayers.push(p);
         this.newPlayers.push(p);
-        p.updateVisibleObjects();
-        for(const player of this.players) {
-            if(player === p) continue;
-            player.fullDirtyObjects.push(p);
-            p.fullDirtyObjects.push(player);
-        }
-        p.fullDirtyObjects.push(p);
+        this.aliveCountDirty = true;
+        this.playerInfosDirty = true;
 
         if(this.allowJoin) {
             this.objects.push(p);
             this.activePlayers.push(p);
             this.fullDirtyObjects.push(p);
-            this.aliveCountDirty = true;
-            this.playerInfosDirty = true;
+            p.updateVisibleObjects();
+            for(const player of this.players) {
+                if(player === p) continue;
+                player.fullDirtyObjects.push(p);
+                p.fullDirtyObjects.push(player);
+            }
+            p.fullDirtyObjects.push(p);
         } else {
+            p.dead = true;
             p.spectate(this.randomPlayer());
         }
 
