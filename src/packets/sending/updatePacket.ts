@@ -7,7 +7,7 @@ export class UpdatePacket extends SendingPacket {
     constructor(p: Player) {
         super(p);
         this.msgType = MsgType.Update;
-        this.allocBytes = 8192;
+        this.allocBytes = 16384;
     }
 
     serialize(stream: SurvivBitStream): void {
