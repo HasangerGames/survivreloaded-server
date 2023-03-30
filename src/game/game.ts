@@ -495,15 +495,9 @@ export class Game {
         }
 
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
-        this.objects.push(p);
         this.players.push(p);
         this.connectedPlayers.push(p);
-        this.activePlayers.push(p);
         this.newPlayers.push(p);
-        this.fullDirtyObjects.push(p);
-        this.aliveCount++;
-        this.aliveCountDirty = true;
-        this.playerInfosDirty = true;
         p.updateVisibleObjects();
         for(const player of this.players) {
             if(player === p) continue;
@@ -511,6 +505,17 @@ export class Game {
             p.fullDirtyObjects.push(player);
         }
         p.fullDirtyObjects.push(p);
+
+        if(this.allowJoin) {
+            this.objects.push(p);
+            this.activePlayers.push(p);
+            this.fullDirtyObjects.push(p);
+            this.aliveCount++;
+            this.aliveCountDirty = true;
+            this.playerInfosDirty = true;
+        } else {
+            p.spectate(this.randomPlayer());
+        }
 
         p.sendPacket(new JoinedPacket(p));
         const stream = SurvivBitStream.alloc(32768);
@@ -553,13 +558,13 @@ export class Game {
         game.gasCircleDirty = true;
 
         // Prevent new players from joining if the red zone shrinks far enough
-        if(game.gas.stage >= RedZoneStages.length - 2) {
+        if(game.gas.stage >= RedZoneStages.length - 3) {
             game.allowJoin = false;
         }
 
-        // Auto-restart the server after 5 seconds if the red zone shrinks completely
+        // Auto-restart the server after 10 seconds if the red zone shrinks completely
         if(game.gas.stage >= RedZoneStages.length) {
-            setTimeout(() => game.end(), 5000);
+            setTimeout(() => game.end(), 10000);
         }
 
         // Start the next stage
