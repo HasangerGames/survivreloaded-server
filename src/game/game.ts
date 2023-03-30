@@ -630,9 +630,14 @@ export class Game {
     }
 
     end(): void {
+        log("Game ending");
         this.over = true;
         for(const p of this.connectedPlayers) {
-            if(!p.disconnected) p.socket.close();
+            if(!p.disconnected) {
+                try {
+                    p.socket.close();
+                } catch(e) {}
+            }
         }
     }
 
