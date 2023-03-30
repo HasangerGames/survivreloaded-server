@@ -69,6 +69,7 @@ export class InputPacket extends ReceivingPacket {
                     }
                     break;
                 }
+
                 case InputType.EquipPrimary:
                     p.switchSlot(0);
                     break;
@@ -78,15 +79,26 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.EquipMelee:
                     p.switchSlot(2);
                     break;
+
                 case InputType.EquipPrevWeap:
-                    p.switchSlot((p.selectedWeaponSlot - 1) % 4);
+                    p.switchSlot(p.selectedWeaponSlot - 1, true);
                     break;
                 case InputType.EquipNextWeap:
-                    p.switchSlot((p.selectedWeaponSlot + 1) % 4);
+                    p.switchSlot(p.selectedWeaponSlot + 1, true);
                     break;
+
                 case InputType.SwapWeapSlots:
                     p.swapWeaponSlots();
                     break;
+
+                case InputType.EquipOtherGun:
+                    if(p.selectedWeaponSlot === 0) p.switchSlot(1);
+                    else p.switchSlot(0);
+                    break;
+                case InputType.EquipLastWeap:
+                    p.switchSlot(p.lastWeaponSlot);
+                    break;
+
                 case InputType.Reload:
                     p.reload();
                     break;
