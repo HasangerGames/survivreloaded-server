@@ -562,11 +562,6 @@ export class Game {
             game.allowJoin = false;
         }
 
-        // Auto-restart the server after 10 seconds if the red zone shrinks completely
-        if(game.gas.stage >= RedZoneStages.length) {
-            setTimeout(() => game.end(), 10000);
-        }
-
         // Start the next stage
         if(currentStage.duration !== 0) {
             setTimeout(() => Game.advanceRedZone(game), currentStage.duration * 1000);
@@ -580,7 +575,10 @@ export class Game {
                 spectator.spectate(randomPlayer);
             }
             p.spectators = [];
+        } else {
+            this.end();
         }
+
         if(p.spectating) {
             removeFrom(p.spectating.spectators, p);
             p.spectating.spectatorCountDirty = true;

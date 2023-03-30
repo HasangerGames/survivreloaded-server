@@ -766,7 +766,7 @@ export class Player extends GameObject {
                         this.game.end();
                     }, 750);
                 } else {
-                    this.game.end();
+                    setTimeout(() => this.game.end(), 750);
                 }
             } else {
                 let toSpectate;
