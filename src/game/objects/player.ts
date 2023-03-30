@@ -707,7 +707,6 @@ export class Player extends GameObject {
 
             // Decrement alive count
             if(!this.disconnected) {
-                this.game.aliveCount--;
                 this.game.aliveCountDirty = true;
             }
 
@@ -855,7 +854,12 @@ export class Player extends GameObject {
         this.visibleObjects = newVisibleObjects;
     }
 
-    spectate(spectating: Player): void {
+    spectate(spectating: Player | null): void {
+        if(spectating === null) {
+            this.socket.close();
+            this.game.removePlayer(this);
+            return;
+        }
         this.isSpectator = true;
         if(this.spectating) {
             removeFrom(this.spectating.spectators, this);

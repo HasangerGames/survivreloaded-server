@@ -65,7 +65,6 @@ export class Game {
     killLeader: { id: number, kills: number } = { id: 0, kills: 0 };
     killLeaderDirty = false;
 
-    aliveCount = 0; // The number of players alive. Does not include players who have quit the game
     aliveCountDirty = false; // Whether the alive count needs to be updated
 
     emotes: Emote[] = []; // All emotes sent this tick
@@ -364,7 +363,7 @@ export class Game {
                 // Spectate logic
                 if(p.spectateBegin) {
                     p.spectateBegin = false;
-                    p.spectate(p.killedBy ?? this.randomPlayer());
+                    p.spectate(p.killedBy ? !p.killedBy.dead ? p.killedBy : this.randomPlayer() : this.randomPlayer());
                 } else if(p.spectateNext && p.spectating) {
                     p.spectateNext = false;
                     let index: number = this.activePlayers.indexOf(p.spectating) + 1;
@@ -482,6 +481,10 @@ export class Game {
         return distanceBetween(position, this.gas.currentPos) >= this.gas.currentRad;
     }
 
+    get aliveCount(): number {
+        return this.activePlayers.length;
+    }
+
     addPlayer(socket, name, loadout): Player {
         let spawnPosition;
         if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
@@ -510,7 +513,6 @@ export class Game {
             this.objects.push(p);
             this.activePlayers.push(p);
             this.fullDirtyObjects.push(p);
-            this.aliveCount++;
             this.aliveCountDirty = true;
             this.playerInfosDirty = true;
         } else {
@@ -598,7 +600,6 @@ export class Game {
 
         if(!p.dead) {
             // If player is dead, alive count has already been decremented
-            this.aliveCount--;
             this.aliveCountDirty = true;
 
             if(p.inventoryEmpty) {
@@ -616,7 +617,8 @@ export class Game {
         }
     }
 
-    randomPlayer(): Player {
+    randomPlayer(): Player | null {
+        if(this.aliveCount === 0) return null;
         return this.activePlayers[random(0, this.activePlayers.length - 1)];
     }
 
