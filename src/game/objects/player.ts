@@ -207,7 +207,7 @@ export class Player extends GameObject {
     ];
 
     selectedWeaponSlot = 2;
-    lastWeaponSlot = 2;
+    lastWeaponSlot = this.selectedWeaponSlot;
 
     actionItem: {
         typeString: string
@@ -481,8 +481,14 @@ export class Player extends GameObject {
         const primary = deepCopy(this.weapons[0]);
         this.weapons[0] = deepCopy(this.weapons[1]);
         this.weapons[1] = primary;
+
+        var lastWep = this.lastWeaponSlot;
         if(this.selectedWeaponSlot === 0) this.switchSlot(1);
         else if(this.selectedWeaponSlot === 1) this.switchSlot(0);
+        else this.switchSlot(this.selectedWeaponSlot);
+        if (lastWep === 0) lastWep = 1;
+        else if (lastWep === 1) lastWep = 0;
+        this.lastWeaponSlot = lastWep;
     }
 
     weaponCooldownOver(): boolean {
