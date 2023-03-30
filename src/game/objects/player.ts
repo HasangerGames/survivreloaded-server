@@ -20,7 +20,7 @@ import {
     type Explosion,
     ItemSlot,
     MedTypes,
-    ObjectKind,
+    ObjectKind, random, randomBoolean,
     randomFloat,
     rectRectCollision,
     removeFrom,
@@ -277,6 +277,16 @@ export class Player extends GameObject {
         this.weapons[2].typeString = this.loadout.meleeType;
         this.weapons[2].typeId = this.loadout.melee;
 
+        if(this.game.gas.stage >= 10) {
+            this.inventory.bandage = 1;
+            this.inventory["9mm"] = 30;
+            this.inventory["762mm"] = 30;
+            const weapon = randomBoolean() ? "m9" : "ot38";
+            this.weapons[0].typeString = weapon;
+            this.weapons[0].typeId = TypeToId[weapon];
+            this.switchSlot(0);
+        }
+
         // Init body
         this.body = game.world.createBody({
             type: "dynamic",
@@ -360,6 +370,7 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
+        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             if(this.activeWeapon.ammo > 0) {
@@ -563,6 +574,10 @@ export class Player extends GameObject {
             shotFx = false;
         }
         this.activeWeapon.ammo--;
+        if(this.activeWeapon.ammo === 0) {
+            this.shooting = false;
+            this.reload();
+        }
         this.weaponsDirty = true;
     }
 
