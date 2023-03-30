@@ -12,6 +12,7 @@
     "performanceLogInterval": 200,
     "disableMapGeneration": false,
     "fixedSpawnLocation": [360, 360],
+    "disableRedZone": false,
     "disableStaticFileCache": true,
     "autoStopServer": false,
     "autoStopAfter": 300000

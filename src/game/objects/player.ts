@@ -20,7 +20,7 @@ import {
     type Explosion,
     ItemSlot,
     MedTypes,
-    ObjectKind,
+    ObjectKind, random, randomBoolean,
     randomFloat,
     rectRectCollision,
     removeFrom,
@@ -104,20 +104,20 @@ export class Player extends GameObject {
 
     damageable = true;
 
-    firstUpdate = true;
+    fullUpdate = true;
     playerStatusDirty = true;
     groupStatusDirty = false;
-    bulletsDirty = false;
     planesDirty = false;
     airstrikeZonesDirty = false;
     mapIndicatorsDirty = false;
     activePlayerIdDirty = true;
     healthDirty = true;
     boostDirty = true;
-    inventoryDirty = true;
-    inventoryEmpty = true;
     zoomDirty = true;
     weaponsDirty = true;
+    inventoryDirty = true;
+    inventoryEmpty = true;
+    spectatorCountDirty = false;
 
     movesSinceLastUpdate = 0;
 
@@ -207,7 +207,7 @@ export class Player extends GameObject {
     ];
 
     selectedWeaponSlot = 2;
-    lastWeaponSlot = 2;
+    lastWeaponSlot = this.selectedWeaponSlot;
 
     actionItem: {
         typeString: string
@@ -230,6 +230,17 @@ export class Player extends GameObject {
     joinTime: number;
     damageDealt = 0;
     damageTaken = 0;
+
+    killedBy?: Player;
+
+    spectators: Player[] = [];
+    spectating?: Player;
+
+    isSpectator = false;
+    spectateBegin = false;
+    spectateNext = false;
+    spectatePrevious = false;
+    spectateForce = false;
 
     constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, name: string, loadout) {
         super(game, "", position, 0);
@@ -276,6 +287,16 @@ export class Player extends GameObject {
         }
         this.weapons[2].typeString = this.loadout.meleeType;
         this.weapons[2].typeId = this.loadout.melee;
+
+        if(this.game.gas.stage >= 9) {
+            this.inventory.bandage = 3;
+            this.inventory["9mm"] = 30;
+            this.inventory["762mm"] = 30;
+            const weapon = randomBoolean() ? "m9" : "ot38";
+            this.weapons[0].typeString = weapon;
+            this.weapons[0].typeId = TypeToId[weapon];
+            this.switchSlot(0);
+        }
 
         // Init body
         this.body = game.world.createBody({
@@ -360,6 +381,7 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
+        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             if(this.activeWeapon.ammo > 0) {
@@ -481,8 +503,14 @@ export class Player extends GameObject {
         const primary = deepCopy(this.weapons[0]);
         this.weapons[0] = deepCopy(this.weapons[1]);
         this.weapons[1] = primary;
+
+        var lastWep = this.lastWeaponSlot;
         if(this.selectedWeaponSlot === 0) this.switchSlot(1);
         else if(this.selectedWeaponSlot === 1) this.switchSlot(0);
+        else this.switchSlot(this.selectedWeaponSlot);
+        if (lastWep === 0) lastWep = 1;
+        else if (lastWep === 1) lastWep = 0;
+        this.lastWeaponSlot = lastWep;
     }
 
     weaponCooldownOver(): boolean {
@@ -563,6 +591,10 @@ export class Player extends GameObject {
             shotFx = false;
         }
         this.activeWeapon.ammo--;
+        if(this.activeWeapon.ammo === 0) {
+            this.shooting = false;
+            this.reload();
+        }
         this.weaponsDirty = true;
     }
 
@@ -645,6 +677,9 @@ export class Player extends GameObject {
             this.boost = 0;
             this.dead = true;
 
+            // Set killedBy
+            if(source instanceof Player && source !== this) this.killedBy = source;
+
             // Update role
             if(this.role === TypeToId.kill_leader) {
                 this.game.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
@@ -672,7 +707,6 @@ export class Player extends GameObject {
 
             // Decrement alive count
             if(!this.disconnected) {
-                this.game.aliveCount--;
                 this.game.aliveCountDirty = true;
             }
 
@@ -739,6 +773,14 @@ export class Player extends GameObject {
                 } else {
                     setTimeout(() => this.game.end(), 750);
                 }
+            } else {
+                let toSpectate;
+                if(source instanceof Player && source !== this) toSpectate = source;
+                else toSpectate = this.game.randomPlayer();
+                for(const spectator of this.spectators) {
+                    spectator.spectate(toSpectate);
+                }
+                this.spectators = [];
             }
         }
     }
@@ -812,6 +854,33 @@ export class Player extends GameObject {
         this.visibleObjects = newVisibleObjects;
     }
 
+    spectate(spectating: Player | null): void {
+        if(spectating === null) {
+            this.socket.close();
+            this.game.removePlayer(this);
+            return;
+        }
+        this.isSpectator = true;
+        if(this.spectating) {
+            removeFrom(this.spectating.spectators, this);
+            this.spectating.spectatorCountDirty = true;
+        }
+        this.spectating = spectating;
+        spectating.spectators.push(this);
+        spectating.healthDirty = true;
+        spectating.boostDirty = true;
+        spectating.zoomDirty = true;
+        spectating.weaponsDirty = true;
+        spectating.inventoryDirty = true;
+        spectating.activePlayerIdDirty = true;
+        spectating.spectatorCountDirty = true;
+        for(const object of spectating.visibleObjects) {
+            spectating.fullDirtyObjects.push(object);
+        }
+        spectating.fullDirtyObjects.push(spectating);
+        spectating.fullUpdate = true;
+    }
+
     isOnOtherSide(door): boolean {
         switch(door.orientation) {
             case 0: return this.position.x < door.position.x;
@@ -824,7 +893,11 @@ export class Player extends GameObject {
 
     sendPacket(packet: SendingPacket): void {
         const stream = SurvivBitStream.alloc(packet.allocBytes);
-        packet.serialize(stream);
+        try {
+            packet.serialize(stream);
+        } catch(e) {
+            console.error("Error serializing packet. Details:", e);
+        }
         this.sendData(stream);
     }
 

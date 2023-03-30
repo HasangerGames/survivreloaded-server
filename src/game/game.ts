@@ -10,7 +10,7 @@ import {
     type Explosion,
     lerp,
     log,
-    ObjectKind,
+    ObjectKind, random,
     randomPointInsideCircle,
     RedZoneStages,
     removeFrom,
@@ -65,7 +65,6 @@ export class Game {
     killLeader: { id: number, kills: number } = { id: 0, kills: 0 };
     killLeaderDirty = false;
 
-    aliveCount = 0; // The number of players alive. Does not include players who have quit the game
     aliveCountDirty = false; // Whether the alive count needs to be updated
 
     emotes: Emote[] = []; // All emotes sent this tick
@@ -259,13 +258,14 @@ export class Game {
                 }
 
                 // Pick up nearby items if on mobile
-                /*if(p.isMobile) {
+                if(p.isMobile) {
                     for(const object of p.visibleObjects) {
-                        if(object instanceof Loot && distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
+                        if(object instanceof Loot && (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) &&
+                            distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
                             object.interact(p);
                         }
                     }
-                }*/
+                }
 
                 // Drain adrenaline
                 if(p.boost > 0) p.boost -= 0.01136;
@@ -360,6 +360,22 @@ export class Game {
                     p.role = 0;
                 }
 
+                // Spectate logic
+                if(p.spectateBegin) {
+                    p.spectateBegin = false;
+                    p.spectate(p.killedBy ? !p.killedBy.dead ? p.killedBy : this.randomPlayer() : this.randomPlayer());
+                } else if(p.spectateNext && p.spectating) {
+                    p.spectateNext = false;
+                    let index: number = this.activePlayers.indexOf(p.spectating) + 1;
+                    if(index >= this.activePlayers.length) index = 0;
+                    p.spectate(this.activePlayers[index]);
+                } else if(p.spectatePrevious && p.spectating) {
+                    p.spectatePrevious = false;
+                    let index: number = this.activePlayers.indexOf(p.spectating) - 1;
+                    if(index < 0) index = this.activePlayers.length - 1;
+                    p.spectate(this.activePlayers[index]);
+                }
+
                 // Emotes
                 // TODO Determine which emotes should be sent to the client
                 if(this.emotes.length) {
@@ -401,7 +417,15 @@ export class Game {
                 }
 
                 // Send packets
-                p.sendPacket(new UpdatePacket(p));
+                if(!p.isSpectator) {
+                    const updatePacket = new UpdatePacket(p);
+                    const updateStream = SurvivBitStream.alloc(updatePacket.allocBytes);
+                    updatePacket.serialize(updateStream);
+                    p.sendData(updateStream);
+                    for(const spectator of p.spectators) {
+                        spectator.sendData(updateStream);
+                    }
+                }
                 if(this.aliveCountDirty) p.sendPacket(this.aliveCounts);
                 for(const kill of this.kills) p.sendPacket(kill);
                 for(const roleAnnouncement of this.roleAnnouncements) p.sendPacket(roleAnnouncement);
@@ -457,6 +481,10 @@ export class Game {
         return distanceBetween(position, this.gas.currentPos) >= this.gas.currentRad;
     }
 
+    get aliveCount(): number {
+        return this.activePlayers.length;
+    }
+
     addPlayer(socket, name, loadout): Player {
         let spawnPosition;
         if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
@@ -470,25 +498,30 @@ export class Game {
         }
 
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
-        this.objects.push(p);
         this.players.push(p);
         this.connectedPlayers.push(p);
-        this.activePlayers.push(p);
         this.newPlayers.push(p);
-        this.fullDirtyObjects.push(p);
-        this.aliveCount++;
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
-        p.updateVisibleObjects();
-        for(const player of this.players) {
-            if(player === p) continue;
-            player.fullDirtyObjects.push(p);
-            p.fullDirtyObjects.push(player);
+
+        if(this.allowJoin) {
+            this.objects.push(p);
+            this.activePlayers.push(p);
+            this.fullDirtyObjects.push(p);
+            p.updateVisibleObjects();
+            for(const player of this.players) {
+                if(player === p) continue;
+                player.fullDirtyObjects.push(p);
+                p.fullDirtyObjects.push(player);
+            }
+            p.fullDirtyObjects.push(p);
+        } else {
+            p.dead = true;
+            p.spectate(this.randomPlayer());
         }
-        p.fullDirtyObjects.push(p);
 
         p.sendPacket(new JoinedPacket(p));
-        const stream = SurvivBitStream.alloc(32768);
+        const stream = SurvivBitStream.alloc(49152);
         new MapPacket(p).serialize(stream);
         new UpdatePacket(p).serialize(stream);
         new AliveCountsPacket(this).serialize(stream);
@@ -503,6 +536,7 @@ export class Game {
     }
 
     static advanceRedZone(game: Game): void {
+        if(Debug.disableRedZone) return;
         const currentStage = RedZoneStages[game.gas.stage + 1];
         if(!currentStage) return;
         game.gas.stage++;
@@ -527,13 +561,8 @@ export class Game {
         game.gasCircleDirty = true;
 
         // Prevent new players from joining if the red zone shrinks far enough
-        if(game.gas.stage >= RedZoneStages.length - 2) {
+        if(game.gas.stage >= RedZoneStages.length - 3) {
             game.allowJoin = false;
-        }
-
-        // Auto-restart the server after 5 seconds if the red zone shrinks completely
-        if(game.gas.stage >= RedZoneStages.length) {
-            setTimeout(() => game.end(), 5000);
         }
 
         // Start the next stage
@@ -543,19 +572,35 @@ export class Game {
     }
 
     removePlayer(p: Player): void {
+        if(this.aliveCount > 0) {
+            const randomPlayer = this.randomPlayer();
+            for(const spectator of p.spectators) {
+                spectator.spectate(randomPlayer);
+            }
+            p.spectators = [];
+        } else {
+            this.end();
+        }
+
+        if(p.spectating) {
+            removeFrom(p.spectating.spectators, p);
+            p.spectating.spectatorCountDirty = true;
+        }
+
         p.movingUp = false;
         p.movingDown = false;
         p.movingLeft = false;
         p.movingRight = false;
         p.shootStart = false;
         p.shootHold = false;
+        p.isSpectator = false;
+        p.spectating = undefined;
 
         removeFrom(this.activePlayers, p);
         removeFrom(this.connectedPlayers, p);
 
         if(!p.dead) {
             // If player is dead, alive count has already been decremented
-            this.aliveCount--;
             this.aliveCountDirty = true;
 
             if(p.inventoryEmpty) {
@@ -573,6 +618,11 @@ export class Game {
         }
     }
 
+    randomPlayer(): Player | null {
+        if(this.aliveCount === 0) return null;
+        return this.activePlayers[random(0, this.activePlayers.length - 1)];
+    }
+
     assignKillLeader(p: Player): void {
         this.killLeaderDirty = true;
         if(this.killLeader !== p) { // If the player isn't already the Kill Leader...
@@ -583,9 +633,14 @@ export class Game {
     }
 
     end(): void {
+        log("Game ending");
         this.over = true;
         for(const p of this.connectedPlayers) {
-            if(!p.disconnected) p.socket.close();
+            if(!p.disconnected) {
+                try {
+                    p.socket.close();
+                } catch(e) {}
+            }
         }
     }
 

@@ -377,6 +377,10 @@ export function weightedRandom(items: any[], weights: number[]): any {
     return items[i];
 }
 
+export function randomBoolean(): boolean {
+    return Math.random() < 0.5;
+}
+
 export function distanceBetween(v1: Vec2, v2: Vec2): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
 
 export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number): boolean {

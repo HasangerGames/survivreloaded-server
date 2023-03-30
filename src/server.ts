@@ -8,6 +8,7 @@ import { InputPacket } from "./packets/receiving/inputPacket";
 import { EmotePacket } from "./packets/receiving/emotePacket";
 import { JoinPacket } from "./packets/receiving/joinPacket";
 import { DropItemPacket } from "./packets/receiving/dropItemPacket";
+import { SpectatePacket } from "./packets/receiving/spectatePacket";
 
 // Start the game
 let game = new Game();
@@ -140,12 +141,7 @@ app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
     upgrade: (res, req, context) => {
-        if(game.over) { // Start a new game if the old one is over
-            game = new Game();
-        } else if(!game.allowJoin) {
-            res.endWithoutBody(0, true);
-            return;
-        }
+        if(game.over) game = new Game(); // Start a new game if the old one is over
         if(Config.botProtection) {
             const ip = req.getHeader("cf-connecting-ip");
             if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 30) {
@@ -204,6 +200,9 @@ app.ws("/play", {
                     break;
                 case MsgType.Join:
                     new JoinPacket(socket.player).deserialize(stream);
+                    break;
+                case MsgType.Spectate:
+                    new SpectatePacket(socket.player).deserialize(stream);
                     break;
             }
         } catch(e) {
