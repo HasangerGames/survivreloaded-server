@@ -105,6 +105,9 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.Cancel:
                     p.cancelAction();
                     break;
+                case InputType.StowWeapons:
+                    p.switchSlot(2);
+                    break;
             }
         }
 
