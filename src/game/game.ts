@@ -518,7 +518,7 @@ export class Game {
         }
 
         p.sendPacket(new JoinedPacket(p));
-        const stream = SurvivBitStream.alloc(32768);
+        const stream = SurvivBitStream.alloc(49152);
         new MapPacket(p).serialize(stream);
         new UpdatePacket(p).serialize(stream);
         new AliveCountsPacket(this).serialize(stream);

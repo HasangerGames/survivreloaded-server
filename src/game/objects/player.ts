@@ -889,7 +889,11 @@ export class Player extends GameObject {
 
     sendPacket(packet: SendingPacket): void {
         const stream = SurvivBitStream.alloc(packet.allocBytes);
-        packet.serialize(stream);
+        try {
+            packet.serialize(stream);
+        } catch(e) {
+            console.error("Error serializing packet. Details:", e);
+        }
         this.sendData(stream);
     }
 
