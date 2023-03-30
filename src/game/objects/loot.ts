@@ -1,14 +1,14 @@
 import {
     Constants,
-    Items, log,
+    Items, log, LootTables,
     ObjectKind,
     removeFrom,
     type SurvivBitStream, TypeToId,
-    Weapons
+    Weapons, weightedRandom
 } from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
-import { Player } from "./player";
+import { type Player } from "./player";
 import { PickupMsgType, PickupPacket } from "../../packets/sending/pickupPacket";
 import { Circle, Vec2 } from "planck";
 
@@ -200,6 +200,49 @@ export class Loot extends GameObject {
 
 }
 
+export interface looseLootTiers { tier: string, min: number, max: number }
+
+export function generateLooseLootFromArray(game: Game, loot: looseLootTiers[], position: Vec2, layer: number): void {
+    for(let i = 0; i < loot.length; i++) {
+        const lootTable = LootTables[loot[i].tier];
+        if(!lootTable) return console.log(loot[i].tier);
+
+        const items: string[] = [], weights: number[] = [];
+        for(const item in lootTable) {
+            if(item === "metaTier") continue;
+            items.push(item);
+            weights.push(lootTable[item].weight);
+        }
+
+        const selectedItem: string = weightedRandom(items, weights);
+        if(lootTable.metaTier) {
+            generateLooseLootFromArray(game, [
+              Object.assign(loot[i], { tier: selectedItem })
+            ], position, layer);
+        } else {
+            const loot = new Loot(game, selectedItem, position, layer, lootTable[selectedItem].count);
+            game.objects.push(loot);
+            game.fullDirtyObjects.push(loot);
+
+            const weapon = Weapons[selectedItem];
+            if(weapon?.ammo) {
+                if(weapon.ammoSpawnCount === 1) {
+                    const ammo = new Loot(game, weapon.ammo, position, layer, 1);
+                    game.objects.push(ammo);
+                    game.fullDirtyObjects.push(ammo);
+                } else {
+                    const count: number = weapon.ammoSpawnCount / 2;
+                    const ammo: Loot[] = [
+                        new Loot(game, weapon.ammo, Vec2.add(position, Vec2(-1.5, -1.5)), layer, count),
+                        new Loot(game, weapon.ammo, Vec2.add(position, Vec2(1.5, -1.5)), layer, count)
+                    ];
+                    game.objects.push(...ammo);
+                    game.fullDirtyObjects.push(...ammo);
+                }
+            }
+        }
+    }
+}
 export function splitUpLoot(player: Player, item: string, amount: number): Loot[] {
     const loot: Loot[] = [];
     const dropCount = Math.floor(amount / 30);
