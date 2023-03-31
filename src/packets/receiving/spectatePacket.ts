@@ -1,5 +1,5 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { IdToGameType, ItemSlot, type SurvivBitStream } from "../../utils";
+import { type SurvivBitStream } from "../../utils";
 
 export class SpectatePacket extends ReceivingPacket {
 

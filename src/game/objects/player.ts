@@ -859,8 +859,8 @@ export class Player extends GameObject {
         this.visibleObjects = newVisibleObjects;
     }
 
-    spectate(spectating: Player | null): void {
-        if(spectating === null) {
+    spectate(spectating?: Player): void {
+        if(!spectating) {
             this.socket.close();
             this.game.removePlayer(this);
             return;

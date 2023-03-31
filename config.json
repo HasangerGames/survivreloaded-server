@@ -7,14 +7,13 @@
 
   "movementSpeed": 0.013,
   "botProtection": false,
+  "stopServerOnGameEnd": false,
   "debug": {
     "performanceLog": true,
     "performanceLogInterval": 200,
     "disableMapGeneration": false,
-    "fixedSpawnLocation": [360, 360],
+    "fixedSpawnLocation": [],
     "disableRedZone": false,
-    "disableStaticFileCache": true,
-    "autoStopServer": false,
-    "autoStopAfter": 300000
+    "disableStaticFileCache": true
   }
 }

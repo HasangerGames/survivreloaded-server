@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import {
-    Bullets,
+    Bullets, Config,
     Constants,
     DamageRecord,
     DamageType,
@@ -378,7 +378,10 @@ export class Game {
                 // Spectate logic
                 if(p.spectateBegin) {
                     p.spectateBegin = false;
-                    p.spectate(p.killedBy ? !p.killedBy.dead ? p.killedBy : this.randomPlayer() : this.randomPlayer());
+                    let toSpectate;
+                    if(p.killedBy && !p.killedBy.dead) toSpectate = p.killedBy;
+                    else toSpectate = this.randomPlayer();
+                    p.spectate(toSpectate);
                 } else if(p.spectateNext && p.spectating) {
                     p.spectateNext = false;
                     let index: number = this.activePlayers.indexOf(p.spectating) + 1;
@@ -479,10 +482,6 @@ export class Game {
             // Record performance and start the next tick
             const tickTime: number = Date.now() - tickStart;
             if(Debug.performanceLog) {
-                if(tickTime > 3000) {
-                    console.error("[ERROR] Server is overloaded. Last tick took >3000ms. loot:", this.loot.length, "bullets:", this.bullets.length, "emotes:", this.emotes.length, "explosions:", this.explosions.length);
-                    process.exit(1);
-                }
                 this.tickTimes.push(tickTime);
                 if(this.tickTimes.length === Debug.performanceLogInterval) {
                     let tickSum = 0;
@@ -516,33 +515,34 @@ export class Game {
             }
         }
 
+        if(this.aliveCount > 4) this.allowJoin = false; // TODO TESTING CODE, DELETE ME
+
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
         this.players.push(p);
         this.connectedPlayers.push(p);
         this.newPlayers.push(p);
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
-
-        if(this.allowJoin) {
-            this.objects.push(p);
-            this.activePlayers.push(p);
-            this.fullDirtyObjects.push(p);
-            p.updateVisibleObjects();
-            for(const player of this.players) {
-                if(player === p) continue;
-                player.fullDirtyObjects.push(p);
-                p.fullDirtyObjects.push(player);
-            }
-            p.fullDirtyObjects.push(p);
-        } else {
+        if(!this.allowJoin) {
             p.dead = true;
             p.spectate(this.randomPlayer());
+        } else {
+            p.updateVisibleObjects();
+            this.activePlayers.push(p);
         }
+        this.objects.push(p);
+        this.fullDirtyObjects.push(p);
+        for(const player of this.players) {
+            if(player === p) continue;
+            player.fullDirtyObjects.push(p);
+            p.fullDirtyObjects.push(player);
+        }
+        p.fullDirtyObjects.push(p);
 
         p.sendPacket(new JoinedPacket(p));
         const stream = SurvivBitStream.alloc(49152);
         new MapPacket(p).serialize(stream);
-        new UpdatePacket(p).serialize(stream);
+        new UpdatePacket(this.allowJoin ? p : p.spectating!).serialize(stream);
         new AliveCountsPacket(this).serialize(stream);
         p.sendData(stream);
 
@@ -637,8 +637,8 @@ export class Game {
         }
     }
 
-    randomPlayer(): Player | null {
-        if(this.aliveCount === 0) return null;
+    randomPlayer(): Player | undefined {
+        if(this.aliveCount === 0) return;
         return this.activePlayers[random(0, this.activePlayers.length - 1)];
     }
 
@@ -653,6 +653,7 @@ export class Game {
 
     end(): void {
         log("Game ending");
+        if(Config.stopServerOnGameEnd) process.exit(1);
         this.over = true;
         for(const p of this.connectedPlayers) {
             if(!p.disconnected) {
