@@ -281,6 +281,12 @@ export class Game {
                     p.damage(this.gas.damage, undefined, undefined, DamageType.Gas);
                 }
 
+                // Perform action again
+                if(p.performActionAgain) {
+                    p.performActionAgain = false;
+                    p.doAction(p.lastActionItem.typeString, p.lastActionItem.duration, p.lastActionType);
+                }
+
                 // Action item logic
                 if(p.actionDirty && Date.now() - p.actionItem.useEnd > 0) {
                     if(p.actionType === Constants.Action.UseItem) {
@@ -302,13 +308,22 @@ export class Game {
                         p.inventoryDirty = true;
                     } else if(p.actionType === Constants.Action.Reload) {
                         const weaponInfo = p.activeWeaponInfo;
-                        const difference: number = Math.min(p.inventory[weaponInfo.ammo], weaponInfo.maxClip - p.activeWeapon.ammo);
+                        let difference: number = Math.min(p.inventory[weaponInfo.ammo], weaponInfo.maxClip - p.activeWeapon.ammo);
+                        if(difference > weaponInfo.maxReload) {
+                            difference = weaponInfo.maxReload;
+                            p.performActionAgain = true;
+                        }
+
                         (p.activeWeapon.ammo as number) += difference;
                         p.inventory[weaponInfo.ammo] -= difference;
                         p.weaponsDirty = true;
                         p.inventoryDirty = true;
                     }
-                    p.cancelAction();
+                    if(p.performActionAgain) {
+                        p.lastActionItem = { ...p.actionItem };
+                        p.lastActionType = p.actionType;
+                        p.cancelAction();
+                    } else p.cancelAction();
                 }
 
                 // Weapon logic

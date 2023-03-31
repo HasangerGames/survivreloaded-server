@@ -4,12 +4,12 @@ import {
     circleCollision,
     CollisionType,
     Debug,
-    distanceBetween, Item,
+    distanceBetween,
     Maps,
     ObjectKind,
     Objects,
     random,
-    randomFloat, randomPointInsideCircle,
+    randomFloat,
     randomVec,
     rectCollision,
     rectRectCollision,
@@ -22,6 +22,7 @@ import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Vec2 } from "planck";
+import { generateLooseLootFromArray, type looseLootTiers } from "./objects/loot";
 
 export class Map {
     name: string;
@@ -229,16 +230,20 @@ export class Map {
                     part
                 );
             } else if(part.type === "random") {
-                const items = Object.keys(part.weights); const weights = Object.values(part.weights);
+                const items = Object.keys(part.weights);
+                const weights = Object.values(part.weights);
                 const randType = weightedRandom(items, weights as number[]);
                 this.genObstacle(
-                    randType,
-                    partPosition,
-                    layer,
-                    partOrientation,
-                    mapObject.scale,
-                    Objects[randType]
+                  randType,
+                  partPosition,
+                  layer,
+                  partOrientation,
+                  mapObject.scale,
+                  Objects[randType]
                 );
+            } else if(part.type === "loot_spawner") {
+                const loot: looseLootTiers[] = part.loot;
+                generateLooseLootFromArray(this.game, loot, partPosition, layer);
             } else if(part.type === "ignored") {
                 // Ignored
             } else {

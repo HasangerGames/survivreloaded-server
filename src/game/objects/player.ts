@@ -20,7 +20,7 @@ import {
     type Explosion,
     ItemSlot,
     MedTypes,
-    ObjectKind, random, randomBoolean,
+    ObjectKind, randomBoolean,
     randomFloat,
     rectRectCollision,
     removeFrom,
@@ -215,6 +215,10 @@ export class Player extends GameObject {
         duration: number
         useEnd: number
     };
+
+    performActionAgain = false;
+    lastActionType = 0;
+    lastActionItem: { duration: number, typeString: string, typeId: number, useEnd: number };
 
     actionDirty = false;
     usingItem = false;
@@ -504,7 +508,7 @@ export class Player extends GameObject {
         this.weapons[0] = deepCopy(this.weapons[1]);
         this.weapons[1] = primary;
 
-        var lastWep = this.lastWeaponSlot;
+        let lastWep = this.lastWeaponSlot;
         if(this.selectedWeaponSlot === 0) this.switchSlot(1);
         else if(this.selectedWeaponSlot === 1) this.switchSlot(0);
         else this.switchSlot(this.selectedWeaponSlot);
@@ -570,6 +574,7 @@ export class Player extends GameObject {
             this.reload();
             return;
         }
+        this.cancelAction();
         this.shooting = true;
         const weapon = Weapons[this.activeWeapon.typeString];
         const spread = degreesToRadians(weapon.shotSpread);
@@ -611,7 +616,7 @@ export class Player extends GameObject {
         this.actionSeq = 1;
 
         if(!skipRecalculateSpeed) this.recalculateSpeed();
-        this.game!.fullDirtyObjects.push(this);
+        this.game.fullDirtyObjects.push(this);
         this.fullDirtyObjects.push(this);
     }
 
