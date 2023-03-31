@@ -464,6 +464,10 @@ export class Game {
             // Record performance and start the next tick
             const tickTime: number = Date.now() - tickStart;
             if(Debug.performanceLog) {
+                if(tickTime > 3000) {
+                    console.error("[ERROR] Server is overloaded. Last tick took >3000ms. loot:", this.loot.length, "bullets:", this.bullets.length, "emotes:", this.emotes.length, "explosions:", this.explosions.length);
+                    process.exit(1);
+                }
                 this.tickTimes.push(tickTime);
                 if(this.tickTimes.length === Debug.performanceLogInterval) {
                     let tickSum = 0;
