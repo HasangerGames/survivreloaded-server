@@ -208,7 +208,7 @@ export interface looseLootTiers { tier: string, min: number, max: number }
 export function generateLooseLootFromArray(game: Game, loot: looseLootTiers[], position: Vec2, layer: number): void {
     for(let i = 0; i < loot.length; i++) {
         const lootTable = LootTables[loot[i].tier];
-        if(!lootTable) return console.log(loot[i].tier);
+        if(!lootTable) return;
 
         const items: string[] = [], weights: number[] = [];
         for(const item in lootTable) {
