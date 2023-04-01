@@ -397,7 +397,9 @@ export class Game {
                 // Emotes
                 // TODO Determine which emotes should be sent to the client
                 if(this.emotes.length) {
-                    for(const emote of this.emotes) p.emotes.push(emote);
+                    for(const emote of this.emotes) {
+                        if(!emote.isPing || emote.playerId === p.id) p.emotes.push(emote);
+                    }
                 }
 
                 // Explosions
