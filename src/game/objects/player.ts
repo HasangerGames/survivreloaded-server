@@ -569,7 +569,7 @@ export class Player extends GameObject {
     }
 
     shootGun(): void {
-        if(this.activeWeapon.ammo === 0) {
+        if(this.activeWeapon.typeString !== "awc" && this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
             return;
@@ -596,7 +596,7 @@ export class Player extends GameObject {
             shotFx = false;
         }
         this.activeWeapon.ammo--;
-        if(this.activeWeapon.ammo === 0) {
+        if(this.activeWeapon.typeString !== "awc" && this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
         }

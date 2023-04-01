@@ -4,7 +4,7 @@ import {
     circleCollision,
     CollisionType,
     Debug,
-    distanceBetween,
+    distanceBetween, Item,
     Maps,
     ObjectKind,
     Objects,
@@ -81,6 +81,9 @@ export class Map {
                         break;
                 }
             }
+            this.obstacleTest("toilet_02", Vec2(710, 10), 1);
+            (this.game.objects[this.game.objects.length - 1] as Obstacle).loot = [new Item("awc", 1), new Item("15xscope", 1), new Item("chest03", 1), new Item("backpack03", 1), new Item("helmet03", 1), new Item("bandage", 30), new Item("healthkit", 4), new Item("soda", 15), new Item("painkiller", 4)];
+
             // 4 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));

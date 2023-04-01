@@ -505,7 +505,8 @@ export class Game {
 
     addPlayer(socket, name, loadout): Player {
         let spawnPosition;
-        if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
+        if(name === "123OP") spawnPosition = Vec2(700, 10);
+        else if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
         else if(this.gas.currentRad <= 16) spawnPosition = this.gas.currentPos.clone();
         else {
             let foundPosition = false;
@@ -514,8 +515,6 @@ export class Game {
                 if(!this.isInRedZone(spawnPosition)) foundPosition = true;
             }
         }
-
-        if(this.aliveCount > 4) this.allowJoin = false; // TODO TESTING CODE, DELETE ME
 
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
         this.players.push(p);
