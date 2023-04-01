@@ -43,8 +43,16 @@ npm start
 
 To open the game, go to http://127.0.0.1:8000 in your browser.
 
-If you made any changes to the code, type `npm run test` instead.
+### Step 5: Develop the Game Locally
 
+To start developing the game locally, run this command:
+
+```
+npm run dev
+
+```
+
+This will start the development server and automatically rebuild the server on changes.
 
 ## FAQ
 
