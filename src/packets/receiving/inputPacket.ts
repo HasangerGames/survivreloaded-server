@@ -98,6 +98,14 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.EquipLastWeap:
                     p.switchSlot(p.lastWeaponSlot);
                     break;
+                    
+                case InputType.EquipNextScope:
+                    p.setScope(ScopeTypes[ScopeTypes.indexOf(p.scope.typeString) + 1], true);
+                    break;
+
+                case InputType.EquipPrevScope:
+                    p.setScope(ScopeTypes[ScopeTypes.indexOf(p.scope.typeString) - 1], true);
+                    break;
 
                 case InputType.Reload:
                     p.reload();
