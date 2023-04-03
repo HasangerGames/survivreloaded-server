@@ -1,5 +1,5 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { Constants, InputType, objectCollision, type SurvivBitStream, TypeToId } from "../../utils";
+import { Constants, InputType, objectCollision, ScopeTypes, type SurvivBitStream, TypeToId } from "../../utils";
 import { Vec2 } from "planck";
 import { type Obstacle } from "../../game/objects/obstacle";
 import { Loot } from "../../game/objects/loot";
@@ -140,7 +140,7 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.EquipLastWeap:
                     p.switchSlot(p.lastWeaponSlot);
                     break;
-                    
+
                 case InputType.EquipNextScope:
                     p.setScope(ScopeTypes[ScopeTypes.indexOf(p.scope.typeString) + 1], true);
                     break;
