@@ -75,6 +75,7 @@ export class Bullet {
             position,
             fixedRotation: true
         });
+        this.body.setBullet(true);
         this.body.createFixture({
             shape: Circle(0),
             friction: 0.0,
