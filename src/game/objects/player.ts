@@ -337,7 +337,18 @@ export class Player extends GameObject {
         this.zoomDirty = true;
     }
 
-    setScope(scope: string): void {
+    setScope(scope: string, skipScope?: boolean): void {
+        if(this.scope.typeString !== scope && skipScope && scope) {
+            let direction = ScopeTypes.indexOf(scope) > ScopeTypes.indexOf(this.scope.typeString) ? 1 : -1;
+            
+            while(!this.inventory[scope]) {
+                let newScope = ScopeTypes[clamp(ScopeTypes.indexOf(scope) + direction, 0, ScopeTypes.length-1)];
+                if (newScope === scope)
+                    break;
+                scope = newScope;
+            }
+        }
+        
         if(!this.inventory[scope]) return;
 
         this.scope.typeString = scope;

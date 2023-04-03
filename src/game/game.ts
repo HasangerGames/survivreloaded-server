@@ -650,7 +650,7 @@ export class Game {
 
     assignKillLeader(p: Player): void {
         this.killLeaderDirty = true;
-        if(this.killLeader !== p) { // If the player isn't already the Kill Leader...
+        if(this.killLeader !== p || !p.dead) { // If the player isn't already the Kill Leader... //And isn't dead
             p.role = TypeToId.kill_leader;
             this.killLeader = p;
             this.roleAnnouncements.add(new RoleAnnouncementPacket(p, true, false));
