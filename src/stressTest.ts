@@ -1,11 +1,11 @@
 import { WebSocket } from "ws";
-import { MsgType, random, SurvivBitStream } from "./utils";
+import { InputType, MsgType, random, randomBoolean, SurvivBitStream } from "./utils";
 import { Vec2 } from "planck";
 
 const config = {
-    address: "wss://test.resurviv.io/play",
-    botCount: 50,
-    joinDelay: 100
+    address: "ws://127.0.0.1:8000/play",
+    botCount: 79,
+    joinDelay: 50
 };
 
 for(let i = 0; i < config.botCount; i++) {
@@ -13,7 +13,10 @@ for(let i = 0; i < config.botCount; i++) {
         let movingUp = false,
             movingDown = false,
             movingLeft = false,
-            movingRight = false;
+            movingRight = false,
+            shootStart = false,
+            shootHold = false,
+            interact = false;
         const ws = new WebSocket(config.address);
         ws.on("error", console.error);
         ws.on("open", () => {
@@ -26,14 +29,20 @@ for(let i = 0; i < config.botCount; i++) {
                 stream.writeBoolean(movingUp);
                 stream.writeBoolean(movingDown);
 
-                stream.writeBoolean(false); // Shoot start
-                stream.writeBoolean(false); // Shoot hold
+                stream.writeBoolean(shootStart);
+                stream.writeBoolean(shootHold);
                 stream.writeBoolean(false); // Portrait
                 stream.writeBoolean(false); // Touch move active
 
                 stream.writeUnitVec(Vec2(0, 0), 10); // To mouse dir
                 stream.writeFloat(0, 0, 64, 8); // Distance to mouse
-                stream.writeBits(0, 4); // Extra inputs
+                // Extra inputs
+                if(interact) {
+                    stream.writeBits(1, 4); // Input count
+                    stream.writeUint8(InputType.Interact);
+                } else {
+                    stream.writeBits(0, 4);
+                }
                 stream.writeGameType(0); // Item in use
                 stream.writeBits(0, 6); // Padding
                 ws.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)));
@@ -44,6 +53,9 @@ for(let i = 0; i < config.botCount; i++) {
             movingDown = false;
             movingLeft = false;
             movingRight = false;
+            shootStart = randomBoolean();
+            shootHold = randomBoolean();
+            interact = randomBoolean();
             const direction: number = random(1, 8);
             switch(direction) {
                 case 1:

@@ -1,10 +1,11 @@
 import { BitStream } from "bit-buffer";
 import fs from "fs";
 import { type Body, Box, Circle, Vec2, type World } from "planck";
-import { type Obstacle } from "./game/objects/obstacle";
+import { Obstacle } from "./game/objects/obstacle";
 import { type GameObject } from "./game/gameObject";
 import { type Bullet } from "./game/bullet";
-import { type Player } from "./game/objects/player";
+import { Player } from "./game/objects/player";
+import { Loot } from "./game/objects/loot";
 
 export const Objects = readJson("data/objects.json");
 export const Maps = readJson("data/maps.json");
@@ -429,6 +430,22 @@ export function distanceToRect(min: Vec2, max: Vec2, circlePos: Vec2, circleRad:
     return { collided: distSquared < radSquared, distance: radSquared - distSquared };
 }
 
+export function objectCollision(object: GameObject, position: Vec2, radius: number): CollisionRecord {
+    let record;
+    if(object instanceof Obstacle) {
+        if(object.collision.type === CollisionType.Circle) {
+            record = distanceToCircle(object.position, object.collision.rad, position, radius);
+        } else if(object.collision.type === CollisionType.Rectangle) {
+            record = distanceToRect(object.collision.min, object.collision.max, position, radius);
+        }
+    } else if(object instanceof Player) {
+        record = distanceToCircle(object.position, object.scale, position, radius);
+    } else if(object instanceof Loot) {
+        record = distanceToCircle(object.position, 0, position, radius);
+    }
+    return record;
+}
+
 export function addOrientations(n1: number, n2: number): number {
     return (n1 + n2) % 4;
 }
@@ -482,7 +499,12 @@ export function rotateRect(pos: Vec2, min: Vec2, max: Vec2, scale: number, orien
     };
 }
 
-export function bodyFromCollisionData(world: World, data, position: Vec2, orientation = 0, scale = 1, obstacle?: Obstacle): Body | null {
+export function rotateHalfExtents(hx: number, hy: number, fromOrientation: number, toOrientation: number): { hx: number, hy: number } {
+    return { hx: hy, hy: hx };
+    //return { hx: -1, hy: -1 };
+}
+
+export function bodyFromCollisionData(world: World, data, position: Vec2, orientation = 0, scale = 1, obstacle: Obstacle): Body | null {
     let body;
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
@@ -497,15 +519,17 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
         });
     } else if(data.type === CollisionType.Rectangle) {
         const rect = rotateRect(position, data.min, data.max, scale, orientation);
-        const width = rect.max.x - rect.min.x, height = rect.max.y - rect.min.y;
+        const width = (rect.max.x - rect.min.x) / 2, height = (rect.max.y - rect.min.y) / 2;
         if(width === 0 || height === 0) return null;
+        obstacle.collision.halfWidth = width;
+        obstacle.collision.halfHeight = height;
         body = world.createBody({
             type: "static",
             position,
             fixedRotation: true
         });
         body.createFixture({
-            shape: Box(width / 2, height / 2),
+            shape: Box(width, height),
             userData: obstacle
         });
     }

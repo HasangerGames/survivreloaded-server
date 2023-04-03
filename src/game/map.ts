@@ -4,7 +4,7 @@ import {
     circleCollision,
     CollisionType,
     Debug,
-    distanceBetween, Item,
+    distanceBetween,
     Maps,
     ObjectKind,
     Objects,
@@ -23,6 +23,7 @@ import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Vec2 } from "planck";
 import { generateLooseLootFromArray, type looseLootTiers } from "./objects/loot";
+import { type GameObject } from "./gameObject";
 
 export class Map {
     name: string;
@@ -81,14 +82,12 @@ export class Map {
                         break;
                 }
             }
-            this.obstacleTest("toilet_02", Vec2(710, 10), 1);
-            (this.game.objects[this.game.objects.length - 1] as Obstacle).loot = [new Item("awc", 1), new Item("15xscope", 1), new Item("chest03", 1), new Item("backpack03", 1), new Item("helmet03", 1), new Item("bandage", 30), new Item("healthkit", 4), new Item("soda", 15), new Item("painkiller", 4)];
-
             // 4 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            this.genBuildingTest("police_01", 0);
+            //this.genBuildingTest("hedgehog_01", 0);
+            //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
 
             // Items test
             // this.obstacleTest("crate_01", Vec2(453, 153), 1);
@@ -142,10 +141,51 @@ export class Map {
 
             (this.game.objects[12] as Obstacle).loot = [new Item("backpack03", 1)];*/
         }
+
+        // Calculate visible objects
+        const supportedZoomLevels: number[] = [28, 36, 48, 32, 40, 48];
+        if(this.game.has8x) supportedZoomLevels.push(64, 68);
+        if(this.game.has15x) supportedZoomLevels.push(88, 104);
+        for(const zoomLevel of supportedZoomLevels) {
+            this.game.visibleObjects[zoomLevel] = {};
+            const xCullDist = zoomLevel * 1.55, yCullDist = zoomLevel * 1.25;
+            for(let x = 0; x <= this.width / 10; x++) {
+                this.game.visibleObjects[zoomLevel][x * 10] = {};
+                for(let y = 0; y <= this.height / 10; y++) {
+                    const visibleObjects = new Set<GameObject>();
+
+                    const minX = (x * 10) - xCullDist,
+                          minY = (y * 10) - yCullDist,
+                          maxX = (x * 10) + xCullDist,
+                          maxY = (y * 10) + yCullDist;
+                    const min = Vec2(minX, minY),
+                          max = Vec2(maxX, maxY);
+
+                    for(const object of this.game.staticObjects) {
+                        let isVisible = false;
+                        if((object as any).mapObstacleBounds) {
+                            for(const bounds of (object as any).mapObstacleBounds) {
+                                if(rectRectCollision(min, max, bounds.min, bounds.max)) {
+                                    isVisible = true;
+                                    break;
+                                }
+                            }
+                        } else {
+                            isVisible = object.position.x > minX &&
+                                        object.position.x < maxX &&
+                                        object.position.y > minY &&
+                                        object.position.y < maxY;
+                        }
+                        if(isVisible) visibleObjects.add(object);
+                    }
+                    this.game.visibleObjects[zoomLevel][x * 10][y * 10] = visibleObjects;
+                }
+            }
+        }
     }
 
-    private obstacleTest(type: string, position: Vec2, scale: number): void {
-        this.genObstacle(type, position, 0, 1, scale, Objects[type]);
+    private obstacleTest(type: string, position: Vec2, orientation = 0, scale = 1): void {
+        this.genObstacle(type, position, 0, orientation, scale, Objects[type]);
     }
 
     private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {
@@ -178,7 +218,7 @@ export class Map {
                 // console.warn(`Unsupported object type: ${layer.type}`);
             }
         }
-        this.game.objects.push(new Structure(this.game, typeString, position, orientation, layerObjIds));
+        this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
     }
 
     private genBuildings(count, type, building): void {
@@ -283,11 +323,11 @@ export class Map {
                 this.placeDebugMarker(Vec2(bounds.max.x, bounds.min.y));
             }
         }
-        this.game.objects.push(building);
+        this.game.staticObjects.add(building);
     }
 
     private placeDebugMarker(position: Vec2): void {
-        this.game.objects.push(new Obstacle(
+        this.game.staticObjects.add(new Obstacle(
             this.game,
             "house_column_1",
             position,
@@ -304,7 +344,7 @@ export class Map {
                         orientation: number,
                         scale: number,
                         obstacleData): void {
-        this.game.objects.push(new Obstacle(
+        this.game.staticObjects.add(new Obstacle(
             this.game,
             typeString,
             position,
@@ -362,7 +402,7 @@ export class Map {
                 thisRad = collisionData.rad;
             }
 
-            for(const that of this.game.objects) {
+            for(const that of this.game.staticObjects) {
                 if(that instanceof Building) {
                     for(const thatBounds of that.mapObstacleBounds) {
                          if(collisionData.type === CollisionType.Circle) {

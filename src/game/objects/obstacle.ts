@@ -1,24 +1,27 @@
 import {
+    addAdjust,
     bodyFromCollisionData,
     CollisionType,
+    deepCopy,
     distanceBetween,
     Explosion,
     Item,
     LootTables,
     ObjectKind,
-    Objects, random,
+    Objects,
+    random,
+    rectCollision,
+    rotateRect,
     type SurvivBitStream,
-    TypeToId, Weapons,
-    weightedRandom,
-    rotateRect, deepCopy, Items
+    TypeToId,
+    Weapons,
+    weightedRandom
 } from "../../utils";
 import { type Game } from "../game";
-import { type Player } from "./player";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
-import { Vec2 } from "planck";
-
-// enum DoorOpenState { Closed, Open, OpenAlt }
+import { Box, Vec2 } from "planck";
+import { type Player } from "./player";
 
 export class Obstacle extends GameObject {
 
@@ -55,6 +58,10 @@ export class Obstacle extends GameObject {
         open: boolean
         canUse: boolean
         locked: boolean
+        hinge: Vec2
+        closedOrientation: number
+        openOrientation: number
+        openAltOrientation: number
     };
 
     showOnMap: boolean;
@@ -92,15 +99,70 @@ export class Obstacle extends GameObject {
         this.isSkin = false;
         this.showOnMap = data.map ? data.map.display : false;
 
+        this.collidable = data.collidable;
+        this.reflectBullets = data.reflectBullets;
+        this.destructible = data.destructible;
+        this.damageable = data.destructible;
+        this.destroyType = data.destroyType;
+        this.explosion = data.explosion;
         this.isDoor = data.door !== undefined;
+
+        this.collision = deepCopy(data.collision);
+        const collisionPos = this.isDoor ? addAdjust(position, data.hinge, this.orientation) : position;
+        if(this.collidable) {
+            this.body = bodyFromCollisionData(this.game.world, data.collision, collisionPos, orientation, scale, this);
+        }
+        if(this.collision.type === CollisionType.Rectangle) {
+            const rotatedRect = rotateRect(position, data.collision.min, data.collision.max, this.scale, this.orientation);
+            this.collision.min = this.collision.initialMin = rotatedRect.min;
+            this.collision.max = this.collision.initialMax = rotatedRect.max;
+        }
+
         if(this.isDoor) {
             this.door = {
                 open: false,
                 canUse: data.door.canUse,
-                locked: false
+                locked: false,
+                hinge: data.hinge,
+                closedOrientation: this.orientation,
+                openOrientation: 0,
+                openAltOrientation: 0
             };
             this.interactable = true;
             this.interactionRad = data.door.interactionRad;
+
+            switch(orientation) {
+                case 0:
+                    this.door.openOrientation = 1;
+                    this.door.openAltOrientation = 3;
+                    break;
+                case 1:
+                    this.door.openOrientation = 2;
+                    this.door.openAltOrientation = 0;
+                    break;
+                case 2:
+                    this.door.openOrientation = 3;
+                    this.door.openAltOrientation = 1;
+                    break;
+                case 3:
+                    this.door.openOrientation = 0;
+                    this.door.openAltOrientation = 2;
+                    break;
+            }
+            this.collision.doorOpen = rotateRect(
+                position,
+                data.collision.min,
+                data.collision.max,
+                this.scale,
+                this.door.openOrientation
+            );
+            this.collision.doorOpenAlt = rotateRect(
+                position,
+                data.collision.min,
+                data.collision.max,
+                this.scale,
+                this.door.openAltOrientation
+            );
         }
 
         this.isButton = data.button !== undefined;
@@ -112,23 +174,6 @@ export class Obstacle extends GameObject {
         }
 
         this.isPuzzlePiece = false;
-
-        this.collidable = data.collidable && !this.isDoor; // TODO THIS DISABLES DOOR COLLISIONS
-        this.reflectBullets = data.reflectBullets;
-        this.destructible = data.destructible;
-        this.damageable = data.destructible;
-        this.destroyType = data.destroyType;
-        this.explosion = data.explosion;
-        if(this.collidable) {
-            this.body = bodyFromCollisionData(this.game.world, data.collision, position, orientation, scale, this);
-        }
-
-        this.collision = deepCopy(data.collision); // JSON.parse(JSON.stringify(x)) to deep copy object
-        if(this.collision.type === CollisionType.Rectangle) {
-            const rotatedRect = rotateRect(this.position, this.collision.min, this.collision.max, this.scale, this.orientation);
-            this.collision.min = rotatedRect.min;
-            this.collision.max = rotatedRect.max;
-        }
 
         if(data.loot) {
             this.loot = [];
@@ -158,6 +203,8 @@ export class Obstacle extends GameObject {
             weights.push(lootTable[item].weight);
         }
         const selectedItem = weightedRandom(items, weights);
+        if(selectedItem === "8xscope") this.game.has8x = true;
+        else if(selectedItem === "15xscope") this.game.has15x = true;
         if(lootTable.metaTier) {
             this.getLoot(selectedItem);
         } else {
@@ -201,22 +248,24 @@ export class Obstacle extends GameObject {
                     1,
                     Objects[this.destroyType]
                 );
-                this.game.objects.push(replacementObject);
-                this.game.fullDirtyObjects.push(replacementObject);
+                this.game.dynamicObjects.add(replacementObject);
+                this.game.fullDirtyObjects.add(replacementObject);
+                this.game.updateObjects = true;
             }
             if(this.explosion) {
                 const explosion: Explosion = new Explosion(this.position, TypeToId[this.explosion], 0);
-                this.game.explosions.push(explosion);
+                this.game.explosions.add(explosion);
                 for(const player of this.game.players) {
                     if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this);
                 }
             }
             this.game.world.destroyBody(this.body!);
-            this.game.fullDirtyObjects.push(this);
+            this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
                 const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count);
-                this.game.objects.push(loot);
-                this.game.fullDirtyObjects.push(loot);
+                this.game.dynamicObjects.add(loot);
+                this.game.fullDirtyObjects.add(loot);
+                this.game.updateObjects = true;
             }
         } else {
             this.healthT = this.health / this.maxHealth;
@@ -231,7 +280,6 @@ export class Obstacle extends GameObject {
                 for(let i = 0; i < shape.m_vertices.length; i++) {
                     shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
                 }
-
                 const rotatedRect = rotateRect(this.position,
                                                Vec2.sub(this.collision.min, this.position),
                                                Vec2.sub(this.collision.max, this.position),
@@ -239,24 +287,74 @@ export class Obstacle extends GameObject {
                 this.collision.min = rotatedRect.min;
                 this.collision.max = rotatedRect.max;
             }
-            this.game.partialDirtyObjects.push(this);
+            this.game.partialDirtyObjects.add(this);
         }
     }
 
     interact(p: Player): void {
+        if(this.dead) return;
         this.door.open = !this.door.open;
         // TODO Make the door push players out of the way when opened, not just when closed
         // When pushing, ensure that they won't get stuck in anything.
         // If they do, move them to the opposite side regardless of their current position.
-        /* if(this.doorOpen) {
+        if(this.door.open) {
             if(p.isOnOtherSide(this)) {
-
+                this.orientation = this.door.openAltOrientation;
+                this.collision.min = this.collision.doorOpenAlt.min;
+                this.collision.max = this.collision.doorOpenAlt.max;
             } else {
-
+                this.orientation = this.door.openOrientation;
+                this.collision.min = this.collision.doorOpen.min;
+                this.collision.max = this.collision.doorOpen.max;
             }
         } else {
-
-        } */
+            this.orientation = this.door.closedOrientation;
+            this.collision.min = this.collision.initialMin;
+            this.collision.max = this.collision.initialMax;
+            if(rectCollision(this.collision.min, this.collision.max, p.position, p.scale)) {
+                const newPosition = p.position;
+                if(p.isOnOtherSide(this)) {
+                    switch(this.orientation) {
+                        case 0:
+                            newPosition.x = this.collision.min.x - p.scale;
+                            break;
+                        case 1:
+                            newPosition.y = this.collision.min.y - p.scale;
+                            break;
+                        case 2:
+                            newPosition.x = this.collision.max.x as number + p.scale;
+                            break;
+                        case 3:
+                            newPosition.y = this.collision.max.y as number + p.scale;
+                            break;
+                    }
+                } else {
+                    switch(this.orientation) {
+                        case 0:
+                            newPosition.x = this.collision.max.x as number + p.scale;
+                            break;
+                        case 1:
+                            newPosition.y = this.collision.max.y as number + p.scale;
+                            break;
+                        case 2:
+                            newPosition.x = this.collision.min.x - p.scale;
+                            break;
+                        case 3:
+                            newPosition.y = this.collision.min.y - p.scale;
+                            break;
+                    }
+                }
+                p.body!.setPosition(newPosition);
+            }
+        }
+        this.body!.setPosition(addAdjust(this.position, this.door.hinge, this.orientation!));
+        this.body!.destroyFixture(this.body!.getFixtureList()!);
+        const flip: boolean = this.orientation !== this.door.closedOrientation;
+        this.body!.createFixture({
+            shape: Box(flip ? this.collision.halfHeight : this.collision.halfWidth, flip ? this.collision.halfWidth : this.collision.halfHeight),
+            userData: this
+        });
+        this.game.fullDirtyObjects.add(this);
     }
 
     serializePartial(stream: SurvivBitStream): void {

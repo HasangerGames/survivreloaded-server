@@ -60,6 +60,7 @@ export class Bullet {
                 shotFx: boolean,
                 layer: number,
                 game: Game) {
+        const bulletData = Bullets[typeString];
         this.shooter = shooter;
         this.initialPosition = position;
         this.direction = direction;
@@ -67,7 +68,7 @@ export class Bullet {
         this.typeId = TypeToId[typeString];
         this.shotSourceType = shotSourceType;
         this.shotFx = shotFx;
-        this.maxDistance = Bullets[typeString].distance;
+        this.maxDistance = bulletData.distance;
         this.layer = layer;
         this.body = game.world.createBody({
             type: "dynamic",
@@ -86,7 +87,7 @@ export class Bullet {
             center: Vec2(0, 0),
             mass: 0.0
         });
-        this.body.setLinearVelocity(direction);
+        this.body.setLinearVelocity(direction.clone().mul(bulletData.speedMultiplier ?? 1));
     }
 
     get position(): Vec2 {

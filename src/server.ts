@@ -144,7 +144,7 @@ app.ws("/play", {
         if(game.over) game = new Game(); // Start a new game if the old one is over
         if(Config.botProtection) {
             const ip = req.getHeader("cf-connecting-ip");
-            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 30) {
+            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 40) {
                 if(!bannedIPs.includes(ip)) bannedIPs.push(ip);
                 res.endWithoutBody(0, true);
                 log(`Connection blocked: ${ip}`);
@@ -185,7 +185,7 @@ app.ws("/play", {
         log(`${socket.player.name} joined the game`);
     },
     message: (socket, message) => {
-        const stream = new SurvivBitStream(message, 0);
+        const stream = new SurvivBitStream(message);
         try {
             const msgType = stream.readUint8();
             switch(msgType) {
@@ -222,10 +222,10 @@ process.on("SIGINT", () => {
     process.exit();
 });
 
-log("Surviv Reloaded Server v0.4.0");
+log("Surviv Reloaded Server v0.4.1");
 app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
-    log(`Listening on ${Config.https ? "https://" : "http://"}${Config.host}:${Config.port}`);
+    log(`Listening on ${Config.host}:${Config.port}`);
     log("Press Ctrl+C to exit.");
 });
 

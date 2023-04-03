@@ -7,22 +7,19 @@ import {
     AllowedMelee,
     AllowedSkins,
     AmmoTypes,
-    type CollisionRecord,
-    CollisionType,
     Config,
     Constants,
     DamageType,
     deepCopy,
     degreesToRadians,
-    distanceToCircle,
-    distanceToRect,
     Emote,
     type Explosion,
     ItemSlot,
     MedTypes,
-    ObjectKind, randomBoolean,
+    objectCollision,
+    ObjectKind,
+    randomBoolean,
     randomFloat,
-    rectRectCollision,
     removeFrom,
     ScopeTypes,
     SurvivBitStream,
@@ -43,7 +40,7 @@ import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPa
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
-import { Obstacle } from "./obstacle";
+
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -73,10 +70,10 @@ export class Player extends GameObject {
     xCullDist: number;
     yCullDist: number;
 
-    visibleObjects: GameObject[] = []; // Objects the player can see
-    partialDirtyObjects: GameObject[] = []; // Objects that need to be partially updated
-    fullDirtyObjects: GameObject[] = []; // Objects that need to be fully updated
-    deletedObjects: GameObject[] = []; // Objects that need to be deleted
+    visibleObjects = new Set<GameObject>(); // Objects the player can see
+    partialDirtyObjects = new Set<GameObject>(); // Objects that need to be partially updated
+    fullDirtyObjects = new Set<GameObject>(); // Objects that need to be fully updated
+    deletedObjects = new Set<GameObject>(); // Objects that need to be deleted
 
     moving = false;
     movingUp = false;
@@ -124,8 +121,8 @@ export class Player extends GameObject {
     isMobile: boolean;
     touchMoveDir: Vec2;
 
-    emotes: Emote[] = [];
-    explosions: Explosion[] = [];
+    emotes = new Set<Emote>();
+    explosions = new Set<Explosion>();
 
     body: Body; // The player's Planck.js Body
 
@@ -237,7 +234,7 @@ export class Player extends GameObject {
 
     killedBy?: Player;
 
-    spectators: Player[] = [];
+    spectators = new Set<Player>();
     spectating?: Player;
 
     isSpectator = false;
@@ -380,8 +377,8 @@ export class Player extends GameObject {
         if((chosenSlot === 0 || chosenSlot === 1) && this.activeWeapon.ammo === 0) this.reload();
 
         this.weaponsDirty = true;
-        this.game!.fullDirtyObjects.push(this);
-        this.fullDirtyObjects.push(this);
+        this.game!.fullDirtyObjects.add(this);
+        this.fullDirtyObjects.add(this);
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
@@ -398,8 +395,9 @@ export class Player extends GameObject {
                 if(overAmount > 0) {
                     const droppedAmmo = splitUpLoot(this, ammoType, overAmount);
                     for(const l of droppedAmmo) {
-                        this.game.objects.push(l);
-                        this.game.fullDirtyObjects.push(l);
+                        this.game.dynamicObjects.add(l);
+                        this.game.fullDirtyObjects.add(l);
+                        this.game.updateObjects = true;
                     }
                     (this.inventory[ammoType] as number) -= overAmount;
                 }
@@ -427,8 +425,9 @@ export class Player extends GameObject {
             this.cancelAction();
             this.weaponsDirty = true;
             const loot = new Loot(this.game, item, this.position, this.layer, 1);
-            this.game.objects.push(loot);
-            this.game.fullDirtyObjects.push(loot);
+            this.game.dynamicObjects.add(loot);
+            this.game.fullDirtyObjects.add(loot);
+            this.game.updateObjects = true;
         }
         // For individual items
         if(slot === ItemSlot.Primary) {
@@ -445,9 +444,11 @@ export class Player extends GameObject {
                     const loot = new Loot(this.game, `helmet0${this.helmetLevel}`, this.position, this.layer, 1);
                     this.helmetLevel = 0;
 
-                    this.fullDirtyObjects.push(this);
-                    this.game.objects.push(loot);
-                    this.game.fullDirtyObjects.push(loot, this);
+                    this.fullDirtyObjects.add(this);
+                    this.game.dynamicObjects.add(loot);
+                    this.game.fullDirtyObjects.add(loot);
+                    this.game.fullDirtyObjects.add(this);
+                    this.game.updateObjects = true;
                 } else {
                     const level = this.chestLevel;
                     if(level === 0) return;
@@ -455,9 +456,11 @@ export class Player extends GameObject {
                     const loot = new Loot(this.game, `chest0${this.chestLevel}`, this.position, this.layer, 1);
                     this.chestLevel = 0;
 
-                    this.fullDirtyObjects.push(this);
-                    this.game.objects.push(loot);
-                    this.game.fullDirtyObjects.push(loot, this);
+                    this.fullDirtyObjects.add(this);
+                    this.game.dynamicObjects.add(loot);
+                    this.game.fullDirtyObjects.add(loot);
+                    this.game.fullDirtyObjects.add(this);
+                    this.game.updateObjects = true;
                 }
             }
 
@@ -480,8 +483,9 @@ export class Player extends GameObject {
                     this.inventory[item] = 0;
 
                     const loot = new Loot(this.game, item, this.position, this.layer, 1);
-                    this.game.objects.push(loot);
-                    this.game.fullDirtyObjects.push(loot);
+                    this.game.dynamicObjects.add(loot);
+                    this.game.fullDirtyObjects.add(loot);
+                    this.game.updateObjects = true;
                     return this.setScope(scopeToSwitchTo);
                 }
 
@@ -496,8 +500,9 @@ export class Player extends GameObject {
                 this.inventoryDirty = true;
                 const loot = splitUpLoot(this, item, amountToDrop);
                 for(const l of loot) {
-                    this.game.objects.push(l);
-                    this.game.fullDirtyObjects.push(l);
+                    this.game.dynamicObjects.add(l);
+                    this.game.fullDirtyObjects.add(l);
+                    this.game.updateObjects = true;
                 }
             }
         }
@@ -528,9 +533,10 @@ export class Player extends GameObject {
             this.animType = 1;
             this.animSeq = 1;
             this.animTime = 0;
-            this.fullDirtyObjects.push(this);
-            this.fullDirtyObjects.push(this);
+            this.fullDirtyObjects.add(this);
+            this.fullDirtyObjects.add(this);
         }
+        this.cancelAction();
 
         // If the player is punching anything, damage the closest object
         let minDist = Number.MAX_VALUE;
@@ -545,16 +551,7 @@ export class Player extends GameObject {
 
         for(const object of this.visibleObjects) {
             if(!object.dead && object !== this && object.layer === this.layer && object.damageable && object.body) {
-                let record: CollisionRecord;
-                if(object instanceof Obstacle) {
-                    if(object.collision.type === CollisionType.Circle) {
-                        record = distanceToCircle(object.position, object.collision.rad, position, radius);
-                    } else if(object.collision.type === CollisionType.Rectangle) {
-                        record = distanceToRect(object.collision.min, object.collision.max, position, radius);
-                    }
-                } else if(object instanceof Player) {
-                    record = distanceToCircle(object.position, object.scale, position, radius);
-                }
+                const record = objectCollision(object, position, radius);
                 if(record!.collided && record!.distance < minDist) {
                     minDist = record!.distance;
                     closestObject = object;
@@ -569,7 +566,7 @@ export class Player extends GameObject {
     }
 
     shootGun(): void {
-        if(this.activeWeapon.typeString !== "awc" && this.activeWeapon.ammo === 0) {
+        if(this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
             return;
@@ -591,16 +588,37 @@ export class Player extends GameObject {
                 this.layer,
                 this.game
             );
-            this.game.bullets.push(bullet);
-            this.game.dirtyBullets.push(bullet);
+            this.game.bullets.add(bullet);
+            this.game.newBullets.add(bullet);
             shotFx = false;
         }
         this.activeWeapon.ammo--;
-        if(this.activeWeapon.typeString !== "awc" && this.activeWeapon.ammo === 0) {
+        if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
+        if(this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
         }
         this.weaponsDirty = true;
+    }
+
+    useBandage(): void {
+        if(this.health === 100 || this.inventory.bandage === 0) return;
+        this.doAction("bandage", 3);
+    }
+
+    useMedkit(): void {
+        if(this.health === 100 || this.inventory.healthkit === 0) return;
+        this.doAction("healthkit", 6);
+    }
+
+    useSoda(): void {
+        if(this.boost === 100 || this.inventory.soda === 0) return;
+        this.doAction("soda", 3);
+    }
+
+    usePills(): void {
+        if(this.boost === 100 || this.inventory.painkiller === 0) return;
+        this.doAction("painkiller", 5);
     }
 
     doAction(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
@@ -616,8 +634,8 @@ export class Player extends GameObject {
         this.actionSeq = 1;
 
         if(!skipRecalculateSpeed) this.recalculateSpeed();
-        this.game.fullDirtyObjects.push(this);
-        this.fullDirtyObjects.push(this);
+        this.game.fullDirtyObjects.add(this);
+        this.fullDirtyObjects.add(this);
     }
 
     cancelAction(): void {
@@ -630,8 +648,8 @@ export class Player extends GameObject {
         this.actionDirty = false;
         this.actionType = 0;
         this.actionSeq = 0;
-        this.game.fullDirtyObjects.push(this);
-        this.fullDirtyObjects.push(this);
+        this.game.fullDirtyObjects.add(this);
+        this.fullDirtyObjects.add(this);
     }
 
     reload(): void {
@@ -687,7 +705,7 @@ export class Player extends GameObject {
 
             // Update role
             if(this.role === TypeToId.kill_leader) {
-                this.game.roleAnnouncements.push(new RoleAnnouncementPacket(this, false, true, source));
+                this.game.roleAnnouncements.add(new RoleAnnouncementPacket(this, false, true, source));
 
                 // Find a new Kill Leader
                 let highestKillCount = 0;
@@ -726,19 +744,20 @@ export class Player extends GameObject {
             // Set static dead position
             this.deadPos = this.body.getPosition().clone();
             this.game.world.destroyBody(this.body);
-            this.fullDirtyObjects.push(this);
-            removeFrom(this.game.objects, this);
-            this.game.deletedObjects.push(this);
+            this.fullDirtyObjects.add(this);
+            this.game.dynamicObjects.delete(this);
+            this.game.deletedObjects.add(this);
 
             // Send death emote
             if(this.loadout.emotes[5] !== 0) {
-                this.game.emotes.push(new Emote(this.id, this.position, this.loadout.emotes[5], false));
+                this.game.emotes.add(new Emote(this.id, this.position, this.loadout.emotes[5], false));
             }
 
             // Create dead body
             const deadBody = new DeadBody(this.game, this.layer, this.position, this.id);
-            this.game.objects.push(deadBody);
-            this.game.fullDirtyObjects.push(deadBody);
+            this.game.dynamicObjects.add(deadBody);
+            this.game.fullDirtyObjects.add(deadBody);
+            this.game.updateObjects = true;
 
             // Drop loot
             this.dropItemInSlot(0, this.weapons[0].typeString, true);
@@ -756,14 +775,15 @@ export class Player extends GameObject {
             this.inventoryDirty = true;
 
             // Remove from active players; send packets
-            removeFrom(this.game.activePlayers, this);
-            this.game.kills.push(new KillPacket(this, damageType, source, objectUsed));
+            this.game.livingPlayers.delete(this);
+            removeFrom(this.game.spectatablePlayers, this);
+            this.game.kills.add(new KillPacket(this, damageType, source, objectUsed));
             if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
 
             // Winning logic
             if(this.game.aliveCount <= 1) {
                 if(this.game.aliveCount === 1) {
-                    const lastManStanding: Player = this.game.activePlayers[0];
+                    const lastManStanding: Player = [...this.game.livingPlayers][0];
 
                     // Send game over
                     lastManStanding.sendPacket(new GameOverPacket(lastManStanding, true));
@@ -771,7 +791,7 @@ export class Player extends GameObject {
                     // End the game in 750ms
                     setTimeout(() => {
                         if(lastManStanding.loadout.emotes[4] !== 0) { // Win emote
-                            this.game.emotes.push(new Emote(lastManStanding.id, lastManStanding.position, lastManStanding.loadout.emotes[4], false));
+                            this.game.emotes.add(new Emote(lastManStanding.id, lastManStanding.position, lastManStanding.loadout.emotes[4], false));
                         }
                         this.game.end();
                     }, 750);
@@ -785,7 +805,7 @@ export class Player extends GameObject {
                 for(const spectator of this.spectators) {
                     spectator.spectate(toSpectate);
                 }
-                this.spectators = [];
+                this.spectators = new Set<Player>();
             }
         }
     }
@@ -802,8 +822,8 @@ export class Player extends GameObject {
         );
 
         // Add the loot to the array of objects
-        this.game.objects.push(loot);
-        this.game.fullDirtyObjects.push(loot);
+        this.game.staticObjects.add(loot);
+        this.game.fullDirtyObjects.add(loot);
     }
 
     recalculateSpeed(): void {
@@ -821,39 +841,39 @@ export class Player extends GameObject {
 
     updateVisibleObjects(): void {
         this.movesSinceLastUpdate = 0;
-        const newVisibleObjects: GameObject[] = [];
-        for(const object of this.game.objects) {
+        const newVisibleObjects = new Set<GameObject>(this.game.visibleObjects[this.zoom][Math.round(this.position.x / 10) * 10][Math.round(this.position.y / 10) * 10]);
+        const minX = this.position.x - this.xCullDist,
+              minY = this.position.y - this.yCullDist,
+              maxX = this.position.x + this.xCullDist,
+              maxY = this.position.y + this.yCullDist;
+        for(const object of this.game.dynamicObjects) {
             if(this === object) continue;
-            let isVisible = false;
-            const minX = this.position.x - this.xCullDist,
-                minY = this.position.y - this.yCullDist,
-                maxX = this.position.x + this.xCullDist,
-                maxY = this.position.y + this.yCullDist;
-            if((object as any).mapObstacleBounds) { // TODO This is janky, find a better way
-                const min = Vec2(minX, minY),
-                      max = Vec2(maxX, maxY);
-                for(const bounds of (object as any).mapObstacleBounds) {
-                    if(rectRectCollision(min, max, bounds.min, bounds.max)) {
-                        isVisible = true;
-                        break;
-                    }
+            if(object.position.x > minX &&
+               object.position.x < maxX &&
+               object.position.y > minY &&
+               object.position.y < maxY) {
+                newVisibleObjects.add(object);
+                if(!this.visibleObjects.has(object)) {
+                    this.fullDirtyObjects.add(object);
+                }
+                if(object instanceof Player && !object.visibleObjects.has(this)) {
+                    object.visibleObjects.add(this);
+                    object.fullDirtyObjects.add(this);
                 }
             } else {
-                isVisible = object.position.x > minX &&
-                            object.position.x < maxX &&
-                            object.position.y > minY &&
-                            object.position.y < maxY;
+                if(this.visibleObjects.has(object)) {
+                    this.deletedObjects.add(object);
+                }
             }
-
-            if(isVisible) {
-                newVisibleObjects.push(object);
-                if(!this.visibleObjects.includes(object)) {
-                    this.fullDirtyObjects.push(object);
-                }
-            } else {
-                if(this.visibleObjects.includes(object) && !(object instanceof Player)) {
-                    this.deletedObjects.push(object);
-                }
+        }
+        for(const object of newVisibleObjects) {
+            if(!this.visibleObjects.has(object)) {
+                this.fullDirtyObjects.add(object);
+            }
+        }
+        for(const object of this.visibleObjects) {
+            if(!newVisibleObjects.has(object)) {
+                this.deletedObjects.add(object);
             }
         }
         this.visibleObjects = newVisibleObjects;
@@ -867,11 +887,11 @@ export class Player extends GameObject {
         }
         this.isSpectator = true;
         if(this.spectating) {
-            removeFrom(this.spectating.spectators, this);
+            this.spectating.spectators.delete(this);
             this.spectating.spectatorCountDirty = true;
         }
         this.spectating = spectating;
-        spectating.spectators.push(this);
+        spectating.spectators.add(this);
         spectating.healthDirty = true;
         spectating.boostDirty = true;
         spectating.zoomDirty = true;
@@ -879,10 +899,12 @@ export class Player extends GameObject {
         spectating.inventoryDirty = true;
         spectating.activePlayerIdDirty = true;
         spectating.spectatorCountDirty = true;
+        spectating.updateVisibleObjects();
         for(const object of spectating.visibleObjects) {
-            spectating.fullDirtyObjects.push(object);
+            spectating.fullDirtyObjects.add(object);
         }
-        spectating.fullDirtyObjects.push(spectating);
+        spectating.fullDirtyObjects.add(spectating);
+        if(spectating.partialDirtyObjects.size) spectating.partialDirtyObjects = new Set<GameObject>();
         spectating.fullUpdate = true;
     }
 

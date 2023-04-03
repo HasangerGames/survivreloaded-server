@@ -19,12 +19,14 @@ export abstract class GameObject {
     showOnMap = false;
 
     interactable = false;
-    interactionRad: number;
+    interactionRad = 0;
     damageable = false;
 
     game: Game;
 
     body: Body | null;
+
+    isDynamic = false;
 
     protected constructor(game: Game,
                           typeString: string,

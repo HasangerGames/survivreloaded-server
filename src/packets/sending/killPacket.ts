@@ -1,5 +1,5 @@
 import { SendingPacket } from "../sendingPacket";
-import { DamageType, MsgType, type SurvivBitStream } from "../../utils";
+import { MsgType, type SurvivBitStream } from "../../utils";
 import { type Player } from "../../game/objects/player";
 
 export class KillPacket extends SendingPacket {

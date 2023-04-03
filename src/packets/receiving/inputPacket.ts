@@ -1,6 +1,8 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { Constants, distanceBetween, InputType, type SurvivBitStream, TypeToId } from "../../utils";
+import { Constants, InputType, objectCollision, type SurvivBitStream, TypeToId } from "../../utils";
 import { Vec2 } from "planck";
+import { type Obstacle } from "../../game/objects/obstacle";
+import { Loot } from "../../game/objects/loot";
 
 export class InputPacket extends ReceivingPacket {
 
@@ -51,15 +53,36 @@ export class InputPacket extends ReceivingPacket {
         const inputCount = stream.readBits(4);
         for(let i = 0; i < inputCount; i++) {
             const input = stream.readUint8();
-            switch(input) {
+            switch(input) { // TODO Remove redundant code
                 case InputType.Interact: {
                     let minDist = Number.MAX_VALUE;
                     let minDistObject;
                     for(const object of p.visibleObjects) {
-                        const distance: number = distanceBetween(p.position, object.position);
-                        if(object.interactable && distance < 1 + object.interactionRad) {
-                            if(distance < minDist) {
-                                minDist = distance;
+                        if(object.interactable) {
+                            const record = objectCollision(object, p.position, p.scale + object.interactionRad);
+                            if(record?.collided) {
+                                if((object as any).isDoor) (object as Obstacle).interact(p);
+                                else if(record.distance < minDist) {
+                                    minDist = record.distance;
+                                    minDistObject = object;
+                                }
+                            }
+                        }
+                    }
+                    if(minDistObject) {
+                        minDistObject.interact(p);
+                    }
+                    break;
+                }
+
+                case InputType.Loot: {
+                    let minDist = Number.MAX_VALUE;
+                    let minDistObject;
+                    for(const object of p.visibleObjects) {
+                        if(object instanceof Loot) {
+                            const record = objectCollision(object, p.position, p.scale);
+                            if(record?.collided && record.distance < minDist) {
+                                minDist = record.distance;
                                 minDistObject = object;
                             }
                         }
@@ -67,6 +90,25 @@ export class InputPacket extends ReceivingPacket {
                     if(minDistObject) {
                         minDistObject.interact(p);
                     }
+                    break;
+                }
+
+                case InputType.Use: {
+                    //let minDist = Number.MAX_VALUE;
+                    //let minDistObject;
+                    for(const object of p.visibleObjects) {
+                        if((object as any).isDoor) {
+                            const record = objectCollision(object, p.position, p.scale + object.interactionRad);
+                            if(record?.collided) (object as Obstacle).interact(p);
+                            /*if(record?.collided && record.distance < minDist) {
+                                minDist = record.distance;
+                                minDistObject = object;
+                            }*/
+                        }
+                    }
+                    /*if(minDistObject) {
+                        minDistObject.interact(p);
+                    }*/
                     break;
                 }
 
@@ -105,31 +147,39 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.Cancel:
                     p.cancelAction();
                     break;
+
                 case InputType.StowWeapons:
                     p.switchSlot(2);
+                    break;
+
+                case InputType.UseBandage:
+                    p.useBandage();
+                    break;
+                case InputType.UseHealthKit:
+                    p.useMedkit();
+                    break;
+                case InputType.UseSoda:
+                    p.useSoda();
+                    break;
+                case InputType.UsePainkiller:
+                    p.usePills();
                     break;
             }
         }
 
         // Item use logic
         switch(stream.readGameType()) {
-            case 0:
-                break;
             case TypeToId.bandage:
-                if(p.health === 100 || p.inventory.bandage === 0) break;
-                p.doAction("bandage", 3);
+                p.useBandage();
                 break;
             case TypeToId.healthkit:
-                if(p.health === 100 || p.inventory.healthkit === 0) break;
-                p.doAction("healthkit", 6);
+                p.useMedkit();
                 break;
             case TypeToId.soda:
-                if(p.boost === 100 || p.inventory.soda === 0) break;
-                p.doAction("soda", 3);
+                p.useSoda();
                 break;
             case TypeToId.painkiller:
-                if(p.boost === 100 || p.inventory.painkiller === 0) break;
-                p.doAction("painkiller", 5);
+                p.usePills();
                 break;
             case TypeToId["1xscope"]:
                 p.setScope("1xscope");

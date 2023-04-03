@@ -1,0 +1,270 @@
+{
+  "frag": {
+    "burst": {
+      "particle": "explosionBurst",
+      "scale": 1,
+      "sound": {
+        "grass": "explosion_01",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 10,
+    "shakeStr": 0.2,
+    "shakeDur": 0.35,
+    "lifetime": 2
+  },
+  "smoke": {
+    "burst": {
+      "particle": "explosionBurst",
+      "scale": 0,
+      "sound": {
+        "grass": "explosion_smoke_01",
+        "water": "explosion_smoke_01"
+      }
+    },
+    "rippleCount": 10,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 6
+  },
+  "strobe": {
+    "burst": {
+      "particle": "explosionBurst",
+      "scale": 0.25,
+      "sound": {
+        "grass": "explosion_04",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 3,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 2
+  },
+  "barrel": {
+    "burst": {
+      "particle": "explosionBurst",
+      "scale": 1,
+      "sound": {
+        "grass": "explosion_01",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 10,
+    "shakeStr": 0.2,
+    "shakeDur": 0.35,
+    "lifetime": 2
+  },
+  "usas": {
+    "burst": {
+      "particle": "explosionUSAS",
+      "scale": 0.75,
+      "sound": {
+        "grass": "explosion_03",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 10,
+    "shakeStr": 0.12,
+    "shakeDur": 0.25,
+    "lifetime": 1.25
+  },
+  "rounds": {
+    "burst": {
+      "particle": "explosionRounds",
+      "scale": 0.32,
+      "sound": {
+        "grass": "explosion_04",
+        "water": "explosion_04",
+        "detune": 500,
+        "volume": 0.5
+      }
+    },
+    "rippleCount": 1,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 1
+  },
+  "rounds_sg": {
+    "burst": {
+      "particle": "explosionRounds",
+      "scale": 0.32,
+      "sound": {
+        "grass": "explosion_04",
+        "water": "explosion_04",
+        "detune": 500,
+        "volume": 0.2
+      }
+    },
+    "rippleCount": 1,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 1
+  },
+  "mirv": {
+    "burst": {
+      "particle": "explosionMIRV",
+      "scale": 1,
+      "sound": {
+        "grass": "explosion_01",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 10,
+    "shakeStr": 0.2,
+    "shakeDur": 0.35,
+    "lifetime": 2
+  },
+  "mirv_mini": {
+    "burst": {
+      "particle": "explosionMIRV",
+      "scale": 0.75,
+      "sound": {
+        "grass": "explosion_03",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 3,
+    "shakeStr": 0.1,
+    "shakeDur": 0.2,
+    "lifetime": 1.25
+  },
+  "martyr_nade": {
+    "burst": {
+      "particle": "explosionBurst",
+      "scale": 0.75,
+      "sound": {
+        "grass": "explosion_03",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 3,
+    "shakeStr": 0.1,
+    "shakeDur": 0.2,
+    "lifetime": 1.25
+  },
+  "snowball": {
+    "burst": {
+      "particle": "",
+      "scale": 0.75,
+      "sound": {
+        "grass": "snowball_01",
+        "water": "frag_water_01"
+      }
+    },
+    "scatter": {
+      "particle": "snowball_impact",
+      "count": 5,
+      "speed": {
+        "min": 5,
+        "max": 25
+      }
+    },
+    "rippleCount": 1,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 1
+  },
+  "snowball_heavy": {
+    "burst": {
+      "particle": "",
+      "scale": 0.75,
+      "sound": {
+        "grass": "snowball_02",
+        "water": "frag_water_01"
+      }
+    },
+    "scatter": {
+      "particle": "snowball_impact",
+      "count": 8,
+      "speed": {
+        "min": 5,
+        "max": 25
+      }
+    },
+    "rippleCount": 1,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 1
+  },
+  "potato": {
+    "burst": {
+      "particle": "",
+      "scale": 0.75,
+      "sound": {
+        "grass": "potato_01",
+        "water": "frag_water_01"
+      }
+    },
+    "scatter": {
+      "particle": "potato_impact",
+      "count": 5,
+      "speed": {
+        "min": 5,
+        "max": 25
+      }
+    },
+    "rippleCount": 1,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 1
+  },
+  "potato_heavy": {
+    "burst": {
+      "particle": "",
+      "scale": 0.75,
+      "sound": {
+        "grass": "potato_02",
+        "water": "frag_water_01"
+      }
+    },
+    "scatter": {
+      "particle": "potato_impact",
+      "count": 8,
+      "speed": {
+        "min": 5,
+        "max": 25
+      }
+    },
+    "rippleCount": 1,
+    "shakeStr": 0,
+    "shakeDur": 0,
+    "lifetime": 1
+  },
+  "potato_cannonball": {
+    "burst": {
+      "particle": "explosionPotato",
+      "scale": 0.75,
+      "sound": {
+        "grass": "explosion_05",
+        "water": "explosion_02"
+      }
+    },
+    "scatter": {
+      "particle": "potato_impact",
+      "count": 8,
+      "speed": {
+        "min": 5,
+        "max": 25
+      }
+    },
+    "rippleCount": 10,
+    "shakeStr": 0.12,
+    "shakeDur": 0.25,
+    "lifetime": 1.25
+  },
+  "bomb_iron": {
+    "burst": {
+      "particle": "explosionBomb",
+      "scale": 2,
+      "sound": {
+        "grass": "explosion_01",
+        "water": "explosion_02"
+      }
+    },
+    "rippleCount": 12,
+    "shakeStr": 0.25,
+    "shakeDur": 0.4,
+    "lifetime": 2
+  }
+}

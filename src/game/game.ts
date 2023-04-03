@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import {
-    Bullets, Config,
+    Bullets,
+    Config,
     Constants,
     DamageRecord,
     DamageType,
@@ -10,7 +11,8 @@ import {
     type Explosion,
     lerp,
     log,
-    ObjectKind, random,
+    ObjectKind,
+    random,
     randomPointInsideCircle,
     RedZoneStages,
     removeFrom,
@@ -39,26 +41,32 @@ export class Game {
 
     map: Map;
 
+    // Used when calculating visible objects
+    has8x = false;
+    has15x = false;
+
     world: World; // The Planck.js World
 
-    objects: GameObject[] = []; // An array of all the objects in the world
+    staticObjects = new Set<GameObject>(); // A Set of all the static objects in the world
+    dynamicObjects = new Set<GameObject>(); // A Set of all the dynamic (moving) objects in the world
     _nextObjectId = -1;
     _nextGroupId = -1;
 
-    partialDirtyObjects: GameObject[] = [];
-    fullDirtyObjects: GameObject[] = [];
-    deletedObjects: GameObject[] = [];
-    newObjects: GameObject[] = [];
-    loot: Loot[] = [];
+    visibleObjects = {};
+    updateObjects = false;
 
-    players: Player[] = []; // All players, including dead and disconnected players.
-    connectedPlayers: Player[] = []; // All connected players. May be dead.
-    activePlayers: Player[] = []; // All connected and living players.
+    partialDirtyObjects = new Set<GameObject>();
+    fullDirtyObjects = new Set<GameObject>();
+    deletedObjects = new Set<GameObject>();
+    loot = new Set<Loot>();
 
-    newPlayers: Player[] = [];
+    players = new Set<Player>(); // All players, including dead and disconnected players.
+    connectedPlayers = new Set<Player>(); // All connected players. May be dead.
+    livingPlayers = new Set<Player>(); // All connected and living players.
+    spectatablePlayers: Player[] = []; // Same as activePlayers, but an array. Used to navigate through players when spectating.
 
-    deletedPlayers: Player[] = [];
-    //dirtyStatusPlayers: Player[] = [];
+    newPlayers = new Set<Player>();
+    deletedPlayers = new Set<Player>();
 
     playerInfosDirty = false;
 
@@ -67,14 +75,14 @@ export class Game {
 
     aliveCountDirty = false; // Whether the alive count needs to be updated
 
-    emotes: Emote[] = []; // All emotes sent this tick
-    explosions: Explosion[] = []; // All explosions created this tick
-    bullets: Bullet[] = []; // All bullets that currently exist
-    dirtyBullets: Bullet[] = []; // All bullets created this tick
+    emotes = new Set<Emote>(); // All emotes sent this tick
+    explosions = new Set<Explosion>(); // All explosions created this tick
+    bullets = new Set<Bullet>(); // All bullets that currently exist
+    newBullets = new Set<Bullet>(); // All bullets created this tick
     aliveCounts: AliveCountsPacket;
-    kills: KillPacket[] = []; // All kills this tick
-    roleAnnouncements: RoleAnnouncementPacket[] = []; // All role announcements this tick
-    damageRecords: DamageRecord[] = [];
+    kills = new Set<KillPacket>(); // All kills this tick
+    roleAnnouncements = new Set<RoleAnnouncementPacket>(); // All role announcements this tick
+    damageRecords = new Set<DamageRecord>(); // All records of damage by bullets this tick
 
     // Red zone
     readonly gas = {
@@ -100,9 +108,6 @@ export class Game {
     started = false; // Whether there are more than 2 players, meaning the game has started.
     allowJoin = true; // Whether new players should be able to join
 
-    /**
-     * Creates a new Game. Doesn't take any arguments.
-     */
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
 
@@ -121,9 +126,9 @@ export class Game {
             const objectA: any = contact.getFixtureA().getUserData();
             const objectB: any = contact.getFixtureB().getUserData();
             if(objectA instanceof Bullet && objectA.distance <= objectA.maxDistance) {
-                this.damageRecords.push(new DamageRecord(objectB, objectA.shooter, objectA));
+                this.damageRecords.add(new DamageRecord(objectB, objectA.shooter, objectA));
             } else if(objectB instanceof Bullet && objectB.distance <= objectB.maxDistance) {
-                this.damageRecords.push(new DamageRecord(objectA, objectB.shooter, objectB));
+                this.damageRecords.add(new DamageRecord(objectA, objectB.shooter, objectB));
             }
         });
 
@@ -157,6 +162,7 @@ export class Game {
         };
 
         this.map = new Map(this, "main");
+        Settings.maxTranslation = 5.0;
 
         this.tick(30);
     }
@@ -200,7 +206,7 @@ export class Game {
             // Update loot positions
             for(const loot of this.loot) {
                 if(loot.oldPos.x !== loot.position.x || loot.oldPos.y !== loot.position.y) {
-                    this.partialDirtyObjects.push(loot);
+                    this.partialDirtyObjects.add(loot);
                 }
                 loot.oldPos = loot.position.clone();
             }
@@ -209,7 +215,7 @@ export class Game {
             for(const bullet of this.bullets) {
                 if(bullet.distance >= bullet.maxDistance) {
                     this.world.destroyBody(bullet.body);
-                    removeFrom(this.bullets, bullet);
+                    this.bullets.delete(bullet);
                 }
             }
 
@@ -219,7 +225,7 @@ export class Game {
                     damageRecord.damaged.damage(Bullets[damageRecord.bullet.typeString].damage, damageRecord.damager);
                 }
                 this.world.destroyBody(damageRecord.bullet.body);
-                removeFrom(this.bullets, damageRecord.bullet);
+                this.bullets.delete(damageRecord.bullet);
             }
 
             // Update red zone
@@ -241,7 +247,7 @@ export class Game {
             }
 
             // First loop over players: Calculate movement & animations
-            for(const p of this.activePlayers) {
+            for(const p of this.livingPlayers) {
 
                 // Movement
                 if(p.isMobile) {
@@ -350,13 +356,13 @@ export class Game {
                 if(p.animActive) p.animTime++;
                 if(p.animTime > 8) {
                     p.animActive = false;
-                    this.fullDirtyObjects.push(p);
-                    p.fullDirtyObjects.push(p);
+                    this.fullDirtyObjects.add(p);
+                    p.fullDirtyObjects.add(p);
                     p.animType = p.animSeq = 0;
                     p.animTime = -1;
                 } else if(p.moving) {
-                    p.game.partialDirtyObjects.push(p);
-                    p.partialDirtyObjects.push(p);
+                    p.game.partialDirtyObjects.add(p);
+                    p.partialDirtyObjects.add(p);
                 }
                 p.moving = false;
             }
@@ -365,7 +371,7 @@ export class Game {
             for(const p of this.connectedPlayers) {
 
                 // Calculate visible objects
-                if(p.movesSinceLastUpdate > 8 || this.fullDirtyObjects.length || this.partialDirtyObjects.length || this.deletedObjects.length) {
+                if(p.movesSinceLastUpdate > 8 || this.updateObjects) {
                     p.updateVisibleObjects();
                 }
 
@@ -382,57 +388,59 @@ export class Game {
                     if(p.killedBy && !p.killedBy.dead) toSpectate = p.killedBy;
                     else toSpectate = this.randomPlayer();
                     p.spectate(toSpectate);
-                } else if(p.spectateNext && p.spectating) {
+                } else if(p.spectateNext && p.spectating) { // TODO Remember which players were spectated so navigation works properly
                     p.spectateNext = false;
-                    let index: number = this.activePlayers.indexOf(p.spectating) + 1;
-                    if(index >= this.activePlayers.length) index = 0;
-                    p.spectate(this.activePlayers[index]);
+                    let index: number = this.spectatablePlayers.indexOf(p.spectating) + 1;
+                    if(index >= this.spectatablePlayers.length) index = 0;
+                    p.spectate(this.spectatablePlayers[index]);
                 } else if(p.spectatePrevious && p.spectating) {
                     p.spectatePrevious = false;
-                    let index: number = this.activePlayers.indexOf(p.spectating) - 1;
-                    if(index < 0) index = this.activePlayers.length - 1;
-                    p.spectate(this.activePlayers[index]);
+                    let index: number = this.spectatablePlayers.indexOf(p.spectating) - 1;
+                    if(index < 0) index = this.spectatablePlayers.length - 1;
+                    p.spectate(this.spectatablePlayers[index]);
                 }
 
                 // Emotes
                 // TODO Determine which emotes should be sent to the client
-                if(this.emotes.length) {
+                if(this.emotes.size) {
                     for(const emote of this.emotes) {
-                        if(!emote.isPing || emote.playerId === p.id) p.emotes.push(emote);
+                        if(!emote.isPing || emote.playerId === p.id) p.emotes.add(emote);
                     }
                 }
 
                 // Explosions
                 // TODO Determine which explosions should be sent to the client
-                if(this.explosions.length) {
-                    for(const explosion of this.explosions) p.explosions.push(explosion);
+                if(this.explosions.size) {
+                    for(const explosion of this.explosions) {
+                        p.explosions.add(explosion);
+                    }
                 }
 
                 // Full objects
-                if(this.fullDirtyObjects.length) {
+                if(this.fullDirtyObjects.size) {
                     for(const object of this.fullDirtyObjects) {
-                        if(p.visibleObjects.includes(object) && !p.fullDirtyObjects.includes(object)) {
-                            p.fullDirtyObjects.push(object);
+                        if(p.visibleObjects.has(object) && !p.fullDirtyObjects.has(object)) {
+                            p.fullDirtyObjects.add(object);
                         }
                     }
                 }
 
                 // Partial objects
-                if(this.partialDirtyObjects.length) {
+                if(this.partialDirtyObjects.size && !p.fullUpdate) {
                     for(const object of this.partialDirtyObjects) {
-                        if(p.visibleObjects.includes(object) && !p.fullDirtyObjects.includes(object)) {
-                            p.partialDirtyObjects.push(object);
+                        if(p.visibleObjects.has(object) && !p.fullDirtyObjects.has(object)) {
+                            p.partialDirtyObjects.add(object);
                         }
                     }
                 }
 
                 // Deleted objects
-                if(this.deletedObjects.length) {
+                if(this.deletedObjects.size) {
                     for(const object of this.deletedObjects) {
                         /*if(p.visibleObjects.includes(object) && object !== p) {
-                            p.deletedObjects.push(object);
+                            p.deletedObjects.add(object);
                         }*/
-                        if(object !== p) p.deletedObjects.push(object);
+                        if(object !== p) p.deletedObjects.add(object);
                     }
                 }
 
@@ -452,20 +460,19 @@ export class Game {
             }
 
             // Reset everything
-            this.fullDirtyObjects = [];
-            this.partialDirtyObjects = [];
-            this.deletedObjects = [];
+            if(this.fullDirtyObjects.size) this.fullDirtyObjects = new Set<GameObject>();
+            if(this.partialDirtyObjects.size) this.partialDirtyObjects = new Set<GameObject>();
+            if(this.deletedObjects.size) this.deletedObjects = new Set<GameObject>();
 
-            this.newPlayers = [];
-            this.deletedPlayers = [];
-            //this.dirtyStatusPlayers = [];
+            if(this.newPlayers.size) this.newPlayers = new Set<Player>();
+            if(this.deletedPlayers.size) this.deletedPlayers = new Set<Player>();
 
-            this.emotes = [];
-            this.explosions = [];
-            this.dirtyBullets = [];
-            this.kills = [];
-            this.roleAnnouncements = [];
-            this.damageRecords = [];
+            if(this.emotes.size) this.emotes = new Set<Emote>();
+            if(this.explosions.size) this.explosions = new Set<Explosion>();
+            if(this.newBullets.size) this.newBullets = new Set<Bullet>();
+            if(this.kills.size) this.kills = new Set<KillPacket>();
+            if(this.roleAnnouncements.size) this.roleAnnouncements = new Set<RoleAnnouncementPacket>();
+            if(this.damageRecords.size) this.damageRecords = new Set<DamageRecord>();
 
             this.gasDirty = false;
             this.gasCircleDirty = false;
@@ -502,13 +509,13 @@ export class Game {
     }
 
     get aliveCount(): number {
-        return this.activePlayers.length;
+        return this.livingPlayers.size;
     }
 
     addPlayer(socket, name, loadout): Player {
         let spawnPosition;
-        if(name === "123OP") spawnPosition = Vec2(700, 10);
-        else if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
+        if(!this.allowJoin) spawnPosition = Vec2(360, 360);
+        if(Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
         else if(this.gas.currentRad <= 16) spawnPosition = this.gas.currentPos.clone();
         else {
             let foundPosition = false;
@@ -519,29 +526,26 @@ export class Game {
         }
 
         const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
-        this.players.push(p);
-        this.connectedPlayers.push(p);
-        this.newPlayers.push(p);
+        this.players.add(p);
+        this.connectedPlayers.add(p);
+        this.newPlayers.add(p);
         this.aliveCountDirty = true;
         this.playerInfosDirty = true;
+        this.updateObjects = true;
         if(!this.allowJoin) {
             p.dead = true;
             p.spectate(this.randomPlayer());
         } else {
             p.updateVisibleObjects();
-            this.activePlayers.push(p);
+            this.livingPlayers.add(p);
+            this.spectatablePlayers.push(p);
+            p.fullDirtyObjects.add(p);
         }
-        this.objects.push(p);
-        this.fullDirtyObjects.push(p);
-        for(const player of this.players) {
-            if(player === p) continue;
-            player.fullDirtyObjects.push(p);
-            p.fullDirtyObjects.push(player);
-        }
-        p.fullDirtyObjects.push(p);
+        this.dynamicObjects.add(p);
+        this.fullDirtyObjects.add(p);
 
         p.sendPacket(new JoinedPacket(p));
-        const stream = SurvivBitStream.alloc(49152);
+        const stream = SurvivBitStream.alloc(32768);
         new MapPacket(p).serialize(stream);
         new UpdatePacket(this.allowJoin ? p : p.spectating!).serialize(stream);
         new AliveCountsPacket(this).serialize(stream);
@@ -597,13 +601,13 @@ export class Game {
             for(const spectator of p.spectators) {
                 spectator.spectate(randomPlayer);
             }
-            p.spectators = [];
+            p.spectators = new Set<Player>();
         } else {
             this.end();
         }
 
         if(p.spectating) {
-            removeFrom(p.spectating.spectators, p);
+            p.spectating.spectators.delete(p);
             p.spectating.spectatorCountDirty = true;
         }
 
@@ -616,31 +620,32 @@ export class Game {
         p.isSpectator = false;
         p.spectating = undefined;
 
-        removeFrom(this.activePlayers, p);
-        removeFrom(this.connectedPlayers, p);
+        this.livingPlayers.delete(p);
+        this.connectedPlayers.delete(p);
+        removeFrom(this.spectatablePlayers, p);
 
         if(!p.dead) {
             // If player is dead, alive count has already been decremented
             this.aliveCountDirty = true;
 
             if(p.inventoryEmpty) {
-                removeFrom(this.objects, p);
-                removeFrom(this.partialDirtyObjects, p);
-                removeFrom(this.fullDirtyObjects, p);
-                this.deletedPlayers.push(p);
-                this.deletedObjects.push(p);
+                this.dynamicObjects.delete(p);
+                this.partialDirtyObjects.delete(p);
+                this.fullDirtyObjects.delete(p);
+                this.deletedPlayers.add(p);
+                this.deletedObjects.add(p);
             } else {
                 p.direction = Vec2(1, 0);
                 p.disconnected = true;
                 p.deadPos = p.body.getPosition().clone();
-                this.fullDirtyObjects.push(p);
+                this.fullDirtyObjects.add(p);
             }
         }
     }
 
     randomPlayer(): Player | undefined {
         if(this.aliveCount === 0) return;
-        return this.activePlayers[random(0, this.activePlayers.length - 1)];
+        return [...this.livingPlayers][random(0, this.livingPlayers.size - 1)];
     }
 
     assignKillLeader(p: Player): void {
@@ -648,7 +653,7 @@ export class Game {
         if(this.killLeader !== p) { // If the player isn't already the Kill Leader...
             p.role = TypeToId.kill_leader;
             this.killLeader = p;
-            this.roleAnnouncements.push(new RoleAnnouncementPacket(p, true, false));
+            this.roleAnnouncements.add(new RoleAnnouncementPacket(p, true, false));
         }
     }
 

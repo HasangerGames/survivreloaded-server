@@ -1,10 +1,13 @@
 import {
     Constants,
-    Items, log, LootTables,
+    Items,
+    log,
+    LootTables,
     ObjectKind,
-    removeFrom,
-    type SurvivBitStream, TypeToId,
-    Weapons, weightedRandom
+    type SurvivBitStream,
+    TypeToId,
+    Weapons,
+    weightedRandom
 } from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
@@ -66,7 +69,7 @@ export class Loot extends GameObject {
         const angle: number = Math.random() * Math.PI * 2;
         this.body.setLinearVelocity(Vec2(Math.cos(angle), Math.sin(angle)).mul(0.005));
 
-        game.loot.push(this);
+        game.loot.add(this);
     }
 
     get position(): Vec2 {
@@ -106,7 +109,7 @@ export class Loot extends GameObject {
             } else if(currentCount + this.count > maxCapacity) {
                 (p.inventory[this.typeString] as number) = maxCapacity;
                 this.count = (currentCount + this.count) - maxCapacity;
-                this.game.fullDirtyObjects.push(this);
+                this.game.fullDirtyObjects.add(this);
                 deleteItem = false;
             }
 
@@ -152,15 +155,15 @@ export class Loot extends GameObject {
         }
         if(result! === PickupMsgType.Success && !ignore) {
             if(deleteItem) {
-                removeFrom(this.game.objects, this);
-                removeFrom(this.game.loot, this);
-                this.game.deletedObjects.push(this);
+                this.game.dynamicObjects.delete(this);
+                this.game.loot.delete(this);
+                this.game.deletedObjects.add(this);
                 this.game.world.destroyBody(this.body!);
                 this.interactable = false;
             }
             if(playerDirty) {
-                this.game?.fullDirtyObjects.push(p);
-                p.fullDirtyObjects.push(p);
+                this.game?.fullDirtyObjects.add(p);
+                p.fullDirtyObjects.add(p);
             }
             p.inventoryDirty = true;
             p.inventoryEmpty = false;
@@ -177,8 +180,9 @@ export class Loot extends GameObject {
             if(oldLevel !== 0) { // If oldLevel === 0, the player didn't have an item of this type equipped, so don't drop loot
                 // Example: if type = helmet and p.helmetLevel = 1, typeString = helmet01
                 const oldItem: Loot = new Loot(this.game, `${type}0${oldLevel}`, this.position, this.layer, 1);
-                this.game.objects.push(oldItem);
-                this.game.fullDirtyObjects.push(oldItem);
+                this.game.dynamicObjects.add(oldItem);
+                this.game.fullDirtyObjects.add(oldItem);
+                this.game.updateObjects = true;
             }
         }
         return PickupMsgType.Success;
@@ -224,23 +228,28 @@ export function generateLooseLootFromArray(game: Game, loot: looseLootTiers[], p
             ], position, layer);
         } else {
             const loot = new Loot(game, selectedItem, position, layer, lootTable[selectedItem].count);
-            game.objects.push(loot);
-            game.fullDirtyObjects.push(loot);
+            game.dynamicObjects.add(loot);
+            game.fullDirtyObjects.add(loot);
+            game.updateObjects = true;
 
             const weapon = Weapons[selectedItem];
             if(weapon?.ammo) {
                 if(weapon.ammoSpawnCount === 1) {
                     const ammo = new Loot(game, weapon.ammo, position, layer, 1);
-                    game.objects.push(ammo);
-                    game.fullDirtyObjects.push(ammo);
+                    game.dynamicObjects.add(ammo);
+                    game.fullDirtyObjects.add(ammo);
+                    game.updateObjects = true;
                 } else {
                     const count: number = weapon.ammoSpawnCount / 2;
                     const ammo: Loot[] = [
                         new Loot(game, weapon.ammo, Vec2.add(position, Vec2(-1.5, -1.5)), layer, count),
                         new Loot(game, weapon.ammo, Vec2.add(position, Vec2(1.5, -1.5)), layer, count)
                     ];
-                    game.objects.push(...ammo);
-                    game.fullDirtyObjects.push(...ammo);
+                    for(const ammoItem of ammo) {
+                        game.dynamicObjects.add(ammoItem);
+                        game.fullDirtyObjects.add(ammoItem);
+                    }
+                    game.updateObjects = true;
                 }
             }
         }

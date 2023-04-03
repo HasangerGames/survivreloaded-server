@@ -9,7 +9,7 @@ export class EmotePacket extends ReceivingPacket {
         const isPing = stream.readBoolean();
         stream.readBits(4); // Padding
 
-        if(!this.p.dead) this.p.game.emotes.push(new Emote(this.p.id, position, type, isPing));
+        if(!this.p.dead) this.p.game.emotes.add(new Emote(this.p.id, position, type, isPing));
     }
 
 }
