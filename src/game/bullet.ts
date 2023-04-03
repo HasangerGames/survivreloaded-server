@@ -73,9 +73,9 @@ export class Bullet {
         this.body = game.world.createBody({
             type: "dynamic",
             position,
-            fixedRotation: true
+            fixedRotation: true,
+            bullet: true
         });
-        this.body.setBullet(true);
         this.body.createFixture({
             shape: Circle(0),
             friction: 0.0,
