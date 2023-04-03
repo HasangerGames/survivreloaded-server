@@ -394,10 +394,10 @@ export class Player extends GameObject {
         if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
-            if(this.activeWeapon.ammo > 0) {
+            if(this.weapons[slot].ammo as number > 0) {
                 // Put the ammo in the gun back in the inventory
-                const ammoType: string = this.activeWeaponInfo.ammo;
-                (this.inventory[ammoType] as number) += (this.activeWeapon.ammo as number); // TODO Make this.inventory a Map to prevent this mess
+                const ammoType: string = Weapons[this.weapons[slot].typeString].ammo;
+                (this.inventory[ammoType] as number) += (this.weapons[slot].ammo as number); // TODO Make this.inventory a Map to prevent this mess
 
                 // If the new amount is more than the inventory can hold, drop the extra
                 const overAmount: number = this.inventory[ammoType] - Constants.bagSizes[ammoType][this.backpackLevel];
