@@ -831,7 +831,7 @@ export class Player extends GameObject {
         );
 
         // Add the loot to the array of objects
-        this.game.staticObjects.add(loot);
+        this.game.dynamicObjects.add(loot);
         this.game.fullDirtyObjects.add(loot);
     }
 
