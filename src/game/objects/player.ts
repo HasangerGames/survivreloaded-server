@@ -258,7 +258,7 @@ export class Player extends GameObject {
         this.joinTime = Date.now();
 
         // Set loadout
-        if(AllowedSkins.includes(loadout?.outfit) &&
+        if (AllowedSkins.includes(loadout?.outfit) &&
             AllowedMelee.includes(loadout.melee) &&
             AllowedHeal.includes(loadout.heal) &&
             AllowedBoost.includes(loadout.boost) &&
@@ -272,8 +272,8 @@ export class Player extends GameObject {
                 boost: TypeToId[loadout.boost],
                 emotes: []
             };
-            for(const emote of loadout.emotes) {
-                if(AllowedEmotes.includes(emote)) this.loadout.emotes.push(TypeToId[emote]);
+            for (const emote of loadout.emotes) {
+                if (AllowedEmotes.includes(emote)) this.loadout.emotes.push(TypeToId[emote]);
                 else this.loadout.emotes.push(TypeToId.emote_happyface);
             }
         } else {
@@ -289,7 +289,7 @@ export class Player extends GameObject {
         this.weapons[2].typeString = this.loadout.meleeType;
         this.weapons[2].typeId = this.loadout.melee;
 
-        if(this.game.gas.stage >= 9) {
+        if (this.game.gas.stage >= 9) {
             this.inventory.bandage = 3;
             this.inventory["9mm"] = 30;
             this.inventory["762mm"] = 30;
@@ -316,7 +316,7 @@ export class Player extends GameObject {
 
     setVelocity(xVel: number, yVel: number): void {
         this.body.setLinearVelocity(Vec2(xVel, yVel));
-        if(xVel !== 0 || yVel !== 0) {
+        if (xVel !== 0 || yVel !== 0) {
             this.moving = true;
             this.movesSinceLastUpdate++;
         }
@@ -338,21 +338,21 @@ export class Player extends GameObject {
     }
 
     setScope(scope: string, skipScope?: boolean): void {
-        if(this.scope.typeString !== scope && skipScope && scope) {
+        if (this.scope.typeString !== scope && skipScope && scope) {
             const direction = ScopeTypes.indexOf(scope) > ScopeTypes.indexOf(this.scope.typeString) ? 1 : -1;
-            while(!this.inventory[scope]) {
+            while (!this.inventory[scope]) {
                 const newScope = ScopeTypes[clamp(ScopeTypes.indexOf(scope) + direction, 0, ScopeTypes.length - 1)];
-                if(newScope === scope) break;
+                if (newScope === scope) break;
                 scope = newScope;
             }
         }
 
-        if(!this.inventory[scope]) return;
+        if (!this.inventory[scope]) return;
 
         this.scope.typeString = scope;
         this.scope.typeId = TypeToId[scope];
 
-        if(this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[scope];
+        if (this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[scope];
         else this.zoom = Constants.scopeZoomRadius.desktop[scope];
     }
 
@@ -366,24 +366,24 @@ export class Player extends GameObject {
 
     switchSlot(slot: number, skipSlots?: boolean): void {
         let chosenSlot = slot;
-        if(!this.weapons[chosenSlot]?.typeId && skipSlots) {
+        if (!this.weapons[chosenSlot]?.typeId && skipSlots) {
             const wrapSlots = (n: number): number => ((n % 4) + 4) % 4;
 
-            if(!this.weapons[0].typeId && !this.weapons[1].typeId) return;
+            if (!this.weapons[0].typeId && !this.weapons[1].typeId) return;
             const direction = this.selectedWeaponSlot < slot ? 1 : -1;
             chosenSlot = wrapSlots(chosenSlot + direction);
-            while(!this.weapons[chosenSlot]?.typeId) {
+            while (!this.weapons[chosenSlot]?.typeId) {
                 chosenSlot = wrapSlots(chosenSlot + direction);
             }
-        } else if(!this.weapons[chosenSlot]?.typeId) return;
+        } else if (!this.weapons[chosenSlot]?.typeId) return;
 
         this.cancelAction();
-        if(this.selectedWeaponSlot !== slot) this.lastWeaponSlot = this.selectedWeaponSlot;
+        if (this.selectedWeaponSlot !== slot) this.lastWeaponSlot = this.selectedWeaponSlot;
         this.selectedWeaponSlot = chosenSlot;
 
-        if(chosenSlot === 2) this.activeWeapon.cooldownDuration = this.activeWeaponInfo.attack.cooldownTime * 1000;
+        if (chosenSlot === 2) this.activeWeapon.cooldownDuration = this.activeWeaponInfo.attack.cooldownTime * 1000;
         else this.activeWeapon.cooldownDuration = this.activeWeaponInfo.fireDelay * 1000;
-        if((chosenSlot === 0 || chosenSlot === 1) && this.activeWeapon.ammo === 0) this.reload();
+        if ((chosenSlot === 0 || chosenSlot === 1) && this.activeWeapon.ammo === 0) this.reload();
 
         this.weaponsDirty = true;
         this.game!.fullDirtyObjects.add(this);
@@ -391,19 +391,19 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
-        if(this.weapons[slot].typeId === 0) return;
+        if (this.weapons[slot].typeId === 0) return;
         // For guns
-        if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
-            if(this.activeWeapon.ammo > 0) {
+        if (this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
+            if (this.activeWeapon.ammo > 0) {
                 // Put the ammo in the gun back in the inventory
                 const ammoType: string = this.activeWeaponInfo.ammo;
                 (this.inventory[ammoType] as number) += (this.activeWeapon.ammo as number); // TODO Make this.inventory a Map to prevent this mess
 
                 // If the new amount is more than the inventory can hold, drop the extra
                 const overAmount: number = this.inventory[ammoType] - Constants.bagSizes[ammoType][this.backpackLevel];
-                if(overAmount > 0) {
+                if (overAmount > 0) {
                     const droppedAmmo = splitUpLoot(this, ammoType, overAmount);
-                    for(const l of droppedAmmo) {
+                    for (const l of droppedAmmo) {
                         this.game.dynamicObjects.add(l);
                         this.game.fullDirtyObjects.add(l);
                         this.game.updateObjects = true;
@@ -411,7 +411,7 @@ export class Player extends GameObject {
                     (this.inventory[ammoType] as number) -= overAmount;
                 }
             }
-            if(slot === ItemSlot.Melee) {
+            if (slot === ItemSlot.Melee) {
                 this.weapons[slot] = {
                     typeString: "fists",
                     typeId: TypeToId.fists,
@@ -419,6 +419,15 @@ export class Player extends GameObject {
                     cooldown: 0,
                     cooldownDuration: 250,
                     weaponType: WeaponType.Melee
+                };
+            } else if (slot === ItemSlot.Throwable) {
+                this.weapons[slot] = {
+                    typeString: "",
+                    typeId: 0,
+                    ammo: 0,
+                    cooldown: 0,
+                    cooldownDuration: 0,
+                    weaponType: WeaponType.Throwable
                 };
             } else {
                 this.weapons[slot] = {
@@ -430,7 +439,7 @@ export class Player extends GameObject {
                     weaponType: WeaponType.Gun
                 };
             }
-            if(this.selectedWeaponSlot === slot && !skipItemSwitch) this.switchSlot(2);
+            if (this.selectedWeaponSlot === slot && !skipItemSwitch) this.switchSlot(2);
             this.cancelAction();
             this.weaponsDirty = true;
             const loot = new Loot(this.game, item, this.position, this.layer, 1);
@@ -439,16 +448,16 @@ export class Player extends GameObject {
             this.game.updateObjects = true;
         }
         // For individual items
-        if(slot === ItemSlot.Primary) {
+        if (slot === ItemSlot.Primary) {
             const inventoryCount = this.inventory[item];
 
             const isHelmet = item.startsWith("helmet");
             const isVest = item.startsWith("chest");
 
-            if(isHelmet || isVest) {
-                if(isHelmet) {
+            if (isHelmet || isVest) {
+                if (isHelmet) {
                     const level = this.helmetLevel;
-                    if(level === 0) return;
+                    if (level === 0) return;
 
                     const loot = new Loot(this.game, `helmet0${this.helmetLevel}`, this.position, this.layer, 1);
                     this.helmetLevel = 0;
@@ -460,7 +469,7 @@ export class Player extends GameObject {
                     this.game.updateObjects = true;
                 } else {
                     const level = this.chestLevel;
-                    if(level === 0) return;
+                    if (level === 0) return;
 
                     const loot = new Loot(this.game, `chest0${this.chestLevel}`, this.position, this.layer, 1);
                     this.chestLevel = 0;
@@ -473,19 +482,19 @@ export class Player extends GameObject {
                 }
             }
 
-            if(inventoryCount) {
+            if (inventoryCount) {
                 const isAmmo = AmmoTypes.includes(item);
                 const isMed = MedTypes.includes(item);
                 const isScope = ScopeTypes.includes(item);
 
-                if(isScope) {
-                    if(inventoryCount === "1xscope") return;
+                if (isScope) {
+                    if (inventoryCount === "1xscope") return;
                     let scopeToSwitchTo: string = ScopeTypes[ScopeTypes.indexOf(item) - 1];
 
                     let timeout = 0;
-                    while(!this.inventory[scopeToSwitchTo]) {
+                    while (!this.inventory[scopeToSwitchTo]) {
                         scopeToSwitchTo = ScopeTypes[ScopeTypes.indexOf(scopeToSwitchTo) - 1];
-                        if(++timeout > 8) return;
+                        if (++timeout > 8) return;
                     }
 
                     this.inventoryDirty = true;
@@ -499,16 +508,16 @@ export class Player extends GameObject {
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
-                if(isMed && inventoryCount <= 3) amountToDrop = Math.ceil(inventoryCount / 2);
+                if (isMed && inventoryCount <= 3) amountToDrop = Math.ceil(inventoryCount / 2);
 
                 amountToDrop = Math.max(1, amountToDrop);
-                if(amountToDrop < 5 && isAmmo) amountToDrop = Math.min(5, inventoryCount);
+                if (amountToDrop < 5 && isAmmo) amountToDrop = Math.min(5, inventoryCount);
 
                 this.inventory[item] = inventoryCount - amountToDrop;
 
                 this.inventoryDirty = true;
                 const loot = splitUpLoot(this, item, amountToDrop);
-                for(const l of loot) {
+                for (const l of loot) {
                     this.game.dynamicObjects.add(l);
                     this.game.fullDirtyObjects.add(l);
                     this.game.updateObjects = true;
@@ -523,8 +532,8 @@ export class Player extends GameObject {
         this.weapons[1] = primary;
 
         let lastWep = this.lastWeaponSlot;
-        if(this.selectedWeaponSlot === 0) this.switchSlot(1);
-        else if(this.selectedWeaponSlot === 1) this.switchSlot(0);
+        if (this.selectedWeaponSlot === 0) this.switchSlot(1);
+        else if (this.selectedWeaponSlot === 1) this.switchSlot(0);
         else this.switchSlot(this.selectedWeaponSlot);
         if (lastWep === 0) lastWep = 1;
         else if (lastWep === 1) lastWep = 0;
@@ -537,7 +546,7 @@ export class Player extends GameObject {
 
     useMelee(): void {
         // Start punching animation
-        if(!this.animActive) {
+        if (!this.animActive) {
             this.animActive = true;
             this.animType = 1;
             this.animSeq = 1;
@@ -558,24 +567,36 @@ export class Player extends GameObject {
         const position: Vec2 = this.position.clone().add(vec2Rotate(offset, angle));
         const radius: number = weapon.attack.rad;
 
-        for(const object of this.visibleObjects) {
-            if(!object.dead && object !== this && object.layer === this.layer && object.damageable && object.body) {
+        for (const object of this.visibleObjects) {
+            if (!object.dead && object !== this && object.layer === this.layer && object.damageable && object.body) {
                 const record = objectCollision(object, position, radius);
-                if(record!.collided && record!.distance < minDist) {
+                if (record!.collided && record!.distance < minDist) {
                     minDist = record!.distance;
                     closestObject = object;
                 }
             }
         }
 
-        if(closestObject) {
+        if (closestObject) {
             closestObject.damage(weapon.damage, this);
-            if(closestObject.interactable) closestObject.interact(this);
+            if (closestObject.interactable) closestObject.interact(this);
+        }
+    }
+
+    useThrowable() {
+        // Start throwing animation
+        if (!this.animActive) {
+            this.animActive = true;
+            this.animType = 2;
+            this.animSeq = 1;
+            this.animTime = 0;
+            this.fullDirtyObjects.add(this);
+            this.fullDirtyObjects.add(this);
         }
     }
 
     shootGun(): void {
-        if(this.activeWeapon.ammo === 0) {
+        if (this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
             return;
@@ -585,7 +606,7 @@ export class Player extends GameObject {
         const weapon = Weapons[this.activeWeapon.typeString];
         const spread = degreesToRadians(weapon.shotSpread);
         let shotFx = true;
-        for(let i = 0; i < weapon.bulletCount; i++) {
+        for (let i = 0; i < weapon.bulletCount; i++) {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
             const bullet: Bullet = new Bullet(
                 this,
@@ -602,8 +623,8 @@ export class Player extends GameObject {
             shotFx = false;
         }
         this.activeWeapon.ammo--;
-        if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
-        if(this.activeWeapon.ammo === 0) {
+        if (this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
+        if (this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
         }
@@ -611,27 +632,27 @@ export class Player extends GameObject {
     }
 
     useBandage(): void {
-        if(this.health === 100 || this.inventory.bandage === 0) return;
+        if (this.health === 100 || this.inventory.bandage === 0) return;
         this.doAction("bandage", 3);
     }
 
     useMedkit(): void {
-        if(this.health === 100 || this.inventory.healthkit === 0) return;
+        if (this.health === 100 || this.inventory.healthkit === 0) return;
         this.doAction("healthkit", 6);
     }
 
     useSoda(): void {
-        if(this.boost === 100 || this.inventory.soda === 0) return;
+        if (this.boost === 100 || this.inventory.soda === 0) return;
         this.doAction("soda", 3);
     }
 
     usePills(): void {
-        if(this.boost === 100 || this.inventory.painkiller === 0) return;
+        if (this.boost === 100 || this.inventory.painkiller === 0) return;
         this.doAction("painkiller", 5);
     }
 
     doAction(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
-        if(this.actionDirty) return;
+        if (this.actionDirty) return;
         this.actionItem.typeString = typeString;
         this.actionItem.typeId = TypeToId[typeString];
         this.actionItem.duration = duration;
@@ -639,16 +660,16 @@ export class Player extends GameObject {
 
         this.actionDirty = true;
         this.actionType = actionType ?? Constants.Action.UseItem;
-        if(!actionType) this.usingItem = true;
+        if (!actionType) this.usingItem = true;
         this.actionSeq = 1;
 
-        if(!skipRecalculateSpeed) this.recalculateSpeed();
+        if (!skipRecalculateSpeed) this.recalculateSpeed();
         this.game.fullDirtyObjects.add(this);
         this.fullDirtyObjects.add(this);
     }
 
     cancelAction(): void {
-        if(this.actionType === Constants.Action.UseItem) {
+        if (this.actionType === Constants.Action.UseItem) {
             this.usingItem = false;
             this.recalculateSpeed();
         }
@@ -662,9 +683,9 @@ export class Player extends GameObject {
     }
 
     reload(): void {
-        if(this.shooting) return;
+        if (this.shooting) return;
         const weaponInfo = this.activeWeaponInfo;
-        if(this.activeWeapon.ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
+        if (this.activeWeapon.ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
             this.doAction(this.activeWeapon.typeString, weaponInfo.reloadTime, Constants.Action.Reload, true);
         }
     }
@@ -675,8 +696,8 @@ export class Player extends GameObject {
 
     set health(health: number) {
         this._health = health;
-        if(this._health > 100) this._health = 100;
-        if(this._health < 0) this._health = 0;
+        if (this._health > 100) this._health = 100;
+        if (this._health < 0) this._health = 0;
         this.healthDirty = true;
     }
 
@@ -686,41 +707,41 @@ export class Player extends GameObject {
 
     set boost(boost: number) {
         this._boost = boost;
-        if(this._boost > 100) this._boost = 100;
-        if(this._boost < 0) this._boost = 0;
+        if (this._boost > 100) this._boost = 100;
+        if (this._boost < 0) this._boost = 0;
         this.boostDirty = true;
     }
 
     damage(amount: number, source?, objectUsed?, damageType = DamageType.Player): void {
-        if(this._health === 0) return;
+        if (this._health === 0) return;
 
         let finalDamage: number = amount;
         finalDamage -= finalDamage * Constants.chestDamageReductionPercentages[this.chestLevel];
         finalDamage -= finalDamage * Constants.helmetDamageReductionPercentages[this.helmetLevel];
-        if(this._health - finalDamage < 0) finalDamage += this._health - finalDamage;
+        if (this._health - finalDamage < 0) finalDamage += this._health - finalDamage;
 
         this.damageTaken += finalDamage;
-        if(source instanceof Player) source.damageDealt += finalDamage;
+        if (source instanceof Player) source.damageDealt += finalDamage;
 
         this._health -= finalDamage;
         this.healthDirty = true;
 
-        if(this._health <= 0) {
+        if (this._health <= 0) {
             this.boost = 0;
             this.dead = true;
 
             // Set killedBy
-            if(source instanceof Player && source !== this) this.killedBy = source;
+            if (source instanceof Player && source !== this) this.killedBy = source;
 
             // Update role
-            if(this.role === TypeToId.kill_leader) {
+            if (this.role === TypeToId.kill_leader) {
                 this.game.roleAnnouncements.add(new RoleAnnouncementPacket(this, false, true, source));
 
                 // Find a new Kill Leader
                 let highestKillCount = 0;
                 let highestKillsPlayer: Player | null = null;
-                for(const p of this.game.players) {
-                    if(!p.dead && p.kills > highestKillCount) {
+                for (const p of this.game.players) {
+                    if (!p.dead && p.kills > highestKillCount) {
                         highestKillCount = p.kills;
                         highestKillsPlayer = p;
                     }
@@ -728,7 +749,7 @@ export class Player extends GameObject {
 
                 // If a new Kill Leader was found, assign the role.
                 // Otherwise, leave it vacant.
-                if(highestKillsPlayer && highestKillCount > 2) {
+                if (highestKillsPlayer && highestKillCount > 2) {
                     this.game.assignKillLeader(highestKillsPlayer);
                 } else {
                     this.game.killLeader = { id: 0, kills: 0 };
@@ -738,14 +759,14 @@ export class Player extends GameObject {
             this.roleLost = true;
 
             // Decrement alive count
-            if(!this.disconnected) {
+            if (!this.disconnected) {
                 this.game.aliveCountDirty = true;
             }
 
             // Increment kill count for killer
-            if(source instanceof Player && source !== this) {
+            if (source instanceof Player && source !== this) {
                 source.kills++;
-                if(source.kills > 2 && source.kills > this.game.killLeader.kills) {
+                if (source.kills > 2 && source.kills > this.game.killLeader.kills) {
                     this.game.assignKillLeader(source);
                 }
             }
@@ -758,7 +779,7 @@ export class Player extends GameObject {
             this.game.deletedObjects.add(this);
 
             // Send death emote
-            if(this.loadout.emotes[5] !== 0) {
+            if (this.loadout.emotes[5] !== 0) {
                 this.game.emotes.add(new Emote(this.id, this.position, this.loadout.emotes[5], false));
             }
 
@@ -772,13 +793,13 @@ export class Player extends GameObject {
             this.dropItemInSlot(0, this.weapons[0].typeString, true);
             this.dropItemInSlot(1, this.weapons[1].typeString, true);
             //if(this.weapons[2].typeString !== "fists") this.dropItemInSlot(2, this.weapons[2].typeString, true);
-            for(const item in this.inventory) {
-                if(item === "1xscope") continue;
-                if(this.inventory[item] > 0) this.dropLoot(item);
+            for (const item in this.inventory) {
+                if (item === "1xscope") continue;
+                if (this.inventory[item] > 0) this.dropLoot(item);
             }
-            if(this.helmetLevel > 0) this.dropLoot(`helmet0${this.helmetLevel}`);
-            if(this.chestLevel > 0) this.dropLoot(`chest0${this.chestLevel}`);
-            if(this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
+            if (this.helmetLevel > 0) this.dropLoot(`helmet0${this.helmetLevel}`);
+            if (this.chestLevel > 0) this.dropLoot(`chest0${this.chestLevel}`);
+            if (this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
             this.selectedWeaponSlot = 2;
             this.weaponsDirty = true;
             this.inventoryDirty = true;
@@ -787,11 +808,11 @@ export class Player extends GameObject {
             this.game.livingPlayers.delete(this);
             removeFrom(this.game.spectatablePlayers, this);
             this.game.kills.add(new KillPacket(this, damageType, source, objectUsed));
-            if(!this.disconnected) this.sendPacket(new GameOverPacket(this));
+            if (!this.disconnected) this.sendPacket(new GameOverPacket(this));
 
             // Winning logic
-            if(this.game.aliveCount <= 1) {
-                if(this.game.aliveCount === 1) {
+            if (this.game.aliveCount <= 1) {
+                if (this.game.aliveCount === 1) {
                     const lastManStanding: Player = [...this.game.livingPlayers][0];
 
                     // Send game over
@@ -799,7 +820,7 @@ export class Player extends GameObject {
 
                     // End the game in 750ms
                     setTimeout(() => {
-                        if(lastManStanding.loadout.emotes[4] !== 0) { // Win emote
+                        if (lastManStanding.loadout.emotes[4] !== 0) { // Win emote
                             this.game.emotes.add(new Emote(lastManStanding.id, lastManStanding.position, lastManStanding.loadout.emotes[4], false));
                         }
                         this.game.end();
@@ -809,9 +830,9 @@ export class Player extends GameObject {
                 }
             } else {
                 let toSpectate;
-                if(source instanceof Player && source !== this) toSpectate = source;
+                if (source instanceof Player && source !== this) toSpectate = source;
                 else toSpectate = this.game.randomPlayer();
-                for(const spectator of this.spectators) {
+                for (const spectator of this.spectators) {
                     spectator.spectate(toSpectate);
                 }
                 this.spectators = new Set<Player>();
@@ -838,11 +859,11 @@ export class Player extends GameObject {
     recalculateSpeed(): void {
         this.speed = Config.movementSpeed;
         this.diagonalSpeed = Config.diagonalSpeed;
-        if(this.usingItem) {
+        if (this.usingItem) {
             this.speed *= 0.5;
             this.diagonalSpeed *= 0.5;
         }
-        if(this.boost >= 50) {
+        if (this.boost >= 50) {
             this.speed *= 1.15;
             this.diagonalSpeed *= 1.15;
         }
@@ -852,36 +873,36 @@ export class Player extends GameObject {
         this.movesSinceLastUpdate = 0;
         const newVisibleObjects = new Set<GameObject>(this.game.visibleObjects[this.zoom][Math.round(this.position.x / 10) * 10][Math.round(this.position.y / 10) * 10]);
         const minX = this.position.x - this.xCullDist,
-              minY = this.position.y - this.yCullDist,
-              maxX = this.position.x + this.xCullDist,
-              maxY = this.position.y + this.yCullDist;
-        for(const object of this.game.dynamicObjects) {
-            if(this === object) continue;
-            if(object.position.x > minX &&
-               object.position.x < maxX &&
-               object.position.y > minY &&
-               object.position.y < maxY) {
+            minY = this.position.y - this.yCullDist,
+            maxX = this.position.x + this.xCullDist,
+            maxY = this.position.y + this.yCullDist;
+        for (const object of this.game.dynamicObjects) {
+            if (this === object) continue;
+            if (object.position.x > minX &&
+                object.position.x < maxX &&
+                object.position.y > minY &&
+                object.position.y < maxY) {
                 newVisibleObjects.add(object);
-                if(!this.visibleObjects.has(object)) {
+                if (!this.visibleObjects.has(object)) {
                     this.fullDirtyObjects.add(object);
                 }
-                if(object instanceof Player && !object.visibleObjects.has(this)) {
+                if (object instanceof Player && !object.visibleObjects.has(this)) {
                     object.visibleObjects.add(this);
                     object.fullDirtyObjects.add(this);
                 }
             } else {
-                if(this.visibleObjects.has(object)) {
+                if (this.visibleObjects.has(object)) {
                     this.deletedObjects.add(object);
                 }
             }
         }
-        for(const object of newVisibleObjects) {
-            if(!this.visibleObjects.has(object)) {
+        for (const object of newVisibleObjects) {
+            if (!this.visibleObjects.has(object)) {
                 this.fullDirtyObjects.add(object);
             }
         }
-        for(const object of this.visibleObjects) {
-            if(!newVisibleObjects.has(object)) {
+        for (const object of this.visibleObjects) {
+            if (!newVisibleObjects.has(object)) {
                 this.deletedObjects.add(object);
             }
         }
@@ -889,13 +910,13 @@ export class Player extends GameObject {
     }
 
     spectate(spectating?: Player): void {
-        if(!spectating) {
+        if (!spectating) {
             this.socket.close();
             this.game.removePlayer(this);
             return;
         }
         this.isSpectator = true;
-        if(this.spectating) {
+        if (this.spectating) {
             this.spectating.spectators.delete(this);
             this.spectating.spectatorCountDirty = true;
         }
@@ -909,16 +930,16 @@ export class Player extends GameObject {
         spectating.activePlayerIdDirty = true;
         spectating.spectatorCountDirty = true;
         spectating.updateVisibleObjects();
-        for(const object of spectating.visibleObjects) {
+        for (const object of spectating.visibleObjects) {
             spectating.fullDirtyObjects.add(object);
         }
         spectating.fullDirtyObjects.add(spectating);
-        if(spectating.partialDirtyObjects.size) spectating.partialDirtyObjects = new Set<GameObject>();
+        if (spectating.partialDirtyObjects.size) spectating.partialDirtyObjects = new Set<GameObject>();
         spectating.fullUpdate = true;
     }
 
     isOnOtherSide(door): boolean {
-        switch(door.orientation) {
+        switch (door.orientation) {
             case 0: return this.position.x < door.position.x;
             case 1: return this.position.y < door.position.y;
             case 2: return this.position.x > door.position.x;
@@ -931,7 +952,7 @@ export class Player extends GameObject {
         const stream = SurvivBitStream.alloc(packet.allocBytes);
         try {
             packet.serialize(stream);
-        } catch(e) {
+        } catch (e) {
             console.error("Error serializing packet. Details:", e);
         }
         this.sendData(stream);
@@ -940,7 +961,7 @@ export class Player extends GameObject {
     sendData(stream: SurvivBitStream): void {
         try {
             this.socket.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)), true, true);
-        } catch(e) {
+        } catch (e) {
             console.warn("Error sending packet. Details:", e);
         }
     }
@@ -974,7 +995,7 @@ export class Player extends GameObject {
         stream.writeBits(0, 2); // Unknown bits
 
         stream.writeBoolean(this.actionItem.typeId !== 0);
-        if(this.actionItem.typeId !== 0) {
+        if (this.actionItem.typeId !== 0) {
             stream.writeGameType(this.actionItem.typeId);
         }
 

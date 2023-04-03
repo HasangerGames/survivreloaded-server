@@ -8,7 +8,7 @@ export class InputPacket extends ReceivingPacket {
 
     deserialize(stream: SurvivBitStream): void {
         const p = this.p;
-        if(p.dead) return;
+        if (p.dead) return;
 
         stream.readUint8(); // Discard second byte (this.seq)
 
@@ -26,15 +26,15 @@ export class InputPacket extends ReceivingPacket {
         // Mobile stuff
         stream.readBoolean(); // Portrait
         const touchMoveActive = stream.readBoolean();
-        if(touchMoveActive) {
-            if(!p.isMobile) {
+        if (touchMoveActive) {
+            if (!p.isMobile) {
                 p.isMobile = true;
                 p.zoom = Constants.scopeZoomRadius.mobile["1xscope"];
             }
             p.touchMoveDir = stream.readUnitVec(8);
 
             // Detect when the player isn't moving
-            if(p.touchMoveDir.x === 1 && p.touchMoveDir.y > 0 && p.touchMoveDir.y < 0.01) {
+            if (p.touchMoveDir.x === 1 && p.touchMoveDir.y > 0 && p.touchMoveDir.y < 0.01) {
                 p.touchMoveDir = Vec2(0, 0);
             }
 
@@ -43,7 +43,7 @@ export class InputPacket extends ReceivingPacket {
 
         // Direction
         const direction = stream.readUnitVec(10);
-        if(p.direction !== direction) {
+        if (p.direction !== direction) {
             p.direction = direction;
             p.moving = true;
         }
@@ -51,25 +51,25 @@ export class InputPacket extends ReceivingPacket {
 
         // Other inputs
         const inputCount = stream.readBits(4);
-        for(let i = 0; i < inputCount; i++) {
+        for (let i = 0; i < inputCount; i++) {
             const input = stream.readUint8();
-            switch(input) { // TODO Remove redundant code
+            switch (input) { // TODO Remove redundant code
                 case InputType.Interact: {
                     let minDist = Number.MAX_VALUE;
                     let minDistObject;
-                    for(const object of p.visibleObjects) {
-                        if(object.interactable) {
+                    for (const object of p.visibleObjects) {
+                        if (object.interactable) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
-                            if(record?.collided) {
-                                if((object as any).isDoor) (object as Obstacle).interact(p);
-                                else if(record.distance < minDist) {
+                            if (record?.collided) {
+                                if ((object as any).isDoor) (object as Obstacle).interact(p);
+                                else if (record.distance < minDist) {
                                     minDist = record.distance;
                                     minDistObject = object;
                                 }
                             }
                         }
                     }
-                    if(minDistObject) {
+                    if (minDistObject) {
                         minDistObject.interact(p);
                     }
                     break;
@@ -78,16 +78,16 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.Loot: {
                     let minDist = Number.MAX_VALUE;
                     let minDistObject;
-                    for(const object of p.visibleObjects) {
-                        if(object instanceof Loot) {
+                    for (const object of p.visibleObjects) {
+                        if (object instanceof Loot) {
                             const record = objectCollision(object, p.position, p.scale);
-                            if(record?.collided && record.distance < minDist) {
+                            if (record?.collided && record.distance < minDist) {
                                 minDist = record.distance;
                                 minDistObject = object;
                             }
                         }
                     }
-                    if(minDistObject) {
+                    if (minDistObject) {
                         minDistObject.interact(p);
                     }
                     break;
@@ -96,10 +96,10 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.Use: {
                     //let minDist = Number.MAX_VALUE;
                     //let minDistObject;
-                    for(const object of p.visibleObjects) {
-                        if((object as any).isDoor) {
+                    for (const object of p.visibleObjects) {
+                        if ((object as any).isDoor) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
-                            if(record?.collided) (object as Obstacle).interact(p);
+                            if (record?.collided) (object as Obstacle).interact(p);
                             /*if(record?.collided && record.distance < minDist) {
                                 minDist = record.distance;
                                 minDistObject = object;
@@ -121,6 +121,9 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.EquipMelee:
                     p.switchSlot(2);
                     break;
+                case InputType.EquipThrowable:
+                    p.switchSlot(3);
+                    break;
 
                 case InputType.EquipPrevWeap:
                     p.switchSlot(p.selectedWeaponSlot - 1, true);
@@ -134,7 +137,7 @@ export class InputPacket extends ReceivingPacket {
                     break;
 
                 case InputType.EquipOtherGun:
-                    if(p.selectedWeaponSlot === 0) p.switchSlot(1);
+                    if (p.selectedWeaponSlot === 0) p.switchSlot(1);
                     else p.switchSlot(0);
                     break;
                 case InputType.EquipLastWeap:
@@ -176,7 +179,7 @@ export class InputPacket extends ReceivingPacket {
         }
 
         // Item use logic
-        switch(stream.readGameType()) {
+        switch (stream.readGameType()) {
             case TypeToId.bandage:
                 p.useBandage();
                 break;
