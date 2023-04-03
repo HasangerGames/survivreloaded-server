@@ -203,8 +203,6 @@ export class Obstacle extends GameObject {
             weights.push(lootTable[item].weight);
         }
         const selectedItem = weightedRandom(items, weights);
-        if(selectedItem === "8xscope") this.game.has8x = true;
-        else if(selectedItem === "15xscope") this.game.has15x = true;
         if(lootTable.metaTier) {
             this.getLoot(selectedItem);
         } else {
@@ -213,6 +211,8 @@ export class Obstacle extends GameObject {
     }
 
     private addLoot(type: string, count: number): void {
+        if(type === "8xscope") this.game.has8x = true;
+        else if(type === "15xscope") this.game.has15x = true;
         this.loot.push(new Item(type, count));
         const weapon = Weapons[type];
         if(weapon?.ammo) {
