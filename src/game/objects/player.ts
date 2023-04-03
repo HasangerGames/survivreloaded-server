@@ -6,7 +6,7 @@ import {
     AllowedHeal,
     AllowedMelee,
     AllowedSkins,
-    AmmoTypes,
+    AmmoTypes, clamp,
     Config,
     Constants,
     DamageType,
@@ -339,16 +339,14 @@ export class Player extends GameObject {
 
     setScope(scope: string, skipScope?: boolean): void {
         if(this.scope.typeString !== scope && skipScope && scope) {
-            let direction = ScopeTypes.indexOf(scope) > ScopeTypes.indexOf(this.scope.typeString) ? 1 : -1;
-            
+            const direction = ScopeTypes.indexOf(scope) > ScopeTypes.indexOf(this.scope.typeString) ? 1 : -1;
             while(!this.inventory[scope]) {
-                let newScope = ScopeTypes[clamp(ScopeTypes.indexOf(scope) + direction, 0, ScopeTypes.length-1)];
-                if (newScope === scope)
-                    break;
+                const newScope = ScopeTypes[clamp(ScopeTypes.indexOf(scope) + direction, 0, ScopeTypes.length - 1)];
+                if(newScope === scope) break;
                 scope = newScope;
             }
         }
-        
+
         if(!this.inventory[scope]) return;
 
         this.scope.typeString = scope;
