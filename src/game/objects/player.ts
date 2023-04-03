@@ -542,7 +542,16 @@ export class Player extends GameObject {
                     switchCooldown: 0,
                     weaponType: WeaponType.Melee
                 };
-            } else {
+            } else if(slot === ItemSlot.Throwable) {
+                this.weapons[slot] = {
+                    typeString: "",
+                    typeId: 0,
+                    ammo: 0,
+                    cooldown: 0,
+                    cooldownDuration: 0,
+                    weaponType: WeaponType.Throwable
+                };
+            }else {
                 this.weapons[slot] = {
                     typeString: "",
                     typeId: 0,
@@ -754,6 +763,18 @@ export class Player extends GameObject {
     static resetSpeedAfterShooting (player: Player): void {
         player.shooting = false;
         player.recalculateSpeed();
+    }
+
+    useThrowable() {
+        // Start throwing animation
+        if (!this.animActive) {
+            this.animActive = true;
+            this.animType = 2;
+            this.animSeq = 1;
+            this.animTime = 0;
+            this.fullDirtyObjects.add(this);
+            this.fullDirtyObjects.add(this);
+        }
     }
 
     shootGun (): void {

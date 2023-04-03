@@ -131,6 +131,9 @@ export class InputPacket extends ReceivingPacket {
                 case InputType.EquipMelee:
                     p.switchSlot(2);
                     break;
+                case InputType.EquipThrowable:
+                    p.switchSlot(3);
+                    break;
 
                 case InputType.EquipPrevWeap:
                     p.switchSlot(p.selectedWeaponSlot - 1, true);

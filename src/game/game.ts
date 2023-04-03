@@ -380,6 +380,10 @@ export class Game {
                 // Weapon logic
                 if (p.shootStart) {
                     p.shootStart = false;
+                    // I put this outside b/c it would not work inside
+                    if (p.activeWeapon.weaponType === WeaponType.Throwable) {
+                        p.useThrowable();
+                    }
                     if (p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         if (p.activeWeapon.weaponType === WeaponType.Melee) {
