@@ -357,13 +357,6 @@ export class Player extends GameObject {
             this.game.newBullets.add(bullet);
             shotFx = false;
         }
-        this.activeWeapon.ammo--;
-        if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
-        if(this.activeWeapon.ammo === 0) {
-            this.shooting = false;
-            this.reload();
-        }
-        this.weaponsDirty = true;
     }
 
     setScope(scope: string, skipScope?: boolean): void {
@@ -624,8 +617,16 @@ export class Player extends GameObject {
             burstCount = 1;
             burstDelay = 0;
         }
-        for(burstCount; burstCount > 0; burstCount--) {
-            setTimeout(() => this.spawnBullet(), 1000 * burstCount * burstDelay);
+        for(let i = 0; i < burstCount; i++) {
+            this.weaponsDirty = true;
+            setTimeout(() => this.spawnBullet(), 1000 * i * burstDelay);
+            this.activeWeapon.ammo--;
+            if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
+            if(this.activeWeapon.ammo === 0) {
+                this.shooting = false;
+                this.reload();
+                return;
+            }
         }
         //moved bullet spawning to its own function to clean up burst logic
         /*
