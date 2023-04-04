@@ -419,7 +419,6 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
-        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             if(this.weapons[slot].ammo as number > 0) {
