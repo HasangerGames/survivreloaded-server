@@ -298,6 +298,12 @@ export class Player extends GameObject {
             this.weapons[0].typeId = TypeToId[weapon];
             this.switchSlot(0);
         }
+        /* Quickswitching test
+        this.inventory["762mm"] = 120;
+        this.weapons[0].typeString = "sv98";
+        this.weapons[0].typeId = TypeToId.sv98;
+        this.weapons[1].typeString = "sv98";
+        this.weapons[1].typeId = TypeToId.sv98; */
 
         // Init body
         this.body = game.world.createBody({

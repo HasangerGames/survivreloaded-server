@@ -585,7 +585,7 @@ export class Game {
         game.gasCircleDirty = true;
 
         // Prevent new players from joining if the red zone shrinks far enough
-        if(game.gas.stage >= RedZoneStages.length - 3) {
+        if(game.gas.stage >= 12) {
             game.allowJoin = false;
         }
 
