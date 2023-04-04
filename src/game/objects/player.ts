@@ -495,7 +495,11 @@ export class Player extends GameObject {
                     this.game.dynamicObjects.add(loot);
                     this.game.fullDirtyObjects.add(loot);
                     this.game.updateObjects = true;
-                    return this.setScope(scopeToSwitchTo);
+                    if(this.scope.typeString === item) 
+                        return this.setScope(scopeToSwitchTo);
+                    else {
+                        return;
+                    };
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
