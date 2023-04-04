@@ -127,12 +127,14 @@ export class Loot extends GameObject {
             // if it is a gun
             const canDualWield = !!Weapons[this.typeString]?.dualWieldType;
             if(canDualWield && p.weapons[0].typeId === this.typeId) {
-                p.weapons[0].typeString = Weapons[this.typeString]?.dualWieldType;
-                p.weapons[0].typeId = this.typeId + 1;
+                const gunTypeString = Weapons[this.typeString]?.dualWieldType;
+                p.weapons[0].typeString = gunTypeString;
+                p.weapons[0].typeId = TypeToId[gunTypeString];
                 slotSwitchingTo = 0;
             } else if (canDualWield && p.weapons[1].typeId === this.typeId) {
-                p.weapons[1].typeString = Weapons[this.typeString]?.dualWieldType;
-                p.weapons[1].typeId = this.typeId + 1;
+                const gunTypeString = Weapons[this.typeString]?.dualWieldType;
+                p.weapons[1].typeString = gunTypeString;
+                p.weapons[1].typeId = TypeToId[gunTypeString];
                 slotSwitchingTo = 1;
             } else if (p.weapons[0].typeId === 0) {
                 p.weapons[0].typeString = this.typeString;
