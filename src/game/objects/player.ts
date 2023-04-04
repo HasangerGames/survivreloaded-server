@@ -400,6 +400,7 @@ export class Player extends GameObject {
         if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
+            const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
             if(this.weapons[slot].ammo as number > 0) {
                 // Put the ammo in the gun back in the inventory
                 const ammoType: string = Weapons[this.weapons[slot].typeString].ammo;
@@ -439,9 +440,22 @@ export class Player extends GameObject {
             if(this.selectedWeaponSlot === slot && !skipItemSwitch) this.switchSlot(2);
             this.cancelAction();
             this.weaponsDirty = true;
-            const loot = new Loot(this.game, item, this.position, this.layer, 1);
-            this.game.dynamicObjects.add(loot);
-            this.game.fullDirtyObjects.add(loot);
+            if(isDualWielded) {
+                const singleGun = item.substring(0, item.lastIndexOf("_"));
+                // TODO: Adjust gun positions to reduce overlap.
+                const loot = [
+                    new Loot(this.game, singleGun, this.position, this.layer, 1),
+                    new Loot(this.game, singleGun, this.position, this.layer, 1)
+                ];
+                for(const gun of loot) {
+                    this.game.dynamicObjects.add(gun);
+                    this.game.fullDirtyObjects.add(gun);
+                }
+            } else {
+                const loot = new Loot(this.game, item, this.position, this.layer, 1);
+                this.game.dynamicObjects.add(loot);
+                this.game.fullDirtyObjects.add(loot);
+            }
             this.game.updateObjects = true;
         }
         // For individual items
