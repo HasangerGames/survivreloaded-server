@@ -259,11 +259,11 @@ export class Player extends GameObject {
 
         // Set loadout
         if(AllowedSkins.includes(loadout?.outfit) &&
-            AllowedMelee.includes(loadout.melee) &&
-            AllowedHeal.includes(loadout.heal) &&
-            AllowedBoost.includes(loadout.boost) &&
-            loadout.emotes &&
-            loadout.emotes.length === 6) {
+          AllowedMelee.includes(loadout.melee) &&
+          AllowedHeal.includes(loadout.heal) &&
+          AllowedBoost.includes(loadout.boost) &&
+          loadout.emotes &&
+          loadout.emotes.length === 6) {
             this.loadout = {
                 outfit: TypeToId[loadout.outfit],
                 melee: TypeToId[loadout.melee],
@@ -335,6 +335,35 @@ export class Player extends GameObject {
         this.xCullDist = this._zoom * 1.5;
         this.yCullDist = this._zoom * 1.25;
         this.zoomDirty = true;
+    }
+
+    spawnBullet(): void {
+        let shotFx = true;
+        const weapon = Weapons[this.activeWeapon.typeString];
+        const spread = degreesToRadians(weapon.shotSpread);
+        for(let i = 0; i < weapon.bulletCount; i++) {
+            const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
+            const bullet: Bullet = new Bullet(
+              this,
+              Vec2(this.position.x + 1.5 * Math.cos(angle), this.position.y + 1.5 * Math.sin(angle)),
+              Vec2(Math.cos(angle), Math.sin(angle)),
+              weapon.bulletType,
+              this.activeWeapon.typeId,
+              shotFx,
+              this.layer,
+              this.game
+            );
+            this.game.bullets.add(bullet);
+            this.game.newBullets.add(bullet);
+            shotFx = false;
+        }
+        this.activeWeapon.ammo--;
+        if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
+        if(this.activeWeapon.ammo === 0) {
+            this.shooting = false;
+            this.reload();
+        }
+        this.weaponsDirty = true;
     }
 
     setScope(scope: string, skipScope?: boolean): void {
@@ -583,8 +612,23 @@ export class Player extends GameObject {
         this.cancelAction();
         this.shooting = true;
         const weapon = Weapons[this.activeWeapon.typeString];
-        const spread = degreesToRadians(weapon.shotSpread);
-        let shotFx = true;
+        //moved bullet spawning to its own function to clean up the burst logic
+        //const spread = degreesToRadians(weapon.shotSpread);
+        //let shotFx = true;
+        let burstCount = 0;
+        let burstDelay = 0;
+        if(weapon.fireMode === "burst") {
+            burstCount = weapon.burstCount;
+            burstDelay = weapon.burstDelay;
+        } else {
+            burstCount = 1;
+            burstDelay = 0;
+        }
+        for(burstCount; burstCount > 0; burstCount--) {
+            setTimeout(() => this.spawnBullet(), 1000 * burstCount * burstDelay);
+        }
+        //moved bullet spawning to its own function to clean up burst logic
+        /*
         for(let i = 0; i < weapon.bulletCount; i++) {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
             const bullet: Bullet = new Bullet(
@@ -608,6 +652,7 @@ export class Player extends GameObject {
             this.reload();
         }
         this.weaponsDirty = true;
+         */
     }
 
     useBandage(): void {
@@ -823,15 +868,15 @@ export class Player extends GameObject {
 
         // Create the loot
         const loot: Loot = new Loot(
-            this.game,
-            type,
-            this.deadPos,
-            this.layer,
-            this.inventory[type]
+          this.game,
+          type,
+          this.deadPos,
+          this.layer,
+          this.inventory[type]
         );
 
         // Add the loot to the array of objects
-        this.game.staticObjects.add(loot);
+        this.game.dynamicObjects.add(loot);
         this.game.fullDirtyObjects.add(loot);
     }
 
@@ -852,15 +897,15 @@ export class Player extends GameObject {
         this.movesSinceLastUpdate = 0;
         const newVisibleObjects = new Set<GameObject>(this.game.visibleObjects[this.zoom][Math.round(this.position.x / 10) * 10][Math.round(this.position.y / 10) * 10]);
         const minX = this.position.x - this.xCullDist,
-              minY = this.position.y - this.yCullDist,
-              maxX = this.position.x + this.xCullDist,
-              maxY = this.position.y + this.yCullDist;
+          minY = this.position.y - this.yCullDist,
+          maxX = this.position.x + this.xCullDist,
+          maxY = this.position.y + this.yCullDist;
         for(const object of this.game.dynamicObjects) {
             if(this === object) continue;
             if(object.position.x > minX &&
-               object.position.x < maxX &&
-               object.position.y > minY &&
-               object.position.y < maxY) {
+              object.position.x < maxX &&
+              object.position.y > minY &&
+              object.position.y < maxY) {
                 newVisibleObjects.add(object);
                 if(!this.visibleObjects.has(object)) {
                     this.fullDirtyObjects.add(object);
