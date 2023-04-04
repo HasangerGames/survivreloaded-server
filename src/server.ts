@@ -222,7 +222,7 @@ process.on("SIGINT", () => {
     process.exit();
 });
 
-log("Surviv Reloaded Server v0.4.1");
+log("Surviv Reloaded Server v0.5.0");
 app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
     log(`Listening on ${Config.host}:${Config.port}`);
