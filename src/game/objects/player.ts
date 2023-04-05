@@ -592,7 +592,7 @@ export class Player extends GameObject {
         const radius: number = weapon.attack.rad;
 
         for(const object of this.visibleObjects) {
-            if(!object.dead && object !== this && object.layer === this.layer && object.damageable && object.body) {
+            if(!object.dead && object !== this && object.layer === this.layer && object.damageable) {
                 const record = objectCollision(object, position, radius);
                 if(record!.collided && record!.distance < minDist) {
                     minDist = record!.distance;

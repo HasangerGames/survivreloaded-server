@@ -44,8 +44,7 @@ export class Explosion {
             if (
                 !object.dead &&
                 object.damageable &&
-                object.layer == this.layer &&
-                object.body
+                object.layer == this.layer
             ) {
                 const record = objectCollision(object, this.position, radius);
                 if (record.collided) {

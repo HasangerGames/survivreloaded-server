@@ -259,7 +259,9 @@ export class Obstacle extends GameObject {
                 const explosion: Explosion = new Explosion(this.position, this.explosion, this.layer, source, this);
                 this.game.explosions.add(explosion);
             }
-            this.game.world.destroyBody(this.body!);
+            if (this.body)
+                this.game.world.destroyBody(this.body!);
+
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
                 const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count);
@@ -272,18 +274,23 @@ export class Obstacle extends GameObject {
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
-            const shape: any = this.body!.getFixtureList()!.getShape();
-            if(this.collision.type === CollisionType.Circle) {
-                shape.m_radius = shape.m_radius * scaleFactor;
-                this.collision.rad *= scaleFactor;
-            } else if(this.collision.type === CollisionType.Rectangle) {
-                for(let i = 0; i < shape.m_vertices.length; i++) {
-                    shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
+            if (this.body) {
+                const shape: any = this.body!.getFixtureList()!.getShape();
+                if(this.collision.type === CollisionType.Circle) {
+                    shape.m_radius = shape.m_radius * scaleFactor;
+                } else if(this.collision.type === CollisionType.Rectangle) {
+                    for(let i = 0; i < shape.m_vertices.length; i++) {
+                        shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
+                    }
                 }
+            }
+            if (this.collision.type == CollisionType.Circle) {
+                this.collision.rad *= scaleFactor;
+            } else if (this.collision.type == CollisionType.Rectangle) {
                 const rotatedRect = rotateRect(this.position,
-                                               Vec2.sub(this.collision.min, this.position),
-                                               Vec2.sub(this.collision.max, this.position),
-                                               scaleFactor, 0);
+                            Vec2.sub(this.collision.min, this.position),
+                            Vec2.sub(this.collision.max, this.position),
+                            scaleFactor, 0);
                 this.collision.min = rotatedRect.min;
                 this.collision.max = rotatedRect.max;
             }
