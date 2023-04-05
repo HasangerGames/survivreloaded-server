@@ -28,6 +28,11 @@ export class Building extends GameObject {
             for(const bounds of data.mapObstacleBounds) {
                 this.mapObstacleBounds.push(rotateRect(position, bounds.min, bounds.max, 1, this.orientation!));
             }
+        } else if (data.ceiling && data.ceiling.zoomRegions.length > 0) {
+            // use the zoom regions as a fallback
+            for (const zoomRegion of data.ceiling.zoomRegions) {
+               this.mapObstacleBounds.push(rotateRect(position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!));
+            }
         } else {
             console.warn(`No obstacle bounds specified for building: ${typeString}`);
         }
