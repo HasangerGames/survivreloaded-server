@@ -114,5 +114,35 @@
     "flare_gun_dual": { "count": 1, "weight": 0.00017 },
     "groza": { "count": 1, "weight": 0.8 },
     "scout_elite": { "count": 1, "weight": 0.05 }
+  },
+  "tier_police": {
+    "scar": { "count": 1, "weight": 2},
+    "helmet03": { "count": 1, "weight": 1},
+    "chest03": { "count": 1, "weight": 1},
+    "backpack03": { "count": 1, "weight": 1}
+  },
+  "tier_chest": {
+    "hk416": { "count": 1, "weight": 2},
+    "ak49": { "count": 1, "weight": 2},
+    "groza": { "count": 1, "weight": 2},
+    "famas": { "count": 1, "weight": 1},
+    "mk12": { "count": 1, "weight": 1},
+    "mp220": { "count": 1, "weight": 1},
+    "spas12": { "count": 1, "weight": 1},
+    "dp28": { "count": 1, "weight": 1},
+    "mosin": { "count": 1, "weight": 1},
+    "m39": { "count": 1, "weight": 1},
+    "scar": { "count": 1, "weight": 0.5},
+    "saiga": { "count": 1, "weight": 0.5},
+    "deagle": { "count": 1, "weight": 0.5},
+    "sv98": { "count": 1, "weight": 0.5},
+    "vector": { "count": 1, "weight": 0.5},
+    "m249": { "count": 1, "weight": 0.1},
+    "pkp": { "count": 1, "weight": 0.1},
+    "helmet01": { "count": 1, "weight": 2},
+    "helmet02": { "count": 1, "weight": 1},
+    "helmet03": { "count": 1, "weight": 0.5},
+    "4xscope": { "count": 1, "weight": 1},
+    "8xscope": { "count": 1, "weight": 0.5}
   }
 }
