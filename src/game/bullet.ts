@@ -1,5 +1,5 @@
 import { type Body, Circle, Vec2 } from "planck";
-import { Bullets, distanceBetween, TypeToId } from "../utils";
+import { Bullets, distanceBetween, TypeToId, randomFloat } from "../utils";
 import { type Game } from "./game";
 import { type Player } from "./objects/player";
 
@@ -35,7 +35,7 @@ export class Bullet {
     clipDistance = false;
 
     shotFx: boolean;
-    shotSourceType: number;
+    shotSource: any;
     shotOffhand = false;
     lastShot = false;
 
@@ -56,7 +56,7 @@ export class Bullet {
                 position: Vec2,
                 direction: Vec2,
                 typeString: string,
-                shotSourceType: number,
+                shotSource: number,
                 shotFx: boolean,
                 layer: number,
                 game: Game) {
@@ -66,9 +66,11 @@ export class Bullet {
         this.direction = direction;
         this.typeString = typeString;
         this.typeId = TypeToId[typeString];
-        this.shotSourceType = shotSourceType;
+        this.shotSource = shotSource;
         this.shotFx = shotFx;
-        this.maxDistance = bulletData.distance;
+        // explosion shrapnel variance
+        this.varianceT = randomFloat(0, bulletData.variance);
+        this.maxDistance = bulletData.distance * (this.varianceT + 1);
         this.layer = layer;
         this.body = game.world.createBody({
             type: "dynamic",
@@ -88,7 +90,7 @@ export class Bullet {
             center: Vec2(0, 0),
             mass: 0.0
         });
-        this.body.setLinearVelocity(direction.clone().mul(bulletData.speedMultiplier ?? 1));
+        this.body.setLinearVelocity(direction.clone().mul((bulletData.speed / 1000) * (this.varianceT +1)));
     }
 
     get position(): Vec2 {

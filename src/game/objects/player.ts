@@ -13,7 +13,6 @@ import {
     deepCopy,
     degreesToRadians,
     Emote,
-    type Explosion,
     ItemSlot,
     MedTypes,
     objectCollision,
@@ -40,7 +39,7 @@ import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPa
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
-
+import { Explosion } from "../explosion";
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -64,6 +63,7 @@ export class Player extends GameObject {
     groupId: number;
 
     direction: Vec2 = Vec2(1, 0);
+    distanceToMouse: number;
     scale = 1;
 
     private _zoom: number;
@@ -357,11 +357,16 @@ export class Player extends GameObject {
               Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.5 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.5 * Math.sin(angle)),
               Vec2(Math.cos(angle), Math.sin(angle)),
               weapon.bulletType,
-              this.activeWeapon.typeId,
+              this.activeWeapon,
               shotFx,
               this.layer,
               this.game
             );
+            // usas
+            if (weapon.toMouseHit) {
+                bullet.maxDistance = Math.min(this.distanceToMouse, bullet.maxDistance*2);
+                bullet.clipDistance = true;
+            }
             this.game.bullets.add(bullet);
             this.game.newBullets.add(bullet);
             shotFx = false;
@@ -607,7 +612,7 @@ export class Player extends GameObject {
         const radius: number = weapon.attack.rad;
 
         for(const object of this.visibleObjects) {
-            if(!object.dead && object !== this && object.layer === this.layer && object.damageable && object.body) {
+            if(!object.dead && object !== this && object.layer === this.layer && object.damageable) {
                 const record = objectCollision(object, position, radius);
                 if(record!.collided && record!.distance < minDist) {
                     minDist = record!.distance;
@@ -617,7 +622,11 @@ export class Player extends GameObject {
         }
 
         if(closestObject) {
-            closestObject.damage(weapon.damage, this);
+            if (closestObject instanceof Player) {
+                closestObject.damage(weapon.damage, this, this.activeWeapon);
+            } else {
+                closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+            }
             if(closestObject.interactable) closestObject.interact(this);
         }
     }

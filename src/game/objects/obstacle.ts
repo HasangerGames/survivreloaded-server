@@ -3,8 +3,6 @@ import {
     bodyFromCollisionData,
     CollisionType,
     deepCopy,
-    distanceBetween,
-    Explosion,
     Item,
     LootTables,
     ObjectKind,
@@ -13,7 +11,6 @@ import {
     rectCollision,
     rotateRect,
     type SurvivBitStream,
-    TypeToId,
     Weapons,
     weightedRandom
 } from "../../utils";
@@ -22,6 +19,7 @@ import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
 import { Box, Vec2 } from "planck";
 import { type Player } from "./player";
+import { Explosion } from "../explosion";
 
 export class Obstacle extends GameObject {
 
@@ -106,6 +104,11 @@ export class Obstacle extends GameObject {
         this.destroyType = data.destroyType;
         this.explosion = data.explosion;
         this.isDoor = data.door !== undefined;
+
+        // broken windows, club bar etc...
+        if (data.height <= 0.2) {
+            this.collidesWith.bullet = false;
+        }
 
         this.collision = deepCopy(data.collision);
         const collisionPos = this.isDoor ? addAdjust(position, data.hinge, this.orientation) : position;
@@ -253,13 +256,12 @@ export class Obstacle extends GameObject {
                 this.game.updateObjects = true;
             }
             if(this.explosion) {
-                const explosion: Explosion = new Explosion(this.position, TypeToId[this.explosion], 0);
+                const explosion: Explosion = new Explosion(this.position, this.explosion, this.layer, source, this);
                 this.game.explosions.add(explosion);
-                for(const player of this.game.players) {
-                    if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this);
-                }
             }
-            this.game.world.destroyBody(this.body!);
+            if (this.body)
+                this.game.world.destroyBody(this.body!);
+
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
                 const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count);
@@ -272,18 +274,23 @@ export class Obstacle extends GameObject {
             const oldScale: number = this.scale;
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
-            const shape: any = this.body!.getFixtureList()!.getShape();
-            if(this.collision.type === CollisionType.Circle) {
-                shape.m_radius = shape.m_radius * scaleFactor;
-                this.collision.rad *= scaleFactor;
-            } else if(this.collision.type === CollisionType.Rectangle) {
-                for(let i = 0; i < shape.m_vertices.length; i++) {
-                    shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
+            if (this.body) {
+                const shape: any = this.body!.getFixtureList()!.getShape();
+                if(this.collision.type === CollisionType.Circle) {
+                    shape.m_radius = shape.m_radius * scaleFactor;
+                } else if(this.collision.type === CollisionType.Rectangle) {
+                    for(let i = 0; i < shape.m_vertices.length; i++) {
+                        shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
+                    }
                 }
+            }
+            if (this.collision.type == CollisionType.Circle) {
+                this.collision.rad *= scaleFactor;
+            } else if (this.collision.type == CollisionType.Rectangle) {
                 const rotatedRect = rotateRect(this.position,
-                                               Vec2.sub(this.collision.min, this.position),
-                                               Vec2.sub(this.collision.max, this.position),
-                                               scaleFactor, 0);
+                            Vec2.sub(this.collision.min, this.position),
+                            Vec2.sub(this.collision.max, this.position),
+                            scaleFactor, 0);
                 this.collision.min = rotatedRect.min;
                 this.collision.max = rotatedRect.max;
             }

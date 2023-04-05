@@ -1,7 +1,9 @@
 import { SendingPacket } from "../sendingPacket";
-import { type Emote, type Explosion, MsgType, type SurvivBitStream } from "../../utils";
+import { type Emote, MsgType, type SurvivBitStream } from "../../utils";
 import { type Player } from "../../game/objects/player";
 import { type GameObject } from "../../game/gameObject";
+import { type Explosion } from "../../game/explosion";
+
 
 export class UpdatePacket extends SendingPacket {
 
@@ -232,11 +234,11 @@ export class UpdatePacket extends SendingPacket {
                 stream.writeBits(bullet.distAdjIdx, 4);
                 stream.writeBoolean(bullet.clipDistance);
                 if(bullet.clipDistance) {
-                    stream.writeFloat(bullet.distance, 0, 1024, 16);
+                    stream.writeFloat(bullet.maxDistance, 0, 1024, 16);
                 }
                 stream.writeBoolean(bullet.shotFx);
                 if(bullet.shotFx) {
-                    stream.writeGameType(bullet.shotSourceType);
+                    stream.writeGameType(bullet.shotSource.typeId);
                     stream.writeBoolean(bullet.shotOffhand);
                     stream.writeBoolean(bullet.lastShot);
                 }
@@ -263,7 +265,7 @@ export class UpdatePacket extends SendingPacket {
             stream.writeUint8(p.explosions.size);
             for(const explosion of p.explosions) {
                 stream.writeVec(explosion.position, 0, 0, 1024, 1024, 16);
-                stream.writeGameType(explosion.type);
+                stream.writeGameType(explosion.typeId);
                 stream.writeBits(explosion.layer, 2); // Layer
                 stream.writeBits(0, 1); // Padding
                 stream.writeAlignToNextByte();
