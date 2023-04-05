@@ -222,6 +222,8 @@ export class Player extends GameObject {
     actionType = 0;
     actionSeq = 0;
 
+    lastShotHand: "right" | "left" = "right";
+
     speed = Config.movementSpeed;
     diagonalSpeed = Config.diagonalSpeed;
 
@@ -343,7 +345,7 @@ export class Player extends GameObject {
         this.zoomDirty = true;
     }
 
-    spawnBullet(): void {
+    spawnBullet(offset = 0): void {
         let shotFx = true;
         const weapon = Weapons[this.activeWeapon.typeString];
         const spread = degreesToRadians(weapon.shotSpread);
@@ -351,7 +353,8 @@ export class Player extends GameObject {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
             const bullet: Bullet = new Bullet(
               this,
-              Vec2(this.position.x + 1.5 * Math.cos(angle), this.position.y + 1.5 * Math.sin(angle)),
+            //   Vec2(this.position.x + 1.5 * Math.cos(angle), this.position.y + 1.5 * Math.sin(angle)),
+              Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.5 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.5 * Math.sin(angle)),
               Vec2(Math.cos(angle), Math.sin(angle)),
               weapon.bulletType,
               this.activeWeapon.typeId,
@@ -422,6 +425,7 @@ export class Player extends GameObject {
         if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
+            const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
             if(this.weapons[slot].ammo as number > 0) {
                 // Put the ammo in the gun back in the inventory
                 const ammoType: string = Weapons[this.weapons[slot].typeString].ammo;
@@ -461,9 +465,22 @@ export class Player extends GameObject {
             if(this.selectedWeaponSlot === slot && !skipItemSwitch) this.switchSlot(2);
             this.cancelAction();
             this.weaponsDirty = true;
-            const loot = new Loot(this.game, item, this.position, this.layer, 1);
-            this.game.dynamicObjects.add(loot);
-            this.game.fullDirtyObjects.add(loot);
+            if(isDualWielded) {
+                const singleGun = item.substring(0, item.lastIndexOf("_"));
+                // TODO: Adjust gun positions to reduce overlap.
+                const loot = [
+                    new Loot(this.game, singleGun, this.position, this.layer, 1),
+                    new Loot(this.game, singleGun, this.position, this.layer, 1)
+                ];
+                for(const gun of loot) {
+                    this.game.dynamicObjects.add(gun);
+                    this.game.fullDirtyObjects.add(gun);
+                }
+            } else {
+                const loot = new Loot(this.game, item, this.position, this.layer, 1);
+                this.game.dynamicObjects.add(loot);
+                this.game.fullDirtyObjects.add(loot);
+            }
             this.game.updateObjects = true;
         }
         // For individual items
@@ -625,7 +642,11 @@ export class Player extends GameObject {
         }
         for(let i = 0; i < burstCount; i++) {
             this.weaponsDirty = true;
-            setTimeout(() => this.spawnBullet(), 1000 * i * burstDelay);
+            setTimeout(() => {
+                // Get the dual offset of the weapon based on the current shooting hand.
+                const offset = (weapon.dualOffset * (this.lastShotHand === "right" ? 1 : -1)) || 0;
+                this.spawnBullet(offset);
+            }, 1000 * i * burstDelay);
             this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
             if(this.activeWeapon.ammo === 0) {
@@ -634,6 +655,12 @@ export class Player extends GameObject {
                 return;
             }
         }
+
+        if(weapon.isDual) {
+            if(this.lastShotHand === "right") this.lastShotHand = "left";
+            else this.lastShotHand = "right";
+        }
+
         //moved bullet spawning to its own function to clean up burst logic
         /*
         for(let i = 0; i < weapon.bulletCount; i++) {
