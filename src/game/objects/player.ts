@@ -422,7 +422,6 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
-        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
@@ -540,7 +539,11 @@ export class Player extends GameObject {
                     this.game.dynamicObjects.add(loot);
                     this.game.fullDirtyObjects.add(loot);
                     this.game.updateObjects = true;
-                    return this.setScope(scopeToSwitchTo);
+                    if(this.scope.typeString === item) 
+                        return this.setScope(scopeToSwitchTo);
+                    else {
+                        return;
+                    };
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
