@@ -21,6 +21,7 @@ import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
+import { Decal } from "./objects/decal";
 import { Vec2 } from "planck";
 import { generateLooseLootFromArray, type looseLootTiers } from "./objects/loot";
 import { type GameObject } from "./gameObject";
@@ -287,7 +288,11 @@ export class Map {
             } else if(part.type === "loot_spawner") {
                 const loot: looseLootTiers[] = part.loot;
                 generateLooseLootFromArray(this.game, loot, partPosition, layer);
-            } else if(part.type === "ignored") {
+            } else if (part.type === "decal") {
+                this.game.dynamicObjects.add(
+                    new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
+            }
+            else if(part.type === "ignored") {
                 // Ignored
             } else {
                 // console.warn(`Unknown object type: ${part.type}`);

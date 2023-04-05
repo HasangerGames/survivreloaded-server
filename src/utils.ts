@@ -12,6 +12,7 @@ export const Maps = readJson("data/maps.json");
 export const Items = readJson("data/items.json");
 export const Weapons = readJson("data/weapons.json");
 export const Bullets = readJson("data/bullets.json");
+export const Explosions = readJson("data/explosions.json");
 export const LootTables = readJson("data/lootTables.json");
 export const RedZoneStages = readJson("data/redZoneStages.json");
 export const AllowedSkins = readJson("data/allowedSkins.json");
@@ -276,17 +277,6 @@ export class Emote {
         this.position = position;
         this.type = type;
         this.isPing = isPing;
-    }
-}
-
-export class Explosion {
-    position: Vec2;
-    type: string;
-    layer: number;
-    constructor(position, type, layer) {
-        this.position = position;
-        this.type = type;
-        this.layer = layer;
     }
 }
 

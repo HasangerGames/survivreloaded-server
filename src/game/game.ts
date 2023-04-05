@@ -8,7 +8,6 @@ import {
     Debug,
     distanceBetween,
     type Emote,
-    type Explosion,
     lerp,
     log,
     ObjectKind,
@@ -20,7 +19,7 @@ import {
     TypeToId,
     vecLerp,
     Weapons,
-    WeaponType
+    WeaponType,
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -34,6 +33,7 @@ import { Box, Fixture, Settings, Vec2, World } from "planck";
 import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
+import { Explosion } from "./explosion";
 
 export class Game {
 
@@ -214,6 +214,12 @@ export class Game {
             // Update bullets
             for(const bullet of this.bullets) {
                 if(bullet.distance >= bullet.maxDistance) {
+                    const bulletData = Bullets[bullet.typeString];
+
+                    if (bulletData.onHit) {
+                        const explosionPosition = bullet.position.clone().add(bullet.direction.clone().mul(bullet.maxDistance));
+                        this.explosions.add(new Explosion(explosionPosition, bulletData.onHit, bullet.layer, bullet.shooter, bullet.shotSource));
+                    }
                     this.world.destroyBody(bullet.body);
                     this.bullets.delete(bullet);
                 }
@@ -221,11 +227,22 @@ export class Game {
 
             // Do damage to objects hit by bullets
             for(const damageRecord of this.damageRecords) {
-                if(damageRecord.damaged.damageable) {
-                    damageRecord.damaged.damage(Bullets[damageRecord.bullet.typeString].damage, damageRecord.damager);
+                const bullet = damageRecord.bullet;
+                const bulletData = Bullets[bullet.typeString];
+
+                if (bulletData.onHit) {
+                    this.explosions.add(new Explosion(bullet.body.getPosition(), bulletData.onHit, bullet.layer, bullet.shooter, bullet.shotSource));
                 }
-                this.world.destroyBody(damageRecord.bullet.body);
-                this.bullets.delete(damageRecord.bullet);
+
+                if(damageRecord.damaged.damageable) {
+                    if (damageRecord.damaged instanceof Player) {
+                        damageRecord.damaged.damage(bulletData.damage, damageRecord.damager, bullet.shotSource);
+                    } else {
+                        damageRecord.damaged.damage(bulletData.damage * bulletData.obstacleDamage, damageRecord.damager);
+                    }
+                 }
+                this.world.destroyBody(bullet.body);
+                this.bullets.delete(bullet);
             }
 
             // Update red zone
@@ -365,6 +382,10 @@ export class Game {
                     p.partialDirtyObjects.add(p);
                 }
                 p.moving = false;
+            }
+
+            for (const explosion of this.explosions) {
+                explosion.explode(this);
             }
 
             // Second loop over players: calculate visible objects & send packets

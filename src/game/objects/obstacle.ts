@@ -3,8 +3,6 @@ import {
     bodyFromCollisionData,
     CollisionType,
     deepCopy,
-    distanceBetween,
-    Explosion,
     Item,
     LootTables,
     ObjectKind,
@@ -13,7 +11,6 @@ import {
     rectCollision,
     rotateRect,
     type SurvivBitStream,
-    TypeToId,
     Weapons,
     weightedRandom
 } from "../../utils";
@@ -22,6 +19,7 @@ import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
 import { Box, Vec2 } from "planck";
 import { type Player } from "./player";
+import { Explosion } from "../explosion";
 
 export class Obstacle extends GameObject {
 
@@ -253,11 +251,8 @@ export class Obstacle extends GameObject {
                 this.game.updateObjects = true;
             }
             if(this.explosion) {
-                const explosion: Explosion = new Explosion(this.position, TypeToId[this.explosion], 0);
+                const explosion: Explosion = new Explosion(this.position, this.explosion, this.layer, source, this);
                 this.game.explosions.add(explosion);
-                for(const player of this.game.players) {
-                    if(distanceBetween(player.position, this.position) < 5) player.damage(100, source, this);
-                }
             }
             this.game.world.destroyBody(this.body!);
             this.game.fullDirtyObjects.add(this);
