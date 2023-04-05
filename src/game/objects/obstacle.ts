@@ -105,6 +105,11 @@ export class Obstacle extends GameObject {
         this.explosion = data.explosion;
         this.isDoor = data.door !== undefined;
 
+        // broken windows, club bar etc...
+        if (data.height <= 0.2) {
+            this.collidesWith.bullet = false;
+        }
+
         this.collision = deepCopy(data.collision);
         const collisionPos = this.isDoor ? addAdjust(position, data.hinge, this.orientation) : position;
         if(this.collidable) {
