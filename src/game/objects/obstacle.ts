@@ -20,6 +20,7 @@ import { GameObject } from "../gameObject";
 import { Box, Vec2 } from "planck";
 import { type Player } from "./player";
 import { Explosion } from "../explosion";
+import { Building } from "./building";
 
 export class Obstacle extends GameObject {
 
@@ -74,13 +75,18 @@ export class Obstacle extends GameObject {
 
     collision;
 
+    isWall: boolean;
+    damageCeiling: boolean;
+    parentBuilding: Building|undefined;
+
     constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
                 orientation: number,
                 scale: number,
-                data) {
+                data,
+                parentBuilding?: Building) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Obstacle;
 
@@ -104,6 +110,10 @@ export class Obstacle extends GameObject {
         this.destroyType = data.destroyType;
         this.explosion = data.explosion;
         this.isDoor = data.door !== undefined;
+
+        this.isWall = data.isWall;
+        this.damageCeiling = data.damageCeiling;
+        this.parentBuilding = parentBuilding;
 
         // broken windows, club bar etc...
         if (data.height <= 0.2) {
@@ -269,6 +279,10 @@ export class Obstacle extends GameObject {
                 this.game.fullDirtyObjects.add(loot);
                 this.game.updateObjects = true;
             }
+            if (this.parentBuilding) {
+                this.parentBuilding.onObstacleDestroyed(this);
+            }
+
         } else {
             this.healthT = this.health / this.maxHealth;
             const oldScale: number = this.scale;

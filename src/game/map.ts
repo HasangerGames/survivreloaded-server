@@ -247,6 +247,16 @@ export class Map {
         if(setLayer !== undefined) layer = setLayer;
         else layer = 0;
 
+        const building: Building = new Building(
+            this.game,
+            typeString,
+            position,
+            setLayer !== undefined ? setLayer : 0,
+            orientation,
+            buildingData.map ? buildingData.map.display : false,
+            buildingData
+        );
+
         for(const mapObject of buildingData.mapObjects) {
             const partType = mapObject.type;
             if(!partType || partType === "") {
@@ -271,7 +281,8 @@ export class Map {
                     layer,
                     partOrientation,
                     mapObject.scale,
-                    part
+                    part,
+                    building
                 );
             } else if(part.type === "random") {
                 const items = Object.keys(part.weights);
@@ -311,15 +322,7 @@ export class Map {
                 ));
             }
         }
-        const building: Building = new Building(
-            this.game,
-            typeString,
-            position,
-            setLayer !== undefined ? setLayer : 0,
-            orientation,
-            buildingData.map ? buildingData.map.display : false,
-            buildingData
-        );
+
         if(debug) {
             for(const bounds of building.mapObstacleBounds) {
                 this.placeDebugMarker(bounds.min);
@@ -348,16 +351,20 @@ export class Map {
                         layer: number,
                         orientation: number,
                         scale: number,
-                        obstacleData): void {
-        this.game.staticObjects.add(new Obstacle(
+                        obstacleData,
+                        parentbuilding?: Building): Obstacle {
+        const obstacle = new Obstacle(
             this.game,
             typeString,
             position,
             layer !== undefined ? layer : 0,
             orientation,
             scale,
-            obstacleData
-        ));
+            obstacleData,
+            parentbuilding
+        );
+        this.game.staticObjects.add(obstacle);
+        return obstacle;
     }
 
     private genObstacles(count, typeString, obstacleData): void {
