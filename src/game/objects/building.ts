@@ -2,15 +2,23 @@ import { ObjectKind, rotateRect, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
+import { Obstacle } from "./obstacle";
 
 export class Building extends GameObject {
 
     showOnMap: boolean;
 
     occupied = false;
-    ceilingDamaged = false;
     hasPuzzle = false;
 
+    ceiling = {
+        destructible: false,
+        destroyed: false,
+        wallsToDestroy: 0,
+        damageable: false,
+        damaged: false,
+        obstaclesToDestroy: 0
+    }
     mapObstacleBounds: any[] = [];
 
     constructor(game: Game,
@@ -24,6 +32,16 @@ export class Building extends GameObject {
         this.kind = ObjectKind.Building;
 
         this.showOnMap = showOnMap;
+
+        if (data.ceiling?.destroy) {
+            this.ceiling.destructible = true;
+            this.ceiling.wallsToDestroy = data.ceiling.destroy.wallCount;
+        }
+        if (data.ceiling?.damage) {
+            this.ceiling.damageable = true;
+            this.ceiling.obstaclesToDestroy = data.ceiling.damage.obstacleCount;
+        }
+
         if(data.mapObstacleBounds?.length) {
             for(const bounds of data.mapObstacleBounds) {
                 this.mapObstacleBounds.push(rotateRect(position, bounds.min, bounds.max, 1, this.orientation!));
@@ -39,9 +57,9 @@ export class Building extends GameObject {
     }
 
     serializePartial(stream: SurvivBitStream): void {
-        stream.writeBoolean(this.dead); // Ceiling destroyed
+        stream.writeBoolean(this.ceiling.destroyed);
         stream.writeBoolean(this.occupied);
-        stream.writeBoolean(this.ceilingDamaged);
+        stream.writeBoolean(this.ceiling.damaged);
         stream.writeBoolean(this.hasPuzzle);
         stream.writeBits(0, 4); // Padding
     }
@@ -51,6 +69,25 @@ export class Building extends GameObject {
         stream.writeMapType(this.typeId);
         stream.writeBits(this.orientation!, 2);
         stream.writeBits(this.layer, 2);
+    }
+
+    onObstacleDestroyed(obstacle: Obstacle): void {
+        const ceiling = this.ceiling;
+        if (ceiling.destructible && obstacle.isWall && !ceiling.destroyed) {
+            ceiling.wallsToDestroy--;
+            if (ceiling.wallsToDestroy <= 0) {
+                ceiling.destroyed = true;
+                this.game.partialDirtyObjects.add(this);
+            }
+        }
+        if (ceiling.damageable && obstacle.damageCeiling && !ceiling.damaged) {
+            ceiling.obstaclesToDestroy--;
+            if (ceiling.obstaclesToDestroy-- <= 0) {
+                ceiling.damaged = true;
+                this.game.partialDirtyObjects.add(this);
+            }
+        }
+
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function

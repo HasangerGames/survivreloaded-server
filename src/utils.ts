@@ -329,6 +329,26 @@ export enum CollisionType {
 export enum CollisionCategory {
     Player = 2, Obstacle = 4, Loot = 8, Other = 16
 }
+/*
+Game objects can belong to the following layers:
+   0: ground layer
+   1: bunker layer
+   2: ground and stairs (both)
+   3: bunker and stairs (both)
+
+Objects on the same layer should interact with one another.
+*/
+export function sameLayer(a: number, b: number): boolean {
+    return !!((1 & a) == (1 & b) || 2 & a && 2 & b);
+}
+
+export function toGroundLayer(a: number): number {
+    return 1 & a;
+}
+
+export function toStairsLayer(a: number): number {
+    return 2 | a;
+}
 
 export function removeFrom(array: any[], object: any): void {
     const index: number = array.indexOf(object);

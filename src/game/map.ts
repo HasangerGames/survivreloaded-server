@@ -241,11 +241,21 @@ export class Map {
         else orientation = random(0, 3);
         let position;
         if(setPosition) position = setPosition;
-        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1);
+        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1, setLayer);
 
         let layer;
         if(setLayer !== undefined) layer = setLayer;
         else layer = 0;
+
+        const building: Building = new Building(
+            this.game,
+            typeString,
+            position,
+            setLayer !== undefined ? setLayer : 0,
+            orientation,
+            buildingData.map ? buildingData.map.display : false,
+            buildingData
+        );
 
         for(const mapObject of buildingData.mapObjects) {
             const partType = mapObject.type;
@@ -271,7 +281,8 @@ export class Map {
                     layer,
                     partOrientation,
                     mapObject.scale,
-                    part
+                    part,
+                    building
                 );
             } else if(part.type === "random") {
                 const items = Object.keys(part.weights);
@@ -311,15 +322,7 @@ export class Map {
                 ));
             }
         }
-        const building: Building = new Building(
-            this.game,
-            typeString,
-            position,
-            setLayer !== undefined ? setLayer : 0,
-            orientation,
-            buildingData.map ? buildingData.map.display : false,
-            buildingData
-        );
+
         if(debug) {
             for(const bounds of building.mapObstacleBounds) {
                 this.placeDebugMarker(bounds.min);
@@ -348,16 +351,20 @@ export class Map {
                         layer: number,
                         orientation: number,
                         scale: number,
-                        obstacleData): void {
-        this.game.staticObjects.add(new Obstacle(
+                        obstacleData,
+                        parentbuilding?: Building): Obstacle {
+        const obstacle = new Obstacle(
             this.game,
             typeString,
             position,
             layer !== undefined ? layer : 0,
             orientation,
             scale,
-            obstacleData
-        ));
+            obstacleData,
+            parentbuilding
+        );
+        this.game.staticObjects.add(obstacle);
+        return obstacle;
     }
 
     private genObstacles(count, typeString, obstacleData): void {
@@ -374,7 +381,7 @@ export class Map {
         }
     }
 
-    getRandomPositionFor(kind: ObjectKind, collisionData, orientation: number, scale: number): Vec2 {
+    getRandomPositionFor(kind: ObjectKind, collisionData, orientation: number, scale: number, layer = 0): Vec2 {
         const isBuilding = (kind === ObjectKind.Building || kind === ObjectKind.Structure);
         if(kind === ObjectKind.Player) {
             collisionData = { type: CollisionType.Circle, rad: 1 };
@@ -396,6 +403,7 @@ export class Map {
                 }
                 if(shouldContinue) break;
             }
+
             if(shouldContinue) continue;
             if(!collisionData) break;
 
@@ -408,6 +416,7 @@ export class Map {
             }
 
             for(const that of this.game.staticObjects) {
+                if (that.layer != layer) continue;
                 if(that instanceof Building) {
                     for(const thatBounds of that.mapObstacleBounds) {
                          if(collisionData.type === CollisionType.Circle) {
