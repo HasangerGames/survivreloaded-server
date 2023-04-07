@@ -40,7 +40,7 @@ import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPa
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
-import { Explosion } from "../explosion";
+import type { Explosion } from "../explosion";
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -346,9 +346,9 @@ export class Player extends GameObject {
         this.zoomDirty = true;
     }
 
-    spawnBullet(offset = 0): void {
+    spawnBullet(offset = 0, weaponTypeString: string): void {
         let shotFx = true;
-        const weapon = Weapons[this.activeWeapon.typeString];
+        const weapon = Weapons[weaponTypeString];
         const spread = degreesToRadians(weapon.shotSpread);
         for(let i = 0; i < weapon.bulletCount; i++) {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
@@ -404,6 +404,7 @@ export class Player extends GameObject {
 
     switchSlot(slot: number, skipSlots?: boolean): void {
         let chosenSlot = slot;
+        this.resetSpeedAfterShooting(this);
         if(!this.weapons[chosenSlot]?.typeId && skipSlots) {
             const wrapSlots = (n: number): number => ((n % 4) + 4) % 4;
 
@@ -546,11 +547,11 @@ export class Player extends GameObject {
                     this.game.dynamicObjects.add(loot);
                     this.game.fullDirtyObjects.add(loot);
                     this.game.updateObjects = true;
-                    if(this.scope.typeString === item) 
+                    if(this.scope.typeString === item) {
                         return this.setScope(scopeToSwitchTo);
-                    else {
+                    } else {
                         return;
-                    };
+                    }
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
@@ -649,6 +650,7 @@ export class Player extends GameObject {
         this.cancelAction();
         this.shooting = true;
         this.recalculateSpeed();
+        const weaponTypeString = this.activeWeapon.typeString;
         //moved bullet spawning to its own function to clean up the burst logic
         //const spread = degreesToRadians(weapon.shotSpread);
         //let shotFx = true;
@@ -666,7 +668,7 @@ export class Player extends GameObject {
             setTimeout(() => {
                 // Get the dual offset of the weapon based on the current shooting hand.
                 const offset = (weapon.dualOffset * (this.lastShotHand === "right" ? 1 : -1)) || 0;
-                this.spawnBullet(offset);
+                this.spawnBullet(offset, weaponTypeString);
             }, 1000 * i * burstDelay);
             this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
