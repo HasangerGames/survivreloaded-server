@@ -214,7 +214,7 @@ export class Player extends GameObject {
         useEnd: number
     };
 
-    performActionAgain = false;
+    performActionAgain = false; //test
     lastActionType = 0;
     lastActionItem: { duration: number, typeString: string, typeId: number, useEnd: number };
 
