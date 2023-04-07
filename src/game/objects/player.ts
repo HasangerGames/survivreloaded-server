@@ -13,7 +13,6 @@ import {
     deepCopy,
     degreesToRadians,
     Emote,
-    type Explosion,
     ItemSlot,
     MedTypes,
     objectCollision,
@@ -27,7 +26,8 @@ import {
     unitVecToRadians,
     vec2Rotate,
     Weapons,
-    WeaponType
+    WeaponType,
+    sameLayer
 } from "../../utils";
 import { DeadBody } from "./deadBody";
 import { type SendingPacket } from "../../packets/sendingPacket";
@@ -40,7 +40,7 @@ import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPa
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
-
+import { Explosion } from "../explosion";
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -64,6 +64,7 @@ export class Player extends GameObject {
     groupId: number;
 
     direction: Vec2 = Vec2(1, 0);
+    distanceToMouse: number;
     scale = 1;
 
     private _zoom: number;
@@ -222,6 +223,8 @@ export class Player extends GameObject {
     actionType = 0;
     actionSeq = 0;
 
+    lastShotHand: "right" | "left" = "right";
+
     speed = Config.movementSpeed;
     diagonalSpeed = Config.diagonalSpeed;
 
@@ -298,6 +301,12 @@ export class Player extends GameObject {
             this.weapons[0].typeId = TypeToId[weapon];
             this.switchSlot(0);
         }
+        /* Quickswitching test
+        this.inventory["762mm"] = 120;
+        this.weapons[0].typeString = "sv98";
+        this.weapons[0].typeId = TypeToId.sv98;
+        this.weapons[1].typeString = "sv98";
+        this.weapons[1].typeId = TypeToId.sv98; */
 
         // Init body
         this.body = game.world.createBody({
@@ -337,7 +346,7 @@ export class Player extends GameObject {
         this.zoomDirty = true;
     }
 
-    spawnBullet(): void {
+    spawnBullet(offset = 0): void {
         let shotFx = true;
         const weapon = Weapons[this.activeWeapon.typeString];
         const spread = degreesToRadians(weapon.shotSpread);
@@ -345,14 +354,21 @@ export class Player extends GameObject {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
             const bullet: Bullet = new Bullet(
               this,
-              Vec2(this.position.x + 1.5 * Math.cos(angle), this.position.y + 1.5 * Math.sin(angle)),
+            //   Vec2(this.position.x + 1.5 * Math.cos(angle), this.position.y + 1.5 * Math.sin(angle)),
+              Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.5 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.5 * Math.sin(angle)),
               Vec2(Math.cos(angle), Math.sin(angle)),
               weapon.bulletType,
-              this.activeWeapon.typeId,
+              this.activeWeapon,
               shotFx,
               this.layer,
               this.game
             );
+            // usas
+            if (weapon.toMouseHit) {
+                bullet.maxDistance = Math.min(this.distanceToMouse, bullet.maxDistance*2);
+                bullet.clipDistance = true;
+            }
+            bullet.shotOffhand = this.lastShotHand == "right";
             this.game.bullets.add(bullet);
             this.game.newBullets.add(bullet);
             shotFx = false;
@@ -414,9 +430,9 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
-        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
+            const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
             if(this.weapons[slot].ammo as number > 0) {
                 // Put the ammo in the gun back in the inventory
                 const ammoType: string = Weapons[this.weapons[slot].typeString].ammo;
@@ -456,9 +472,22 @@ export class Player extends GameObject {
             if(this.selectedWeaponSlot === slot && !skipItemSwitch) this.switchSlot(2);
             this.cancelAction();
             this.weaponsDirty = true;
-            const loot = new Loot(this.game, item, this.position, this.layer, 1);
-            this.game.dynamicObjects.add(loot);
-            this.game.fullDirtyObjects.add(loot);
+            if(isDualWielded) {
+                const singleGun = item.substring(0, item.lastIndexOf("_"));
+                // TODO: Adjust gun positions to reduce overlap.
+                const loot = [
+                    new Loot(this.game, singleGun, this.position, this.layer, 1),
+                    new Loot(this.game, singleGun, this.position, this.layer, 1)
+                ];
+                for(const gun of loot) {
+                    this.game.dynamicObjects.add(gun);
+                    this.game.fullDirtyObjects.add(gun);
+                }
+            } else {
+                const loot = new Loot(this.game, item, this.position, this.layer, 1);
+                this.game.dynamicObjects.add(loot);
+                this.game.fullDirtyObjects.add(loot);
+            }
             this.game.updateObjects = true;
         }
         // For individual items
@@ -518,7 +547,11 @@ export class Player extends GameObject {
                     this.game.dynamicObjects.add(loot);
                     this.game.fullDirtyObjects.add(loot);
                     this.game.updateObjects = true;
-                    return this.setScope(scopeToSwitchTo);
+                    if(this.scope.typeString === item) 
+                        return this.setScope(scopeToSwitchTo);
+                    else {
+                        return;
+                    };
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
@@ -582,7 +615,7 @@ export class Player extends GameObject {
         const radius: number = weapon.attack.rad;
 
         for(const object of this.visibleObjects) {
-            if(!object.dead && object !== this && object.layer === this.layer && object.damageable && object.body) {
+            if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && object.damageable) {
                 const record = objectCollision(object, position, radius);
                 if(record!.collided && record!.distance < minDist) {
                     minDist = record!.distance;
@@ -592,7 +625,11 @@ export class Player extends GameObject {
         }
 
         if(closestObject) {
-            closestObject.damage(weapon.damage, this);
+            if (closestObject instanceof Player) {
+                closestObject.damage(weapon.damage, this, this.activeWeapon);
+            } else {
+                closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+            }
             if(closestObject.interactable) closestObject.interact(this);
         }
     }
@@ -627,7 +664,11 @@ export class Player extends GameObject {
         }
         for(let i = 0; i < burstCount; i++) {
             this.weaponsDirty = true;
-            setTimeout(() => this.spawnBullet(), 1000 * i * burstDelay);
+            setTimeout(() => {
+                // Get the dual offset of the weapon based on the current shooting hand.
+                const offset = (weapon.dualOffset * (this.lastShotHand === "right" ? 1 : -1)) || 0;
+                this.spawnBullet(offset);
+            }, 1000 * i * burstDelay);
             this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
             if(this.activeWeapon.ammo === 0) {
@@ -636,6 +677,12 @@ export class Player extends GameObject {
                 return;
             }
         }
+
+        if(weapon.isDual) {
+            if(this.lastShotHand === "right") this.lastShotHand = "left";
+            else this.lastShotHand = "right";
+        }
+
         //moved bullet spawning to its own function to clean up burst logic
         /*
         for(let i = 0; i < weapon.bulletCount; i++) {

@@ -6,6 +6,68 @@
       "toilet_02": 0.2
     }
   },
+  "toilet_metal_random": {
+    "type": "random",
+    "weights": {
+      "toilet_03": 0.8,
+      "toilet_04": 0.2
+    }
+  },
+  "locker_random": {
+    "type": "random",
+    "weights": {
+      "locker_01": 0.8,
+      "locker_02": 0.1
+    }
+  },
+  "bush_random_mansion": {
+    "type": "random",
+    "weights": {
+      "bush_01": 25,
+      "bush_03": 1
+    }
+  },
+  "chest_random_mansion": {
+    "type": "random",
+    "weights": {
+      "case_01": 1,
+      "case_02": 0.025,
+      "chest_02": 1
+    }
+  },
+  "gun_mount_random": {
+    "type": "random",
+    "weights": {
+      "gun_mount_01": 50,
+      "gun_mount_05": 50,
+      "gun_mount_04": 10,
+      "gun_mount_02": 10,
+      "gun_mount_03": 1
+    }
+  },
+  "deposit_box_random": {
+    "type": "random",
+    "weights": {
+      "deposit_box_01": 3,
+      "deposit_box_02": 1
+    }
+  },
+  "crate_random_club": {
+    "type": "random",
+    "weights": {
+      "crate_01": 1,
+      "crate_14": 1,
+      "crate_14a": 1
+    }
+  },
+  "barrel_random_club":  {
+    "type": "random",
+    "weights": {
+      "crate_03": 1,
+      "barrel_01": 1,
+      "barrel_02": 1
+    }
+  },
   "drawers_random": {
     "type": "random",
     "weights": {
@@ -22249,6 +22311,20 @@
       "grass": false,
       "beach": true
     },
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -2.5,
+          "y": -2.5
+        },
+        "max": {
+          "x": 2.5,
+          "y": 2.5
+        },
+        "height": 0
+      }
+    ],
     "floor": {
       "surfaces": []
     },
@@ -42546,6 +42622,20 @@
       "grass": true,
       "beach": false
     },
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -4.5,
+          "y": -6
+        },
+        "max": {
+          "x": 4.5,
+          "y": 6
+        },
+        "height": 0
+      }
+    ],
     "zIdx": 2,
     "floor": {
       "surfaces": []
@@ -46396,6 +46486,7 @@
         "ori": 0
       },
       {
+        "type": "toilet_random",
         "pos": {
           "x": -7.5,
           "y": -12
@@ -46404,6 +46495,7 @@
         "ori": 2
       },
       {
+        "type": "drawers_random",
         "pos": {
           "x": -12.5,
           "y": 8.5
@@ -46412,6 +46504,7 @@
         "ori": 0
       },
       {
+        "type": "drawers_random",
         "pos": {
           "x": -5.5,
           "y": 7.25
@@ -46420,6 +46513,7 @@
         "ori": 1
       },
       {
+        "type": "drawers_random",
         "pos": {
           "x": -13.5,
           "y": -9.5
@@ -46493,6 +46587,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": -19,
           "y": -9.5
@@ -46501,6 +46596,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": -19,
           "y": 5.5
@@ -48553,6 +48649,7 @@
         "ori": 2
       },
       {
+        "type": "toilet_random",
         "pos": {
           "x": 23.5,
           "y": 0.5
@@ -48561,6 +48658,7 @@
         "ori": 3
       },
       {
+        "type": "toilet_random",
         "pos": {
           "x": 23.5,
           "y": 7.5
@@ -48617,6 +48715,7 @@
         "inheritOri": false
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": 12,
           "y": 0
@@ -48625,6 +48724,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": 1,
           "y": 0
@@ -50091,6 +50191,7 @@
         "ori": 2
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": -12.3,
           "y": 5
@@ -50099,6 +50200,7 @@
         "ori": 1
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": -12.3,
           "y": -5
@@ -50107,6 +50209,7 @@
         "ori": 1
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": -8,
           "y": 9.3
@@ -50115,6 +50218,7 @@
         "ori": 0
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": -8,
           "y": -9.3
@@ -50123,6 +50227,7 @@
         "ori": 2
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": 1,
           "y": 9.3
@@ -50131,6 +50236,7 @@
         "ori": 0
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": 1,
           "y": -9.3
@@ -51350,6 +51456,7 @@
         "ori": 2
       },
       {
+        "type": "locker_random",
         "type": "metal_wall_ext_10",
         "pos": {
           "x": 35.5,
@@ -51359,6 +51466,7 @@
         "ori": 1
       },
       {
+        "type": "locker_random",
         "pos": {
           "x": 33,
           "y": 4.15
@@ -51376,6 +51484,7 @@
         "ori": 1
       },
       {
+        "type": "locker_random",
         "pos": {
           "x": 33,
           "y": 20.85
@@ -51384,6 +51493,7 @@
         "ori": 0
       },
       {
+        "type": "locker_random",
         "pos": {
           "x": 38,
           "y": 20.85
@@ -51401,6 +51511,7 @@
         "ori": 0
       },
       {
+        "type": "locker_random",
         "pos": {
           "x": 40.85,
           "y": 7.5
@@ -51409,6 +51520,7 @@
         "ori": 3
       },
       {
+        "type": "locker_random",
         "pos": {
           "x": 40.85,
           "y": 17.5
@@ -51426,6 +51538,7 @@
         "ori": 1
       },
       {
+        "type": "locker_random",
         "pos": {
           "x": 38,
           "y": 11.35
@@ -51434,6 +51547,7 @@
         "ori": 0
       },
       {
+        "type": "locker_random",
         "pos": {
           "x": 33,
           "y": 13.65
@@ -51442,6 +51556,7 @@
         "ori": 2
       },
       {
+        "type": "toilet_metal_random",
         "pos": {
           "x": -37,
           "y": 1
@@ -51450,6 +51565,7 @@
         "ori": 2
       },
       {
+        "type": "toilet_metal_random",
         "pos": {
           "x": -23,
           "y": 1
@@ -51458,6 +51574,7 @@
         "ori": 2
       },
       {
+        "type": "toilet_metal_random",
         "pos": {
           "x": -16,
           "y": 1
@@ -51466,6 +51583,7 @@
         "ori": 2
       },
       {
+        "type": "toilet_metal_random",
         "pos": {
           "x": -9,
           "y": 1
@@ -51566,6 +51684,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": -38.5,
           "y": 4
@@ -51574,6 +51693,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": -31.5,
           "y": 4
@@ -51582,6 +51702,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": -24.5,
           "y": 4
@@ -51590,6 +51711,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": -17.5,
           "y": 4
@@ -51598,6 +51720,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": -10.5,
           "y": 4
@@ -56372,6 +56495,7 @@
         "ori": 1
       },
       {
+        "type": "toilet_random",
         "pos": {
           "x": -16,
           "y": 9
@@ -56389,6 +56513,7 @@
         "ori": 0
       },
       {
+        "type": "drawers_random",
         "pos": {
           "x": -15,
           "y": 0
@@ -56415,6 +56540,7 @@
         "ori": 2
       },
       {
+        "type": "gun_mount_random",
         "pos": {
           "x": 4,
           "y": 10.65
@@ -58055,6 +58181,7 @@
         "ori": 0
       },
       {
+        "type": "chest_random_mansion",
         "pos": {
           "x": 2.5,
           "y": 0
@@ -58886,6 +59013,7 @@
         "ori": 0
       },
       {
+        "type": "bookshelf_random",
         "pos": {
           "x": -27.25,
           "y": 7.15
@@ -58894,6 +59022,7 @@
         "ori": 2
       },
       {
+        "type": "bookshelf_random",
         "pos": {
           "x": -27.25,
           "y": 14.85
@@ -58902,6 +59031,7 @@
         "ori": 0
       },
       {
+        "type": "drawers_random",
         "pos": {
           "x": -11.5,
           "y": -11.75
@@ -58928,6 +59058,7 @@
         "ori": 0
       },
       {
+        "type": "bookshelf_random",
         "pos": {
           "x": 7.25,
           "y": -16.25
@@ -59126,6 +59257,7 @@
         "ori": 0
       },
       {
+        "type": "bush_random_mansion",
         "pos": {
           "x": -4.75,
           "y": 1.25
@@ -59135,6 +59267,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "bush_random_mansion",
         "pos": {
           "x": 0.75,
           "y": 1.25
@@ -59144,6 +59277,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "bush_random_mansion",
         "pos": {
           "x": -4.75,
           "y": 6.75
@@ -59153,6 +59287,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "bush_random_mansion",
         "pos": {
           "x": 0.75,
           "y": 6.75
@@ -69394,6 +69529,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_club",
         "pos": {
           "x": 11,
           "y": -13.5
@@ -69403,6 +69539,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club",
         "pos": {
           "x": 15.25,
           "y": -15.5
@@ -69412,6 +69549,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club",
         "pos": {
           "x": 15.25,
           "y": 1.75
@@ -69543,6 +69681,7 @@
         "ori": 0
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": -4.25,
           "y": 29.55
@@ -69551,6 +69690,7 @@
         "ori": 1
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": 1.25,
           "y": 29.55
@@ -69577,6 +69717,7 @@
         "ori": 0
       },
       {
+        "type": "barrel_random_club",
         "pos": {
           "x": 1.5,
           "y": 7
@@ -69613,6 +69754,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_club",
         "pos": {
           "x": -25,
           "y": 30

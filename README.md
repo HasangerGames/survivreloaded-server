@@ -21,13 +21,16 @@ Git: https://git-scm.com/downloads
 
 ### Step 2: Clone the repo
 
-[Click here to download](https://github.com/SurvivReloaded/survivreloaded-server/archive/refs/heads/main.zip). Extract the zip.
+Open a terminal or command prompt. Navigate to the folder you want the server to be in, then run the following commands:
+```
+git clone https://github.com/SurvivReloaded/survivreloaded-server.git
+cd survivreloaded-server
+```
 
 
 ### Step 3: Set up the server
 
-Open a terminal or command prompt in the extracted folder, and run the following commands:
-
+Run these commands to download the client and set up the server:
 ```
 git clone https://github.com/SurvivReloaded/survivreloaded-client.git public
 npm install
@@ -49,10 +52,9 @@ To start developing the game locally, run this command:
 
 ```
 npm run dev
-
 ```
 
-This will start the development server and automatically rebuild the server on changes.
+This will start the development server, and automatically recompile and restart it on changes.
 
 ## FAQ
 
