@@ -497,6 +497,8 @@ export class Player extends GameObject {
             const isHelmet = item.startsWith("helmet");
             const isVest = item.startsWith("chest");
 
+            this.cancelAction();
+
             if(isHelmet || isVest) {
                 if(isHelmet) {
                     const level = this.helmetLevel;
