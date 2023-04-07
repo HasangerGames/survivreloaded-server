@@ -360,7 +360,10 @@ export class Game {
                             p.shootGun();
                         }
                     }
-                } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && Weapons[p.activeWeapon.typeString].fireMode === "auto") {
+                } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && (Weapons[p.activeWeapon.typeString].fireMode === "auto" || Weapons[p.activeWeapon.typeString].fireMode === "burst")) {
+                    if(Weapons[p.activeWeapon.typeString].fireMode === "burst"){
+                        p.activeWeapon.cooldownDuration = p.activeWeaponInfo.fireDelay * 1400;
+                    }
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         p.shootGun();
