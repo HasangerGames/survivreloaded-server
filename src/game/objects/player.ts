@@ -663,7 +663,6 @@ export class Player extends GameObject {
             burstCount = 1;
             burstDelay = 0;
         }
-        this._boost += 20;
         for(let i = 0; i < burstCount; i++) {
             this.weaponsDirty = true;
             setTimeout(() => {
