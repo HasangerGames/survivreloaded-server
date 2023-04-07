@@ -337,9 +337,9 @@ export class Player extends GameObject {
         this.zoomDirty = true;
     }
 
-    spawnBullet(): void {
+    spawnBullet(weaponTypeString: string): void {
         let shotFx = true;
-        const weapon = Weapons[this.activeWeapon.typeString];
+        const weapon = Weapons[weaponTypeString];
         const spread = degreesToRadians(weapon.shotSpread);
         for(let i = 0; i < weapon.bulletCount; i++) {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
@@ -388,7 +388,7 @@ export class Player extends GameObject {
 
     switchSlot(slot: number, skipSlots?: boolean): void {
         let chosenSlot = slot;
-        this.resetSpeedAfterShooting(this);
+        this.resetSpeedAfterShooting(this); //So that quickswitching works.
         if(!this.weapons[chosenSlot]?.typeId && skipSlots) {
             const wrapSlots = (n: number): number => ((n % 4) + 4) % 4;
 
@@ -609,6 +609,7 @@ export class Player extends GameObject {
             return;
         }
         const weapon = Weapons[this.activeWeapon.typeString];
+        const weaponTypeString = this.activeWeapon.typeString;
         setTimeout(() => this.resetSpeedAfterShooting(this), weapon.fireDelay * 700); //Since RecoilTime is 1000000 on every gun in the data, approximate it with 70% of the time between shots.
         this.cancelAction();
         this.shooting = true;
@@ -627,7 +628,7 @@ export class Player extends GameObject {
         }
         for(let i = 0; i < burstCount; i++) {
             this.weaponsDirty = true;
-            setTimeout(() => this.spawnBullet(), 1000 * i * burstDelay);
+            setTimeout(() => this.spawnBullet(weaponTypeString), 1000 * i * burstDelay);
             this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
             if(this.activeWeapon.ammo === 0) {
