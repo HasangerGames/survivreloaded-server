@@ -26,7 +26,8 @@ import {
     unitVecToRadians,
     vec2Rotate,
     Weapons,
-    WeaponType
+    WeaponType,
+    sameLayer
 } from "../../utils";
 import { DeadBody } from "./deadBody";
 import { type SendingPacket } from "../../packets/sendingPacket";
@@ -612,7 +613,7 @@ export class Player extends GameObject {
         const radius: number = weapon.attack.rad;
 
         for(const object of this.visibleObjects) {
-            if(!object.dead && object !== this && object.layer === this.layer && object.damageable) {
+            if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && object.damageable) {
                 const record = objectCollision(object, position, radius);
                 if(record!.collided && record!.distance < minDist) {
                     minDist = record!.distance;

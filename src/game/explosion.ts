@@ -5,6 +5,7 @@ import {
     Explosions,
     randomFloat,
     distanceBetween,
+    sameLayer
 } from "../utils";
 import { Bullet } from "./bullet";
 import { Decal } from "./objects/decal";
@@ -44,7 +45,7 @@ export class Explosion {
             if (
                 !object.dead &&
                 object.damageable &&
-                object.layer == this.layer
+                sameLayer(this.layer, object.layer)
             ) {
                 const record = objectCollision(object, this.position, radius);
                 if (record.collided) {
@@ -66,7 +67,7 @@ export class Explosion {
         }
 
         for (const player of game.players) {
-            if (!player.dead && player.layer == this.layer) {
+            if (!player.dead && sameLayer(this.layer, player.layer)) {
                 const record = objectCollision(player, this.position, radius);
                 if (record.collided) {
                     let damage = explosionData.damage;

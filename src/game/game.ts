@@ -20,6 +20,7 @@ import {
     vecLerp,
     Weapons,
     WeaponType,
+    sameLayer
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -152,7 +153,7 @@ export class Game {
             const thatObject: any = that.getUserData();
 
             // Make sure the objects are on the same layer
-            if(thisObject.layer !== thatObject.layer) return false;
+            if(!sameLayer(thisObject.layer, thatObject.layer)) return false;
 
             if(thisObject.isPlayer) return thatObject.collidesWith.player;
             else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;

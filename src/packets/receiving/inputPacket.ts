@@ -1,5 +1,13 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { Constants, InputType, objectCollision, ScopeTypes, type SurvivBitStream, TypeToId } from "../../utils";
+import {
+    Constants,
+    InputType,
+    objectCollision,
+    ScopeTypes,
+    type SurvivBitStream,
+    TypeToId,
+    sameLayer
+} from "../../utils";
 import { Vec2 } from "planck";
 import { type Obstacle } from "../../game/objects/obstacle";
 import { Loot } from "../../game/objects/loot";
@@ -58,7 +66,7 @@ export class InputPacket extends ReceivingPacket {
                     let minDist = Number.MAX_VALUE;
                     let minDistObject;
                     for(const object of p.visibleObjects) {
-                        if(object.interactable) {
+                        if(object.interactable && sameLayer(p.layer, object.layer)) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
                             if(record?.collided) {
                                 if((object as any).isDoor) (object as Obstacle).interact(p);

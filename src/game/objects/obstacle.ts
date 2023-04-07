@@ -274,7 +274,7 @@ export class Obstacle extends GameObject {
 
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
-                const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count);
+                const loot: Loot = new Loot(this.game, item.type, this.position, this.layer, item.count);
                 this.game.dynamicObjects.add(loot);
                 this.game.fullDirtyObjects.add(loot);
                 this.game.updateObjects = true;
