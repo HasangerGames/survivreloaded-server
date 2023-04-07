@@ -18,7 +18,7 @@ import { type Game } from "../game";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
 import { Box, Vec2 } from "planck";
-import { type Player } from "./player";
+import { Player } from "./player";
 import { Explosion } from "../explosion";
 import { Building } from "./building";
 
@@ -245,7 +245,15 @@ export class Obstacle extends GameObject {
 
     damage(amount: number, source): void {
         if(this.health === 0) return;
-        this.health -= amount;
+        if(Objects[this.typeString].armorPlated === true){
+            if(source instanceof Player) {
+                if(Weapons[source.activeWeapon.typeString].armorPiercing === true) {
+                    this.health -= amount;
+                }
+            }
+        } else {
+            this.health -= amount;
+        }
         if(this.health <= 0) {
             this.health = this.healthT = 0;
             this.dead = true;
@@ -269,8 +277,7 @@ export class Obstacle extends GameObject {
                 const explosion: Explosion = new Explosion(this.position, this.explosion, this.layer, source, this);
                 this.game.explosions.add(explosion);
             }
-            if (this.body)
-                this.game.world.destroyBody(this.body!);
+            if (this.body) this.game.world.destroyBody(this.body!);
 
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
