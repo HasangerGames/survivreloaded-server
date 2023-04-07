@@ -368,6 +368,7 @@ export class Player extends GameObject {
                 bullet.maxDistance = Math.min(this.distanceToMouse, bullet.maxDistance*2);
                 bullet.clipDistance = true;
             }
+            bullet.shotOffhand = this.lastShotHand == "right";
             this.game.bullets.add(bullet);
             this.game.newBullets.add(bullet);
             shotFx = false;
