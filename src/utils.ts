@@ -12,6 +12,7 @@ export const Maps = readJson("data/maps.json");
 export const Items = readJson("data/items.json");
 export const Weapons = readJson("data/weapons.json");
 export const Bullets = readJson("data/bullets.json");
+export const Explosions = readJson("data/explosions.json");
 export const LootTables = readJson("data/lootTables.json");
 export const RedZoneStages = readJson("data/redZoneStages.json");
 export const AllowedSkins = readJson("data/allowedSkins.json");
@@ -279,17 +280,6 @@ export class Emote {
     }
 }
 
-export class Explosion {
-    position: Vec2;
-    type: string;
-    layer: number;
-    constructor(position, type, layer) {
-        this.position = position;
-        this.type = type;
-        this.layer = layer;
-    }
-}
-
 export enum ObjectKind {
     Invalid, Player, Obstacle, Loot,
     LootSpawner, DeadBody, Building, Structure,
@@ -338,6 +328,26 @@ export enum CollisionType {
 
 export enum CollisionCategory {
     Player = 2, Obstacle = 4, Loot = 8, Other = 16
+}
+/*
+Game objects can belong to the following layers:
+   0: ground layer
+   1: bunker layer
+   2: ground and stairs (both)
+   3: bunker and stairs (both)
+
+Objects on the same layer should interact with one another.
+*/
+export function sameLayer(a: number, b: number): boolean {
+    return !!((1 & a) == (1 & b) || 2 & a && 2 & b);
+}
+
+export function toGroundLayer(a: number): number {
+    return 1 & a;
+}
+
+export function toStairsLayer(a: number): number {
+    return 2 | a;
 }
 
 export function removeFrom(array: any[], object: any): void {

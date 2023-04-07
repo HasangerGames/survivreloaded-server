@@ -2774,7 +2774,7 @@
     "dualOffset": 0.6,
     "recoilTime": 10000000000,
     "moveSpread": 9,
-    "shotSpread": 0,
+    "shotSpread": 11,
     "bulletCount": 1,
     "bulletType": "bullet_m9",
     "bulletTypeBonus": "bullet_m9_bonus",
