@@ -632,15 +632,22 @@ export class Player extends GameObject {
         }
     }
 
+    resetSpeedAfterShooting(player: Player): void {
+        player.shooting = false;
+        player.recalculateSpeed();
+    }
+
     shootGun(): void {
         if(this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
             return;
         }
+        const weapon = Weapons[this.activeWeapon.typeString];
+        setTimeout(() => this.resetSpeedAfterShooting(this), weapon.fireDelay * 700); //Since RecoilTime is 1000000 on every gun in the data, approximate it with 70% of the time between shots.
         this.cancelAction();
         this.shooting = true;
-        const weapon = Weapons[this.activeWeapon.typeString];
+        this.recalculateSpeed();
         //moved bullet spawning to its own function to clean up the burst logic
         //const spread = degreesToRadians(weapon.shotSpread);
         //let shotFx = true;
@@ -937,6 +944,10 @@ export class Player extends GameObject {
         if(this.boost >= 50) {
             this.speed *= 1.15;
             this.diagonalSpeed *= 1.15;
+        }
+        if(this.shooting) {
+            this.speed *= 0.5;
+            this.diagonalSpeed *= 0.5;
         }
     }
 
