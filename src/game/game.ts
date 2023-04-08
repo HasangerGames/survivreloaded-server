@@ -158,9 +158,11 @@ export class Game {
             if(!sameLayer(thisObject.layer, thatObject.layer)) return false;
 
             // stairs hack
-            if(thisObject.isPlayer && thatObject.isObstacle && thatObject.layer == 0 && thisObject.layer & 0x2) {
+            if(thisObject.isPlayer && thatObject.isObstacle &&
+                (thatObject.layer == 0 && thisObject.layer == 3 || thatObject.layer == 1 && thisObject.layer == 2)) {
                     return false;
-            } else if(thatObject.isPlayer && thisObject.isObstacle && thisObject.layer == 0 && thatObject.layer & 0x2) {
+            } else if(thatObject.isPlayer && thisObject.isObstacle &&
+                (thisObject.layer == 0 && thatObject.layer == 3 || thisObject.layer == 1 && thatObject.layer == 2)) {
                 return false;
             }
 
@@ -399,7 +401,7 @@ export class Game {
                 for (const stair of this.stairs) {
                     if (stair.check(p)) {
                         onStair = true;
-                    };
+                    }
                 }
                 if (!onStair) {
                      if (p.layer == 2) {
