@@ -17,10 +17,10 @@ export class KillPacket extends SendingPacket {
         this.allocBytes = 32;
     }
 
-    serialize(stream: SurvivBitStream): void { // TODO Replace nested ternary operators with something easier to read
+    serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
         stream.writeUint8(this.damageType); // Damage type
-        if (this.killedWith && !this.killedWith.isObstacle) {
+        if(this.killedWith && !this.killedWith.isObstacle) {
             stream.writeGameType(this.killedWith.typeId); // Item source type
         } else {
             stream.writeGameType(0);
@@ -28,7 +28,7 @@ export class KillPacket extends SendingPacket {
         stream.writeMapType(this.killedWith ? this.killedWith.typeId : 0); // Map source type
         stream.writeUint16(this.p!.id); // Target ID
         stream.writeUint16(this.killer?.id ?? 0); // Killer ID
-        stream.writeUint16(this.killer ? this.killer.id : 0); // Kill credit ID.
+        stream.writeUint16(this.killer ? this.killer.id : 0); // Kill credit ID
         stream.writeUint8(this.killer?.kills ?? 0); // Killer kills
         stream.writeBoolean(false); // Downed
         stream.writeBoolean(true); // Killed

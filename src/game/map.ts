@@ -25,7 +25,7 @@ import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Decal } from "./objects/decal";
 import { Vec2 } from "planck";
-import { generateLooseLootFromArray, type looseLootTiers } from "./objects/loot";
+import { generateLooseLootFromArray } from "./objects/loot";
 import { type GameObject } from "./gameObject";
 
 export class Map {
@@ -128,6 +128,21 @@ export class Map {
             this.genOnShore(ObjectKind.Obstacle, "crate_01", 12, 57, 4);
             this.genOnShore(ObjectKind.Obstacle, "barrel_01", 12, 57, 4);
 
+            // Huts
+            this.genOnShore(ObjectKind.Building, "hut_01", 3, 27, 1);
+            this.genOnShore(ObjectKind.Building, "hut_02", 1, 27, 1);
+            this.genOnShore(ObjectKind.Building, "hut_03", 1, 27, 1);
+
+            // Loose loot
+            for(let i = 0; i < 16; i++) {
+                generateLooseLootFromArray(
+                    this.game,
+                    [{ tier: "tier_world", min: 1, max: 1 }],
+                    this.getRandomPositionFor(ObjectKind.Loot, undefined, 0, 0, 1),
+                    0
+                );
+            }
+
             for(const type in mapInfo.objects) {
                 const data = Objects[type];
                 const count = mapInfo.objects[type];
@@ -143,8 +158,8 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            this.buildingTest("shack_01", 0);
-            //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
+            //this.buildingTest("hut_01", 0);
+            //this.obstacleTest("house_door_02", Vec2(453, 153), 0);
 
             // Items test
             // this.obstacleTest("crate_01", Vec2(453, 153), 1);
@@ -325,41 +340,58 @@ export class Map {
             else partOrientation = addOrientations(mapObject.ori, orientation);
             const partPosition = addAdjust(position, mapObject.pos, orientation);
 
-            if(part.type === "structure") {
-                this.genStructure(partType, part, partPosition, partOrientation);
-            } else if(part.type === "building") {
-                this.genBuilding(partType, part, partPosition, partOrientation, layer);
-            } else if(part.type === "obstacle") {
-                this.genObstacle(
-                    partType,
-                    partPosition,
-                    layer,
-                    partOrientation,
-                    mapObject.scale,
-                    part,
-                    building
-                );
-            } else if(part.type === "random") {
-                const items = Object.keys(part.weights);
-                const weights = Object.values(part.weights);
-                const randType = weightedRandom(items, weights as number[]);
-                this.genObstacle(
-                  randType,
-                  partPosition,
-                  layer,
-                  partOrientation,
-                  mapObject.scale,
-                  Objects[randType]
-                );
-            } else if(part.type === "loot_spawner") {
-                const loot: looseLootTiers[] = part.loot;
-                generateLooseLootFromArray(this.game, loot, partPosition, layer);
-            } else if (part.type === "decal") {
-                this.game.staticObjects.add(new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
-            } else if(part.type === "ignored") {
-                // Ignored
-            } else {
-                // console.warn(`Unknown object type: ${part.type}`);
+            switch(part.type) {
+                case "structure":
+                    this.genStructure(partType, part, partPosition, partOrientation);
+                    break;
+                case "building":
+                    this.genBuilding(partType, part, partPosition, partOrientation, layer);
+                    break;
+                case "obstacle":
+                    this.genObstacle(
+                        partType,
+                        partPosition,
+                        layer,
+                        partOrientation,
+                        mapObject.scale,
+                        part,
+                        building
+                    );
+                    break;
+                case "random": {
+                    const items = Object.keys(part.weights);
+                    const weights = Object.values(part.weights);
+                    const randType = weightedRandom(items, weights as number[]);
+                    if(randType !== "nothing") {
+                        const data = Objects[randType];
+                        switch(data.type) {
+                            case "obstacle":
+                                this.genObstacle(
+                                    randType,
+                                    partPosition,
+                                    layer,
+                                    partOrientation,
+                                    mapObject.scale,
+                                    data,
+                                    building
+                                );
+                                break;
+                            case "loot_spawner":
+                                generateLooseLootFromArray(this.game, data.loot, partPosition, layer);
+                                break;
+                        }
+                    }
+                    break;
+                }
+                case "loot_spawner":
+                    generateLooseLootFromArray(this.game, part.loot, partPosition, layer);
+                    break;
+                case "decal":
+                    this.game.staticObjects.add(new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
+                    break;
+                case "ignored":
+                    // Ignored
+                    break;
             }
         }
         if(buildingData.mapGroundPatches) {
@@ -414,7 +446,7 @@ export class Map {
                         orientation: number,
                         scale: number,
                         obstacleData,
-                        parentbuilding?: Building): Obstacle {
+                        parentBuilding?: Building): Obstacle {
         const obstacle = new Obstacle(
             this.game,
             typeString,
@@ -423,7 +455,7 @@ export class Map {
             orientation,
             scale,
             obstacleData,
-            parentbuilding
+            parentBuilding
         );
         this.game.staticObjects.add(obstacle);
         return obstacle;
@@ -485,6 +517,8 @@ export class Map {
 
         if(kind === ObjectKind.Player) {
             collisionData = { type: CollisionType.Circle, rad: 1 };
+        } else if(kind === ObjectKind.Loot) {
+            collisionData = { type: CollisionType.Circle, rad: 5 };
         }
 
         if(!getPosition) {

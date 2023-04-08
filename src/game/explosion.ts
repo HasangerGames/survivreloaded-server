@@ -1,12 +1,5 @@
 import { Vec2 } from "planck";
-import {
-    TypeToId,
-    objectCollision,
-    Explosions,
-    randomFloat,
-    distanceBetween,
-    sameLayer
-} from "../utils";
+import { distanceBetween, Explosions, objectCollision, randomFloat, sameLayer, TypeToId } from "../utils";
 import { Bullet } from "./bullet";
 import { Decal } from "./objects/decal";
 import { type Game } from "./game";

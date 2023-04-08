@@ -1,4 +1,11 @@
 {
+  "tier_world_random": {
+    "type": "random",
+    "weights": {
+      "loot_tier_1": 3,
+      "nothing": 1
+    }
+  },
   "toilet_random": {
     "type": "random",
     "weights": {
@@ -60,6 +67,13 @@
       "crate_14a": 1
     }
   },
+  "crate_random_club_bar": {
+    "type": "random",
+    "weights": {
+      "crate_14": 1,
+      "crate_14a": 1
+    }
+  },
   "barrel_random_club":  {
     "type": "random",
     "weights": {
@@ -95,6 +109,28 @@
       "planter_01": 1,
       "planter_02": 1,
       "planter_03": 1
+    }
+  },
+  "crate_or_barrel_random": {
+    "type": "random",
+    "weights": {
+      "barrel_01": 2,
+      "crate_01": 1
+    }
+  },
+  "loot_random_shack": {
+    "type": "random",
+    "weights": {
+      "loot_tier_1": 1.5,
+      "nothing": 1
+    }
+  },
+  "crate_random_club_outside": {
+    "type": "random",
+    "weights": {
+      "nothing": 4,
+      "crate_01": 2,
+      "crate_02": 1
     }
   },
   "barrel_01": {
@@ -10942,7 +10978,7 @@
     "reflectBullets": false,
     "loot": [
       {
-        "type": "scout_elite",
+        "type": "scout",
         "count": 1,
         "props": {}
       },
@@ -23200,6 +23236,18 @@
   },
   "hut_01": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -8,
+          "y": -32
+        },
+        "max": {
+          "x": 8,
+          "y": 8
+        }
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -23628,6 +23676,18 @@
   },
   "hut_02": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -8,
+          "y": -32
+        },
+        "max": {
+          "x": 8,
+          "y": 8
+        }
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -24058,6 +24118,18 @@
     "specialLoot": "pot_02"
   },
   "hut_03": {
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -8,
+          "y": -32
+        },
+        "max": {
+          "x": 8,
+          "y": 8
+        }
+      }
+    ],
     "type": "building",
     "map": {
       "display": true,
@@ -33674,6 +33746,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_2",
         "pos": {
           "x": -2,
           "y": 0.8
@@ -33682,6 +33755,7 @@
         "ori": 0
       },
       {
+        "type": "loot_random_shack",
         "pos": {
           "x": 2,
           "y": 0.8
@@ -44424,6 +44498,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "tier_world_random",
         "pos": {
           "x": -19,
           "y": -9.5
@@ -44432,6 +44507,7 @@
         "ori": 0
       },
       {
+        "type": "tier_world_random",
         "pos": {
           "x": -19,
           "y": 5.5
@@ -46474,7 +46550,7 @@
         "ori": 0
       },
       {
-        "type": "",
+        "type": "house_door_02",
         "pos": {
           "x": 23,
           "y": -1.5
@@ -46611,7 +46687,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
-        "type": "loot_tier_1",
+        "type": "tier_world_random",
         "pos": {
           "x": -19,
           "y": -9.5
@@ -46620,7 +46696,7 @@
         "ori": 0
       },
       {
-        "type": "loot_tier_1",
+        "type": "tier_world_random",
         "pos": {
           "x": -19,
           "y": 5.5
@@ -57734,6 +57810,7 @@
         "ori": 2
       },
       {
+        "type": "crate_or_barrel_random",
         "pos": {
           "x": 3,
           "y": 8.25
@@ -69430,6 +69507,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club_bar",
         "pos": {
           "x": -12,
           "y": 0.25
@@ -69439,6 +69517,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club_bar",
         "pos": {
           "x": -7.75,
           "y": 0.25
@@ -69448,6 +69527,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club_bar",
         "pos": {
           "x": -3.5,
           "y": 0.25
@@ -69818,6 +69898,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_club",
         "pos": {
           "x": 21,
           "y": -17.5
@@ -71441,6 +71522,16 @@
         },
         "scale": 1,
         "ori": 1
+      },
+      {
+        "type": "crate_random_club_outside",
+        "pos": {
+          "x": 25,
+          "y": 14
+        },
+        "scale": 1,
+        "ori": 0,
+        "inheritOri": false
       }
     ]
   },

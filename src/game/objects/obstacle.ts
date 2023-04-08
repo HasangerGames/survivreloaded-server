@@ -20,7 +20,7 @@ import { GameObject } from "../gameObject";
 import { Box, Vec2 } from "planck";
 import { Player } from "./player";
 import { Explosion } from "../explosion";
-import { Building } from "./building";
+import { type Building } from "./building";
 
 export class Obstacle extends GameObject {
 
@@ -115,8 +115,8 @@ export class Obstacle extends GameObject {
         this.damageCeiling = data.damageCeiling;
         this.parentBuilding = parentBuilding;
 
-        // broken windows, club bar etc...
-        if (data.height <= 0.2) {
+        // Broken windows, club bar, etc.
+        if(data.height <= 0.2) {
             this.collidesWith.bullet = false;
         }
 
@@ -211,12 +211,11 @@ export class Obstacle extends GameObject {
         }
         const items: string[] = [], weights: number[] = [];
         for(const item in lootTable) {
-            if(item === "metaTier") continue;
             items.push(item);
             weights.push(lootTable[item].weight);
         }
         const selectedItem = weightedRandom(items, weights);
-        if(lootTable.metaTier) {
+        if(selectedItem.startsWith("tier_")) {
             this.getLoot(selectedItem);
         } else {
             this.addLoot(selectedItem, lootTable[selectedItem].count);
@@ -245,7 +244,7 @@ export class Obstacle extends GameObject {
 
     damage(amount: number, source): void {
         if(this.health === 0) return;
-        if(Objects[this.typeString].armorPlated === true){
+        if(Objects[this.typeString].armorPlated === true) {
             if(source instanceof Player) {
                 if(Weapons[source.activeWeapon.typeString].armorPiercing === true) {
                     this.health -= amount;
@@ -305,9 +304,9 @@ export class Obstacle extends GameObject {
                     }
                 }
             }
-            if (this.collision.type == CollisionType.Circle) {
+            if (this.collision.type === CollisionType.Circle) {
                 this.collision.rad *= scaleFactor;
-            } else if (this.collision.type == CollisionType.Rectangle) {
+            } else if (this.collision.type === CollisionType.Rectangle) {
                 const rotatedRect = rotateRect(this.position,
                             Vec2.sub(this.collision.min, this.position),
                             Vec2.sub(this.collision.max, this.position),

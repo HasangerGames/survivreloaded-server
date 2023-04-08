@@ -20,7 +20,8 @@ import {
     ObjectKind,
     randomBoolean,
     randomFloat,
-    removeFrom, sameLayer,
+    removeFrom,
+    sameLayer,
     ScopeTypes,
     SurvivBitStream,
     TypeToId,
@@ -41,6 +42,7 @@ import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import type { Explosion } from "../explosion";
+
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -60,7 +62,7 @@ export class Player extends GameObject {
     map: Map;
 
     name: string;
-    teamId = 1; // For 50v50?
+    teamId: number;
     groupId: number;
 
     direction: Vec2 = Vec2(1, 0);
@@ -254,7 +256,7 @@ export class Player extends GameObject {
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
-        this.groupId = this.game.nextGroupId;
+        this.teamId = this.groupId = this.game.nextGroupId;
         this.name = name;
         this.zoom = Constants.scopeZoomRadius.desktop["1xscope"];
         this.actionItem = { typeString: "", typeId: 0, duration: 0, useEnd: -1 };
@@ -291,6 +293,9 @@ export class Player extends GameObject {
         }
         this.weapons[2].typeString = this.loadout.meleeType;
         this.weapons[2].typeId = this.loadout.melee;
+        this.weapons[0].typeString = "m93r_dual";
+        this.weapons[0].typeId = TypeToId.m93r_dual;
+        this.inventory["9mm"] = 50;
 
         if(this.game.gas.stage >= 9) {
             this.inventory.bandage = 3;
@@ -450,6 +455,7 @@ export class Player extends GameObject {
                     }
                     (this.inventory[ammoType] as number) -= overAmount;
                 }
+                this.inventoryDirty = true;
             }
             if(slot === ItemSlot.Melee) {
                 this.weapons[slot] = {
@@ -628,10 +634,14 @@ export class Player extends GameObject {
         }
 
         if(closestObject) {
-            if (closestObject instanceof Player) {
-                closestObject.damage(weapon.damage, this, this.activeWeapon);
+            if(closestObject instanceof Player) {
+                setTimeout(() => {
+                    closestObject.damage(weapon.damage, this, this.activeWeapon);
+                }, 90);
             } else {
-                closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+                setTimeout(() => {
+                    closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+                }, 90);
             }
             if(closestObject.interactable) closestObject.interact(this);
         }
@@ -666,12 +676,12 @@ export class Player extends GameObject {
             burstCount = 1;
             burstDelay = 0;
         }
-        for(let i = 0; i < burstCount; i++) {
-            this.weaponsDirty = true;
+        for(let i = 0; i < burstCount; i++) { // TODO Update ammo count for every burst shot
             setTimeout(() => {
                 // Get the dual offset of the weapon based on the current shooting hand.
                 const offset = (weapon.dualOffset * (this.lastShotHand === "right" ? 1 : -1)) || 0;
                 this.spawnBullet(offset, weaponTypeString);
+                this.weaponsDirty = true;
             }, 1000 * i * burstDelay);
             this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
@@ -680,6 +690,7 @@ export class Player extends GameObject {
                 this.reload();
                 return;
             }
+            this.weaponsDirty = true;
         }
 
         if(weapon.isDual) {

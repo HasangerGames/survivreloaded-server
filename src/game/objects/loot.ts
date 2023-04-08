@@ -1,9 +1,9 @@
 import {
-    Constants,
+    Constants, deepCopy,
     Items,
     log,
     LootTables,
-    ObjectKind,
+    ObjectKind, random,
     type SurvivBitStream,
     TypeToId,
     Weapons,
@@ -33,6 +33,8 @@ export class Loot extends GameObject {
     interactionRad = 1;
 
     isGun = false;
+    isMelee = false;
+    isAmmo = false;
 
     oldPos: Vec2;
 
@@ -50,6 +52,14 @@ export class Loot extends GameObject {
         this.kind = ObjectKind.Loot;
         this.count = count;
         this.isGun = Weapons[typeString]?.type === "gun";
+        this.isMelee = Weapons[typeString]?.type === "melee";
+        this.isAmmo = Items[typeString]?.type === "ammo";
+        let radius;
+        if(this.isGun) radius = Constants.lootRadius.gun;
+        else if(this.isMelee) radius = Constants.lootRadius.melee;
+        else if(this.isAmmo) radius = Constants.lootRadius.ammo;
+        else radius = 1;
+        this.interactionRad = radius;
         this.oldPos = position;
 
         // Create the body
@@ -58,7 +68,7 @@ export class Loot extends GameObject {
             position
         });
         this.body.createFixture({
-            shape: Circle(1),
+            shape: Circle(radius),
             restitution: 0.5,
             density: 0.0,
             friction: 0.0,
@@ -218,49 +228,50 @@ export class Loot extends GameObject {
 
 }
 
-export interface looseLootTiers { tier: string, min: number, max: number }
+export interface LooseLoot { tier: string, min: number, max: number }
 
-export function generateLooseLootFromArray(game: Game, loot: looseLootTiers[], position: Vec2, layer: number): void {
+export function generateLooseLootFromArray(game: Game, loot: LooseLoot[], position: Vec2, layer: number): void {
     for(let i = 0; i < loot.length; i++) {
-        const lootTable = LootTables[loot[i].tier];
-        if(!lootTable) return;
+        for(let j = 0; j < random(loot[i].min, loot[i].max); j++) {
+            const lootTable = LootTables[loot[i].tier];
+            if(!lootTable) return;
 
-        const items: string[] = [], weights: number[] = [];
-        for(const item in lootTable) {
-            if(item === "metaTier") continue;
-            items.push(item);
-            weights.push(lootTable[item].weight);
-        }
+            const items: string[] = [], weights: number[] = [];
+            for(const item in lootTable) {
+                items.push(item);
+                weights.push(lootTable[item].weight);
+            }
 
-        const selectedItem: string = weightedRandom(items, weights);
-        if(lootTable.metaTier) {
-            generateLooseLootFromArray(game, [
-              Object.assign(loot[i], { tier: selectedItem })
-            ], position, layer);
-        } else {
-            const loot = new Loot(game, selectedItem, position, layer, lootTable[selectedItem].count);
-            game.dynamicObjects.add(loot);
-            game.fullDirtyObjects.add(loot);
-            game.updateObjects = true;
+            const selectedItem: string = weightedRandom(items, weights);
+            if(selectedItem.startsWith("tier_")) {
+                const lootItem = deepCopy(loot[i]);
+                lootItem.tier = selectedItem;
+                generateLooseLootFromArray(game, [lootItem], position, layer);
+            } else {
+                const loot = new Loot(game, selectedItem, position, layer, lootTable[selectedItem].count);
+                game.dynamicObjects.add(loot);
+                game.fullDirtyObjects.add(loot);
+                game.updateObjects = true;
 
-            const weapon = Weapons[selectedItem];
-            if(weapon?.ammo) {
-                if(weapon.ammoSpawnCount === 1) {
-                    const ammo = new Loot(game, weapon.ammo, position, layer, 1);
-                    game.dynamicObjects.add(ammo);
-                    game.fullDirtyObjects.add(ammo);
-                    game.updateObjects = true;
-                } else {
-                    const count: number = weapon.ammoSpawnCount / 2;
-                    const ammo: Loot[] = [
-                        new Loot(game, weapon.ammo, Vec2.add(position, Vec2(-1.5, -1.5)), layer, count),
-                        new Loot(game, weapon.ammo, Vec2.add(position, Vec2(1.5, -1.5)), layer, count)
-                    ];
-                    for(const ammoItem of ammo) {
-                        game.dynamicObjects.add(ammoItem);
-                        game.fullDirtyObjects.add(ammoItem);
+                const weapon = Weapons[selectedItem];
+                if(weapon?.ammo) {
+                    if(weapon.ammoSpawnCount === 1) {
+                        const ammo = new Loot(game, weapon.ammo, position, layer, 1);
+                        game.dynamicObjects.add(ammo);
+                        game.fullDirtyObjects.add(ammo);
+                        game.updateObjects = true;
+                    } else {
+                        const count: number = weapon.ammoSpawnCount / 2;
+                        const ammo: Loot[] = [
+                            new Loot(game, weapon.ammo, Vec2.add(position, Vec2(-1.5, -1.5)), layer, count),
+                            new Loot(game, weapon.ammo, Vec2.add(position, Vec2(1.5, -1.5)), layer, count)
+                        ];
+                        for(const ammoItem of ammo) {
+                            game.dynamicObjects.add(ammoItem);
+                            game.fullDirtyObjects.add(ammoItem);
+                        }
+                        game.updateObjects = true;
                     }
-                    game.updateObjects = true;
                 }
             }
         }
