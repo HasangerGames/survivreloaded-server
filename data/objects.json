@@ -1098,7 +1098,7 @@
         "x": 0,
         "y": 0
       },
-      "rad": 1.4,
+      "rad": 2.2,
       "height": 0
     },
     "height": 10,
@@ -34491,6 +34491,18 @@
   },
   "shack_03a": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -14,
+          "y": -8
+        },
+        "max": {
+          "x": 10,
+          "y": 22
+        }
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -34792,6 +34804,18 @@
   },
   "shack_03b": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -14,
+          "y": -8
+        },
+        "max": {
+          "x": 10,
+          "y": 22
+        }
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -57580,6 +57604,19 @@
   },
   "dock_01": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -6,
+          "y": -11
+        },
+        "max": {
+          "x": 6,
+          "y": 11
+        }
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -88167,12 +88204,26 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": 0,
           "y": 0
         },
         "scale": 1,
         "ori": 0
+      }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -15,
+          "y": -7
+        },
+        "max": {
+          "x": 15,
+          "y": 7
+        }
       }
     ]
   },

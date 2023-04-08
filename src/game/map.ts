@@ -9,7 +9,9 @@ import {
     ObjectKind,
     Objects,
     random,
+    randomBoolean,
     randomFloat,
+    randomPointInsideCircle,
     randomVec,
     rectCollision,
     rectRectCollision,
@@ -55,14 +57,62 @@ export class Map {
 
         // TODO Better river generation
         this.rivers = [];
-        let x = 0; let y = 0;
-        const points: Vec2[] = [];
-        while(x < 720 && y < 720) {
-            x += 10 + random(-6, 6);
-            y += 10 + random(-6, 6);
-            points.push(Vec2(x, y));
+        if(!Debug.disableMapGeneration) {
+
+            let x = 0, y = 500;
+            const points: Vec2[] = [];
+            while(x < 700) {
+                x += 20;
+                y -= 5 + random(-8, 8);
+                points.push(Vec2(x, y));
+
+                // River docks
+                if(x === 400) {
+                    this.genBuilding("dock_01", Objects.dock_01, Vec2(x, y - 13), 0, 0);
+                }
+
+                // Fisherman's shacks
+                if(x === 300 || x === 500) {
+                    this.genBuilding("shack_03a", Objects.shack_03a, Vec2(x, y - 25), 0, 0);
+                }
+
+                // Large bridges
+                if(x === 200 || x === 600) {
+                    this.genBuilding("bridge_lg_01", Objects.bridge_lg_01, Vec2(x, y), 1, 0);
+                }
+
+                // Smaller river
+                if(x === 440) {
+                    let x2 = 500, y2 = y - 32;
+                    const points2: Vec2[] = [];
+                    for(let steps = 0; y2 < 700; steps++) {
+                        x2 += 5 + random(-8, 8);
+                        y2 += 20;
+                        points2.push(Vec2(x2, y2));
+
+                        // Medium bridges
+                        if(steps === 5 || steps === 12) this.genBuilding("bridge_md_01", Objects.bridge_md_01, Vec2(x2, y2), 0, 0);
+                        else if(y2 < 660) {
+                            if(randomBoolean()) this.genRiverObstacle(Vec2(x2, y2), 5, "stone_03");
+                            if(randomBoolean()) this.genRiverObstacle(Vec2(x2, y2), 5, "bush_04");
+                        }
+                    }
+                    this.rivers.push(new River(8, 0, points2));
+                }
+            }
+            this.rivers.push(new River(16, 0, points));
+
+            // Generate river obstacles
+            for(const river of this.rivers) {
+                for(const { x, y } of river.points) {
+                    if(x > 20 && x < 700) {
+                        // 1 in 3 chance of obstacle not generating at a river point
+                        if(!(random(1, 3) === 1)) this.genRiverObstacle(Vec2(x, y), 15, "stone_03");
+                        if(!(random(1, 3) === 1)) this.genRiverObstacle(Vec2(x, y), 15, "bush_04");
+                    }
+                }
+            }
         }
-        this.rivers.push(new River(8, 0, points));
 
         this.places = [];
         for(const place of mapInfo.places) {
@@ -71,6 +121,13 @@ export class Map {
         this.groundPatches = [];
 
         if(!Debug.disableMapGeneration) {
+            this.genOnShore(ObjectKind.Building, "hedgehog_01", 40, 57, 4);
+            this.genOnShore(ObjectKind.Building, "shack_03b", 2, 57, 1);
+
+            // TODO Allow barrels and crates to spawn on the beach naturally
+            this.genOnShore(ObjectKind.Obstacle, "crate_01", 12, 57, 4);
+            this.genOnShore(ObjectKind.Obstacle, "barrel_01", 12, 57, 4);
+
             for(const type in mapInfo.objects) {
                 const data = Objects[type];
                 const count = mapInfo.objects[type];
@@ -83,11 +140,10 @@ export class Map {
                         break;
                 }
             }
-            // 4 fisherman's shacks: 2 at oceanside, 2 at riverside
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            //this.genBuildingTest("hedgehog_01", 0);
+            //this.buildingTest("dock_01", 0);
             //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
 
             // Items test
@@ -196,7 +252,7 @@ export class Map {
 
         let position;
         if(setPosition) position = setPosition;
-        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, orientation, 1);
+        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, 0, orientation, 1);
 
         const layerObjIds: number[] = [];
 
@@ -226,7 +282,7 @@ export class Map {
         for(let i = 0; i < count; i++) this.genBuilding(type, building);
     }
 
-    private genBuildingTest(type: string, orientation: number): void {
+    private buildingTest(type: string, orientation: number): void {
         this.genBuilding(type, Objects[type], Vec2(450, 150), orientation, undefined, true);
     }
 
@@ -239,13 +295,12 @@ export class Map {
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
         else orientation = random(0, 3);
-        let position;
-        if(setPosition) position = setPosition;
-        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1);
-
         let layer;
         if(setLayer !== undefined) layer = setLayer;
         else layer = 0;
+        let position;
+        if(setPosition) position = setPosition;
+        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, layer, orientation, 1);
 
         for(const mapObject of buildingData.mapObjects) {
             const partType = mapObject.type;
@@ -289,10 +344,8 @@ export class Map {
                 const loot: looseLootTiers[] = part.loot;
                 generateLooseLootFromArray(this.game, loot, partPosition, layer);
             } else if (part.type === "decal") {
-                this.game.dynamicObjects.add(
-                    new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
-            }
-            else if(part.type === "ignored") {
+                this.game.staticObjects.add(new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
+            } else if(part.type === "ignored") {
                 // Ignored
             } else {
                 // console.warn(`Unknown object type: ${part.type}`);
@@ -343,6 +396,15 @@ export class Map {
         ));
     }
 
+    private genRiverObstacle(point: Vec2, riverWidth: number, typeString: string): void {
+        const obstacleData = Objects[typeString];
+        const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
+        const position = this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, 0, 0, scale, () => {
+            return randomPointInsideCircle(Vec2(point.x, point.y), riverWidth);
+        }, true);
+        this.genObstacle(typeString, position, 0, 0, scale, obstacleData);
+    }
+
     private genObstacle(typeString: string,
                         position: Vec2,
                         layer: number,
@@ -365,7 +427,7 @@ export class Map {
             const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
             this.genObstacle(
                 typeString,
-                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, 0, scale),
+                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, 0, 0, scale),
                 0,
                 0,
                 scale,
@@ -374,54 +436,104 @@ export class Map {
         }
     }
 
-    getRandomPositionFor(kind: ObjectKind, collisionData, orientation: number, scale: number): Vec2 {
+    private genOnShore(kind: ObjectKind, typeString: string, count: number, shoreDist: number, width: number): void {
+        for(let i = 0; i < count; i++) {
+            const data = Objects[typeString];
+            const orientation = random(0, 3);
+            const position = this.getPositionOnShore(kind, data, orientation, 1, shoreDist, width);
+            if(kind === ObjectKind.Building) this.genBuilding(typeString, data, position, orientation);
+            else if(kind === ObjectKind.Obstacle) this.genObstacle(typeString, position, 0, orientation, random(data.scale.createMin, data.scale.createMax), data);
+        }
+    }
+
+    private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number): Vec2 {
+        return this.getRandomPositionFor(kind, kind === ObjectKind.Building ? data : data.collision, 0, orientation, scale, () => {
+            let min: Vec2, max: Vec2;
+            switch(orientation) {
+                case 0:
+                    min = Vec2(shoreDist - width, 720 - shoreDist - width);
+                    max = Vec2(720 - shoreDist + width, 720 - shoreDist + width);
+                    break;
+                case 1:
+                    min = Vec2(shoreDist - width, 720 - shoreDist - width);
+                    max = Vec2(shoreDist + width, shoreDist + width);
+                    break;
+                case 2:
+                    min = Vec2(shoreDist - width, shoreDist - width);
+                    max = Vec2(720 - shoreDist + width, shoreDist + width);
+                    break;
+                case 3:
+                    min = Vec2(720 - shoreDist - width, 720 - shoreDist - width);
+                    max = Vec2(720 - shoreDist + width, shoreDist + width);
+                    break;
+                default:
+                    throw new Error("Invalid orientation");
+            }
+            return randomVec(min.x, max.x, min.y, max.y);
+        });
+    }
+
+    getRandomPositionFor(kind: ObjectKind, collisionData, layer: number, orientation: number, scale: number, getPosition?: () => Vec2, ignoreRivers?: boolean): Vec2 {
         const isBuilding = (kind === ObjectKind.Building || kind === ObjectKind.Structure);
+
         if(kind === ObjectKind.Player) {
             collisionData = { type: CollisionType.Circle, rad: 1 };
         }
+
+        if(!getPosition) {
+            const minEdgeDist = isBuilding ? 125 : 65;
+            getPosition = () => {
+                return randomVec(minEdgeDist, this.width - minEdgeDist, minEdgeDist, this.height - minEdgeDist);
+            };
+        }
+
         let foundPosition = false;
         let thisPos;
         while(!foundPosition) {
-            const minEdgeDist = isBuilding ? 125 : 75;
-            thisPos = randomVec(minEdgeDist, this.width - minEdgeDist, minEdgeDist, this.height - minEdgeDist);
+            thisPos = getPosition();
             let shouldContinue = false;
 
-            for(const river of this.rivers) {
-                const minRiverDist = isBuilding ? river.width * 5 : river.width * 2.5;
-                for(const point of river.points) {
-                    if(distanceBetween(thisPos, point) < minRiverDist) {
-                        shouldContinue = true;
-                        break;
+            if(!ignoreRivers) {
+                for(const river of this.rivers) {
+                    const minRiverDist = isBuilding ? river.width * 5 : river.width * 2.5;
+                    for(const point of river.points) {
+                        if(distanceBetween(thisPos, point) < minRiverDist) {
+                            shouldContinue = true;
+                            break;
+                        }
                     }
+                    if(shouldContinue) break;
                 }
-                if(shouldContinue) break;
             }
             if(shouldContinue) continue;
-            if(!collisionData) break;
+            if(!collisionData) {
+                throw new Error("Missing collision data");
+            }
 
             let thisMin, thisMax, thisRad;
             if(collisionData.type === CollisionType.Rectangle) {
-                thisMin = Vec2.add(thisPos, collisionData.min);
-                thisMax = Vec2.add(thisPos, collisionData.max);
+                const rect = rotateRect(thisPos, collisionData.min, collisionData.max, scale, orientation);
+                thisMin = rect.min;
+                thisMax = rect.max;
             } else if(collisionData.type === CollisionType.Circle) {
-                thisRad = collisionData.rad;
+                thisRad = collisionData.rad * scale;
             }
-
             for(const that of this.game.staticObjects) {
+                if(that.layer !== layer) continue;
                 if(that instanceof Building) {
                     for(const thatBounds of that.mapObstacleBounds) {
                          if(collisionData.type === CollisionType.Circle) {
-                            if(rectCollision(thatBounds.min, thatBounds.max, thisPos, thisRad)) {
-                                shouldContinue = true;
-                            }
+                             if(rectCollision(thatBounds.min, thatBounds.max, thisPos, thisRad)) {
+                                 shouldContinue = true;
+                             }
                         } else if(collisionData.type === CollisionType.Rectangle) {
-                            if(rectRectCollision(thatBounds.min, thatBounds.max, thisMin, thisMax)) {
-                                shouldContinue = true;
-                            }
+                             if(rectRectCollision(thatBounds.min, thatBounds.max, thisMin, thisMax)) {
+                                 shouldContinue = true;
+                             }
                         } else if(collisionData.mapObstacleBounds) {
                              for(const bounds2 of collisionData.mapObstacleBounds) {
                                  const thisBounds = rotateRect(thisPos, bounds2.min, bounds2.max, 1, orientation);
-                                 if(rectRectCollision(thatBounds.min, thatBounds.max, thisBounds.min, thisBounds.max)) {
+                                 if(rectRectCollision(thisBounds.min, thisBounds.max, thatBounds.min, thatBounds.max)) {
                                      shouldContinue = true;
                                      break;
                                  }
@@ -449,7 +561,20 @@ export class Map {
                                 shouldContinue = true;
                             }
                         }
-                    }
+                    }/* else if(collisionData.mapObstacleBounds) {
+                        for(const bounds of collisionData.mapObstacleBounds) {
+                            const thisBounds = rotateRect(thisPos, bounds.min, bounds.max, 1, orientation);
+                            if(that.collision.type === CollisionType.Circle) {
+                                if(rectCollision(thisBounds.min, thisBounds.max, that.position, that.collision.rad)) {
+                                    shouldContinue = true;
+                                }
+                            } else if(that.collision.type === CollisionType.Rectangle) {
+                                if(rectRectCollision(thisBounds.min, thisBounds.max, that.collision.min, that.collision.max)) {
+                                    shouldContinue = true;
+                                }
+                            }
+                        }
+                    }*/
                 }
                 if(shouldContinue) break;
             }

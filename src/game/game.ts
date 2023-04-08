@@ -19,7 +19,7 @@ import {
     TypeToId,
     vecLerp,
     Weapons,
-    WeaponType,
+    WeaponType
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -230,12 +230,12 @@ export class Game {
                 const bullet = damageRecord.bullet;
                 const bulletData = Bullets[bullet.typeString];
 
-                if (bulletData.onHit) {
+                if(bulletData.onHit) {
                     this.explosions.add(new Explosion(bullet.body.getPosition(), bulletData.onHit, bullet.layer, bullet.shooter, bullet.shotSource));
                 }
 
-                if(damageRecord.damaged.damageable) {
-                    if (damageRecord.damaged instanceof Player) {
+                if(damageRecord.damaged.damageable && !damageRecord.damager.dead) {
+                    if(damageRecord.damaged instanceof Player) {
                         damageRecord.damaged.damage(bulletData.damage, damageRecord.damager, bullet.shotSource);
                     } else {
                         damageRecord.damaged.damage(bulletData.damage * bulletData.obstacleDamage, damageRecord.damager);
@@ -541,7 +541,7 @@ export class Game {
         else {
             let foundPosition = false;
             while(!foundPosition) {
-                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 1);
+                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 1, 1);
                 if(!this.isInRedZone(spawnPosition)) foundPosition = true;
             }
         }
@@ -606,7 +606,7 @@ export class Game {
         game.gasCircleDirty = true;
 
         // Prevent new players from joining if the red zone shrinks far enough
-        if(game.gas.stage >= 12) {
+        if(game.gas.stage >= 10) {
             game.allowJoin = false;
         }
 

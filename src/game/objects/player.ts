@@ -6,7 +6,8 @@ import {
     AllowedHeal,
     AllowedMelee,
     AllowedSkins,
-    AmmoTypes, clamp,
+    AmmoTypes,
+    clamp,
     Config,
     Constants,
     DamageType,
@@ -40,6 +41,7 @@ import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import { Explosion } from "../explosion";
+
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -427,6 +429,7 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
+        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
@@ -544,7 +547,7 @@ export class Player extends GameObject {
                     this.game.dynamicObjects.add(loot);
                     this.game.fullDirtyObjects.add(loot);
                     this.game.updateObjects = true;
-                    if(this.scope.typeString === item) 
+                    if(this.scope.typeString === item)
                         return this.setScope(scopeToSwitchTo);
                     else {
                         return;

@@ -1,5 +1,5 @@
 import { type Body, Circle, Vec2 } from "planck";
-import { Bullets, distanceBetween, TypeToId, randomFloat } from "../utils";
+import { Bullets, distanceBetween, randomFloat, TypeToId } from "../utils";
 import { type Game } from "./game";
 import { type Player } from "./objects/player";
 
@@ -90,7 +90,7 @@ export class Bullet {
             center: Vec2(0, 0),
             mass: 0.0
         });
-        this.body.setLinearVelocity(direction.clone().mul((bulletData.speed / 1000) * (this.varianceT +1)));
+        this.body.setLinearVelocity(direction.clone().mul((bulletData.speed / 1000) * (this.varianceT + 1)));
     }
 
     get position(): Vec2 {
