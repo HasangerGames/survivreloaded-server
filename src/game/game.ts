@@ -19,7 +19,8 @@ import {
     TypeToId,
     vecLerp,
     Weapons,
-    WeaponType
+    WeaponType,
+    sameLayer
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -34,6 +35,7 @@ import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacke
 import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
 import { Explosion } from "./explosion";
+import { Stair } from "./stair";
 
 export class Game {
 
@@ -59,6 +61,7 @@ export class Game {
     fullDirtyObjects = new Set<GameObject>();
     deletedObjects = new Set<GameObject>();
     loot = new Set<Loot>();
+    stairs = new Set<Stair>();
 
     players = new Set<Player>(); // All players, including dead and disconnected players.
     connectedPlayers = new Set<Player>(); // All connected players. May be dead.
@@ -152,7 +155,15 @@ export class Game {
             const thatObject: any = that.getUserData();
 
             // Make sure the objects are on the same layer
-            if(thisObject.layer !== thatObject.layer) return false;
+            if(!sameLayer(thisObject.layer, thatObject.layer)) return false;
+
+            // stairs hack
+            if(thisObject.isPlayer && thatObject.isObstacle && thatObject.layer == 0 && thisObject.layer & 0x2) {
+                    return false;
+            } else if(thatObject.isPlayer && thisObject.isObstacle && thisObject.layer == 0 && thatObject.layer & 0x2) {
+                return false;
+            }
+
 
             if(thisObject.isPlayer) return thatObject.collidesWith.player;
             else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;
@@ -382,6 +393,26 @@ export class Game {
                     p.partialDirtyObjects.add(p);
                 }
                 p.moving = false;
+
+                let onStair = false;
+                const originalLayer = p.layer + 0;
+                for (const stair of this.stairs) {
+                    if (stair.check(p)) {
+                        onStair = true;
+                    };
+                }
+                if (!onStair) {
+                     if (p.layer == 2) {
+                        p.layer = 0;
+                    }
+                    if (p.layer == 3) {
+                        p.layer = 1;
+                    }
+                }
+                if (p.layer !== originalLayer) {
+                    p.fullDirtyObjects.add(p);
+                    p.game.fullDirtyObjects.add(p);
+                }
             }
 
             for (const explosion of this.explosions) {
