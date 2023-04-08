@@ -12,7 +12,7 @@
     "performanceLog": true,
     "performanceLogInterval": 200,
     "disableMapGeneration": false,
-    "fixedSpawnLocation": [450, 150],
+    "fixedSpawnLocation": [],
     "disableRedZone": false,
     "disableStaticFileCache": true
   }
