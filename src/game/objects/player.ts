@@ -558,11 +558,17 @@ export class Player extends GameObject {
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
-                if(isMed && inventoryCount <= 3) amountToDrop = Math.ceil(inventoryCount / 2);
 
                 amountToDrop = Math.max(1, amountToDrop);
-                if(amountToDrop < 5 && isAmmo) amountToDrop = Math.min(5, inventoryCount);
-
+                if(inventoryCount <= 15 && isAmmo && item === "9mm") {
+                    amountToDrop = Math.min(15, inventoryCount);
+                } else if(inventoryCount <= 10 && isAmmo && item === "762mm" || item === "556mm") {
+                    amountToDrop = Math.min(10, inventoryCount);
+                } else if(inventoryCount <= 5 && isAmmo && item === "12gauge") {
+                    amountToDrop = Math.min(5, inventoryCount);
+                } else if(inventoryCount <= 5 && isAmmo) {
+                    amountToDrop = Math.min(5, inventoryCount);
+                }
                 this.inventory[item] = inventoryCount - amountToDrop;
 
                 this.inventoryDirty = true;

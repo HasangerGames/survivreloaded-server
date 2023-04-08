@@ -270,10 +270,10 @@ export function generateLooseLootFromArray(game: Game, loot: looseLootTiers[], p
 }
 export function splitUpLoot(player: Player, item: string, amount: number): Loot[] {
     const loot: Loot[] = [];
-    const dropCount = Math.floor(amount / 30);
+    const dropCount = Math.floor(amount / 60);
     for(let i = 0; i < dropCount; i++) {
-        loot.push(new Loot(player.game, item, player.position, player.layer, 30));
+        loot.push(new Loot(player.game, item, player.position, player.layer, 60));
     }
-    if(amount % 30 !== 0) loot.push(new Loot(player.game, item, player.position, player.layer, amount % 30));
+    if(amount % 60 !== 0) loot.push(new Loot(player.game, item, player.position, player.layer, amount % 60));
     return loot;
 }
