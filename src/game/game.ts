@@ -284,7 +284,7 @@ export class Game {
                 // Pick up nearby items if on mobile
                 if(p.isMobile) {
                     for(const object of p.visibleObjects) {
-                        if(object instanceof Loot && (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) &&
+                        if(object instanceof Loot && (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) && !object.isMelee &&
                             distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
                             object.interact(p);
                         }
@@ -542,7 +542,7 @@ export class Game {
         else {
             let foundPosition = false;
             while(!foundPosition) {
-                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 1);
+                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 1,1, undefined, undefined);
                 if(!this.isInRedZone(spawnPosition)) foundPosition = true;
             }
         }

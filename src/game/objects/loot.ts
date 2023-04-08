@@ -33,6 +33,7 @@ export class Loot extends GameObject {
     interactionRad = 1;
 
     isGun = false;
+    isMelee = false;
 
     oldPos: Vec2;
 
@@ -50,6 +51,7 @@ export class Loot extends GameObject {
         this.kind = ObjectKind.Loot;
         this.count = count;
         this.isGun = Weapons[typeString]?.type === "gun";
+        this.isMelee = Weapons[typeString]?.type === "melee";
         this.oldPos = position;
 
         // Create the body
