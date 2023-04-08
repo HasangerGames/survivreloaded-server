@@ -18,8 +18,9 @@ import { type Game } from "../game";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
 import { Box, Vec2 } from "planck";
-import { type Player } from "./player";
+import { Player } from "./player";
 import { Explosion } from "../explosion";
+import { Building } from "./building";
 
 export class Obstacle extends GameObject {
 
@@ -74,13 +75,18 @@ export class Obstacle extends GameObject {
 
     collision;
 
+    isWall: boolean;
+    damageCeiling: boolean;
+    parentBuilding: Building|undefined;
+
     constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
                 orientation: number,
                 scale: number,
-                data) {
+                data,
+                parentBuilding?: Building) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Obstacle;
 
@@ -104,6 +110,10 @@ export class Obstacle extends GameObject {
         this.destroyType = data.destroyType;
         this.explosion = data.explosion;
         this.isDoor = data.door !== undefined;
+
+        this.isWall = data.isWall;
+        this.damageCeiling = data.damageCeiling;
+        this.parentBuilding = parentBuilding;
 
         // broken windows, club bar etc...
         if (data.height <= 0.2) {
@@ -235,7 +245,15 @@ export class Obstacle extends GameObject {
 
     damage(amount: number, source): void {
         if(this.health === 0) return;
-        this.health -= amount;
+        if(Objects[this.typeString].armorPlated === true){
+            if(source instanceof Player) {
+                if(Weapons[source.activeWeapon.typeString].armorPiercing === true) {
+                    this.health -= amount;
+                }
+            }
+        } else {
+            this.health -= amount;
+        }
         if(this.health <= 0) {
             this.health = this.healthT = 0;
             this.dead = true;
@@ -259,16 +277,19 @@ export class Obstacle extends GameObject {
                 const explosion: Explosion = new Explosion(this.position, this.explosion, this.layer, source, this);
                 this.game.explosions.add(explosion);
             }
-            if (this.body)
-                this.game.world.destroyBody(this.body!);
+            if (this.body) this.game.world.destroyBody(this.body!);
 
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
-                const loot: Loot = new Loot(this.game, item.type, this.position, 0, item.count);
+                const loot: Loot = new Loot(this.game, item.type, this.position, this.layer, item.count);
                 this.game.dynamicObjects.add(loot);
                 this.game.fullDirtyObjects.add(loot);
                 this.game.updateObjects = true;
             }
+            if (this.parentBuilding) {
+                this.parentBuilding.onObstacleDestroyed(this);
+            }
+
         } else {
             this.healthT = this.health / this.maxHealth;
             const oldScale: number = this.scale;

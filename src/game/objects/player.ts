@@ -27,7 +27,8 @@ import {
     unitVecToRadians,
     vec2Rotate,
     Weapons,
-    WeaponType
+    WeaponType,
+    sameLayer
 } from "../../utils";
 import { DeadBody } from "./deadBody";
 import { type SendingPacket } from "../../packets/sendingPacket";
@@ -40,8 +41,7 @@ import { RoleAnnouncementPacket } from "../../packets/sending/roleAnnouncementPa
 import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
-import { Explosion } from "../explosion";
-
+import type { Explosion } from "../explosion";
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -347,16 +347,16 @@ export class Player extends GameObject {
         this.zoomDirty = true;
     }
 
-    spawnBullet(offset = 0): void {
+    spawnBullet(offset = 0, weaponTypeString: string): void {
         let shotFx = true;
-        const weapon = Weapons[this.activeWeapon.typeString];
+        const weapon = Weapons[weaponTypeString];
         const spread = degreesToRadians(weapon.shotSpread);
         for(let i = 0; i < weapon.bulletCount; i++) {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
             const bullet: Bullet = new Bullet(
               this,
             //   Vec2(this.position.x + 1.5 * Math.cos(angle), this.position.y + 1.5 * Math.sin(angle)),
-              Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.5 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.5 * Math.sin(angle)),
+              Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.3 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.3 * Math.sin(angle)),
               Vec2(Math.cos(angle), Math.sin(angle)),
               weapon.bulletType,
               this.activeWeapon,
@@ -366,9 +366,10 @@ export class Player extends GameObject {
             );
             // usas
             if (weapon.toMouseHit) {
-                bullet.maxDistance = Math.min(this.distanceToMouse, bullet.maxDistance*2);
+                bullet.maxDistance = Math.min(this.distanceToMouse, bullet.maxDistance * 2);
                 bullet.clipDistance = true;
             }
+            bullet.shotOffhand = this.lastShotHand === "right";
             this.game.bullets.add(bullet);
             this.game.newBullets.add(bullet);
             shotFx = false;
@@ -404,6 +405,7 @@ export class Player extends GameObject {
 
     switchSlot(slot: number, skipSlots?: boolean): void {
         let chosenSlot = slot;
+        this.resetSpeedAfterShooting(this);
         if(!this.weapons[chosenSlot]?.typeId && skipSlots) {
             const wrapSlots = (n: number): number => ((n % 4) + 4) % 4;
 
@@ -497,6 +499,8 @@ export class Player extends GameObject {
             const isHelmet = item.startsWith("helmet");
             const isVest = item.startsWith("chest");
 
+            this.cancelAction();
+
             if(isHelmet || isVest) {
                 if(isHelmet) {
                     const level = this.helmetLevel;
@@ -547,11 +551,11 @@ export class Player extends GameObject {
                     this.game.dynamicObjects.add(loot);
                     this.game.fullDirtyObjects.add(loot);
                     this.game.updateObjects = true;
-                    if(this.scope.typeString === item)
+                    if(this.scope.typeString === item) {
                         return this.setScope(scopeToSwitchTo);
-                    else {
+                    } else {
                         return;
-                    };
+                    }
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
@@ -615,7 +619,7 @@ export class Player extends GameObject {
         const radius: number = weapon.attack.rad;
 
         for(const object of this.visibleObjects) {
-            if(!object.dead && object !== this && object.layer === this.layer && object.damageable) {
+            if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && object.damageable) {
                 const record = objectCollision(object, position, radius);
                 if(record!.collided && record!.distance < minDist) {
                     minDist = record!.distance;
@@ -634,15 +638,23 @@ export class Player extends GameObject {
         }
     }
 
+    resetSpeedAfterShooting(player: Player): void {
+        player.shooting = false;
+        player.recalculateSpeed();
+    }
+
     shootGun(): void {
         if(this.activeWeapon.ammo === 0) {
             this.shooting = false;
             this.reload();
             return;
         }
+        const weapon = Weapons[this.activeWeapon.typeString];
+        setTimeout(() => this.resetSpeedAfterShooting(this), weapon.fireDelay * 700); //Since RecoilTime is 1000000 on every gun in the data, approximate it with 70% of the time between shots.
         this.cancelAction();
         this.shooting = true;
-        const weapon = Weapons[this.activeWeapon.typeString];
+        this.recalculateSpeed();
+        const weaponTypeString = this.activeWeapon.typeString;
         //moved bullet spawning to its own function to clean up the burst logic
         //const spread = degreesToRadians(weapon.shotSpread);
         //let shotFx = true;
@@ -660,7 +672,7 @@ export class Player extends GameObject {
             setTimeout(() => {
                 // Get the dual offset of the weapon based on the current shooting hand.
                 const offset = (weapon.dualOffset * (this.lastShotHand === "right" ? 1 : -1)) || 0;
-                this.spawnBullet(offset);
+                this.spawnBullet(offset, weaponTypeString);
             }, 1000 * i * burstDelay);
             this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
@@ -939,6 +951,10 @@ export class Player extends GameObject {
         if(this.boost >= 50) {
             this.speed *= 1.15;
             this.diagonalSpeed *= 1.15;
+        }
+        if(this.shooting) {
+            this.speed *= 0.5;
+            this.diagonalSpeed *= 0.5;
         }
     }
 
