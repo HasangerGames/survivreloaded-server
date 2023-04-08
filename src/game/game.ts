@@ -284,6 +284,7 @@ export class Game {
                     for(const object of p.visibleObjects) {
                         if(object instanceof Loot &&
                             (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) &&
+                            !object.isMelee &&
                             distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
                             object.interact(p);
                         }

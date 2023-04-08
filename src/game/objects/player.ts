@@ -564,11 +564,17 @@ export class Player extends GameObject {
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
-                if(isMed && inventoryCount <= 3) amountToDrop = Math.ceil(inventoryCount / 2);
 
                 amountToDrop = Math.max(1, amountToDrop);
-                if(amountToDrop < 5 && isAmmo) amountToDrop = Math.min(5, inventoryCount);
-
+                if(inventoryCount <= 15 && isAmmo && item === "9mm") {
+                    amountToDrop = Math.min(15, inventoryCount);
+                } else if(inventoryCount <= 10 && isAmmo && item === "762mm" || item === "556mm") {
+                    amountToDrop = Math.min(10, inventoryCount);
+                } else if(inventoryCount <= 5 && isAmmo && item === "12gauge") {
+                    amountToDrop = Math.min(5, inventoryCount);
+                } else if(inventoryCount <= 5 && isAmmo) {
+                    amountToDrop = Math.min(5, inventoryCount);
+                }
                 this.inventory[item] = inventoryCount - amountToDrop;
 
                 this.inventoryDirty = true;
@@ -728,21 +734,25 @@ export class Player extends GameObject {
 
     useBandage(): void {
         if(this.health === 100 || this.inventory.bandage === 0) return;
+        this.cancelAction();
         this.doAction("bandage", 3);
     }
 
     useMedkit(): void {
         if(this.health === 100 || this.inventory.healthkit === 0) return;
+        this.cancelAction();
         this.doAction("healthkit", 6);
     }
 
     useSoda(): void {
         if(this.boost === 100 || this.inventory.soda === 0) return;
+        this.cancelAction();
         this.doAction("soda", 3);
     }
 
     usePills(): void {
         if(this.boost === 100 || this.inventory.painkiller === 0) return;
+        this.cancelAction();
         this.doAction("painkiller", 5);
     }
 
