@@ -143,7 +143,7 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            //this.buildingTest("dock_01", 0);
+            this.buildingTest("shack_01", 0);
             //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
 
             // Items test
@@ -336,7 +336,8 @@ export class Map {
                     layer,
                     partOrientation,
                     mapObject.scale,
-                    part
+                    part,
+                    building
                 );
             } else if(part.type === "random") {
                 const items = Object.keys(part.weights);

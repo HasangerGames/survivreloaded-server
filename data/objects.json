@@ -51480,7 +51480,6 @@
         "ori": 2
       },
       {
-        "type": "locker_random",
         "type": "metal_wall_ext_10",
         "pos": {
           "x": 35.5,

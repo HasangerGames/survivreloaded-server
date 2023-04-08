@@ -20,15 +20,14 @@ import {
     ObjectKind,
     randomBoolean,
     randomFloat,
-    removeFrom,
+    removeFrom, sameLayer,
     ScopeTypes,
     SurvivBitStream,
     TypeToId,
     unitVecToRadians,
     vec2Rotate,
     Weapons,
-    WeaponType,
-    sameLayer
+    WeaponType
 } from "../../utils";
 import { DeadBody } from "./deadBody";
 import { type SendingPacket } from "../../packets/sendingPacket";

@@ -77,7 +77,7 @@ export class Obstacle extends GameObject {
 
     isWall: boolean;
     damageCeiling: boolean;
-    parentBuilding: Building|undefined;
+    parentBuilding: Building | undefined;
 
     constructor(game: Game,
                 typeString: string,
@@ -286,7 +286,7 @@ export class Obstacle extends GameObject {
                 this.game.fullDirtyObjects.add(loot);
                 this.game.updateObjects = true;
             }
-            if (this.parentBuilding) {
+            if(this.parentBuilding) {
                 this.parentBuilding.onObstacleDestroyed(this);
             }
 
