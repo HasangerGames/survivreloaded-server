@@ -4,7 +4,6 @@ import { type Player } from "../../game/objects/player";
 import { type GameObject } from "../../game/gameObject";
 import { type Explosion } from "../../game/explosion";
 
-
 export class UpdatePacket extends SendingPacket {
 
     constructor(p: Player) {

@@ -1,4 +1,4 @@
-import { ObjectKind, TypeToId, type SurvivBitStream } from "../../utils";
+import { ObjectKind, type SurvivBitStream, TypeToId } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";

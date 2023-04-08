@@ -6,7 +6,8 @@ import {
     AllowedHeal,
     AllowedMelee,
     AllowedSkins,
-    AmmoTypes, clamp,
+    AmmoTypes,
+    clamp,
     Config,
     Constants,
     DamageType,
@@ -214,7 +215,7 @@ export class Player extends GameObject {
         useEnd: number
     };
 
-    performActionAgain = false; //test
+    performActionAgain = false;
     lastActionType = 0;
     lastActionItem: { duration: number, typeString: string, typeId: number, useEnd: number };
 
@@ -365,10 +366,10 @@ export class Player extends GameObject {
             );
             // usas
             if (weapon.toMouseHit) {
-                bullet.maxDistance = Math.min(this.distanceToMouse, bullet.maxDistance*2);
+                bullet.maxDistance = Math.min(this.distanceToMouse, bullet.maxDistance * 2);
                 bullet.clipDistance = true;
             }
-            bullet.shotOffhand = this.lastShotHand == "right";
+            bullet.shotOffhand = this.lastShotHand === "right";
             this.game.bullets.add(bullet);
             this.game.newBullets.add(bullet);
             shotFx = false;
@@ -430,6 +431,7 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
+        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             const isDualWielded = this.weapons[slot].typeString.endsWith("dual");

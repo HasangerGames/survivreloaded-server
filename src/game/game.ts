@@ -153,7 +153,7 @@ export class Game {
             const thatObject: any = that.getUserData();
 
             // Make sure the objects are on the same layer
-            if(!sameLayer(thisObject.layer, thatObject.layer)) return false;
+            if(thisObject.layer !== thatObject.layer) return false;
 
             if(thisObject.isPlayer) return thatObject.collidesWith.player;
             else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;
@@ -231,12 +231,12 @@ export class Game {
                 const bullet = damageRecord.bullet;
                 const bulletData = Bullets[bullet.typeString];
 
-                if (bulletData.onHit) {
+                if(bulletData.onHit) {
                     this.explosions.add(new Explosion(bullet.body.getPosition(), bulletData.onHit, bullet.layer, bullet.shooter, bullet.shotSource));
                 }
 
                 if(damageRecord.damaged.damageable) {
-                    if (damageRecord.damaged instanceof Player) {
+                    if(damageRecord.damaged instanceof Player) {
                         damageRecord.damaged.damage(bulletData.damage, damageRecord.damager, bullet.shotSource);
                     } else {
                         damageRecord.damaged.damage(bulletData.damage * bulletData.obstacleDamage, damageRecord.damager);
@@ -361,10 +361,7 @@ export class Game {
                             p.shootGun();
                         }
                     }
-                } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && (Weapons[p.activeWeapon.typeString].fireMode === "auto" || Weapons[p.activeWeapon.typeString].fireMode === "burst")) {
-                    if(Weapons[p.activeWeapon.typeString].fireMode === "burst"){
-                        p.activeWeapon.cooldownDuration = p.activeWeaponInfo.fireDelay * 1400;
-                    }
+                } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && Weapons[p.activeWeapon.typeString].fireMode === "auto") {
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         p.shootGun();
@@ -610,7 +607,7 @@ export class Game {
         game.gasCircleDirty = true;
 
         // Prevent new players from joining if the red zone shrinks far enough
-        if(game.gas.stage >= 12) {
+        if(game.gas.stage >= 9) {
             game.allowJoin = false;
         }
 
