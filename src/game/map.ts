@@ -458,6 +458,16 @@ export class Map {
             parentBuilding
         );
         this.game.staticObjects.add(obstacle);
+
+        // Generate Tier Leaf Pile loot under berry bushes
+        if(typeString === "bush_07") {
+            generateLooseLootFromArray(
+                this.game,
+                [{ tier: "tier_leaf_pile", min: 1, max: 1 }],
+                position,
+                layer
+            );
+        }
         return obstacle;
     }
 

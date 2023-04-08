@@ -293,9 +293,6 @@ export class Player extends GameObject {
         }
         this.weapons[2].typeString = this.loadout.meleeType;
         this.weapons[2].typeId = this.loadout.melee;
-        this.weapons[0].typeString = "m93r_dual";
-        this.weapons[0].typeId = TypeToId.m93r_dual;
-        this.inventory["9mm"] = 50;
 
         if(this.game.gas.stage >= 9) {
             this.inventory.bandage = 3;
