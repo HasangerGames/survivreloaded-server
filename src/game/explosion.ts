@@ -32,21 +32,15 @@ export class Explosion {
         this.source = source;
         this.objectUsed = objectUsed;
     }
-    explode(game: Game) {
+
+    explode(game: Game): void {
         const explosionData = Explosions[this.typeString];
         const radius = explosionData.rad.max;
 
         // TODO: check if the object / player is behind a wall, and better algorithm to calculate the damage
-        const visibleObjects =
-            game.visibleObjects[28][Math.round(this.position.x / 10) * 10][
-                Math.round(this.position.y / 10) * 10
-            ];
-        for (const object of visibleObjects) {
-            if (
-                !object.dead &&
-                object.damageable &&
-                sameLayer(this.layer, object.layer)
-            ) {
+        const visibleObjects = game.visibleObjects[28][Math.round(this.position.x / 10) * 10][Math.round(this.position.y / 10) * 10];
+        for(const object of visibleObjects) {
+            if(object.damageable && !object.dead && sameLayer(this.layer, object.layer)) {
                 const record = objectCollision(object, this.position, radius);
                 if (record.collided) {
                     let damage =
@@ -66,19 +60,14 @@ export class Explosion {
             }
         }
 
-        for (const player of game.players) {
-            if (!player.dead && sameLayer(this.layer, player.layer)) {
+        for(const player of game.livingPlayers) {
+            if(sameLayer(this.layer, player.layer)) {
                 const record = objectCollision(player, this.position, radius);
-                if (record.collided) {
+                if(record.collided) {
                     let damage = explosionData.damage;
-                    const distance = distanceBetween(
-                        player.position,
-                        this.position
-                    );
-                    if (distance > explosionData.rad.min) {
-                        const damagePercent = Math.abs(
-                            distance / explosionData.rad.max - 1
-                        );
+                    const distance = distanceBetween(player.position, this.position);
+                    if(distance > explosionData.rad.min) {
+                        const damagePercent = Math.abs(distance / explosionData.rad.max - 1);
                         damage *= damagePercent;
                     }
                     player.damage(damage, this.source, this.objectUsed);
@@ -86,7 +75,7 @@ export class Explosion {
             }
         }
 
-        for (let i = 0; i < explosionData.shrapnelCount; i++) {
+        for(let i = 0; i < explosionData.shrapnelCount; i++) {
             const angle = randomFloat(0, Math.PI * 2);
             const direction = Vec2(Math.cos(angle), Math.sin(angle));
             const bullet = new Bullet(
@@ -102,7 +91,7 @@ export class Explosion {
             game.bullets.add(bullet);
             game.newBullets.add(bullet);
         }
-        if (explosionData.decalType) {
+        if(explosionData.decalType) {
             const decal = new Decal(
                 explosionData.decalType,
                 game,
@@ -114,4 +103,5 @@ export class Explosion {
             game.updateObjects = true;
         }
     }
+
 }

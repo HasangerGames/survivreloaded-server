@@ -19,8 +19,7 @@ import {
     TypeToId,
     vecLerp,
     Weapons,
-    WeaponType,
-    sameLayer
+    WeaponType
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -542,7 +541,7 @@ export class Game {
         else {
             let foundPosition = false;
             while(!foundPosition) {
-                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 1);
+                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 0, 1);
                 if(!this.isInRedZone(spawnPosition)) foundPosition = true;
             }
         }

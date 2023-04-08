@@ -18,7 +18,8 @@ export class Building extends GameObject {
         damageable: false,
         damaged: false,
         obstaclesToDestroy: 0
-    }
+    };
+
     mapObstacleBounds: any[] = [];
 
     constructor(game: Game,
@@ -33,11 +34,11 @@ export class Building extends GameObject {
 
         this.showOnMap = showOnMap;
 
-        if (data.ceiling?.destroy) {
+        if(data.ceiling?.destroy) {
             this.ceiling.destructible = true;
             this.ceiling.wallsToDestroy = data.ceiling.destroy.wallCount;
         }
-        if (data.ceiling?.damage) {
+        if(data.ceiling?.damage) {
             this.ceiling.damageable = true;
             this.ceiling.obstaclesToDestroy = data.ceiling.damage.obstacleCount;
         }
@@ -72,19 +73,22 @@ export class Building extends GameObject {
     }
 
     onObstacleDestroyed(obstacle: Obstacle): void {
+        console.log("destroyed");
         const ceiling = this.ceiling;
-        if (ceiling.destructible && obstacle.isWall && !ceiling.destroyed) {
+        if(ceiling.destructible && obstacle.isWall && !ceiling.destroyed) {
             ceiling.wallsToDestroy--;
             if (ceiling.wallsToDestroy <= 0) {
                 ceiling.destroyed = true;
                 this.game.partialDirtyObjects.add(this);
+                this.game.updateObjects = true;
             }
         }
-        if (ceiling.damageable && obstacle.damageCeiling && !ceiling.damaged) {
+        if(ceiling.damageable && obstacle.damageCeiling && !ceiling.damaged) {
             ceiling.obstaclesToDestroy--;
             if (ceiling.obstaclesToDestroy-- <= 0) {
                 ceiling.damaged = true;
                 this.game.partialDirtyObjects.add(this);
+                this.game.updateObjects = true;
             }
         }
 
