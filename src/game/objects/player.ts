@@ -717,21 +717,25 @@ export class Player extends GameObject {
 
     useBandage(): void {
         if(this.health === 100 || this.inventory.bandage === 0) return;
+        this.cancelAction();
         this.doAction("bandage", 3);
     }
 
     useMedkit(): void {
         if(this.health === 100 || this.inventory.healthkit === 0) return;
+        this.cancelAction();
         this.doAction("healthkit", 6);
     }
 
     useSoda(): void {
         if(this.boost === 100 || this.inventory.soda === 0) return;
+        this.cancelAction();
         this.doAction("soda", 3);
     }
 
     usePills(): void {
         if(this.boost === 100 || this.inventory.painkiller === 0) return;
+        this.cancelAction();
         this.doAction("painkiller", 5);
     }
 
