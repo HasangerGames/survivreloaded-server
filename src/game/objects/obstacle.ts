@@ -79,6 +79,8 @@ export class Obstacle extends GameObject {
     damageCeiling: boolean;
     parentBuilding: Building | undefined;
 
+    bunkerWall: boolean;
+
     constructor(game: Game,
                 typeString: string,
                 position: Vec2,
@@ -86,7 +88,8 @@ export class Obstacle extends GameObject {
                 orientation: number,
                 scale: number,
                 data,
-                parentBuilding?: Building) {
+                parentBuilding?: Building,
+                bunkerWall = false) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Obstacle;
 
@@ -114,6 +117,8 @@ export class Obstacle extends GameObject {
         this.isWall = data.isWall;
         this.damageCeiling = data.damageCeiling;
         this.parentBuilding = parentBuilding;
+
+        this.bunkerWall = bunkerWall;
 
         // Broken windows, club bar, etc.
         if(data.height <= 0.2) {

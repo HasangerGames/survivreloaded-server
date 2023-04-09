@@ -26,8 +26,6 @@ export abstract class GameObject {
 
     body: Body | null;
 
-    isDynamic = false;
-
     protected constructor(game: Game,
                           typeString: string,
                           position: Vec2,

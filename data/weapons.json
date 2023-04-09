@@ -5658,6 +5658,7 @@
     "damage": 40,
     "obstacleDamage": 1.5,
     "headshotMult": 1,
+    "animDuration": 12,
     "attack": {
       "offset": {
         "x": 1.75,
@@ -11544,6 +11545,7 @@
     "damage": 60,
     "obstacleDamage": 1.92,
     "headshotMult": 1,
+    "animDuration": 16,
     "attack": {
       "offset": {
         "x": 1.35,

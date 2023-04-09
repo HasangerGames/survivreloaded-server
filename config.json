@@ -11,8 +11,8 @@
   "debug": {
     "performanceLog": true,
     "performanceLogInterval": 200,
-    "disableMapGeneration": true,
-    "fixedSpawnLocation": [450, 150],
+    "disableMapGeneration": false,
+    "fixedSpawnLocation": [],
     "disableRedZone": false,
     "disableStaticFileCache": true
   }

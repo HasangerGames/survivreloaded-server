@@ -67,6 +67,11 @@ export class Map {
                 y -= 5 + random(-8, 8);
                 points.push(Vec2(x, y));
 
+                // Crossing bunker
+                if(x === 360) {
+                    this.genStructure("bunker_structure_05", Objects.bunker_structure_05, Vec2(x, y), 1);
+                }
+
                 // River docks
                 if(x === 400) {
                     this.genBuilding("dock_01", Objects.dock_01, Vec2(x, y - 13), 0, 0);
@@ -126,17 +131,20 @@ export class Map {
             // Docks
             this.genOnShore(ObjectKind.Building, "warehouse_complex_01", 1, 72, 0, 1);
 
-            this.genOnShore(ObjectKind.Building, "hedgehog_01", 40, 57, 4);
-            this.genOnShore(ObjectKind.Building, "shack_03b", 2, 57, 1);
-
-            // TODO Allow barrels and crates to spawn on the beach naturally
-            this.genOnShore(ObjectKind.Obstacle, "crate_01", 12, 57, 4);
-            this.genOnShore(ObjectKind.Obstacle, "barrel_01", 12, 57, 4);
+            // Conch bunker
+            this.genOnShore(ObjectKind.Structure, "bunker_structure_04", 1, 36, 0, 1);
 
             // Huts
             this.genOnShore(ObjectKind.Building, "hut_01", 3, 27, 1);
             this.genOnShore(ObjectKind.Building, "hut_02", 1, 27, 1);
             this.genOnShore(ObjectKind.Building, "hut_03", 1, 27, 1);
+
+            this.genOnShore(ObjectKind.Building, "hedgehog_01", 35, 57, 4);
+            this.genOnShore(ObjectKind.Building, "shack_03b", 2, 57, 1);
+
+            // TODO Allow barrels and crates to spawn on the beach naturally
+            this.genOnShore(ObjectKind.Obstacle, "crate_01", 12, 57, 4);
+            this.genOnShore(ObjectKind.Obstacle, "barrel_01", 12, 57, 4);
 
             // Loose loot
             for(let i = 0; i < 16; i++) {
@@ -158,70 +166,13 @@ export class Map {
                     case "building":
                         this.genBuildings(count, type, data);
                         break;
+                    case "structure":
+                        this.genStructures(count, type, data);
+                        break;
                 }
             }
         } else {
-            //this.genBuilding("club_complex_01", Objects.club_complex_01, Vec2(450, 150));
-
-            //this.buildingTest("bunker_hydra_01", 0);
-            this.genStructure("bunker_structure_02", Objects.bunker_structure_02, Vec2(450, 150));
-
-            //this.buildingTest("shack_01", 0);
-            //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
-            //this.buildingTest("teahouse_complex_01su", 0);
-            //this.obstacleTest("house_door_02", Vec2(453, 153), 0);
-
-            // Items test
-            // this.obstacleTest("crate_01", Vec2(453, 153), 1);
-            // this.obstacleTest("crate_01", Vec2(458, 153), 1);
-            // this.obstacleTest("crate_01", Vec2(463, 153), 1);
-            // this.obstacleTest("crate_01", Vec2(468, 153), 1);
-            // (this.game.objects[0] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 15), new Item("762mm", 15)];
-            // (this.game.objects[1] as Obstacle).loot = [new Item("762mm", 20)];
-            // (this.game.objects[2] as Obstacle).loot = [new Item("mac10", 2)];
-            // (this.game.objects[3] as Obstacle).loot = [new Item("ak47", 1)];
-
-            // Object culling test
-            /*for(let x = 0; x <= 45; x++) {
-                for(let y = 0; y <= 45; y++) {
-                    this.obstacleTest("tree_01", Vec2(x * 16, y * 16), 1.6);
-                }
-            }*/
-
-            // Dropping items test
-            /*this.obstacleTest("crate_01", Vec2(453, 153), 1);
-            this.obstacleTest("crate_01", Vec2(458, 153), 1);
-            this.obstacleTest("crate_01", Vec2(463, 153), 1);
-            this.obstacleTest("crate_01", Vec2(468, 153), 1);
-
-            this.obstacleTest("crate_01", Vec2(453, 148), 1);
-            this.obstacleTest("crate_01", Vec2(458, 148), 1);
-            this.obstacleTest("crate_01", Vec2(463, 148), 1);
-            this.obstacleTest("crate_01", Vec2(468, 148), 1);
-
-            this.obstacleTest("crate_01", Vec2(453, 143), 1);
-            this.obstacleTest("crate_01", Vec2(458, 143), 1);
-            this.obstacleTest("crate_01", Vec2(463, 143), 1);
-            this.obstacleTest("crate_01", Vec2(468, 143), 1);
-
-            this.obstacleTest("crate_01", Vec2(453, 158), 1);
-
-            (this.game.objects[0] as Obstacle).loot = [new Item("2xscope", 1)];
-            (this.game.objects[1] as Obstacle).loot = [new Item("4xscope", 1)];
-            (this.game.objects[2] as Obstacle).loot = [new Item("8xscope", 1)];
-            (this.game.objects[3] as Obstacle).loot = [new Item("15xscope", 1)];
-
-            (this.game.objects[4] as Obstacle).loot = [new Item("chest02", 1)];
-            (this.game.objects[5] as Obstacle).loot = [new Item("chest03", 1)];
-            (this.game.objects[6] as Obstacle).loot = [new Item("helmet02", 1)];
-            (this.game.objects[7] as Obstacle).loot = [new Item("helmet03", 1)];
-
-            (this.game.objects[8] as Obstacle).loot = [new Item("sv98", 1), new Item("762mm", 120)];
-            (this.game.objects[9] as Obstacle).loot = [new Item("vector", 1), new Item("9mm", 120)];
-            (this.game.objects[10] as Obstacle).loot = [new Item("m249", 1), new Item("556mm", 120)];
-            (this.game.objects[11] as Obstacle).loot = [new Item("saiga", 1), new Item("12gauge", 15)];
-
-            (this.game.objects[12] as Obstacle).loot = [new Item("backpack03", 1)];*/
+            // Building/obstacle debug code goes here
         }
 
         // Calculate visible objects
@@ -268,6 +219,10 @@ export class Map {
 
     private obstacleTest(type: string, position: Vec2, orientation = 0, scale = 1): void {
         this.genObstacle(type, position, 0, orientation, scale, Objects[type]);
+    }
+
+    private genStructures(count, type, building): void {
+        for(let i = 0; i < count; i++) this.genStructure(type, building);
     }
 
     private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {
@@ -370,7 +325,8 @@ export class Map {
                         partOrientation,
                         mapObject.scale,
                         part,
-                        building
+                        building,
+                        mapObject.bunkerWall ?? false
                     );
                     break;
                 case "random": {
@@ -464,7 +420,8 @@ export class Map {
                         orientation: number,
                         scale: number,
                         obstacleData,
-                        parentBuilding?: Building): Obstacle {
+                        parentBuilding?: Building,
+                        bunkerWall = false): Obstacle {
         const obstacle = new Obstacle(
             this.game,
             typeString,
@@ -473,7 +430,8 @@ export class Map {
             orientation,
             scale,
             obstacleData,
-            parentBuilding
+            parentBuilding,
+            bunkerWall
         );
         this.game.staticObjects.add(obstacle);
         return obstacle;
@@ -506,11 +464,12 @@ export class Map {
             const position = this.getPositionOnShore(kind, data, addOrientations(orientation, orientationOffset), 1, shoreDist, width, shoreEdgeDist);
             if(kind === ObjectKind.Building) this.genBuilding(typeString, data, position, orientation);
             else if(kind === ObjectKind.Obstacle) this.genObstacle(typeString, position, 0, orientation, random(data.scale.createMin, data.scale.createMax), data);
+            else if(kind === ObjectKind.Structure) this.genStructure(typeString, data, position, orientation);
         }
     }
 
     private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
-        return this.getRandomPositionFor(kind, kind === ObjectKind.Building ? data : data.collision, 0, orientation, scale, () => {
+        return this.getRandomPositionFor(kind, (kind === ObjectKind.Building || kind === ObjectKind.Structure) ? data : data.collision, 0, orientation, scale, () => {
             let min: Vec2, max: Vec2;
             switch(orientation) {
                 case 0:

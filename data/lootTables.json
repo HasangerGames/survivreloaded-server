@@ -89,6 +89,19 @@
     "8xscope": { "count": 1, "weight": 0.049 },
     "15xscope": { "count": 1, "weight": 0.001 }
   },
+  "tier_chrys_02": {
+    "katana": { "count": 1, "weight": 1 }
+  },
+  "tier_sledgehammer": {
+    "sledgehammer": { "count": 1, "weight": 1 }
+  },
+  "tier_chest_04": {
+    "p30l": { "count": 1, "weight": 1 },
+    "p30l_dual": { "count": 1, "weight": 0.001 }
+  },
+  "tier_woodaxe": {
+    "woodaxe": { "count": 1, "weight": 1 }
+  },
   "tier_guns": {
     "famas": { "count": 1, "weight": 0.9 },
     "hk416": { "count": 1, "weight": 4 },

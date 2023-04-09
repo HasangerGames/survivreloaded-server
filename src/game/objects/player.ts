@@ -40,6 +40,7 @@ import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import type { Explosion } from "../explosion";
+import { Obstacle } from "./obstacle";
 
 // import { Building } from "./building";
 
@@ -608,10 +609,6 @@ export class Player extends GameObject {
         }
         this.cancelAction();
 
-        // If the player is punching anything, damage the closest object
-        let minDist = Number.MAX_VALUE;
-        let closestObject;
-
         const weapon = Weapons[this.activeWeapon.typeString];
         const offset: Vec2 = Vec2.add(weapon.attack.offset, Vec2(1, 0).mul(this.scale - 1));
         const angle: number = unitVecToRadians(this.direction);
@@ -619,27 +616,49 @@ export class Player extends GameObject {
         const position: Vec2 = this.position.clone().add(vec2Rotate(offset, angle));
         const radius: number = weapon.attack.rad;
 
-        for(const object of this.visibleObjects) {
-            if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && object.damageable) {
-                const record = objectCollision(object, position, radius);
-                if(record!.collided && record!.distance < minDist) {
-                    minDist = record!.distance;
-                    closestObject = object;
+        if(weapon.cleave) { // cleave allows weapon to damage multiple objects at once
+            // Damage all objects within melee range
+            for(const object of this.visibleObjects) {
+                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && object.damageable) {
+                    if(objectCollision(object, position, radius).collided) {
+                        if(object instanceof Player) {
+                            setTimeout(() => {
+                                object.damage(weapon.damage, this, this.activeWeapon);
+                            }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
+                        } else {
+                            setTimeout(() => {
+                                object.damage(weapon.damage * weapon.obstacleDamage, this);
+                            }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
+                        }
+                        if(object.interactable) (object as Obstacle).interact(this);
+                    }
                 }
             }
-        }
-
-        if(closestObject) {
-            if(closestObject instanceof Player) {
-                setTimeout(() => {
-                    closestObject.damage(weapon.damage, this, this.activeWeapon);
-                }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
-            } else {
-                setTimeout(() => {
-                    closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
-                }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
+        } else {
+            // Damage the closest object
+            let minDist = Number.MAX_VALUE;
+            let closestObject;
+            for(const object of this.visibleObjects) {
+                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && object.damageable) {
+                    const record = objectCollision(object, position, radius);
+                    if(record!.collided && record!.distance < minDist) {
+                        minDist = record!.distance;
+                        closestObject = object;
+                    }
+                }
             }
-            if(closestObject.interactable) closestObject.interact(this);
+            if(closestObject) {
+                if(closestObject instanceof Player) {
+                    setTimeout(() => {
+                        closestObject.damage(weapon.damage, this, this.activeWeapon);
+                    }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
+                } else {
+                    setTimeout(() => {
+                        closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+                    }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
+                }
+                if(closestObject.interactable) closestObject.interact(this);
+            }
         }
     }
 
@@ -679,14 +698,12 @@ export class Player extends GameObject {
                 this.spawnBullet(offset, weaponTypeString);
                 this.weaponsDirty = true;
                 this.activeWeapon.ammo--;
+                if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
+                if(this.activeWeapon.ammo === 0) {
+                    this.shooting = false;
+                    this.reload();
+                }
             }, 1000 * i * burstDelay);
-            if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
-            if(this.activeWeapon.ammo === 0) {
-                this.shooting = false;
-                this.reload();
-                return;
-            }
-            this.weaponsDirty = true;
         }
 
         if(weapon.isDual) {

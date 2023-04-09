@@ -129,6 +129,7 @@ export class Game {
         this.world.on("begin-contact", contact => {
             const objectA: any = contact.getFixtureA().getUserData();
             const objectB: any = contact.getFixtureB().getUserData();
+            //console.log(objectA.typeString, objectB.typeString);
             if(objectA instanceof Bullet && objectA.distance <= objectA.maxDistance) {
                 this.damageRecords.add(new DamageRecord(objectB, objectA.shooter, objectA));
             } else if(objectB instanceof Bullet && objectB.distance <= objectB.maxDistance) {
@@ -158,14 +159,12 @@ export class Game {
             // Make sure the objects are on the same layer
             if(!sameLayer(thisObject.layer, thatObject.layer)) return false;
 
-            // stairs hack
-            /*if(thisObject.isPlayer && thatObject.isObstacle &&
-                ((thatObject.layer === 0 && thisObject.layer === 3) || (thatObject.layer === 1 && thisObject.layer === 2))) {
+            // Prevents collision with invisible walls in bunker entrances
+            if(thisObject.isPlayer && thatObject.isObstacle && thisObject.layer & 0x2 && thatObject.bunkerWall) {
                 return false;
-            } else if(thatObject.isPlayer && thisObject.isObstacle &&
-                ((thisObject.layer === 0 && thatObject.layer === 3) || (thisObject.layer === 1 && thatObject.layer === 2))) {
+            } else if(thisObject.isObstacle && thatObject.isPlayer && thatObject.layer & 0x2 && thisObject.bunkerWall) {
                 return false;
-            }*/
+            }
 
             if(thisObject.isPlayer) return thatObject.collidesWith.player;
             else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;

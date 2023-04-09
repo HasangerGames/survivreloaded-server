@@ -174,6 +174,20 @@
       "nothing": 1
     }
   },
+  "crate_random_chrys_bunker": {
+    "type": "random",
+    "weights": {
+      "crate_01": 2,
+      "crate_04": 1
+    }
+  },
+  "case_random_storm_bunker": {
+    "type": "random",
+    "weights": {
+      "chest_02": 9,
+      "case_03": 1
+    }
+  },
   "barrel_01": {
     "type": "obstacle",
     "obstacleType": "barrel",
@@ -20352,7 +20366,8 @@
           "y": -3
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_7",
@@ -20503,7 +20518,8 @@
           "y": 4
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_thicker_26",
@@ -21164,6 +21180,7 @@
         "ori": 1
       },
       {
+        "type": "crate_random_chrys_bunker",
         "pos": {
           "x": 1.5,
           "y": 5
@@ -21172,6 +21189,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_chrys_bunker",
         "pos": {
           "x": 1.5,
           "y": 0
@@ -21180,6 +21198,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_chrys_bunker",
         "pos": {
           "x": 6.5,
           "y": 5
@@ -21188,6 +21207,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_chrys_bunker",
         "pos": {
           "x": 6.5,
           "y": 0
@@ -22392,12 +22412,12 @@
       {
         "type": 1,
         "min": {
-          "x": -2.5,
-          "y": -2.5
+          "x": -3.5,
+          "y": -3.5
         },
         "max": {
-          "x": 2.5,
-          "y": 2.5
+          "x": 3.5,
+          "y": 3.5
         },
         "height": 0
       }
@@ -42972,15 +42992,6 @@
     },
     "mapObjects": [
       {
-        "type": "house_door_02",
-        "pos": {
-          "x": 13.5,
-          "y": 7
-        },
-        "scale": 1,
-        "ori": 1
-      },
-      {
         "type": "concrete_wall_ext_6",
         "pos": {
           "x": 12.5,
@@ -58858,7 +58869,8 @@
           "y": -1
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "house_window_01",
@@ -62150,7 +62162,8 @@
           "y": 1.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "brick_wall_ext_thicker_6",
@@ -69161,7 +69174,8 @@
           "y": -8.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "concrete_wall_ext_9_5",
@@ -69251,7 +69265,8 @@
           "y": -14.5
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "concrete_wall_ext_10_5",
@@ -70294,7 +70309,8 @@
           "y": -26
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "concrete_wall_ext_7",
@@ -70420,7 +70436,8 @@
           "y": -25
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "concrete_wall_ext_thicker_6",
@@ -71674,6 +71691,128 @@
       "grass": true,
       "beach": false
     },
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -35,
+          "y": 9
+        },
+        "max": {
+          "x": 3,
+          "y": 21
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -34.5,
+          "y": -43
+        },
+        "max": {
+          "x": 18.5,
+          "y": 12
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -12,
+          "y": -52
+        },
+        "max": {
+          "x": 8,
+          "y": -42
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -41,
+          "y": -31
+        },
+        "max": {
+          "x": -33,
+          "y": -21
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": 15,
+          "y": -17
+        },
+        "max": {
+          "x": 31,
+          "y": 3
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": 16,
+          "y": -41
+        },
+        "max": {
+          "x": 28,
+          "y": -17
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -36,
+          "y": -44
+        },
+        "max": {
+          "x": 20,
+          "y": -2
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -14,
+          "y": -12
+        },
+        "max": {
+          "x": 18,
+          "y": 12
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -20,
+          "y": -4
+        },
+        "max": {
+          "x": -12,
+          "y": 4
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -32,
+          "y": 9
+        },
+        "max": {
+          "x": -25,
+          "y": 16
+        },
+        "height": 0
+      }
+    ],
     "zIdx": 2,
     "floor": {
       "surfaces": [
@@ -71713,7 +71852,8 @@
           "y": 5.3
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_short_7",
@@ -71862,7 +72002,8 @@
           "y": 11.5
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_thicker_8",
@@ -72775,6 +72916,56 @@
   },
   "bunker_hydra_01": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": 9.5,
+          "y": -8
+        },
+        "max": {
+          "x": 41.5,
+          "y": 15
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -23.5,
+          "y": -97
+        },
+        "max": {
+          "x": -9.5,
+          "y": -82
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": 33.5,
+          "y": -54.5
+        },
+        "max": {
+          "x": 46.5,
+          "y": -40
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": 0.5,
+          "y": -51.5
+        },
+        "max": {
+          "x": 6.5,
+          "y": -45.5
+        },
+        "height": 0
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -72953,7 +73144,8 @@
           "y": 3.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "concrete_wall_ext_7",
@@ -73069,7 +73261,8 @@
           "y": 3.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_short_7",
@@ -73114,7 +73307,8 @@
           "y": -87.75
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_short_7",
@@ -73150,7 +73344,8 @@
           "y": -53.25
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_short_7",
@@ -73365,7 +73560,8 @@
           "y": 3.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_thicker_8",
@@ -73538,7 +73734,8 @@
           "y": -94
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "house_door_02",
@@ -73583,7 +73780,8 @@
           "y": -47
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_thicker_8",
@@ -74759,6 +74957,20 @@
         }
       ]
     },
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -7,
+          "y": -10.5
+        },
+        "max": {
+          "x": 7,
+          "y": 22.5
+        },
+        "height": 0
+      }
+    ],
     "terrain": {
       "grass": true,
       "beach": false
@@ -74869,7 +75081,8 @@
           "y": 5.3
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_short_7",
@@ -75063,7 +75276,8 @@
           "y": 11.5
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_thicker_8",
@@ -75256,6 +75470,7 @@
         "ori": 0
       },
       {
+        "type": "case_random_storm_bunker",
         "pos": {
           "x": 16.5,
           "y": 0.25
@@ -75512,6 +75727,32 @@
       ],
       "vision": {}
     },
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": 11.5,
+          "y": -4.5
+        },
+        "max": {
+          "x": 30.5,
+          "y": 11.5
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": 38,
+          "y": -40.5
+        },
+        "max": {
+          "x": 58,
+          "y": -24.5
+        },
+        "height": 0
+      }
+    ],
     "mapObjects": [
       {
         "type": "container_wall_top",
@@ -75520,7 +75761,8 @@
           "y": 3.35
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "container_wall_side",
@@ -75566,7 +75808,8 @@
           "y": -32.55
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "container_wall_side",
@@ -75726,7 +75969,8 @@
           "y": 3.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_thicker_8",
@@ -75825,7 +76069,8 @@
           "y": -32.4
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_thicker_20",
@@ -78574,7 +78819,8 @@
           "y": -2.2
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_7",
@@ -78670,7 +78916,8 @@
           "y": -2.2
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "metal_wall_ext_7",
@@ -78694,6 +78941,68 @@
   },
   "bunker_crossing_01": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": 29.5,
+          "y": 22.5
+        },
+        "max": {
+          "x": 41.5,
+          "y": 34.5
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -42,
+          "y": 13
+        },
+        "max": {
+          "x": -30,
+          "y": 25
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": 30,
+          "y": -19
+        },
+        "max": {
+          "x": 42,
+          "y": -7
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -41.5,
+          "y": -28.5
+        },
+        "max": {
+          "x": -29.5,
+          "y": -16.5
+        },
+        "height": 0
+      },
+      {
+        "type": 1,
+        "min": {
+          "x": -6,
+          "y": -6
+        },
+        "max": {
+          "x": 6,
+          "y": 6
+        },
+        "height": 0
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -79157,7 +79466,8 @@
           "y": 28.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "house_door_02",
@@ -79247,7 +79557,8 @@
           "y": 16
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "house_door_02",
@@ -79292,7 +79603,8 @@
           "y": -22.5
         },
         "scale": 1,
-        "ori": 0
+        "ori": 0,
+        "bunkerWall": true
       },
       {
         "type": "house_door_02",
@@ -79391,7 +79703,8 @@
           "y": -10
         },
         "scale": 1,
-        "ori": 1
+        "ori": 1,
+        "bunkerWall": true
       },
       {
         "type": "house_door_02",
@@ -80729,6 +81042,7 @@
     },
     "mapObjects": [
       {
+        "type": "toilet_metal_random",
         "pos": {
           "x": 2,
           "y": 0
