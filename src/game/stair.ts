@@ -1,13 +1,6 @@
-import {
-    rotateRect,
-    distanceToRect,
-    Constants,
-    vec2Rotate,
-    orientationToRad,
-    splitRect
-} from "../utils";
-import { Vec2 } from "planck";
-import { GameObject } from "./gameObject";
+import { Constants, distanceToRect, orientationToRad, rotateRect, splitRect, vec2Rotate } from "../utils";
+import { type Vec2 } from "planck";
+import { type GameObject } from "./gameObject";
 
 export class Stair {
 

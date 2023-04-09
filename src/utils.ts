@@ -519,11 +519,11 @@ export function splitRect(rect: any, axis: Vec2): any {
     const c = Vec2.add(rect.min, e);
     const left = {
         min: Vec2(rect.min).clone(),
-        max: Vec2(rect.max).clone(),
+        max: Vec2(rect.max).clone()
     };
     const right = {
         min: Vec2(rect.min).clone(),
-        max: Vec2(rect.max).clone(),
+        max: Vec2(rect.max).clone()
     };
     if (Math.abs(axis.y) > Math.abs(axis.x)) {
         left.max = Vec2(rect.max.x, c.y);

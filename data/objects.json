@@ -13,6 +13,13 @@
       "toilet_02": 1
     }
   },
+  "toilet_random_club": {
+    "type": "random",
+    "weights": {
+      "toilet_01": 9,
+      "toilet_02": 1
+    }
+  },
   "toilet_metal_random": {
     "type": "random",
     "weights": {
@@ -70588,6 +70595,7 @@
         "ori": 2
       },
       {
+        "type": "toilet_random_club",
         "pos": {
           "x": -17,
           "y": -35.25
@@ -70596,6 +70604,7 @@
         "ori": 2
       },
       {
+        "type": "toilet_random_club",
         "pos": {
           "x": -12,
           "y": -35.25
@@ -71161,6 +71170,7 @@
         "ori": 0
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": -13.75,
           "y": -4.8
@@ -71169,6 +71179,7 @@
         "ori": 1
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": -13.75,
           "y": 0.45
@@ -71177,6 +71188,7 @@
         "ori": 1
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": 13.75,
           "y": -4.8
@@ -71185,6 +71197,7 @@
         "ori": 3
       },
       {
+        "type": "deposit_box_random",
         "pos": {
           "x": 13.75,
           "y": 0.45

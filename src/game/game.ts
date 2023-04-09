@@ -18,7 +18,6 @@ import {
     SurvivBitStream,
     TypeToId,
     vecLerp,
-    Weapons,
     WeaponType,
     sameLayer
 } from "../utils";
@@ -35,7 +34,7 @@ import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacke
 import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
 import { Explosion } from "./explosion";
-import { Stair } from "./stair";
+import { type Stair } from "./stair";
 
 export class Game {
 
@@ -159,13 +158,12 @@ export class Game {
 
             // stairs hack
             if(thisObject.isPlayer && thatObject.isObstacle &&
-                (thatObject.layer == 0 && thisObject.layer == 3 || thatObject.layer == 1 && thisObject.layer == 2)) {
+                ((thatObject.layer === 0 && thisObject.layer === 3) || (thatObject.layer === 1 && thisObject.layer === 2))) {
                     return false;
             } else if(thatObject.isPlayer && thisObject.isObstacle &&
-                (thisObject.layer == 0 && thatObject.layer == 3 || thisObject.layer == 1 && thatObject.layer == 2)) {
+                ((thisObject.layer === 0 && thatObject.layer === 3) || (thisObject.layer === 1 && thatObject.layer === 2))) {
                 return false;
             }
-
 
             if(thisObject.isPlayer) return thatObject.collidesWith.player;
             else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;
@@ -399,27 +397,21 @@ export class Game {
                 p.moving = false;
 
                 let onStair = false;
-                const originalLayer = p.layer + 0;
-                for (const stair of this.stairs) {
-                    if (stair.check(p)) {
-                        onStair = true;
-                    }
+                const originalLayer = p.layer;
+                for(const stair of this.stairs) {
+                    if(stair.check(p)) onStair = true;
                 }
-                if (!onStair) {
-                     if (p.layer == 2) {
-                        p.layer = 0;
-                    }
-                    if (p.layer == 3) {
-                        p.layer = 1;
-                    }
+                if(!onStair) {
+                    if(p.layer === 2) p.layer = 0;
+                    if(p.layer === 3) p.layer = 1;
                 }
-                if (p.layer !== originalLayer) {
+                if(p.layer !== originalLayer) {
                     p.fullDirtyObjects.add(p);
                     p.game.fullDirtyObjects.add(p);
                 }
             }
 
-            for (const explosion of this.explosions) {
+            for(const explosion of this.explosions) {
                 explosion.explode(this);
             }
 

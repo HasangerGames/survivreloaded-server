@@ -131,6 +131,12 @@
     "chest03": { "count": 1, "weight": 1 },
     "backpack03": { "count": 1, "weight": 1 }
   },
+  "tier_ring_case": {
+    "grozas": { "count": 1, "weight": 1 },
+    "ots38_dual": { "count": 1, "weight": 0.1 },
+    "m9": { "count": 1, "weight": 0.01 },
+    "pkp": { "count": 1, "weight": 0.01 }
+  },
   "tier_chest": {
     "hk416": { "count": 1, "weight": 2 },
     "ak49": { "count": 1, "weight": 2 },
