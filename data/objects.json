@@ -1,23 +1,30 @@
 {
+  "tier_world_chance": {
+    "type": "random",
+    "weights": {
+      "loot_tier_1": 1,
+      "nothing": 1
+    }
+  },
   "toilet_random": {
     "type": "random",
     "weights": {
-      "toilet_01": 0.8,
-      "toilet_02": 0.2
+      "toilet_01": 5,
+      "toilet_02": 1
     }
   },
   "toilet_metal_random": {
     "type": "random",
     "weights": {
-      "toilet_03": 0.8,
-      "toilet_04": 0.2
+      "toilet_03": 5,
+      "toilet_04": 1
     }
   },
   "locker_random": {
     "type": "random",
     "weights": {
-      "locker_01": 0.8,
-      "locker_02": 0.1
+      "locker_01": 8,
+      "locker_02": 1
     }
   },
   "bush_random_mansion": {
@@ -60,6 +67,13 @@
       "crate_14a": 1
     }
   },
+  "crate_random_club_bar": {
+    "type": "random",
+    "weights": {
+      "crate_14": 1,
+      "crate_14a": 1
+    }
+  },
   "barrel_random_club":  {
     "type": "random",
     "weights": {
@@ -71,22 +85,29 @@
   "drawers_random": {
     "type": "random",
     "weights": {
-      "drawers_01": 0.8,
-      "drawers_02": 0.2
+      "drawers_01": 7,
+      "drawers_02": 1
     }
   },
   "bookshelf_random": {
     "type": "random",
     "weights": {
-      "bookshelf_01": 0.8,
-      "bookshelf_02": 0.2
+      "bookshelf_01": 6,
+      "bookshelf_02": 1
     }
   },
   "crate_random_warehouse": {
     "type": "random",
     "weights": {
-      "crate_01": 0.75,
-      "crate_02": 0.25
+      "crate_01": 3,
+      "crate_02": 1
+    }
+  },
+  "crate_random_blue_warehouse": {
+    "type": "random",
+    "weights": {
+      "crate_08": 24,
+      "crate_09": 1
     }
   },
   "planter_random": {
@@ -95,6 +116,55 @@
       "planter_01": 1,
       "planter_02": 1,
       "planter_03": 1
+    }
+  },
+  "crate_or_barrel_random": {
+    "type": "random",
+    "weights": {
+      "barrel_01": 1,
+      "crate_01": 1
+    }
+  },
+  "loot_random_container": {
+    "type": "random",
+    "weights": {
+      "loot_tier_1": 2,
+      "nothing": 1
+    }
+  },
+  "crate_random_club_outside": {
+    "type": "random",
+    "weights": {
+      "nothing": 4,
+      "crate_01": 2,
+      "crate_02": 1
+    }
+  },
+  "container_random_docks_01": {
+    "type": "random",
+    "weights": {
+      "container_01": 1,
+      "container_02": 1,
+      "container_03": 1,
+      "container_06": 0.08
+    }
+  },
+  "container_random_docks_02": {
+    "type": "random",
+    "weights": {
+      "container_01": 1,
+      "container_02": 1,
+      "container_03": 1,
+      "container_05": 2,
+      "container_06": 0.08,
+      "nothing": 0.75
+    }
+  },
+  "pot_random_hut": {
+    "type": "random",
+    "weights": {
+      "pot_01": 2,
+      "nothing": 1
     }
   },
   "barrel_01": {
@@ -10942,7 +11012,7 @@
     "reflectBullets": false,
     "loot": [
       {
-        "type": "scout_elite",
+        "type": "scout",
         "count": 1,
         "props": {}
       },
@@ -22354,6 +22424,20 @@
   },
   "cache_01": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -1,
+          "y": -1
+        },
+        "max": {
+          "x": 1,
+          "y": 1
+        },
+        "height": 0
+      }
+    ],
     "map": {
       "displayType": "stone_02"
     },
@@ -22430,6 +22514,20 @@
   },
   "cache_02": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -1,
+          "y": -1
+        },
+        "max": {
+          "x": 1,
+          "y": 1
+        },
+        "height": 0
+      }
+    ],
     "map": {
       "displayType": "tree_03"
     },
@@ -22578,10 +22676,38 @@
         "ori": 0,
         "inheritOri": false
       }
+    ],
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -1,
+          "y": -1
+        },
+        "max": {
+          "x": 1,
+          "y": 1
+        },
+        "height": 0
+      }
     ]
   },
   "cache_07": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "type": 1,
+        "min": {
+          "x": -1,
+          "y": -1
+        },
+        "max": {
+          "x": 1,
+          "y": 1
+        },
+        "height": 0
+      }
+    ],
     "map": {
       "displayType": "barrel_01b"
     },
@@ -23200,6 +23326,18 @@
   },
   "hut_01": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -8,
+          "y": -32
+        },
+        "max": {
+          "x": 8,
+          "y": 8
+        }
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -23370,6 +23508,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": 4.5,
           "y": 4.5
@@ -23378,6 +23517,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": 4.5,
           "y": -4.5
@@ -23386,6 +23526,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": -4.5,
           "y": 4.5
@@ -23394,6 +23535,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": -4.5,
           "y": -4.5
@@ -23628,6 +23770,18 @@
   },
   "hut_02": {
     "type": "building",
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -8,
+          "y": -32
+        },
+        "max": {
+          "x": 8,
+          "y": 8
+        }
+      }
+    ],
     "map": {
       "display": true,
       "shapes": [
@@ -23798,6 +23952,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": 4.5,
           "y": 4.5
@@ -23806,6 +23961,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": 4.5,
           "y": -4.5
@@ -23814,6 +23970,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": -4.5,
           "y": 4.5
@@ -23822,6 +23979,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": -4.5,
           "y": -4.5
@@ -24058,6 +24216,18 @@
     "specialLoot": "pot_02"
   },
   "hut_03": {
+    "mapObstacleBounds": [
+      {
+        "min": {
+          "x": -8,
+          "y": -32
+        },
+        "max": {
+          "x": 8,
+          "y": 8
+        }
+      }
+    ],
     "type": "building",
     "map": {
       "display": true,
@@ -24229,6 +24399,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": 4.5,
           "y": 4.5
@@ -24237,6 +24408,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": 4.5,
           "y": -4.5
@@ -24245,6 +24417,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": -4.5,
           "y": 4.5
@@ -24253,6 +24426,7 @@
         "ori": 0
       },
       {
+        "type": "pot_random_hut",
         "pos": {
           "x": -4.5,
           "y": -4.5
@@ -25882,6 +26056,7 @@
         "ori": 0
       },
       {
+        "type": "tier_world_chance",
         "pos": {
           "x": -19.5,
           "y": -9.5
@@ -25899,6 +26074,7 @@
         "ori": 0
       },
       {
+        "type": "tier_world_chance",
         "pos": {
           "x": 19.5,
           "y": 9.5
@@ -25927,6 +26103,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_blue_warehouse",
         "pos": {
           "x": 0,
           "y": 0
@@ -26897,6 +27074,7 @@
         "ori": 2
       },
       {
+        "type": "container_random_docks_01",
         "pos": {
           "x": -37.5,
           "y": 38
@@ -26923,6 +27101,7 @@
         "ori": 2
       },
       {
+        "type": "container_random_docks_01",
         "pos": {
           "x": -37.5,
           "y": -15
@@ -26969,6 +27148,7 @@
         "ori": 0
       },
       {
+        "type": "container_random_docks_02",
         "pos": {
           "x": -6,
           "y": -29
@@ -26977,6 +27157,7 @@
         "ori": 0
       },
       {
+        "type": "container_random_docks_02",
         "pos": {
           "x": 9.5,
           "y": -29
@@ -27021,6 +27202,7 @@
         "ori": 0
       },
       {
+        "type": "container_random_docks_02",
         "pos": {
           "x": -3,
           "y": 22
@@ -27038,6 +27220,7 @@
         "ori": 1
       },
       {
+        "type": "container_random_docks_02",
         "pos": {
           "x": -3,
           "y": 33
@@ -27073,6 +27256,7 @@
         "ori": 1
       },
       {
+        "type": "container_random_docks_02",
         "pos": {
           "x": 53,
           "y": 22
@@ -27090,6 +27274,7 @@
         "ori": 1
       },
       {
+        "type": "container_random_docks_02",
         "pos": {
           "x": 53,
           "y": 33
@@ -27107,6 +27292,7 @@
         "ori": 3
       },
       {
+        "type": "container_random_docks_02",
         "pos": {
           "x": 86.425,
           "y": 27.5
@@ -33674,6 +33860,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_2",
         "pos": {
           "x": -2,
           "y": 0.8
@@ -33682,6 +33869,7 @@
         "ori": 0
       },
       {
+        "type": "tier_world_chance",
         "pos": {
           "x": 2,
           "y": 0.8
@@ -34000,6 +34188,7 @@
         "ori": 0
       },
       {
+        "type": "loot_tier_1",
         "pos": {
           "x": 0,
           "y": 1
@@ -44424,6 +44613,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "tier_world_chance",
         "pos": {
           "x": -19,
           "y": -9.5
@@ -44432,6 +44622,7 @@
         "ori": 0
       },
       {
+        "type": "tier_world_chance",
         "pos": {
           "x": -19,
           "y": 5.5
@@ -46474,7 +46665,7 @@
         "ori": 0
       },
       {
-        "type": "",
+        "type": "house_door_02",
         "pos": {
           "x": 23,
           "y": -1.5
@@ -46611,7 +46802,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
-        "type": "loot_tier_1",
+        "type": "tier_world_chance",
         "pos": {
           "x": -19,
           "y": -9.5
@@ -46620,7 +46811,7 @@
         "ori": 0
       },
       {
-        "type": "loot_tier_1",
+        "type": "tier_world_chance",
         "pos": {
           "x": -19,
           "y": 5.5
@@ -57734,6 +57925,7 @@
         "ori": 2
       },
       {
+        "type": "crate_or_barrel_random",
         "pos": {
           "x": 3,
           "y": 8.25
@@ -69430,6 +69622,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club_bar",
         "pos": {
           "x": -12,
           "y": 0.25
@@ -69439,6 +69632,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club_bar",
         "pos": {
           "x": -7.75,
           "y": 0.25
@@ -69448,6 +69642,7 @@
         "inheritOri": false
       },
       {
+        "type": "crate_random_club_bar",
         "pos": {
           "x": -3.5,
           "y": 0.25
@@ -69818,6 +70013,7 @@
         "ori": 0
       },
       {
+        "type": "crate_random_club",
         "pos": {
           "x": 21,
           "y": -17.5
@@ -71441,6 +71637,16 @@
         },
         "scale": 1,
         "ori": 1
+      },
+      {
+        "type": "crate_random_club_outside",
+        "pos": {
+          "x": 25,
+          "y": 14
+        },
+        "scale": 1,
+        "ori": 0,
+        "inheritOri": false
       }
     ]
   },
@@ -88974,6 +89180,7 @@
         "ori": 0
       },
       {
+        "type": "loot_random_container",
         "pos": {
           "x": 0,
           "y": 0.05
@@ -89099,6 +89306,7 @@
         "ori": 0
       },
       {
+        "type": "loot_random_container",
         "pos": {
           "x": 0,
           "y": 0.05
@@ -89224,6 +89432,7 @@
         "ori": 0
       },
       {
+        "type": "loot_random_container",
         "pos": {
           "x": 0,
           "y": 0.05
@@ -89340,6 +89549,7 @@
         "ori": 0
       },
       {
+        "type": "loot_random_container",
         "pos": {
           "x": 0,
           "y": 0.05

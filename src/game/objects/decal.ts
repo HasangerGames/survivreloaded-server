@@ -21,7 +21,7 @@ export class Decal extends GameObject {
         super(game, "", position, layer, orientation);
         this.kind = ObjectKind.Decal;
         this.type = TypeToId[type];
-        this.scale = scale || 1;
+        this.scale = scale ?? 1;
     }
 
     serializePartial(stream: SurvivBitStream): void {

@@ -3,10 +3,10 @@ import {
     Constants,
     InputType,
     objectCollision,
+    sameLayer,
     ScopeTypes,
     type SurvivBitStream,
-    TypeToId,
-    sameLayer
+    TypeToId
 } from "../../utils";
 import { Vec2 } from "planck";
 import { type Obstacle } from "../../game/objects/obstacle";
@@ -55,7 +55,7 @@ export class InputPacket extends ReceivingPacket {
             p.direction = direction;
             p.moving = true;
         }
-        p.distanceToMouse =  stream.readFloat(0, 64, 8); // Distance to mouse
+        p.distanceToMouse = stream.readFloat(0, 64, 8); // Distance to mouse
 
         // Other inputs
         const inputCount = stream.readBits(4);

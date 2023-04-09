@@ -25,7 +25,7 @@ import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Decal } from "./objects/decal";
 import { Vec2 } from "planck";
-import { generateLooseLootFromArray, type looseLootTiers } from "./objects/loot";
+import { generateLooseLootFromArray } from "./objects/loot";
 import { type GameObject } from "./gameObject";
 import { Stair } from "./stair";
 
@@ -122,12 +122,31 @@ export class Map {
         this.groundPatches = [];
 
         if(!Debug.disableMapGeneration) {
+
+            // Docks
+            this.genOnShore(ObjectKind.Building, "warehouse_complex_01", 1, 72, 0, 1);
+
             this.genOnShore(ObjectKind.Building, "hedgehog_01", 40, 57, 4);
             this.genOnShore(ObjectKind.Building, "shack_03b", 2, 57, 1);
 
             // TODO Allow barrels and crates to spawn on the beach naturally
             this.genOnShore(ObjectKind.Obstacle, "crate_01", 12, 57, 4);
             this.genOnShore(ObjectKind.Obstacle, "barrel_01", 12, 57, 4);
+
+            // Huts
+            this.genOnShore(ObjectKind.Building, "hut_01", 3, 27, 1);
+            this.genOnShore(ObjectKind.Building, "hut_02", 1, 27, 1);
+            this.genOnShore(ObjectKind.Building, "hut_03", 1, 27, 1);
+
+            // Loose loot
+            for(let i = 0; i < 16; i++) {
+                generateLooseLootFromArray(
+                    this.game,
+                    [{ tier: "tier_world", min: 1, max: 1 }],
+                    this.getRandomPositionFor(ObjectKind.Loot, undefined, 0, 0, 1),
+                    0
+                );
+            }
 
             for(const type in mapInfo.objects) {
                 const data = Objects[type];
@@ -148,6 +167,8 @@ export class Map {
 
             //this.buildingTest("shack_01", 0);
             //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
+            //this.buildingTest("teahouse_complex_01su", 0);
+            //this.obstacleTest("house_door_02", Vec2(453, 153), 0);
 
             // Items test
             // this.obstacleTest("crate_01", Vec2(453, 153), 1);
@@ -301,6 +322,7 @@ export class Map {
                         debug = false): void {
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
+        else if(typeString.startsWith("cache_")) orientation = 0;
         else orientation = random(0, 3);
         let layer;
         if(setLayer !== undefined) layer = setLayer;
@@ -319,7 +341,7 @@ export class Map {
             buildingData
         );
 
-        for(const mapObject of buildingData.mapObjects) {
+        for(const mapObject of buildingData.mapObjects ?? []) {
             const partType = mapObject.type;
             if(!partType || partType === "") {
                 // console.warn(`${type}: Missing object at ${mapObject.position.x}, ${mapObject.position.y}`);
@@ -332,41 +354,61 @@ export class Map {
             else partOrientation = addOrientations(mapObject.ori, orientation);
             const partPosition = addAdjust(position, mapObject.pos, orientation);
 
-            if(part.type === "structure") {
-                this.genStructure(partType, part, partPosition, partOrientation);
-            } else if(part.type === "building") {
-                this.genBuilding(partType, part, partPosition, partOrientation, layer);
-            } else if(part.type === "obstacle") {
-                this.genObstacle(
-                    partType,
-                    partPosition,
-                    layer,
-                    partOrientation,
-                    mapObject.scale,
-                    part,
-                    building
-                );
-            } else if(part.type === "random") {
-                const items = Object.keys(part.weights);
-                const weights = Object.values(part.weights);
-                const randType = weightedRandom(items, weights as number[]);
-                this.genObstacle(
-                  randType,
-                  partPosition,
-                  layer,
-                  partOrientation,
-                  mapObject.scale,
-                  Objects[randType]
-                );
-            } else if(part.type === "loot_spawner") {
-                const loot: looseLootTiers[] = part.loot;
-                generateLooseLootFromArray(this.game, loot, partPosition, layer);
-            } else if (part.type === "decal") {
-                this.game.staticObjects.add(new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
-            } else if(part.type === "ignored") {
-                // Ignored
-            } else {
-                // console.warn(`Unknown object type: ${part.type}`);
+            switch(part.type) {
+                case "structure":
+                    this.genStructure(partType, part, partPosition, partOrientation);
+                    break;
+                case "building":
+                    this.genBuilding(partType, part, partPosition, partOrientation, layer);
+                    break;
+                case "obstacle":
+                    this.genObstacle(
+                        partType,
+                        partPosition,
+                        layer,
+                        partOrientation,
+                        mapObject.scale,
+                        part,
+                        building
+                    );
+                    break;
+                case "random": {
+                    const items = Object.keys(part.weights);
+                    const weights = Object.values(part.weights);
+                    const randType = weightedRandom(items, weights as number[]);
+                    if(randType !== "nothing") {
+                        const data = Objects[randType];
+                        switch(data.type) {
+                            case "obstacle":
+                                this.genObstacle(
+                                    randType,
+                                    partPosition,
+                                    layer,
+                                    partOrientation,
+                                    mapObject.scale,
+                                    data,
+                                    building
+                                );
+                                break;
+                            case "loot_spawner":
+                                generateLooseLootFromArray(this.game, data.loot, partPosition, layer);
+                                break;
+                            case "building":
+                                this.genBuilding(randType, data, partPosition, partOrientation, layer);
+                                break;
+                        }
+                    }
+                    break;
+                }
+                case "loot_spawner":
+                    generateLooseLootFromArray(this.game, part.loot, partPosition, layer);
+                    break;
+                case "decal":
+                    this.game.staticObjects.add(new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
+                    break;
+                case "ignored":
+                    // Ignored
+                    break;
             }
         }
         if(buildingData.mapGroundPatches) {
@@ -421,7 +463,7 @@ export class Map {
                         orientation: number,
                         scale: number,
                         obstacleData,
-                        parentbuilding?: Building): Obstacle {
+                        parentBuilding?: Building): Obstacle {
         const obstacle = new Obstacle(
             this.game,
             typeString,
@@ -430,7 +472,7 @@ export class Map {
             orientation,
             scale,
             obstacleData,
-            parentbuilding
+            parentBuilding
         );
         this.game.staticObjects.add(obstacle);
         return obstacle;
@@ -450,17 +492,23 @@ export class Map {
         }
     }
 
-    private genOnShore(kind: ObjectKind, typeString: string, count: number, shoreDist: number, width: number): void {
+    private genOnShore(kind: ObjectKind,
+                       typeString: string,
+                       count: number,
+                       shoreDist: number,
+                       width: number,
+                       orientationOffset = 0,
+                       shoreEdgeDist = shoreDist): void {
         for(let i = 0; i < count; i++) {
             const data = Objects[typeString];
             const orientation = random(0, 3);
-            const position = this.getPositionOnShore(kind, data, orientation, 1, shoreDist, width);
+            const position = this.getPositionOnShore(kind, data, addOrientations(orientation, orientationOffset), 1, shoreDist, width, shoreEdgeDist);
             if(kind === ObjectKind.Building) this.genBuilding(typeString, data, position, orientation);
             else if(kind === ObjectKind.Obstacle) this.genObstacle(typeString, position, 0, orientation, random(data.scale.createMin, data.scale.createMax), data);
         }
     }
 
-    private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number): Vec2 {
+    private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
         return this.getRandomPositionFor(kind, kind === ObjectKind.Building ? data : data.collision, 0, orientation, scale, () => {
             let min: Vec2, max: Vec2;
             switch(orientation) {
@@ -492,6 +540,8 @@ export class Map {
 
         if(kind === ObjectKind.Player) {
             collisionData = { type: CollisionType.Circle, rad: 1 };
+        } else if(kind === ObjectKind.Loot) {
+            collisionData = { type: CollisionType.Circle, rad: 5 };
         }
 
         if(!getPosition) {

@@ -1,6 +1,5 @@
 {
   "tier_world": {
-    "metaTier": true,
     "tier_scopes": { "count": 1, "weight": 1 },
     "tier_armor": { "count": 1, "weight": 1 },
     "tier_packs": { "count": 1, "weight": 1 },
@@ -8,17 +7,21 @@
     "tier_ammo": { "count": 1, "weight": 0.9 },
     "tier_guns": { "count": 1, "weight": 2 }
   },
+  "tier_surviv": {
+    "tier_scopes": { "count": 1, "weight": 1 },
+    "tier_armor": { "count": 1, "weight": 1 },
+    "tier_medical": { "count": 1, "weight": 1 },
+    "tier_packs": { "count": 1, "weight": 1 }
+  },
   "tier_container": {
-    "metaTier": true,
     "tier_scopes": { "count": 1, "weight": 0.15 },
     "tier_armor": { "count": 1, "weight": 0.1 },
     "tier_packs": { "count": 1, "weight": 0.09 },
     "tier_medical": { "count": 1, "weight": 0.17 },
     "tier_ammo": { "count": 1, "weight": 0.04 },
-    "tier_guns": { "count": 1, "weight": 0.20 }
+    "tier_guns": { "count": 1, "weight": 0.29 }
   },
   "tier_leaf_pile": {
-    "metaTier": true,
     "tier_scopes": { "count": 1, "weight": 0.2 },
     "tier_armor": { "count": 1, "weight": 0.2 },
     "tier_packs": { "count": 1, "weight": 0.2 },
@@ -26,7 +29,6 @@
     "tier_ammo": { "count": 1, "weight": 0.1 }
   },
   "tier_soviet": {
-    "metaTier": true,
     "tier_scopes": { "count": 1, "weight": 1 },
     "tier_armor": { "count": 1, "weight": 1 },
     "tier_packs": { "count": 1, "weight": 1 },
@@ -35,7 +37,6 @@
     "tier_guns": { "count": 1, "weight": 4 }
   },
   "tier_toilet": {
-    "metaTier": true,
     "tier_scopes": { "count": 1, "weight": 0.1 },
     "tier_guns": { "count": 1, "weight": 0.2 },
     "tier_medical": { "count": 1, "weight": 0.6 }
@@ -77,7 +78,16 @@
     "12gauge": { "count": 10, "weight": 3 }
   },
   "tier_vending_soda": {
-    "soda": { "count": 1, "weight": 1 }
+    "soda": { "count": 1, "weight": 5 },
+    "tier_ammo": { "count": 1, "weight": 1 }
+  },
+  "tier_sv98": {
+    "sv98": { "count": 1, "weight": 1 }
+  },
+  "tier_scopes_sniper": {
+    "4xscope": { "count": 1, "weight": 0.20 },
+    "8xscope": { "count": 1, "weight": 0.049 },
+    "15xscope": { "count": 1, "weight": 0.001 }
   },
   "tier_shotgunsTest": {
     "mp220": { "count": 1, "weight": 1 }
@@ -113,36 +123,36 @@
     "flare_gun": { "count": 1, "weight": 0.1 },
     "flare_gun_dual": { "count": 1, "weight": 0.00017 },
     "groza": { "count": 1, "weight": 0.8 },
-    "scout_elite": { "count": 1, "weight": 0.05 }
+    "scout": { "count": 1, "weight": 0.05 }
   },
   "tier_police": {
-    "scar": { "count": 1, "weight": 2},
-    "helmet03": { "count": 1, "weight": 1},
-    "chest03": { "count": 1, "weight": 1},
-    "backpack03": { "count": 1, "weight": 1}
+    "scar": { "count": 1, "weight": 2 },
+    "helmet03": { "count": 1, "weight": 1 },
+    "chest03": { "count": 1, "weight": 1 },
+    "backpack03": { "count": 1, "weight": 1 }
   },
   "tier_chest": {
-    "hk416": { "count": 1, "weight": 2},
-    "ak49": { "count": 1, "weight": 2},
-    "groza": { "count": 1, "weight": 2},
-    "famas": { "count": 1, "weight": 1},
-    "mk12": { "count": 1, "weight": 1},
-    "mp220": { "count": 1, "weight": 1},
-    "spas12": { "count": 1, "weight": 1},
-    "dp28": { "count": 1, "weight": 1},
-    "mosin": { "count": 1, "weight": 1},
-    "m39": { "count": 1, "weight": 1},
-    "scar": { "count": 1, "weight": 0.5},
-    "saiga": { "count": 1, "weight": 0.5},
-    "deagle": { "count": 1, "weight": 0.5},
-    "sv98": { "count": 1, "weight": 0.5},
-    "vector": { "count": 1, "weight": 0.5},
-    "m249": { "count": 1, "weight": 0.1},
-    "pkp": { "count": 1, "weight": 0.1},
-    "helmet01": { "count": 1, "weight": 2},
-    "helmet02": { "count": 1, "weight": 1},
-    "helmet03": { "count": 1, "weight": 0.5},
-    "4xscope": { "count": 1, "weight": 1},
-    "8xscope": { "count": 1, "weight": 0.5}
+    "hk416": { "count": 1, "weight": 2 },
+    "ak49": { "count": 1, "weight": 2 },
+    "groza": { "count": 1, "weight": 2 },
+    "famas": { "count": 1, "weight": 1 },
+    "mk12": { "count": 1, "weight": 1 },
+    "mp220": { "count": 1, "weight": 1 },
+    "spas12": { "count": 1, "weight": 1 },
+    "dp28": { "count": 1, "weight": 1 },
+    "mosin": { "count": 1, "weight": 1 },
+    "m39": { "count": 1, "weight": 1 },
+    "scar": { "count": 1, "weight": 0.5 },
+    "saiga": { "count": 1, "weight": 0.5 },
+    "deagle": { "count": 1, "weight": 0.5 },
+    "sv98": { "count": 1, "weight": 0.5 },
+    "vector": { "count": 1, "weight": 0.5 },
+    "m249": { "count": 1, "weight": 0.1 },
+    "pkp": { "count": 1, "weight": 0.1 },
+    "helmet01": { "count": 1, "weight": 2 },
+    "helmet02": { "count": 1, "weight": 1 },
+    "helmet03": { "count": 1, "weight": 0.5 },
+    "4xscope": { "count": 1, "weight": 1 },
+    "8xscope": { "count": 1, "weight": 0.5 }
   }
 }

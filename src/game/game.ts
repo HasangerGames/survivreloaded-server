@@ -296,7 +296,9 @@ export class Game {
                 // Pick up nearby items if on mobile
                 if(p.isMobile) {
                     for(const object of p.visibleObjects) {
-                        if(object instanceof Loot && (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) && !object.isMelee &&
+                        if(object instanceof Loot &&
+                            (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) &&
+                            !object.isMelee &&
                             distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
                             object.interact(p);
                         }
@@ -373,7 +375,7 @@ export class Game {
                             p.shootGun();
                         }
                     }
-                } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && Weapons[p.activeWeapon.typeString].fireMode === "auto") {
+                } else if(p.shootHold && p.activeWeapon.weaponType === WeaponType.Gun && (p.activeWeaponInfo.fireMode === "auto" || p.activeWeaponInfo.fireMode === "burst")) {
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
                         p.shootGun();

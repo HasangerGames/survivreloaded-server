@@ -2,7 +2,7 @@ import { ObjectKind, rotateRect, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
-import { Obstacle } from "./obstacle";
+import { type Obstacle } from "./obstacle";
 
 export class Building extends GameObject {
 
@@ -73,11 +73,10 @@ export class Building extends GameObject {
     }
 
     onObstacleDestroyed(obstacle: Obstacle): void {
-        console.log("destroyed");
         const ceiling = this.ceiling;
         if(ceiling.destructible && obstacle.isWall && !ceiling.destroyed) {
             ceiling.wallsToDestroy--;
-            if (ceiling.wallsToDestroy <= 0) {
+            if(ceiling.wallsToDestroy <= 0) {
                 ceiling.destroyed = true;
                 this.game.partialDirtyObjects.add(this);
                 this.game.updateObjects = true;
@@ -85,7 +84,7 @@ export class Building extends GameObject {
         }
         if(ceiling.damageable && obstacle.damageCeiling && !ceiling.damaged) {
             ceiling.obstaclesToDestroy--;
-            if (ceiling.obstaclesToDestroy-- <= 0) {
+            if(ceiling.obstaclesToDestroy-- <= 0) {
                 ceiling.damaged = true;
                 this.game.partialDirtyObjects.add(this);
                 this.game.updateObjects = true;

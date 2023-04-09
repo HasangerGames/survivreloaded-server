@@ -15,12 +15,12 @@ import {
     degreesToRadians,
     Emote,
     ItemSlot,
-    MedTypes,
     objectCollision,
     ObjectKind,
     randomBoolean,
     randomFloat,
-    removeFrom, sameLayer,
+    removeFrom,
+    sameLayer,
     ScopeTypes,
     SurvivBitStream,
     TypeToId,
@@ -41,6 +41,7 @@ import { GameOverPacket } from "../../packets/sending/gameOverPacket";
 import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import type { Explosion } from "../explosion";
+
 // import { Building } from "./building";
 
 export class Player extends GameObject {
@@ -60,7 +61,7 @@ export class Player extends GameObject {
     map: Map;
 
     name: string;
-    teamId = 1; // For 50v50?
+    teamId: number;
     groupId: number;
 
     direction: Vec2 = Vec2(1, 0);
@@ -254,7 +255,7 @@ export class Player extends GameObject {
         this.game = game;
         this.map = this.game.map;
         this.socket = socket;
-        this.groupId = this.game.nextGroupId;
+        this.teamId = this.groupId = this.game.nextGroupId;
         this.name = name;
         this.zoom = Constants.scopeZoomRadius.desktop["1xscope"];
         this.actionItem = { typeString: "", typeId: 0, duration: 0, useEnd: -1 };
@@ -450,6 +451,7 @@ export class Player extends GameObject {
                     }
                     (this.inventory[ammoType] as number) -= overAmount;
                 }
+                this.inventoryDirty = true;
             }
             if(slot === ItemSlot.Melee) {
                 this.weapons[slot] = {
@@ -530,7 +532,7 @@ export class Player extends GameObject {
 
             if(inventoryCount) {
                 const isAmmo = AmmoTypes.includes(item);
-                const isMed = MedTypes.includes(item);
+                //const isMed = MedTypes.includes(item);
                 const isScope = ScopeTypes.includes(item);
 
                 if(isScope) {
@@ -558,11 +560,17 @@ export class Player extends GameObject {
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
-                if(isMed && inventoryCount <= 3) amountToDrop = Math.ceil(inventoryCount / 2);
 
                 amountToDrop = Math.max(1, amountToDrop);
-                if(amountToDrop < 5 && isAmmo) amountToDrop = Math.min(5, inventoryCount);
-
+                if(inventoryCount <= 15 && isAmmo && item === "9mm") {
+                    amountToDrop = Math.min(15, inventoryCount);
+                } else if(inventoryCount <= 10 && isAmmo && (item === "762mm" || item === "556mm")) {
+                    amountToDrop = Math.min(10, inventoryCount);
+                } else if(inventoryCount <= 5 && isAmmo && item === "12gauge") {
+                    amountToDrop = Math.min(5, inventoryCount);
+                } else if(inventoryCount <= 5 && isAmmo) {
+                    amountToDrop = Math.min(5, inventoryCount);
+                }
                 this.inventory[item] = inventoryCount - amountToDrop;
 
                 this.inventoryDirty = true;
@@ -628,10 +636,14 @@ export class Player extends GameObject {
         }
 
         if(closestObject) {
-            if (closestObject instanceof Player) {
-                closestObject.damage(weapon.damage, this, this.activeWeapon);
+            if(closestObject instanceof Player) {
+                setTimeout(() => {
+                    closestObject.damage(weapon.damage, this, this.activeWeapon);
+                }, 90);
             } else {
-                closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+                setTimeout(() => {
+                    closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+                }, 90);
             }
             if(closestObject.interactable) closestObject.interact(this);
         }
@@ -657,29 +669,30 @@ export class Player extends GameObject {
         //moved bullet spawning to its own function to clean up the burst logic
         //const spread = degreesToRadians(weapon.shotSpread);
         //let shotFx = true;
-        let burstCount = 0;
-        let burstDelay = 0;
+        let burstCount, burstDelay;
         if(weapon.fireMode === "burst") {
             burstCount = weapon.burstCount;
             burstDelay = weapon.burstDelay;
+            if(burstCount > this.activeWeapon.ammo) burstCount = this.activeWeapon.ammo; // Makes sure burst gun won't fire more bullets than ammo it currently has
         } else {
             burstCount = 1;
             burstDelay = 0;
         }
         for(let i = 0; i < burstCount; i++) {
-            this.weaponsDirty = true;
             setTimeout(() => {
                 // Get the dual offset of the weapon based on the current shooting hand.
                 const offset = (weapon.dualOffset * (this.lastShotHand === "right" ? 1 : -1)) || 0;
                 this.spawnBullet(offset, weaponTypeString);
+                this.weaponsDirty = true;
+                this.activeWeapon.ammo--;
             }, 1000 * i * burstDelay);
-            this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
             if(this.activeWeapon.ammo === 0) {
                 this.shooting = false;
                 this.reload();
                 return;
             }
+            this.weaponsDirty = true;
         }
 
         if(weapon.isDual) {
@@ -717,21 +730,25 @@ export class Player extends GameObject {
 
     useBandage(): void {
         if(this.health === 100 || this.inventory.bandage === 0) return;
+        this.cancelAction();
         this.doAction("bandage", 3);
     }
 
     useMedkit(): void {
         if(this.health === 100 || this.inventory.healthkit === 0) return;
+        this.cancelAction();
         this.doAction("healthkit", 6);
     }
 
     useSoda(): void {
         if(this.boost === 100 || this.inventory.soda === 0) return;
+        this.cancelAction();
         this.doAction("soda", 3);
     }
 
     usePills(): void {
         if(this.boost === 100 || this.inventory.painkiller === 0) return;
+        this.cancelAction();
         this.doAction("painkiller", 5);
     }
 
@@ -1062,7 +1079,7 @@ export class Player extends GameObject {
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
         stream.writeGameType(298 + this.backpackLevel); // Backpack
-        stream.writeGameType(this.helmetLevel === 0 ? 0 : 301 + this.helmetLevel); // Helmet
+        stream.writeGameType(this.helmetLevel === 0 ? 0 : (TypeToId.helmet01 - 1) + this.helmetLevel); // Helmet
         stream.writeGameType(this.chestLevel === 0 ? 0 : 305 + this.chestLevel); // Vest
         stream.writeGameType(this.activeWeapon.typeId);
 
