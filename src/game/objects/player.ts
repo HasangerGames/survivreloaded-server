@@ -675,18 +675,19 @@ export class Player extends GameObject {
         if(weapon.fireMode === "burst") {
             burstCount = weapon.burstCount;
             burstDelay = weapon.burstDelay;
+            if(burstCount > this.activeWeapon.ammo) burstCount = this.activeWeapon.ammo; // Makes sure burst gun won't fire more bullets than ammo it currently has
         } else {
             burstCount = 1;
             burstDelay = 0;
         }
-        for(let i = 0; i < burstCount; i++) { // TODO Update ammo count for every burst shot
+        for(let i = 0; i < burstCount; i++) {
             setTimeout(() => {
                 // Get the dual offset of the weapon based on the current shooting hand.
                 const offset = (weapon.dualOffset * (this.lastShotHand === "right" ? 1 : -1)) || 0;
                 this.spawnBullet(offset, weaponTypeString);
                 this.weaponsDirty = true;
+                this.activeWeapon.ammo--;
             }, 1000 * i * burstDelay);
-            this.activeWeapon.ammo--;
             if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
             if(this.activeWeapon.ammo === 0) {
                 this.shooting = false;
