@@ -27,6 +27,7 @@ import { Decal } from "./objects/decal";
 import { Vec2 } from "planck";
 import { generateLooseLootFromArray } from "./objects/loot";
 import { type GameObject } from "./gameObject";
+import { Stair } from "./stair";
 
 export class Map {
     name: string;
@@ -160,9 +161,13 @@ export class Map {
                 }
             }
         } else {
-            //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
+            this.genBuilding("club_complex_01", Objects.club_complex_01, Vec2(450, 150));
 
-            this.buildingTest("teahouse_complex_01su", 0);
+            this.genStructure("bunker_structure_01", Objects.bunker_structure_01, Vec2(350, 150));
+
+            //this.buildingTest("shack_01", 0);
+            //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
+            //this.buildingTest("teahouse_complex_01su", 0);
             //this.obstacleTest("house_door_02", Vec2(453, 153), 0);
 
             // Items test
@@ -295,6 +300,10 @@ export class Map {
             }
         }
         this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
+
+        for (const stairData of structureData.stairs) {
+            this.game.stairs.add(new Stair(position, orientation ? orientation : 0, stairData));
+        }
     }
 
     private genBuildings(count, type, building): void {

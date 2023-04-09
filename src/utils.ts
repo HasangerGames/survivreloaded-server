@@ -510,6 +510,34 @@ export function rotateRect(pos: Vec2, min: Vec2, max: Vec2, scale: number, orien
     };
 }
 
+export function orientationToRad(orientation: number): number {
+    return (orientation % 4) * 0.5 * Math.PI;
+}
+
+export function splitRect(rect: any, axis: Vec2): any {
+    const e = Vec2.mul(Vec2.sub(rect.max, rect.min), 0.5);
+    const c = Vec2.add(rect.min, e);
+    const left = {
+        min: Vec2(rect.min).clone(),
+        max: Vec2(rect.max).clone(),
+    };
+    const right = {
+        min: Vec2(rect.min).clone(),
+        max: Vec2(rect.max).clone(),
+    };
+    if (Math.abs(axis.y) > Math.abs(axis.x)) {
+        left.max = Vec2(rect.max.x, c.y);
+        right.min = Vec2(rect.min.x, c.y);
+    } else {
+        left.max = Vec2(c.x, rect.max.y);
+        right.min = Vec2(c.x, rect.min.y);
+    }
+    const dir = Vec2.sub(rect.max, rect.min);
+    return Vec2.dot(dir, axis) > 0.0
+        ? [right, left]
+        : [left, right];
+}
+
 export function rotateHalfExtents(hx: number, hy: number, fromOrientation: number, toOrientation: number): { hx: number, hy: number } {
     return { hx: hy, hy: hx };
     //return { hx: -1, hy: -1 };
