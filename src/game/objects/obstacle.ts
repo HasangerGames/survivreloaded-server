@@ -81,6 +81,9 @@ export class Obstacle extends GameObject {
 
     bunkerWall: boolean;
 
+    armorPlated = false;
+    stonePlated = false;
+
     constructor(game: Game,
                 typeString: string,
                 position: Vec2,
@@ -119,6 +122,9 @@ export class Obstacle extends GameObject {
         this.parentBuilding = parentBuilding;
 
         this.bunkerWall = bunkerWall;
+
+        this.armorPlated = data.armorPlated;
+        this.stonePlated = data.stonePlated;
 
         // Broken windows, club bar, etc.
         if(data.height <= 0.2) {
@@ -249,13 +255,11 @@ export class Obstacle extends GameObject {
 
     damage(amount: number, source): void {
         if(this.health === 0) return;
-        if(Objects[this.typeString].armorPlated === true) {
-            if(source instanceof Player) {
-                if(Weapons[source.activeWeapon.typeString].armorPiercing === true) {
-                    this.health -= amount;
-                }
-            }
-        } else {
+        if(this.armorPlated && source instanceof Player && source.activeWeaponInfo.armorPiercing) {
+            this.health -= amount;
+        } else if(this.stonePlated && source instanceof Player && source.activeWeaponInfo.stonePiercing) {
+            this.health -= amount;
+        } else if(!this.armorPlated && !this.stonePlated) {
             this.health -= amount;
         }
         if(this.health <= 0) {

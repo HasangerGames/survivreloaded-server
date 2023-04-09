@@ -188,6 +188,13 @@
       "case_03": 1
     }
   },
+  "barrel_random_mansion": {
+    "type": "random",
+    "weights": {
+      "barrel_03": 9,
+      "barrel_04": 1
+    }
+  },
   "barrel_01": {
     "type": "obstacle",
     "obstacleType": "barrel",
@@ -62184,6 +62191,7 @@
         "ori": 1
       },
       {
+        "type": "barrel_random_mansion",
         "pos": {
           "x": 8.5,
           "y": -9.53
@@ -62192,6 +62200,7 @@
         "ori": 2
       },
       {
+        "type": "barrel_random_mansion",
         "pos": {
           "x": 11.5,
           "y": -9.53
@@ -62200,6 +62209,7 @@
         "ori": 2
       },
       {
+        "type": "barrel_random_mansion",
         "pos": {
           "x": 14.5,
           "y": -9.53
@@ -62208,6 +62218,7 @@
         "ori": 2
       },
       {
+        "type": "barrel_random_mansion",
         "pos": {
           "x": 12.75,
           "y": 15.5
@@ -62216,6 +62227,7 @@
         "ori": 0
       },
       {
+        "type": "barrel_random_mansion",
         "pos": {
           "x": 15.75,
           "y": 15.5
@@ -62224,6 +62236,7 @@
         "ori": 0
       },
       {
+        "type": "barrel_random_mansion",
         "pos": {
           "x": 18.75,
           "y": 15.5
@@ -62242,6 +62255,7 @@
         "ignoreMapSpawnReplacement": true
       },
       {
+        "type": "bookshelf_random",
         "pos": {
           "x": 22.75,
           "y": 8
@@ -73238,6 +73252,7 @@
         "ori": 1
       },
       {
+        "type": "toilet_metal_random",
         "pos": {
           "x": 35.75,
           "y": 10.5
