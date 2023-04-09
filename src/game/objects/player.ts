@@ -15,7 +15,6 @@ import {
     degreesToRadians,
     Emote,
     ItemSlot,
-    MedTypes,
     objectCollision,
     ObjectKind,
     randomBoolean,
@@ -670,8 +669,7 @@ export class Player extends GameObject {
         //moved bullet spawning to its own function to clean up the burst logic
         //const spread = degreesToRadians(weapon.shotSpread);
         //let shotFx = true;
-        let burstCount = 0;
-        let burstDelay = 0;
+        let burstCount, burstDelay;
         if(weapon.fireMode === "burst") {
             burstCount = weapon.burstCount;
             burstDelay = weapon.burstDelay;
@@ -1080,7 +1078,7 @@ export class Player extends GameObject {
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
         stream.writeGameType(298 + this.backpackLevel); // Backpack
-        stream.writeGameType(this.helmetLevel === 0 ? 0 : 301 + this.helmetLevel); // Helmet
+        stream.writeGameType(this.helmetLevel === 0 ? 0 : (TypeToId.helmet01 - 1) + this.helmetLevel); // Helmet
         stream.writeGameType(this.chestLevel === 0 ? 0 : 305 + this.chestLevel); // Vest
         stream.writeGameType(this.activeWeapon.typeId);
 

@@ -121,6 +121,10 @@ export class Map {
         this.groundPatches = [];
 
         if(!Debug.disableMapGeneration) {
+
+            // Docks
+            this.genOnShore(ObjectKind.Building, "warehouse_complex_01", 1, 72, 0, 1);
+
             this.genOnShore(ObjectKind.Building, "hedgehog_01", 40, 57, 4);
             this.genOnShore(ObjectKind.Building, "shack_03b", 2, 57, 1);
 
@@ -158,7 +162,7 @@ export class Map {
         } else {
             //this.genStructure("club_structure_01", Objects.club_structure_01, Vec2(450, 150));
 
-            //this.buildingTest("hut_01", 0);
+            this.buildingTest("teahouse_complex_01su", 0);
             //this.obstacleTest("house_door_02", Vec2(453, 153), 0);
 
             // Items test
@@ -309,6 +313,7 @@ export class Map {
                         debug = false): void {
         let orientation;
         if(setOrientation !== undefined) orientation = setOrientation;
+        else if(typeString.startsWith("cache_")) orientation = 0;
         else orientation = random(0, 3);
         let layer;
         if(setLayer !== undefined) layer = setLayer;
@@ -327,7 +332,7 @@ export class Map {
             buildingData
         );
 
-        for(const mapObject of buildingData.mapObjects) {
+        for(const mapObject of buildingData.mapObjects ?? []) {
             const partType = mapObject.type;
             if(!partType || partType === "") {
                 // console.warn(`${type}: Missing object at ${mapObject.position.x}, ${mapObject.position.y}`);
@@ -378,6 +383,9 @@ export class Map {
                                 break;
                             case "loot_spawner":
                                 generateLooseLootFromArray(this.game, data.loot, partPosition, layer);
+                                break;
+                            case "building":
+                                this.genBuilding(randType, data, partPosition, partOrientation, layer);
                                 break;
                         }
                     }
@@ -458,16 +466,6 @@ export class Map {
             parentBuilding
         );
         this.game.staticObjects.add(obstacle);
-
-        // Generate Tier Leaf Pile loot under berry bushes
-        if(typeString === "bush_07") {
-            generateLooseLootFromArray(
-                this.game,
-                [{ tier: "tier_leaf_pile", min: 1, max: 1 }],
-                position,
-                layer
-            );
-        }
         return obstacle;
     }
 
@@ -485,17 +483,23 @@ export class Map {
         }
     }
 
-    private genOnShore(kind: ObjectKind, typeString: string, count: number, shoreDist: number, width: number): void {
+    private genOnShore(kind: ObjectKind,
+                       typeString: string,
+                       count: number,
+                       shoreDist: number,
+                       width: number,
+                       orientationOffset = 0,
+                       shoreEdgeDist = shoreDist): void {
         for(let i = 0; i < count; i++) {
             const data = Objects[typeString];
             const orientation = random(0, 3);
-            const position = this.getPositionOnShore(kind, data, orientation, 1, shoreDist, width);
+            const position = this.getPositionOnShore(kind, data, addOrientations(orientation, orientationOffset), 1, shoreDist, width, shoreEdgeDist);
             if(kind === ObjectKind.Building) this.genBuilding(typeString, data, position, orientation);
             else if(kind === ObjectKind.Obstacle) this.genObstacle(typeString, position, 0, orientation, random(data.scale.createMin, data.scale.createMax), data);
         }
     }
 
-    private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number): Vec2 {
+    private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
         return this.getRandomPositionFor(kind, kind === ObjectKind.Building ? data : data.collision, 0, orientation, scale, () => {
             let min: Vec2, max: Vec2;
             switch(orientation) {

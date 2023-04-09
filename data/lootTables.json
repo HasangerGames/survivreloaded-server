@@ -7,6 +7,12 @@
     "tier_ammo": { "count": 1, "weight": 0.9 },
     "tier_guns": { "count": 1, "weight": 2 }
   },
+  "tier_surviv": {
+    "tier_scopes": { "count": 1, "weight": 1 },
+    "tier_armor": { "count": 1, "weight": 1 },
+    "tier_medical": { "count": 1, "weight": 1 },
+    "tier_packs": { "count": 1, "weight": 1 }
+  },
   "tier_container": {
     "tier_scopes": { "count": 1, "weight": 0.15 },
     "tier_armor": { "count": 1, "weight": 0.1 },
@@ -74,6 +80,14 @@
   "tier_vending_soda": {
     "soda": { "count": 1, "weight": 5 },
     "tier_ammo": { "count": 1, "weight": 1 }
+  },
+  "tier_sv98": {
+    "sv98": { "count": 1, "weight": 1 }
+  },
+  "tier_scopes_sniper": {
+    "4xscope": { "count": 1, "weight": 0.20 },
+    "8xscope": { "count": 1, "weight": 0.049 },
+    "15xscope": { "count": 1, "weight": 0.001 }
   },
   "tier_shotgunsTest": {
     "mp220": { "count": 1, "weight": 1 }

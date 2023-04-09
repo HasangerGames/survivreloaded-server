@@ -12,3 +12,5 @@ tier_leaf_pile
 
 tier_container
 "tier_throwables": { "count": 1, "weight": 0.05 },
+
+tier_surviv

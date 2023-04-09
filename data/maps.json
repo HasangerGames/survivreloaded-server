@@ -4,10 +4,11 @@
     "height": 720,
     "objects": {
       "club_complex_01": 1,
-      "mansion_01": 1,
+      "mansion_structure_01": 1,
       "police_01": 1,
       "bank_01": 1,
       "greenhouse_01": 1,
+      "teahouse_complex_01su": 1,
       "cabin_01": 2,
       "barn_01": 1,
       "barn_02": 1,
@@ -21,6 +22,10 @@
       "container_04": 15,
       "outhouse_01": 7,
       "silo_01": 11,
+      "cache_01": 2,
+      "cache_02": 5,
+      "cache_07": 2,
+      "cache_06": 32,
       "crate_01": 140,
       "crate_02": 4,
       "crate_03": 35,
@@ -28,8 +33,7 @@
       "tree_01": 425,
       "stone_01": 425,
       "barrel_01": 105,
-      "bush_01": 105,
-      "bush_07": 32
+      "bush_01": 105
     },
     "places": [
       {

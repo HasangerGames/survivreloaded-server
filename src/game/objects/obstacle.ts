@@ -276,7 +276,7 @@ export class Obstacle extends GameObject {
                 const explosion: Explosion = new Explosion(this.position, this.explosion, this.layer, source, this);
                 this.game.explosions.add(explosion);
             }
-            if (this.body) this.game.world.destroyBody(this.body!);
+            if(this.body) this.game.world.destroyBody(this.body!);
 
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
