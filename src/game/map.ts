@@ -161,9 +161,10 @@ export class Map {
                 }
             }
         } else {
-            this.genBuilding("club_complex_01", Objects.club_complex_01, Vec2(450, 150));
+            //this.genBuilding("club_complex_01", Objects.club_complex_01, Vec2(450, 150));
 
-            this.genStructure("bunker_structure_01", Objects.bunker_structure_01, Vec2(350, 150));
+            //this.buildingTest("bunker_hydra_01", 0);
+            this.genStructure("bunker_structure_02", Objects.bunker_structure_02, Vec2(450, 150));
 
             //this.buildingTest("shack_01", 0);
             //this.obstacleTest("house_door_01", Vec2(453, 153), 0);
@@ -553,7 +554,12 @@ export class Map {
 
         let foundPosition = false;
         let thisPos;
-        while(!foundPosition) {
+        let attempts = 0;
+        while(!foundPosition && attempts <= 100) {
+            attempts++;
+            if(attempts === 100) {
+                console.warn(`[WARNING] Maximum spawn attempts exceeded for: ${collisionData}`);
+            }
             thisPos = getPosition();
             let shouldContinue = false;
 

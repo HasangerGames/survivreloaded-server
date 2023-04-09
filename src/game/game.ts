@@ -113,9 +113,11 @@ export class Game {
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
 
+        // Create the Planck.js World
         this.world = new World({
             gravity: Vec2(0, 0)
         });
+        Settings.maxTranslation = 5.0; // Allows bullets to travel fast
 
         // Create world boundaries
         this.createWorldBoundary(360, -0.25, 360, 0);
@@ -157,13 +159,13 @@ export class Game {
             if(!sameLayer(thisObject.layer, thatObject.layer)) return false;
 
             // stairs hack
-            if(thisObject.isPlayer && thatObject.isObstacle &&
+            /*if(thisObject.isPlayer && thatObject.isObstacle &&
                 ((thatObject.layer === 0 && thisObject.layer === 3) || (thatObject.layer === 1 && thisObject.layer === 2))) {
-                    return false;
+                return false;
             } else if(thatObject.isPlayer && thisObject.isObstacle &&
                 ((thisObject.layer === 0 && thatObject.layer === 3) || (thisObject.layer === 1 && thatObject.layer === 2))) {
                 return false;
-            }
+            }*/
 
             if(thisObject.isPlayer) return thatObject.collidesWith.player;
             else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;
@@ -173,7 +175,11 @@ export class Game {
         };
 
         this.map = new Map(this, "main");
-        Settings.maxTranslation = 5.0;
+
+        // Prevent new players from joining after 2 minutes
+        setInterval(() => {
+            if(this.started) this.allowJoin = false;
+        }, 120000);
 
         this.tick(30);
     }
@@ -383,13 +389,13 @@ export class Game {
                 }
 
                 // Animation logic
-                if(p.animActive) p.animTime++;
-                if(p.animTime > 8) {
-                    p.animActive = false;
+                if(p.anim.active) p.anim.time++;
+                if(p.anim.time > p.anim.duration) {
+                    p.anim.active = false;
                     this.fullDirtyObjects.add(p);
                     p.fullDirtyObjects.add(p);
-                    p.animType = p.animSeq = 0;
-                    p.animTime = -1;
+                    p.anim.type = p.anim.seq = 0;
+                    p.anim.time = -1;
                 } else if(p.moving) {
                     p.game.partialDirtyObjects.add(p);
                     p.partialDirtyObjects.add(p);
@@ -631,11 +637,6 @@ export class Game {
         game.gas.damage = currentStage.damage;
         game.gasDirty = true;
         game.gasCircleDirty = true;
-
-        // Prevent new players from joining if the red zone shrinks far enough
-        if(game.gas.stage >= 9) {
-            game.allowJoin = false;
-        }
 
         // Start the next stage
         if(currentStage.duration !== 0) {

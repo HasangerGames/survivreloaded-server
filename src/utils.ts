@@ -340,7 +340,7 @@ Game objects can belong to the following layers:
 Objects on the same layer should interact with one another.
 */
 export function sameLayer(a: number, b: number): boolean {
-    return !!((1 & a) === (1 & b) || (2 & a && 2 & b));
+    return Boolean((1 & a) === (1 & b) || (2 & a && 2 & b));
 }
 
 export function toGroundLayer(a: number): number {
@@ -536,11 +536,6 @@ export function splitRect(rect: any, axis: Vec2): any {
     return Vec2.dot(dir, axis) > 0.0
         ? [right, left]
         : [left, right];
-}
-
-export function rotateHalfExtents(hx: number, hy: number, fromOrientation: number, toOrientation: number): { hx: number, hy: number } {
-    return { hx: hy, hy: hx };
-    //return { hx: -1, hy: -1 };
 }
 
 export function bodyFromCollisionData(world: World, data, position: Vec2, orientation = 0, scale = 1, obstacle: Obstacle): Body | null {

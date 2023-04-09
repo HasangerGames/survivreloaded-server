@@ -17,7 +17,6 @@ import {
     ItemSlot,
     objectCollision,
     ObjectKind,
-    randomBoolean,
     randomFloat,
     removeFrom,
     sameLayer,
@@ -87,10 +86,13 @@ export class Player extends GameObject {
     shootStart = false;
     shootHold = false;
 
-    animActive = false;
-    animType = 0;
-    animSeq = 0;
-    animTime = -1;
+    anim = {
+        active: false,
+        type: 0,
+        seq: 0,
+        time: -1,
+        duration: 0
+    };
 
     private _health = 100; // The player's health. Ranges from 0-100.
     private _boost = 0; // The player's adrenaline. Ranges from 0-100.
@@ -293,15 +295,6 @@ export class Player extends GameObject {
         this.weapons[2].typeString = this.loadout.meleeType;
         this.weapons[2].typeId = this.loadout.melee;
 
-        if(this.game.gas.stage >= 9) {
-            this.inventory.bandage = 3;
-            this.inventory["9mm"] = 30;
-            this.inventory["762mm"] = 30;
-            const weapon = randomBoolean() ? "m9" : "ot38";
-            this.weapons[0].typeString = weapon;
-            this.weapons[0].typeId = TypeToId[weapon];
-            this.switchSlot(0);
-        }
         /* Quickswitching test
         this.inventory["762mm"] = 120;
         this.weapons[0].typeString = "sv98";
@@ -604,11 +597,12 @@ export class Player extends GameObject {
 
     useMelee(): void {
         // Start punching animation
-        if(!this.animActive) {
-            this.animActive = true;
-            this.animType = 1;
-            this.animSeq = 1;
-            this.animTime = 0;
+        if(!this.anim.active) {
+            this.anim.active = true;
+            this.anim.type = 1;
+            this.anim.seq = 1;
+            this.anim.time = 0;
+            this.anim.duration = this.activeWeaponInfo.animDuration ?? 8;
             this.fullDirtyObjects.add(this);
             this.fullDirtyObjects.add(this);
         }
@@ -639,11 +633,11 @@ export class Player extends GameObject {
             if(closestObject instanceof Player) {
                 setTimeout(() => {
                     closestObject.damage(weapon.damage, this, this.activeWeapon);
-                }, 90);
+                }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
             } else {
                 setTimeout(() => {
                     closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
-                }, 90);
+                }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
             }
             if(closestObject.interactable) closestObject.interact(this);
         }
@@ -893,7 +887,7 @@ export class Player extends GameObject {
             // Drop loot
             this.dropItemInSlot(0, this.weapons[0].typeString, true);
             this.dropItemInSlot(1, this.weapons[1].typeString, true);
-            //if(this.weapons[2].typeString !== "fists") this.dropItemInSlot(2, this.weapons[2].typeString, true);
+            if(this.weapons[2].typeString !== "fists") this.dropItemInSlot(2, this.weapons[2].typeString, true);
             for(const item in this.inventory) {
                 if(item === "1xscope") continue;
                 if(this.inventory[item] > 0) this.dropLoot(item);
@@ -1078,17 +1072,17 @@ export class Player extends GameObject {
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
-        stream.writeGameType(298 + this.backpackLevel); // Backpack
+        stream.writeGameType(TypeToId.backpack00 as number + this.backpackLevel);
         stream.writeGameType(this.helmetLevel === 0 ? 0 : (TypeToId.helmet01 - 1) + this.helmetLevel); // Helmet
-        stream.writeGameType(this.chestLevel === 0 ? 0 : 305 + this.chestLevel); // Vest
+        stream.writeGameType(this.chestLevel === 0 ? 0 : (TypeToId.chest01 - 1) + this.chestLevel); // Vest
         stream.writeGameType(this.activeWeapon.typeId);
 
         stream.writeBits(this.layer, 2);
         stream.writeBoolean(this.dead);
         stream.writeBoolean(this.downed);
 
-        stream.writeBits(this.animType, 3);
-        stream.writeBits(this.animSeq, 3);
+        stream.writeBits(this.anim.type, 3);
+        stream.writeBits(this.anim.seq, 3);
         stream.writeBits(this.actionType, 3);
         stream.writeBits(this.actionSeq, 3);
 
