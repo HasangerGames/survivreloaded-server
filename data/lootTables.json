@@ -178,8 +178,5 @@
     "m249": { "count": 1, "weight": 0.1 },
     "pkp": { "count": 1, "weight": 0.05 },
     "m9": { "count": 1, "weight": 0.01 }
-  },
-  "tier_sledgehammer": {
-    "sledgehammer": { "count": 1, "weight": 1 }
   }
 }
