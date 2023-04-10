@@ -207,22 +207,7 @@ export class Obstacle extends GameObject {
                     this.door.openAltOrientation
                 );
             } else {
-                let offSet = Vec2();
-                switch(this.orientation) {
-                    case 0:
-                        offSet = Vec2(0, -this.door.slideOffset);
-                        break;
-                    case 1:
-                        offSet = Vec2(this.door.slideOffset, 0);
-                        break;
-                    case 2:
-                        offSet = Vec2(0, this.door.slideOffset);
-                        break;
-                    case 3:
-                        offSet = Vec2(-this.door.slideOffset, 0);
-                        break;
-                }
-                this.door.openPosition = this.position.clone().add(offSet);
+                this.door.openPosition = addAdjust(this.position, Vec2(0, -this.door.slideOffset), this.orientation);
                 this.collision.doorOpen = rotateRect(
                     this.door.openPosition,
                     data.collision.min,
