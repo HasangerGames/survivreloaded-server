@@ -87,7 +87,7 @@ export class InputPacket extends ReceivingPacket {
                     let minDist = Number.MAX_VALUE;
                     let minDistObject;
                     for(const object of p.visibleObjects) {
-                        if(object instanceof Loot) {
+                        if(object instanceof Loot && sameLayer(object.layer, p.layer)) {
                             const record = objectCollision(object, p.position, p.scale);
                             if(record?.collided && record.distance < minDist) {
                                 minDist = record.distance;
@@ -105,7 +105,7 @@ export class InputPacket extends ReceivingPacket {
                     //let minDist = Number.MAX_VALUE;
                     //let minDistObject;
                     for(const object of p.visibleObjects) {
-                        if((object as any).isDoor) {
+                        if((object as any).isDoor && sameLayer(object.layer, p.layer)) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
                             if(record?.collided) (object as Obstacle).interact(p);
                             /*if(record?.collided && record.distance < minDist) {
