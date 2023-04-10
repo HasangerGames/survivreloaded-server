@@ -177,9 +177,6 @@ export class Map {
             }
         } else {
             // Building/obstacle debug code goes here
-            this.obstacleTest("stone_04", Vec2(454, 154));
-            const loot = new Loot(this.game, "sledgehammer", Vec2(450, 150), 0, 1);
-            this.game.dynamicObjects.add(loot);
         }
 
         // Calculate visible objects

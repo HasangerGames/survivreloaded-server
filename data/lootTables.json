@@ -129,6 +129,9 @@
   "tier_woodaxe": {
     "woodaxe": { "count": 1, "weight": 1 }
   },
+  "tier_club_melee": {
+    "machete_taiga": { "count": 1, "weight": 1 }
+  },
   "tier_guns": {
     "famas": { "count": 1, "weight": 0.9 },
     "hk416": { "count": 1, "weight": 4 },
