@@ -25,7 +25,7 @@ import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Decal } from "./objects/decal";
 import { Vec2 } from "planck";
-import { generateLooseLootFromArray, Loot } from "./objects/loot";
+import { generateLooseLootFromArray } from "./objects/loot";
 import { type GameObject } from "./gameObject";
 import { Stair } from "./stair";
 

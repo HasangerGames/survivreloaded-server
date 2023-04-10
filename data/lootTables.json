@@ -102,7 +102,7 @@
     "katana": { "count": 1, "weight": 1 }
   },
   "tier_chrys_chest": {
-    "nothing": { "count": 1, "weight": 2 },
+    "nothing": { "count": 1, "weight": 1 },
     "katana": { "count": 1, "weight": 1 },
     "katana_rusted": { "count": 1, "weight": 1 },
     "katana_orchid": { "count": 1, "weight": 1 }
