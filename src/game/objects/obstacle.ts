@@ -479,7 +479,7 @@ export class Obstacle extends GameObject {
             stream.writeBoolean(this.door.open);
             stream.writeBoolean(this.door.canUse);
             stream.writeBoolean(this.door.locked);
-            stream.writeBits(0, 5); // door seq
+            stream.writeBits(this.door.open ? 1 : 0, 5); // door seq
         }
 
         stream.writeBoolean(this.isButton);
