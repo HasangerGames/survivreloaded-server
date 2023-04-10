@@ -348,15 +348,14 @@ export class Player extends GameObject {
         for(let i = 0; i < weapon.bulletCount; i++) {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
             const bullet: Bullet = new Bullet(
-              this,
-            //   Vec2(this.position.x + 1.5 * Math.cos(angle), this.position.y + 1.5 * Math.sin(angle)),
-              Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.3 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.3 * Math.sin(angle)),
-              Vec2(Math.cos(angle), Math.sin(angle)),
-              weapon.bulletType,
-              this.activeWeapon,
-              shotFx,
-              this.layer,
-              this.game
+                this,
+                Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.0001 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.0001 * Math.sin(angle)),
+                Vec2(Math.cos(angle), Math.sin(angle)),
+                weapon.bulletType,
+                this.activeWeapon,
+                shotFx,
+                this.layer,
+                this.game
             );
             // usas
             if (weapon.toMouseHit) {

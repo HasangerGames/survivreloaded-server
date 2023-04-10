@@ -25,7 +25,7 @@ import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Decal } from "./objects/decal";
 import { Vec2 } from "planck";
-import { generateLooseLootFromArray } from "./objects/loot";
+import { generateLooseLootFromArray, Loot } from "./objects/loot";
 import { type GameObject } from "./gameObject";
 import { Stair } from "./stair";
 
@@ -139,12 +139,16 @@ export class Map {
             this.genOnShore(ObjectKind.Building, "hut_02", 1, 27, 1);
             this.genOnShore(ObjectKind.Building, "hut_03", 1, 27, 1);
 
-            this.genOnShore(ObjectKind.Building, "hedgehog_01", 35, 57, 4);
+            this.genOnShore(ObjectKind.Building, "hedgehog_01", 40, 57, 4);
             this.genOnShore(ObjectKind.Building, "shack_03b", 2, 57, 1);
 
+            // Barrels & crates
             // TODO Allow barrels and crates to spawn on the beach naturally
             this.genOnShore(ObjectKind.Obstacle, "crate_01", 12, 57, 4);
             this.genOnShore(ObjectKind.Obstacle, "barrel_01", 12, 57, 4);
+
+            // Treasure chest
+            this.genOnShore(ObjectKind.Obstacle, "chest_01", 1, 57, 4);
 
             // Loose loot
             for(let i = 0; i < 16; i++) {
@@ -173,6 +177,9 @@ export class Map {
             }
         } else {
             // Building/obstacle debug code goes here
+            this.obstacleTest("stone_04", Vec2(454, 154));
+            const loot = new Loot(this.game, "sledgehammer", Vec2(450, 150), 0, 1);
+            this.game.dynamicObjects.add(loot);
         }
 
         // Calculate visible objects
@@ -463,7 +470,7 @@ export class Map {
             const orientation = random(0, 3);
             const position = this.getPositionOnShore(kind, data, addOrientations(orientation, orientationOffset), 1, shoreDist, width, shoreEdgeDist);
             if(kind === ObjectKind.Building) this.genBuilding(typeString, data, position, orientation);
-            else if(kind === ObjectKind.Obstacle) this.genObstacle(typeString, position, 0, orientation, random(data.scale.createMin, data.scale.createMax), data);
+            else if(kind === ObjectKind.Obstacle) this.genObstacle(typeString, position, 0, (kind === ObjectKind.Obstacle) ? 0 : orientation, random(data.scale.createMin, data.scale.createMax), data);
             else if(kind === ObjectKind.Structure) this.genStructure(typeString, data, position, orientation);
         }
     }
@@ -514,9 +521,9 @@ export class Map {
         let foundPosition = false;
         let thisPos;
         let attempts = 0;
-        while(!foundPosition && attempts <= 100) {
+        while(!foundPosition && attempts <= 150) {
             attempts++;
-            if(attempts === 100) {
+            if(attempts > 149) {
                 console.warn(`[WARNING] Maximum spawn attempts exceeded for: ${collisionData}`);
             }
             thisPos = getPosition();

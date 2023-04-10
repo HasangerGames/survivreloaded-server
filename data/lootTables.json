@@ -77,6 +77,15 @@
     "556mm": { "count": 60, "weight": 3 },
     "12gauge": { "count": 10, "weight": 3 }
   },
+  "tier_ammo_crate": {
+    "9mm": { "count": 1, "weight": 3 },
+    "762mm": { "count": 1, "weight": 3 },
+    "556mm": { "count": 1, "weight": 3 },
+    "12gauge": { "count": 1, "weight": 3 },
+    "50AE": { "count": 1, "weight": 1 },
+    "308sub": { "count": 1, "weight": 1 },
+    "flare": { "count": 1, "weight": 1 }
+  },
   "tier_vending_soda": {
     "soda": { "count": 1, "weight": 5 },
     "tier_ammo": { "count": 1, "weight": 1 }
@@ -91,6 +100,24 @@
   },
   "tier_chrys_02": {
     "katana": { "count": 1, "weight": 1 }
+  },
+  "tier_chrys_chest": {
+    "nothing": { "count": 1, "weight": 2 },
+    "katana": { "count": 1, "weight": 1 },
+    "katana_rusted": { "count": 1, "weight": 1 },
+    "katana_orchid": { "count": 1, "weight": 1 }
+  },
+  "tier_eye_block": {
+    "m9": { "count": 1, "weight": 1 },
+    "ots38_dual": { "count": 1, "weight": 1 },
+    "flare_gun": { "count": 1, "weight": 1 },
+    "colt45": { "count": 1, "weight": 1 },
+    "45acp": { "count": 1, "weight": 1 },
+    "painkiller": { "count": 1, "weight": 1 },
+    "m4a1": { "count": 1, "weight": 0.4 },
+    "m249": { "count": 1, "weight": 0.05 },
+    "awc": { "count": 1, "weight": 0.05 },
+    "pkp": { "count": 1, "weight": 0.05 }
   },
   "tier_sledgehammer": {
     "sledgehammer": { "count": 1, "weight": 1 }

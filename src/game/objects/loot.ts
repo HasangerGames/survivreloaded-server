@@ -126,9 +126,9 @@ export class Loot extends GameObject {
             // Reload active gun if the player picks up the correct ammo
             if(p.activeWeapon.ammo === 0 && this.typeString === p.activeWeaponInfo.ammo) p.reload();
         } else if(Weapons[this.typeString]?.type === "melee") {
-            if(p.weapons[2].typeString !== "fists") {
-                //p.dropItemInSlot(2, p.weapons[2].typeString, true);
-            } // TODO Do item type check in drop item packet, not in drop item method
+            if(p.weapons[2].typeString !== "fists") { // TODO Do item type check in drop item packet, not in drop item method
+                p.dropItemInSlot(2, p.weapons[2].typeString, true);
+            }
             p.weapons[2].typeString = this.typeString;
             p.weapons[2].typeId = this.typeId;
             p.switchSlot(2);
@@ -243,6 +243,7 @@ export function generateLooseLootFromArray(game: Game, loot: LooseLoot[], positi
             }
 
             const selectedItem: string = weightedRandom(items, weights);
+            if(selectedItem === "nothing") continue;
             if(selectedItem.startsWith("tier_")) {
                 const lootItem = deepCopy(loot[i]);
                 lootItem.tier = selectedItem;

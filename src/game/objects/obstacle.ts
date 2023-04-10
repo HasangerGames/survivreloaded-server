@@ -203,7 +203,7 @@ export class Obstacle extends GameObject {
             this.loot = [];
             for(const loot of data.loot) {
                 let count: number;
-                if(loot.type) {
+                if(loot.type && loot.type !== "outfitRoyalFortune") { // Hack to prevent Royal Fortune from spawning
                     count = loot.count;
                     for(let i = 0; i < count; i++) this.addLoot(loot.type, count);
                 } else {
@@ -236,6 +236,7 @@ export class Obstacle extends GameObject {
     private addLoot(type: string, count: number): void {
         if(type === "8xscope") this.game.has8x = true;
         else if(type === "15xscope") this.game.has15x = true;
+        if(type === "nothing") return;
         this.loot.push(new Item(type, count));
         const weapon = Weapons[type];
         if(weapon?.ammo) {
