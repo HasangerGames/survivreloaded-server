@@ -17,7 +17,8 @@ import {
     rectRectCollision,
     rotateRect,
     TypeToId,
-    weightedRandom
+    weightedRandom,
+    deepCopy
 } from "../utils";
 import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
@@ -261,7 +262,7 @@ export class Map {
         }
         this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
 
-        for (const stairData of structureData.stairs) {
+        for(const stairData of structureData.stairs) {
             this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
         }
     }
@@ -412,7 +413,7 @@ export class Map {
     private genRiverObstacle(point: Vec2, riverWidth: number, typeString: string): void {
         const obstacleData = Objects[typeString];
         const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
-        const position = this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, 0, 0, scale, () => {
+        const position = this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData, 0, 0, scale, () => {
             return randomPointInsideCircle(Vec2(point.x, point.y), riverWidth);
         }, true);
         this.genObstacle(typeString, position, 0, 0, scale, obstacleData);
@@ -447,7 +448,7 @@ export class Map {
             const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
             this.genObstacle(
                 typeString,
-                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData.collision, 0, 0, scale),
+                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData, 0, 0, scale),
                 0,
                 0,
                 scale,
@@ -474,7 +475,7 @@ export class Map {
     }
 
     private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
-        return this.getRandomPositionFor(kind, (kind === ObjectKind.Building || kind === ObjectKind.Structure) ? data : data.collision, 0, orientation, scale, () => {
+        return this.getRandomPositionFor(kind, data, 0, orientation, scale, () => {
             let min: Vec2, max: Vec2;
             switch(orientation) {
                 case 0:
@@ -500,13 +501,74 @@ export class Map {
         });
     }
 
-    getRandomPositionFor(kind: ObjectKind, collisionData, layer: number, orientation: number, scale: number, getPosition?: () => Vec2, ignoreRivers?: boolean): Vec2 {
-        const isBuilding = (kind === ObjectKind.Building || kind === ObjectKind.Structure);
+    getRandomPositionFor(kind: ObjectKind,
+                         object, layer: number,
+                         orientation: number, scale: number,
+                         getPosition?: () => Vec2,
+                         ignoreRivers?: boolean): Vec2 {
+        const isBuilding =
+            kind === ObjectKind.Building || kind === ObjectKind.Structure;
+        const thisBounds: any[] = [];
 
-        if(kind === ObjectKind.Player) {
-            collisionData = { type: CollisionType.Circle, rad: 1 };
-        } else if(kind === ObjectKind.Loot) {
-            collisionData = { type: CollisionType.Circle, rad: 5 };
+        switch(kind) {
+            case ObjectKind.Obstacle:
+            {
+                const bound = deepCopy(object.collision);
+                if(object.collision.type === CollisionType.Rectangle) {
+                    bound.originalMin = Vec2(bound.min).clone();
+                    bound.originalMax = Vec2(bound.max).clone();
+                } else {
+                    bound.rad *= scale;
+                }
+                thisBounds.push(bound);
+                break;
+            }
+            case ObjectKind.Player:
+                thisBounds.push({ type: CollisionType.Circle, rad: 1 });
+                break;
+            case ObjectKind.Loot:
+                thisBounds.push({ type: CollisionType.Circle, rad: 5 });
+                break;
+            case ObjectKind.Building:
+                if(object.mapObstacleBounds) {
+                    for(const obstacleBound of object.mapObstacleBounds) {
+                        const bound = deepCopy(obstacleBound);
+                        bound.originalMin = Vec2(bound.min).clone();
+                        bound.originalMax = Vec2(bound.max).clone();
+                        bound.type = CollisionType.Rectangle;
+                        thisBounds.push(bound);
+                    }
+                }
+                break;
+            case ObjectKind.Structure:
+                for(let i = 0; i < object.layers.length; i++) {
+                    const building = Objects[object.layers[i].type];
+                    let bound: any;
+                    if(building.mapObstacleBounds && building.mapObstacleBounds.length > 0) {
+                        for(const obstacleBound of building.mapObstacleBounds) {
+                            bound = deepCopy(obstacleBound);
+                            bound.originalMin = Vec2(bound.min);
+                            bound.originalMax = Vec2(bound.max);
+                            bound.type = CollisionType.Rectangle;
+                        }
+                    } else if(building.ceiling.zoomRegions && building.ceiling.zoomRegions.length > 0) {
+                        for(const zoomRegion of building.ceiling.zoomRegions) {
+                            bound = deepCopy(zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut);
+                            bound.originalMin = Vec2(bound.min);
+                            bound.originalMax = Vec2(bound.max);
+                            bound.type = CollisionType.Rectangle;
+                        }
+                    }
+                    if(bound) {
+                        bound.layer = i;
+                        thisBounds.push(bound);
+                    }
+                }
+                break;
+        }
+
+        if(thisBounds.length <= 0) {
+            throw new Error("Missing bounds data");
         }
 
         if(!getPosition) {
@@ -519,17 +581,20 @@ export class Map {
         let foundPosition = false;
         let thisPos;
         let attempts = 0;
-        while(!foundPosition && attempts <= 150) {
+        while(!foundPosition && attempts <= 200) {
             attempts++;
-            if(attempts > 149) {
-                console.warn(`[WARNING] Maximum spawn attempts exceeded for: ${collisionData}`);
+            if(attempts > 200) {
+                console.warn(object);
+                //throw new Error("[WARNING] Maximum spawn attempts exceeded for:");
             }
             thisPos = getPosition();
             let shouldContinue = false;
 
             if(!ignoreRivers) {
                 for(const river of this.rivers) {
-                    const minRiverDist = isBuilding ? river.width * 5 : river.width * 2.5;
+                    const minRiverDist = isBuilding
+                        ? river.width * 5
+                        : river.width * 2.5;
                     for(const point of river.points) {
                         if(distanceBetween(thisPos, point) < minRiverDist) {
                             shouldContinue = true;
@@ -541,85 +606,64 @@ export class Map {
             }
 
             if(shouldContinue) continue;
-            if(!collisionData) {
-                throw new Error("Missing collision data");
+
+            for(const bound of thisBounds) {
+                if(bound.type === CollisionType.Rectangle) {
+                    const newBound = rotateRect(thisPos, bound.originalMin, bound.originalMax, scale, orientation);
+                    bound.min = newBound.min;
+                    bound.max = newBound.max;
+                }
             }
 
-            let thisMin, thisMax, thisRad;
-            if(collisionData.type === CollisionType.Rectangle) {
-                const rect = rotateRect(thisPos, collisionData.min, collisionData.max, scale, orientation);
-                thisMin = rect.min;
-                thisMax = rect.max;
-            } else if(collisionData.type === CollisionType.Circle) {
-                thisRad = collisionData.rad * scale;
-            }
             for(const that of this.game.staticObjects) {
-                if(that.layer !== layer) continue;
-                if(that instanceof Building) {
-                    for(const thatBounds of that.mapObstacleBounds) {
-                         if(collisionData.type === CollisionType.Circle) {
-                             if(rectCollision(thatBounds.min, thatBounds.max, thisPos, thisRad)) {
-                                 shouldContinue = true;
-                             }
-                        } else if(collisionData.type === CollisionType.Rectangle) {
-                             if(rectRectCollision(thatBounds.min, thatBounds.max, thisMin, thisMax)) {
-                                 shouldContinue = true;
-                             }
-                        } else if(collisionData.mapObstacleBounds) {
-                             for(const bounds2 of collisionData.mapObstacleBounds) {
-                                 const thisBounds = rotateRect(thisPos, bounds2.min, bounds2.max, 1, orientation);
-                                 if(rectRectCollision(thisBounds.min, thisBounds.max, thatBounds.min, thatBounds.max)) {
-                                     shouldContinue = true;
-                                     break;
-                                 }
-                             }
-                         }
-                    }
-                } else if(that instanceof Obstacle) {
-                    if(collisionData.type === CollisionType.Circle) {
-                        if(that.collision.type === CollisionType.Circle) {
-                            if(circleCollision(that.position, that.collision.rad, thisPos, thisRad)) {
-                                shouldContinue = true;
+                for(const thisBound of thisBounds) {
+                    if(that instanceof Building) {
+                        for(const thatBound of that.mapObstacleBounds) {
+                            // obstacle should still spawn on top of bunker bounds
+                            if(kind === ObjectKind.Obstacle && thatBound.layer === 1) continue;
+                            if(thisBound.type === CollisionType.Circle) {
+                                if(rectCollision(thatBound.min, thatBound.max, thisPos, thisBound.rad)) {
+                                    shouldContinue = true;
+                                }
+                            } else if(thatBound.type === CollisionType.Rectangle) {
+                                if(rectRectCollision(thatBound.min, thatBound.max, thisBound.min, thisBound.max)) {
+                                    shouldContinue = true;
+                                }
                             }
-                        } else if(that.collision.type === CollisionType.Rectangle) {
-                            if(rectCollision(that.collision.min, that.collision.max, thisPos, thisRad)) {
-                                shouldContinue = true;
-                            }
+                            if(shouldContinue) break;
                         }
-                    } else if(collisionData.type === CollisionType.Rectangle) {
-                        if(that.collision.type === CollisionType.Circle) {
-                            if(rectCollision(thisMin, thisMax, that.position, that.collision.rad)) {
-                                shouldContinue = true;
-                            }
-                        } else if(that.collision.type === CollisionType.Rectangle) {
-                            if(rectRectCollision(that.collision.min, that.collision.max, thisMin, thisMax)) {
-                                shouldContinue = true;
-                            }
-                        }
-                    }/* else if(collisionData.mapObstacleBounds) {
-                        for(const bounds of collisionData.mapObstacleBounds) {
-                            const thisBounds = rotateRect(thisPos, bounds.min, bounds.max, 1, orientation);
+                    } else if(that instanceof Obstacle) {
+                        if(thisBound.type === CollisionType.Circle) {
                             if(that.collision.type === CollisionType.Circle) {
-                                if(rectCollision(thisBounds.min, thisBounds.max, that.position, that.collision.rad)) {
+                                if(circleCollision(that.position, that.collision.rad, thisPos, thisBound.rad)) {
                                     shouldContinue = true;
                                 }
                             } else if(that.collision.type === CollisionType.Rectangle) {
-                                if(rectRectCollision(thisBounds.min, thisBounds.max, that.collision.min, that.collision.max)) {
+                                if(rectCollision(that.collision.min, that.collision.max, thisPos, thisBound.rad)) {
+                                    shouldContinue = true;
+                                }
+                            }
+                        } else if(thisBound.type === CollisionType.Rectangle) {
+                            if(that.collision.type === CollisionType.Circle) {
+                                if(rectCollision(thisBound.min, thisBound.max, that.position, that.collision.rad)) {
+                                    shouldContinue = true;
+                                }
+                            } else if(that.collision.type === CollisionType.Rectangle) {
+                                if(rectRectCollision(that.collision.min, that.collision.max, thisBound.min, thisBound.max)) {
                                     shouldContinue = true;
                                 }
                             }
                         }
-                    }*/
+                        if(shouldContinue) continue;
+                    }
+                    if(shouldContinue) continue;
                 }
-                if(shouldContinue) break;
+                if(shouldContinue) continue;
             }
-            if(shouldContinue) continue;
-
-            foundPosition = true;
+            if(!shouldContinue) foundPosition = true;
         }
         return thisPos;
     }
-
 }
 
 class River {

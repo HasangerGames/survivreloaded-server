@@ -207,22 +207,7 @@ export class Obstacle extends GameObject {
                     this.door.openAltOrientation
                 );
             } else {
-                let offSet = Vec2();
-                switch(this.orientation) {
-                    case 0:
-                        offSet = Vec2(0, -this.door.slideOffset);
-                        break;
-                    case 1:
-                        offSet = Vec2(this.door.slideOffset, 0);
-                        break;
-                    case 2:
-                        offSet = Vec2(0, this.door.slideOffset);
-                        break;
-                    case 3:
-                        offSet = Vec2(-this.door.slideOffset, 0);
-                        break;
-                }
-                this.door.openPosition = this.position.clone().add(offSet);
+                this.door.openPosition = addAdjust(this.position, Vec2(0, -this.door.slideOffset), this.orientation);
                 this.collision.doorOpen = rotateRect(
                     this.door.openPosition,
                     data.collision.min,
@@ -334,7 +319,12 @@ export class Obstacle extends GameObject {
 
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
-                const loot: Loot = new Loot(this.game, item.type, this.position, this.layer, item.count);
+                let lootPosition = this.position.clone();
+                // TODO: add a "lootSpawnOffset" property for lockers and deposit boxes.
+                if(this.typeString.includes("locker") || this.typeString.includes("deposit_box")) {
+                    lootPosition = addAdjust(lootPosition, Vec2(0,-2), this.orientation!);
+                }
+                const loot: Loot = new Loot(this.game, item.type, lootPosition, this.layer, item.count);
                 this.game.dynamicObjects.add(loot);
                 this.game.fullDirtyObjects.add(loot);
                 this.game.updateObjects = true;

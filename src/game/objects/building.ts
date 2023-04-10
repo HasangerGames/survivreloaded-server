@@ -45,12 +45,16 @@ export class Building extends GameObject {
 
         if(data.mapObstacleBounds?.length) {
             for(const bounds of data.mapObstacleBounds) {
-                this.mapObstacleBounds.push(rotateRect(position, bounds.min, bounds.max, 1, this.orientation!));
+                const bound: any = rotateRect(position, bounds.min, bounds.max, 1, this.orientation!);
+                bound.layer = this.layer;
+                this.mapObstacleBounds.push(bound);
             }
         } else if(data.ceiling && data.ceiling.zoomRegions.length > 0) {
             // use the zoom regions as a fallback
-            for (const zoomRegion of data.ceiling.zoomRegions) {
-               this.mapObstacleBounds.push(rotateRect(position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!));
+            for(const zoomRegion of data.ceiling.zoomRegions) {
+                const bound: any = rotateRect(position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!);
+                bound.layer = this.layer;
+                this.mapObstacleBounds.push(bound);
             }
         } else {
             console.warn(`No obstacle bounds specified for building: ${typeString}`);

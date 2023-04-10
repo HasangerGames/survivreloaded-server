@@ -142,8 +142,10 @@ export class InputPacket extends ReceivingPacket {
                     break;
 
                 case InputType.EquipOtherGun:
-                    if(p.selectedWeaponSlot === 0) p.switchSlot(1);
-                    else p.switchSlot(0);
+                    if(p.weapons[0]?.typeId && p.weapons[1]?.typeId) p.switchSlot(p.selectedWeaponSlot === 0 ? 1 : 0);
+                    else if(p.selectedWeaponSlot === 2 && p.weapons[0]?.typeId) p.switchSlot(0);
+                    else if(p.selectedWeaponSlot === 2 && p.weapons[1]?.typeId) p.switchSlot(1);
+                    else p.switchSlot(2);
                     break;
                 case InputType.EquipLastWeap:
                     p.switchSlot(p.lastWeaponSlot);
