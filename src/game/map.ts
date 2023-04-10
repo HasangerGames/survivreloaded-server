@@ -440,7 +440,7 @@ export class Map {
             parentBuilding,
             bunkerWall
         );
-        if(obstacle.door?.slideToOpen) this.game.dynamicObjects.add(obstacle)
+        if(obstacle.door?.slideToOpen) this.game.dynamicObjects.add(obstacle);
         else this.game.staticObjects.add(obstacle);
         return obstacle;
     }

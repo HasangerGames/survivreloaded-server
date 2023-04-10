@@ -6,6 +6,13 @@
       "nothing": 1
     }
   },
+  "tier_world_smaller_chance": {
+    "type": "random",
+    "weights": {
+      "loot_tier_1": 2,
+      "nothing": 1
+    }
+  },
   "toilet_random": {
     "type": "random",
     "weights": {
@@ -87180,6 +87187,7 @@
         "ori": 1
       },
       {
+        "type": "tier_world_smaller_chance",
         "pos": {
           "x": -22,
           "y": 0
@@ -87188,6 +87196,7 @@
         "ori": 0
       },
       {
+        "type": "tier_world_smaller_chance",
         "pos": {
           "x": 22,
           "y": 0
