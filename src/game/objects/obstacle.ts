@@ -61,6 +61,15 @@ export class Obstacle extends GameObject {
         closedOrientation: number
         openOrientation: number
         openAltOrientation: number
+        openOneWay: number,
+        openOnce: boolean,
+        autoOpen: boolean,
+        autoClose: boolean,
+        autoCloseDelay: number,
+        slideToOpen: boolean,
+        slideOffset: number,
+        closedPosition: Vec2,
+        openPosition: Vec2,
     };
 
     showOnMap: boolean;
@@ -145,48 +154,83 @@ export class Obstacle extends GameObject {
         if(this.isDoor) {
             this.door = {
                 open: false,
-                canUse: data.door.canUse,
+                canUse: true, // TODO: Change to data.door.canUse after we add puzzles.
                 locked: false,
                 hinge: data.hinge,
                 closedOrientation: this.orientation,
                 openOrientation: 0,
-                openAltOrientation: 0
+                openAltOrientation: 0,
+                openOneWay: data.door.openOneWay,
+                openOnce: data.door.openOnce,
+                autoOpen: data.door.autoOpen,
+                autoClose: data.door.autoClose,
+                autoCloseDelay: data.door.autoCloseDelay,
+                slideToOpen: data.door.slideToOpen,
+                slideOffset: data.door.slideOffset,
+                closedPosition: this._position.clone(),
+                openPosition: Vec2()
             };
             this.interactable = true;
             this.interactionRad = data.door.interactionRad;
 
-            switch(orientation) {
-                case 0:
-                    this.door.openOrientation = 1;
-                    this.door.openAltOrientation = 3;
-                    break;
-                case 1:
-                    this.door.openOrientation = 2;
-                    this.door.openAltOrientation = 0;
-                    break;
-                case 2:
-                    this.door.openOrientation = 3;
-                    this.door.openAltOrientation = 1;
-                    break;
-                case 3:
-                    this.door.openOrientation = 0;
-                    this.door.openAltOrientation = 2;
-                    break;
+            if(!this.door.slideToOpen) {
+                switch(orientation) {
+                    case 0:
+                        this.door.openOrientation = 1;
+                        this.door.openAltOrientation = 3;
+                        break;
+                    case 1:
+                        this.door.openOrientation = 2;
+                        this.door.openAltOrientation = 0;
+                        break;
+                    case 2:
+                        this.door.openOrientation = 3;
+                        this.door.openAltOrientation = 1;
+                        break;
+                    case 3:
+                        this.door.openOrientation = 0;
+                        this.door.openAltOrientation = 2;
+                        break;
+                }
+                this.collision.doorOpen = rotateRect(
+                    position,
+                    data.collision.min,
+                    data.collision.max,
+                    this.scale,
+                    this.door.openOrientation
+                );
+                this.collision.doorOpenAlt = rotateRect(
+                    position,
+                    data.collision.min,
+                    data.collision.max,
+                    this.scale,
+                    this.door.openAltOrientation
+                );
+            } else {
+                let offSet = Vec2();
+                switch(this.orientation) {
+                    case 0:
+                        offSet = Vec2(0, -this.door.slideOffset);
+                        break;
+                    case 1:
+                        offSet = Vec2(this.door.slideOffset, 0);
+                        break;
+                    case 2:
+                        offSet = Vec2(0, this.door.slideOffset);
+                        break;
+                    case 3:
+                        offSet = Vec2(-this.door.slideOffset, 0);
+                        break;
+                }
+                this.door.openPosition = this.position.clone().add(offSet);
+                this.collision.doorOpen = rotateRect(
+                    this.door.openPosition,
+                    data.collision.min,
+                    data.collision.max,
+                    this.scale,
+                    this.orientation
+                );
             }
-            this.collision.doorOpen = rotateRect(
-                position,
-                data.collision.min,
-                data.collision.max,
-                this.scale,
-                this.door.openOrientation
-            );
-            this.collision.doorOpenAlt = rotateRect(
-                position,
-                data.collision.min,
-                data.collision.max,
-                this.scale,
-                this.door.openAltOrientation
-            );
         }
 
         this.isButton = data.button !== undefined;
@@ -330,59 +374,82 @@ export class Obstacle extends GameObject {
 
     interact(p: Player): void {
         if(this.dead) return;
+        if (this.isDoor && this.door.canUse) {
+            this.toggleDoor(p);
+        }
+    }
+
+    toggleDoor(p?: Player) {
         this.door.open = !this.door.open;
+        if (this.door.openOnce) {
+            this.door.canUse = false;
+        }
+        if(!this.door.slideToOpen) {
+            if(this.door.open) {
+                if(p && p.isOnOtherSide(this) && !this.door.openOneWay) {
+                    this.orientation = this.door.openAltOrientation;
+                    this.collision.min = this.collision.doorOpenAlt.min;
+                    this.collision.max = this.collision.doorOpenAlt.max;
+                } else {
+                    this.orientation = this.door.openOrientation;
+                    this.collision.min = this.collision.doorOpen.min;
+                    this.collision.max = this.collision.doorOpen.max;
+                }
+            } else {
+                this.orientation = this.door.closedOrientation;
+                this.collision.min = this.collision.initialMin;
+                this.collision.max = this.collision.initialMax;
+            }
+        } else {
+            if (this.door.open) {
+                this.collision.min = this.collision.doorOpen.min;
+                this.collision.max = this.collision.doorOpen.max;
+
+                this._position = this.door.openPosition;
+            } else {
+                this.collision.min = this.collision.initialMin;
+                this.collision.max = this.collision.initialMax;
+
+                this._position = this.door.closedPosition;
+            }
+        }
         // TODO Make the door push players out of the way when opened, not just when closed
         // When pushing, ensure that they won't get stuck in anything.
         // If they do, move them to the opposite side regardless of their current position.
-        if(this.door.open) {
+        if(p && rectCollision(this.collision.min, this.collision.max, p.position, p.scale)) {
+            const newPosition = p.position;
             if(p.isOnOtherSide(this)) {
-                this.orientation = this.door.openAltOrientation;
-                this.collision.min = this.collision.doorOpenAlt.min;
-                this.collision.max = this.collision.doorOpenAlt.max;
-            } else {
-                this.orientation = this.door.openOrientation;
-                this.collision.min = this.collision.doorOpen.min;
-                this.collision.max = this.collision.doorOpen.max;
-            }
-        } else {
-            this.orientation = this.door.closedOrientation;
-            this.collision.min = this.collision.initialMin;
-            this.collision.max = this.collision.initialMax;
-            if(rectCollision(this.collision.min, this.collision.max, p.position, p.scale)) {
-                const newPosition = p.position;
-                if(p.isOnOtherSide(this)) {
-                    switch(this.orientation) {
-                        case 0:
-                            newPosition.x = this.collision.min.x - p.scale;
-                            break;
-                        case 1:
-                            newPosition.y = this.collision.min.y - p.scale;
-                            break;
-                        case 2:
-                            newPosition.x = this.collision.max.x as number + p.scale;
-                            break;
-                        case 3:
-                            newPosition.y = this.collision.max.y as number + p.scale;
-                            break;
-                    }
-                } else {
-                    switch(this.orientation) {
-                        case 0:
-                            newPosition.x = this.collision.max.x as number + p.scale;
-                            break;
-                        case 1:
-                            newPosition.y = this.collision.max.y as number + p.scale;
-                            break;
-                        case 2:
-                            newPosition.x = this.collision.min.x - p.scale;
-                            break;
-                        case 3:
-                            newPosition.y = this.collision.min.y - p.scale;
-                            break;
-                    }
+                switch(this.orientation) {
+                    case 0:
+                        newPosition.x = this.collision.min.x - p.scale;
+                        break;
+                    case 1:
+                        newPosition.y = this.collision.min.y - p.scale;
+                        break;
+                    case 2:
+                        newPosition.x = this.collision.max.x as number + p.scale;
+                        break;
+                    case 3:
+                        newPosition.y = this.collision.max.y as number + p.scale;
+                        break;
                 }
-                p.body!.setPosition(newPosition);
+            } else {
+                switch(this.orientation) {
+                    case 0:
+                        newPosition.x = this.collision.max.x as number + p.scale;
+                        break;
+                    case 1:
+                        newPosition.y = this.collision.max.y as number + p.scale;
+                        break;
+                    case 2:
+                        newPosition.x = this.collision.min.x - p.scale;
+                        break;
+                    case 3:
+                        newPosition.y = this.collision.min.y - p.scale;
+                        break;
+                }
             }
+            p.body!.setPosition(newPosition);
         }
         this.body!.setPosition(addAdjust(this.position, this.door.hinge, this.orientation!));
         this.body!.destroyFixture(this.body!.getFixtureList()!);
