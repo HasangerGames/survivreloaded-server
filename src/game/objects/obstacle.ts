@@ -334,7 +334,12 @@ export class Obstacle extends GameObject {
 
             this.game.fullDirtyObjects.add(this);
             for(const item of this.loot) {
-                const loot: Loot = new Loot(this.game, item.type, this.position, this.layer, item.count);
+                let lootPosition = this.position.clone();
+                // TODO: add a "lootSpawnOffset" property for lockers and deposit boxes.
+                if(this.typeString.includes("locker") || this.typeString.includes("deposit_box")) {
+                    lootPosition = addAdjust(lootPosition, Vec2(0,-2), this.orientation!);
+                }
+                const loot: Loot = new Loot(this.game, item.type, lootPosition, this.layer, item.count);
                 this.game.dynamicObjects.add(loot);
                 this.game.fullDirtyObjects.add(loot);
                 this.game.updateObjects = true;
