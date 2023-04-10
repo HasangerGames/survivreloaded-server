@@ -502,8 +502,10 @@ export class Map {
     }
 
     getRandomPositionFor(kind: ObjectKind,
-                         object, layer: number,
-                         orientation: number, scale: number,
+                         object,
+                         layer: number,
+                         orientation: number,
+                         scale: number,
                          getPosition?: () => Vec2,
                          ignoreRivers?: boolean): Vec2 {
         const isBuilding =

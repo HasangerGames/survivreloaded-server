@@ -175,10 +175,10 @@ export class Game {
 
         this.map = new Map(this, "main");
 
-        // Prevent new players from joining after 2 minutes
+        // Prevent new players from joining after 4 minutes
         setInterval(() => {
-            if(this.started) this.allowJoin = false;
-        }, 120000);
+            if(this.aliveCount > 1) this.allowJoin = false;
+        }, 240000);
 
         this.tick(30);
     }
