@@ -136,7 +136,7 @@ let webSocketProcess;
 function spawnWebSocketProcess(): void {
     webSocketProcess = spawn("node", ["dist/webSocketServer.js"]);
     webSocketProcess.stdout!.on("data", data => {
-        //lastDataReceivedTime = Date.now();
+        lastDataReceivedTime = Date.now();
         process.stdout.write(data);
     });
     webSocketProcess.stderr!.on("data", data => process.stderr.write(data));
