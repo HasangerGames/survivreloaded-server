@@ -1,6 +1,9 @@
 {
   "host": "127.0.0.1",
   "port": 8000,
+  "webSocketHost": "127.0.0.1",
+  "webSocketPort": 8001,
+  "webSocketAddress": "127.0.0.1:8001",
   "https": false,
   "keyFile": "config/key.pem",
   "certFile": "config/cert.pem",
@@ -9,8 +12,6 @@
   "botProtection": false,
   "stopServerOnGameEnd": false,
   "debug": {
-    "performanceLog": true,
-    "performanceLogInterval": 200,
     "disableMapGeneration": false,
     "fixedSpawnLocation": [],
     "disableRedZone": false,

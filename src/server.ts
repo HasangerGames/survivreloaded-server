@@ -1,17 +1,10 @@
-import { App, DEDICATED_COMPRESSOR_256KB, SSLApp } from "uWebSockets.js";
+import { App, SSLApp } from "uWebSockets.js";
 import cookie from "cookie";
 import fs from "fs";
+import { Worker } from "node:worker_threads";
 
-import { Config, Debug, getContentType, log, MsgType, readJson, readPostedJson, SurvivBitStream } from "./utils";
-import { Game } from "./game/game.js";
-import { InputPacket } from "./packets/receiving/inputPacket";
-import { EmotePacket } from "./packets/receiving/emotePacket";
-import { JoinPacket } from "./packets/receiving/joinPacket";
-import { DropItemPacket } from "./packets/receiving/dropItemPacket";
-import { SpectatePacket } from "./packets/receiving/spectatePacket";
-
-// Start the game
-let game = new Game();
+import { Config, Debug, getContentType, log, readJson, readPostedJson } from "./utils";
+import { exec, spawn } from "child_process";
 
 // Initialize the server
 let app;
@@ -23,10 +16,6 @@ if(Config.https) {
 } else {
     app = App();
 }
-
-const playerCounts = {};
-let connectionAttempts = {};
-const bannedIPs: string[] = [];
 
 // Set up static files
 const staticFiles = {};
@@ -92,11 +81,11 @@ app.post("/api/user/get_user_prestige", (res) => {
     res.end('"0"');
 });
 
-const addr: string = Config.addr || `${Config.host}:${Config.port}`;
+const addr: string = Config.webSocketAddress;
 app.post("/api/find_game", (res) => {
     readPostedJson(res, (body) => {
         res.writeHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: game.id, useHttps: Config.useHttps, hosts: [addr], addrs: [addr] }] }));
+        res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: "", useHttps: Config.useHttps, hosts: [addr], addrs: [addr] }] }));
     }, () => {
         log("/api/find_game: Error retrieving body");
     });
@@ -136,101 +125,37 @@ app.post("/api/user/get_pass", (res) => {
     res.end(fs.readFileSync("json/get_pass.json"));
 });
 
-// noinspection TypeScriptValidateJSTypes
-app.ws("/play", {
-    compression: DEDICATED_COMPRESSOR_256KB,
-    idleTimeout: 30,
-    upgrade: (res, req, context) => {
-        if(game.over) game = new Game(); // Start a new game if the old one is over
-        if(Config.botProtection) {
-            const ip = req.getHeader("cf-connecting-ip");
-            if(bannedIPs.includes(ip) || playerCounts[ip] >= 5 || connectionAttempts[ip] >= 40) {
-                if(!bannedIPs.includes(ip)) bannedIPs.push(ip);
-                res.endWithoutBody(0, true);
-                log(`Connection blocked: ${ip}`);
-            } else {
-                if(!playerCounts[ip]) playerCounts[ip] = 1;
-                else playerCounts[ip]++;
-                if(!connectionAttempts[ip]) connectionAttempts[ip] = 1;
-                else connectionAttempts[ip]++;
-                log(`${playerCounts[ip]} simultaneous connections: ${ip}`);
-                log(`${connectionAttempts[ip]} connection attempts in the last 30 seconds: ${ip}`);
-                res.upgrade(
-                    {
-                        cookies: cookie.parse(req.getHeader("cookie")),
-                        ip
-                    },
-                    req.getHeader("sec-websocket-key"),
-                    req.getHeader("sec-websocket-protocol"),
-                    req.getHeader("sec-websocket-extensions"),
-                    context
-                );
-            }
-        } else {
-            res.upgrade(
-                {
-                    cookies: cookie.parse(req.getHeader("cookie"))
-                },
-                req.getHeader("sec-websocket-key"),
-                req.getHeader("sec-websocket-protocol"),
-                req.getHeader("sec-websocket-extensions"),
-                context
-            );
-        }
-    },
-    open: (socket) => {
-        let playerName: string = socket.cookies["player-name"];
-        if(!playerName || playerName.length > 16) playerName = "Player";
-        socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
-        log(`${socket.player.name} joined the game`);
-    },
-    message: (socket, message) => {
-        const stream = new SurvivBitStream(message);
-        try {
-            const msgType = stream.readUint8();
-            switch(msgType) {
-                case MsgType.Input:
-                    new InputPacket(socket.player).deserialize(stream);
-                    break;
-                case MsgType.DropItem:
-                    new DropItemPacket(socket.player).deserialize(stream);
-                    break;
-                case MsgType.Emote:
-                    new EmotePacket(socket.player).deserialize(stream);
-                    break;
-                case MsgType.Join:
-                    new JoinPacket(socket.player).deserialize(stream);
-                    break;
-                case MsgType.Spectate:
-                    new SpectatePacket(socket.player).deserialize(stream);
-                    break;
-            }
-        } catch(e) {
-            console.warn("Error parsing message:", e);
-        }
-    },
-    close: (socket) => {
-        if(Config.botProtection) playerCounts[socket.ip]--;
-        log(`${socket.player.name} left the game`);
-        game.removePlayer(socket.player);
-    }
-});
-
 process.on("SIGINT", () => {
     log("Shutting down...");
-    game.end();
     process.exit();
 });
 
-log("Surviv Reloaded Server v0.6.0");
+log("Surviv Reloaded v0.6.0");
 app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
-    log(`Listening on ${Config.host}:${Config.port}`);
-    log("Press Ctrl+C to exit.");
+    log(`HTTP server listening on ${Config.host}:${Config.port}`);
+    log("WebSocket server is starting...");
 });
 
-if(Config.botProtection) {
-    setTimeout(() => {
-        connectionAttempts = {};
-    }, 30000);
+let lastDataReceivedTime = Date.now() + 30000;
+
+let webSocketProcess;
+
+function spawnWebSocketProcess(): void {
+    webSocketProcess = spawn("node", ["dist/webSocketServer.js"]);
+    webSocketProcess.stdout!.on("data", data => {
+        lastDataReceivedTime = Date.now();
+        process.stdout.write(data);
+    });
+    webSocketProcess.stderr!.on("data", data => process.stderr.write(data));
 }
+spawnWebSocketProcess();
+
+setInterval(() => {
+    if(Date.now() - lastDataReceivedTime > 10000) {
+        log("[WARNING] WebSocket process hasn't sent data in more than 10 seconds. Restarting...");
+        lastDataReceivedTime = Date.now() + 30000;
+        webSocketProcess.kill("SIGKILL");
+        setTimeout(() => spawnWebSocketProcess(), 1000);
+    }
+}, 10000);

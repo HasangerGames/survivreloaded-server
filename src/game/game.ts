@@ -543,14 +543,12 @@ export class Game {
 
             // Record performance and start the next tick
             const tickTime: number = Date.now() - tickStart;
-            if(Debug.performanceLog) {
-                this.tickTimes.push(tickTime);
-                if(this.tickTimes.length === Debug.performanceLogInterval) {
-                    let tickSum = 0;
-                    for(const time of this.tickTimes) tickSum += time;
-                    log(`Average ms/tick: ${tickSum / this.tickTimes.length}`);
-                    this.tickTimes = [];
-                }
+            this.tickTimes.push(tickTime);
+            if(this.tickTimes.length >= 200) {
+                let tickSum = 0;
+                for(const time of this.tickTimes) tickSum += time;
+                log(`Average ms/tick: ${tickSum / this.tickTimes.length}`);
+                this.tickTimes = [];
             }
             const newDelay: number = Math.max(0, 30 - tickTime);
             this.tick(newDelay);
