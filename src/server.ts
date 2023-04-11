@@ -130,27 +130,17 @@ process.on("SIGINT", () => {
     process.exit();
 });
 
-log("Surviv Reloaded v0.6.0");
-app.listen(Config.host, Config.port, () => {
-    // noinspection HttpUrlsUsage
-    log(`HTTP server listening on ${Config.host}:${Config.port}`);
-    log("WebSocket server is starting...");
-});
-
+// Code to handle the WebSocket server
 let lastDataReceivedTime = Date.now() + 30000;
-
 let webSocketProcess;
-
 function spawnWebSocketProcess(): void {
     webSocketProcess = spawn("node", ["dist/webSocketServer.js"]);
     webSocketProcess.stdout!.on("data", data => {
-        lastDataReceivedTime = Date.now();
+        //lastDataReceivedTime = Date.now();
         process.stdout.write(data);
     });
     webSocketProcess.stderr!.on("data", data => process.stderr.write(data));
 }
-spawnWebSocketProcess();
-
 setInterval(() => {
     if(Date.now() - lastDataReceivedTime > 10000) {
         log("[WARNING] WebSocket process hasn't sent data in more than 10 seconds. Restarting...");
@@ -159,3 +149,12 @@ setInterval(() => {
         setTimeout(() => spawnWebSocketProcess(), 1000);
     }
 }, 10000);
+
+// Start the servers
+log("Surviv Reloaded v0.6.0");
+app.listen(Config.host, Config.port, () => {
+    // noinspection HttpUrlsUsage
+    log(`HTTP server listening on ${Config.host}:${Config.port}`);
+    log("WebSocket server is starting...");
+    spawnWebSocketProcess();
+});
