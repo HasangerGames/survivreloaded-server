@@ -14,7 +14,7 @@ let game = new Game();
 
 // Initialize the server
 let app;
-if(Config.https) {
+if(Config.webSocketHttps) {
     app = SSLApp({
         key_file_name: Config.keyFile,
         cert_file_name: Config.certFile
