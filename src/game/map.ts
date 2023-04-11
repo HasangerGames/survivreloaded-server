@@ -18,7 +18,8 @@ import {
     rotateRect,
     TypeToId,
     weightedRandom,
-    deepCopy
+    deepCopy,
+    log
 } from "../utils";
 import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
@@ -46,6 +47,7 @@ export class Map {
     groundPatches: GroundPatch[];
 
     constructor(game, mapId) {
+        const mapStartTime = Date.now();
         this.name = mapId;
         this.seed = random(0, 2147483647);
         this.game = game;
@@ -179,8 +181,10 @@ export class Map {
         } else {
             // Building/obstacle debug code goes here
         }
+        log(`Map generation took ${Date.now() - mapStartTime}ms`);
 
         // Calculate visible objects
+        const visibleObjectsStartTime = Date.now();
         const supportedZoomLevels: number[] = [28, 36, 48, 32, 40, 48];
         if(this.game.has8x) supportedZoomLevels.push(64, 68);
         if(this.game.has15x) supportedZoomLevels.push(88, 104);
@@ -220,6 +224,7 @@ export class Map {
                 }
             }
         }
+        log(`Calculating visible objects took ${Date.now() - visibleObjectsStartTime}ms`);
     }
 
     private obstacleTest(type: string, position: Vec2, orientation = 0, scale = 1): void {
@@ -517,8 +522,8 @@ export class Map {
             {
                 const bound = deepCopy(object.collision);
                 if(object.collision.type === CollisionType.Rectangle) {
-                    bound.originalMin = Vec2(bound.min).clone();
-                    bound.originalMax = Vec2(bound.max).clone();
+                    bound.originalMin = Vec2(bound.min);
+                    bound.originalMax = Vec2(bound.max);
                 } else {
                     bound.rad *= scale;
                 }
@@ -532,44 +537,39 @@ export class Map {
                 thisBounds.push({ type: CollisionType.Circle, rad: 5 });
                 break;
             case ObjectKind.Building:
-                if(object.mapObstacleBounds) {
-                    for(const obstacleBound of object.mapObstacleBounds) {
-                        const bound = deepCopy(obstacleBound);
-                        bound.originalMin = Vec2(bound.min).clone();
-                        bound.originalMax = Vec2(bound.max).clone();
-                        bound.type = CollisionType.Rectangle;
-                        thisBounds.push(bound);
-                    }
+                for(const obstacleBound of object.mapObstacleBounds) {
+                    const bound = deepCopy(obstacleBound);
+                    bound.originalMin = Vec2(bound.min);
+                    bound.originalMax = Vec2(bound.max);
+                    bound.type = CollisionType.Rectangle;
+                    thisBounds.push(bound);
                 }
                 break;
             case ObjectKind.Structure:
                 for(let i = 0; i < object.layers.length; i++) {
                     const building = Objects[object.layers[i].type];
-                    let bound: any;
                     if(building.mapObstacleBounds && building.mapObstacleBounds.length > 0) {
                         for(const obstacleBound of building.mapObstacleBounds) {
-                            bound = deepCopy(obstacleBound);
+                            const bound = deepCopy(obstacleBound);
                             bound.originalMin = Vec2(bound.min);
                             bound.originalMax = Vec2(bound.max);
                             bound.type = CollisionType.Rectangle;
+                            thisBounds.push(bound);
                         }
                     } else if(building.ceiling.zoomRegions && building.ceiling.zoomRegions.length > 0) {
                         for(const zoomRegion of building.ceiling.zoomRegions) {
-                            bound = deepCopy(zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut);
+                            const bound = deepCopy(zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut);
                             bound.originalMin = Vec2(bound.min);
                             bound.originalMax = Vec2(bound.max);
                             bound.type = CollisionType.Rectangle;
+                            thisBounds.push(bound);
                         }
-                    }
-                    if(bound) {
-                        bound.layer = i;
-                        thisBounds.push(bound);
                     }
                 }
                 break;
         }
 
-        if(thisBounds.length <= 0) {
+        if(!thisBounds.length) {
             throw new Error("Missing bounds data");
         }
 
@@ -585,9 +585,9 @@ export class Map {
         let attempts = 0;
         while(!foundPosition && attempts <= 200) {
             attempts++;
-            if(attempts > 200) {
+            if(attempts >= 200) {
+                console.warn("[WARNING] Maximum spawn attempts exceeded for: ");
                 console.warn(object);
-                //throw new Error("[WARNING] Maximum spawn attempts exceeded for:");
             }
             thisPos = getPosition();
             let shouldContinue = false;
@@ -618,11 +618,15 @@ export class Map {
             }
 
             for(const that of this.game.staticObjects) {
+
+                if(that instanceof Structure && kind === ObjectKind.Structure && distanceBetween(that.position, thisPos) < 30) {
+                    shouldContinue = true;
+                }
                 for(const thisBound of thisBounds) {
                     if(that instanceof Building) {
+                        // obstacles and players should still spawn on top of bunkers
+                        if((kind === ObjectKind.Obstacle || kind === ObjectKind.Player) && that.layer === 1) continue;
                         for(const thatBound of that.mapObstacleBounds) {
-                            // obstacle should still spawn on top of bunker bounds
-                            if(kind === ObjectKind.Obstacle && thatBound.layer === 1) continue;
                             if(thisBound.type === CollisionType.Circle) {
                                 if(rectCollision(thatBound.min, thatBound.max, thisPos, thisBound.rad)) {
                                     shouldContinue = true;
@@ -632,7 +636,6 @@ export class Map {
                                     shouldContinue = true;
                                 }
                             }
-                            if(shouldContinue) break;
                         }
                     } else if(that instanceof Obstacle) {
                         if(thisBound.type === CollisionType.Circle) {
@@ -656,13 +659,13 @@ export class Map {
                                 }
                             }
                         }
-                        if(shouldContinue) continue;
                     }
-                    if(shouldContinue) continue;
+                    if(shouldContinue) break;
                 }
-                if(shouldContinue) continue;
+                if(shouldContinue) break;
             }
-            if(!shouldContinue) foundPosition = true;
+            if(shouldContinue) continue;
+            foundPosition = true;
         }
         return thisPos;
     }
