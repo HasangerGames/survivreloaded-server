@@ -620,7 +620,7 @@ export class Player extends GameObject {
         if(weapon.cleave) { // cleave allows weapon to damage multiple objects at once
             // Damage all objects within melee range
             for(const object of this.visibleObjects) {
-                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && (object.interactable ? true : object.damageable)) {
+                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && ((object.interactable && object instanceof Obstacle) ? true : object.damageable)) {
                     if(objectCollision(object, position, radius).collided) {
                         if(object instanceof Player) {
                             setTimeout(() => {
@@ -642,7 +642,7 @@ export class Player extends GameObject {
             let minDist = Number.MAX_VALUE;
             let closestObject;
             for(const object of this.visibleObjects) {
-                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && (object.interactable ? true : object.damageable)) {
+                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && ((object.interactable && object instanceof Obstacle) ? true : object.damageable)) {
                     const record = objectCollision(object, position, radius);
                     if(record!.collided && record!.distance < minDist) {
                         minDist = record!.distance;
