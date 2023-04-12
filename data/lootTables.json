@@ -78,12 +78,12 @@
     "12gauge": { "count": 10, "weight": 3 }
   },
   "tier_ammo_crate": {
-    "9mm": { "count": 1, "weight": 3 },
-    "762mm": { "count": 1, "weight": 3 },
-    "556mm": { "count": 1, "weight": 3 },
-    "12gauge": { "count": 1, "weight": 3 },
-    "50AE": { "count": 1, "weight": 1 },
-    "308sub": { "count": 1, "weight": 1 },
+    "9mm": { "count": 60, "weight": 3 },
+    "762mm": { "count": 60, "weight": 3 },
+    "556mm": { "count": 60, "weight": 3 },
+    "12gauge": { "count": 10, "weight": 3 },
+    "50AE": { "count": 24, "weight": 1 },
+    "308sub": { "count": 15, "weight": 1 },
     "flare": { "count": 1, "weight": 1 }
   },
   "tier_vending_soda": {
