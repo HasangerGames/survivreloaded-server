@@ -46,7 +46,7 @@ export class Map {
     places: Place[];
     groundPatches: GroundPatch[];
 
-    constructor(game, mapId) {
+    constructor(game: Game, mapId: string) {
         const mapStartTime = Date.now();
         this.name = mapId;
         this.seed = random(0, 2147483647);
@@ -158,7 +158,7 @@ export class Map {
                 generateLooseLootFromArray(
                     this.game,
                     [{ tier: "tier_world", min: 1, max: 1 }],
-                    this.getRandomPositionFor(ObjectKind.Loot, undefined, 0, 0, 1),
+                    this.getRandomPositionFor(ObjectKind.Loot, undefined, 0, 1),
                     0
                 );
             }
@@ -231,18 +231,18 @@ export class Map {
         this.genObstacle(type, position, 0, orientation, scale, Objects[type]);
     }
 
-    private genStructures(count, type, building): void {
+    private genStructures(count: number, type: string, building: any): void {
         for(let i = 0; i < count; i++) this.genStructure(type, building);
     }
 
     private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {
-        let orientation;
+        let orientation: number;
         if(setOrientation !== undefined && setOrientation != null) orientation = setOrientation;
         else orientation = random(0, 3);
 
-        let position;
+        let position: Vec2;
         if(setPosition) position = setPosition;
-        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, 0, orientation, 1);
+        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, orientation, 1);
 
         const layerObjIds: number[] = [];
 
@@ -252,7 +252,7 @@ export class Map {
             const layer = Objects[layerType];
             layerObjIds.push(TypeToId[layerType]);
 
-            let layerOrientation;
+            let layerOrientation: number;
             if(layerObj.inheritOri === false) layerOrientation = layerObj.orientation;
             else layerOrientation = addOrientations(layerObj.ori, orientation);
             const layerPosition = addAdjust(position, layerObj.pos, orientation);
@@ -272,7 +272,7 @@ export class Map {
         }
     }
 
-    private genBuildings(count, type, building): void {
+    private genBuildings(count: number, type: string, building: any): void {
         for(let i = 0; i < count; i++) this.genBuilding(type, building);
     }
 
@@ -281,21 +281,21 @@ export class Map {
     }
 
     private genBuilding(typeString: string,
-                        buildingData,
+                        buildingData: any,
                         setPosition?: Vec2,
                         setOrientation?: number,
                         setLayer?: number,
                         debug = false): void {
-        let orientation;
+        let orientation: any;
         if(setOrientation !== undefined && setOrientation !== null) orientation = setOrientation;
         else if(typeString.startsWith("cache_")) orientation = 0;
         else orientation = random(0, 3);
-        let layer;
+        let layer: number;
         if(setLayer !== undefined) layer = setLayer;
         else layer = 0;
-        let position;
+        let position: Vec2;
         if(setPosition) position = setPosition;
-        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, layer, orientation, 1);
+        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1);
 
         const building: Building = new Building(
             this.game,
@@ -315,7 +315,7 @@ export class Map {
             }
             const part = Objects[partType];
 
-            let partOrientation;
+            let partOrientation: number;
             if(mapObject.inheritOri === false) partOrientation = mapObject.ori;
             else partOrientation = addOrientations(mapObject.ori, orientation);
             const partPosition = addAdjust(position, mapObject.pos, orientation);
@@ -418,7 +418,7 @@ export class Map {
     private genRiverObstacle(point: Vec2, riverWidth: number, typeString: string): void {
         const obstacleData = Objects[typeString];
         const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
-        const position = this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData, 0, 0, scale, () => {
+        const position = this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData, 0, scale, () => {
             return randomPointInsideCircle(Vec2(point.x, point.y), riverWidth);
         }, true);
         this.genObstacle(typeString, position, 0, 0, scale, obstacleData);
@@ -429,7 +429,7 @@ export class Map {
                         layer: number,
                         orientation: number,
                         scale: number,
-                        obstacleData,
+                        obstacleData: any,
                         parentBuilding?: Building,
                         bunkerWall = false): Obstacle {
         const obstacle = new Obstacle(
@@ -448,12 +448,12 @@ export class Map {
         return obstacle;
     }
 
-    private genObstacles(count, typeString, obstacleData): void {
+    private genObstacles(count: number, typeString: string, obstacleData: any): void {
         for(let i = 0; i < count; i++) {
             const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
             this.genObstacle(
                 typeString,
-                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData, 0, 0, scale),
+                this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData, 0, scale),
                 0,
                 0,
                 scale,
@@ -479,8 +479,8 @@ export class Map {
         }
     }
 
-    private getPositionOnShore(kind: ObjectKind, data, orientation: number, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
-        return this.getRandomPositionFor(kind, data, 0, orientation, scale, () => {
+    private getPositionOnShore(kind: ObjectKind, data: any, orientation: number, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
+        return this.getRandomPositionFor(kind, data, orientation, scale, () => {
             let min: Vec2, max: Vec2;
             switch(orientation) {
                 case 0:
@@ -507,8 +507,7 @@ export class Map {
     }
 
     getRandomPositionFor(kind: ObjectKind,
-                         object,
-                         layer: number,
+                         object: any,
                          orientation = 0,
                          scale = 1,
                          getPosition?: () => Vec2,
@@ -682,7 +681,7 @@ class River {
     looped: number;
     points: Vec2[];
 
-    constructor(width, looped, points) {
+    constructor(width: number, looped: number, points: Vec2[]) {
         this.width = width;
         this.looped = looped;
         this.points = points;
@@ -694,7 +693,7 @@ class Place {
     name: string;
     position: Vec2;
 
-    constructor(name, pos) {
+    constructor(name: string, pos: Vec2) {
         this.name = name;
         this.position = pos;
     }
@@ -710,7 +709,7 @@ class GroundPatch {
     order: number;
     useAsMapShape: boolean;
 
-    constructor(min, max, color, roughness, offsetDist, order, useAsMapShape) {
+    constructor(min: Vec2, max: Vec2, color: number, roughness: number, offsetDist: number, order: number, useAsMapShape: boolean) {
         this.min = min; // vector
         this.max = max; // vector
         this.color = color; // uint32
