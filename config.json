@@ -5,8 +5,9 @@
   "webSocketPort": 8001,
   "webSocketAddress": "127.0.0.1:8001",
   "https": false,
-  "keyFile": "config/key.pem",
-  "certFile": "config/cert.pem",
+  "webSocketHttps": false,
+  "keyFile": "data/key.pem",
+  "certFile": "data/cert.pem",
 
   "movementSpeed": 0.013,
   "botProtection": false,

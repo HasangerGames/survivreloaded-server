@@ -125,10 +125,14 @@ app.post("/api/user/get_pass", (res) => {
     res.end(fs.readFileSync("json/get_pass.json"));
 });
 
-process.on("SIGINT", () => {
+const shutdownHandler = (): void => {
     log("Shutting down...");
+    webSocketProcess.kill("SIGKILL");
     process.exit();
-});
+};
+
+process.on("SIGINT", shutdownHandler);
+process.on("SIGTERM", shutdownHandler);
 
 // Code to handle the WebSocket server
 let lastDataReceivedTime = Date.now() + 30000;

@@ -107,8 +107,8 @@ app.ws("/play", {
     }
 });
 
-process.on("SIGINT", () => {
-    log("Shutting down...");
+process.stdout.on("end", () => {
+    log("WebSocket server shutting down...");
     game.end();
     process.exit();
 });
@@ -120,7 +120,7 @@ app.listen(Config.webSocketHost, Config.webSocketPort, () => {
 });
 
 if(Config.botProtection) {
-    setTimeout(() => {
+    setInterval(() => {
         connectionAttempts = {};
     }, 30000);
 }
