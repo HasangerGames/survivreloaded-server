@@ -25,20 +25,6 @@
     "tracerWidth": 0.1,
     "tracerLength": 0.9
   },
-  "bullet_water": {
-    "type": "bullet",
-    "damage": 5.5,
-    "obstacleDamage": 1,
-    "falloff": 0.9,
-    "distance": 200,
-    "speed": 100,
-    "variance": 0,
-    "shrapnel": false,
-    "tracerColor": "water",
-    "tracerWidth": 0.1,
-    "tracerLength": 2.5,
-    "onHit": "explosion_water_balloon"
-  },
   "bullet_scar": {
     "type": "bullet",
     "damage": 15,
@@ -421,33 +407,6 @@
     "tracerWidth": 0.12,
     "tracerLength": 0.8
   },
-  "bullet_lasr": {
-    "type": "bullet",
-    "damage": 42,
-    "obstacleDamage": 1,
-    "falloff": 0.75,
-    "speed": 115,
-    "distance": 240,
-    "variance": 0,
-    "shrapnel": false,
-    "tracerColor": "laser",
-    "tracerWidth": 0.12,
-    "tracerLength": 0.8
-  },
-  "bullet_rainbow": {
-    "type": "bullet",
-    "damage": 0,
-    "obstacleDamage": 0,
-    "falloff": 0.75,
-    "speed": 90,
-    "distance": 1,
-    "variance": 0,
-    "shrapnel": false,
-    "tracerColor": "rainbowTrail",
-    "tracerWidth": 0.5,
-    "tracerLength": 1.5,
-    "skipCollision": true
-  },
   "bullet_mac10": {
     "type": "bullet",
     "damage": 9.25,
@@ -561,19 +520,6 @@
     "falloff": 0.9,
     "distance": 200,
     "speed": 120,
-    "variance": 0,
-    "shrapnel": false,
-    "tracerColor": "762mm",
-    "tracerWidth": 0.1,
-    "tracerLength": 0.9
-  },
-  "bullet_pkm": {
-    "type": "bullet",
-    "damage": 15,
-    "obstacleDamage": 2,
-    "falloff": 0.9,
-    "distance": 200,
-    "speed": 130,
     "variance": 0,
     "shrapnel": false,
     "tracerColor": "762mm",
@@ -757,34 +703,6 @@
     "tracerLength": 1.2,
     "skipCollision": true
   },
-  "bullet_heart": {
-    "type": "bullet",
-    "damage": 0,
-    "obstacleDamage": 1,
-    "falloff": 1,
-    "distance": 1,
-    "speed": 100,
-    "variance": 0,
-    "shrapnel": false,
-    "tracerColor": "heart",
-    "tracerWidth": 0,
-    "tracerLength": 1.2,
-    "skipCollision": true
-  },
-  "bullet_m79": {
-    "type": "bullet",
-    "damage": 0,
-    "obstacleDamage": 1,
-    "falloff": 1,
-    "distance": 1,
-    "speed": 100,
-    "variance": 0,
-    "shrapnel": false,
-    "tracerColor": "frag",
-    "tracerWidth": 0,
-    "tracerLength": 1.2,
-    "skipCollision": true
-  },
   "shrapnel_barrel": {
     "type": "bullet",
     "damage": 2,
@@ -873,32 +791,6 @@
     "variance": 1.5,
     "shrapnel": true,
     "tracerColor": "shrapnel",
-    "tracerWidth": 0.125,
-    "tracerLength": 0.6
-  },
-  "bullet_m134": {
-    "type": "bullet",
-    "damage": 10,
-    "obstacleDamage": 5,
-    "falloff": 0.5,
-    "distance": 200,
-    "speed": 130,
-    "variance": 0,
-    "shrapnel": false,
-    "tracerColor": "762mm",
-    "tracerWidth": 0.1,
-    "tracerLength": 0.9
-  },
-  "shrapnel_skitternade": {
-    "type": "bullet",
-    "damage": 0,
-    "obstacleDamage": 0,
-    "falloff": 1,
-    "speed": 20,
-    "distance": 8,
-    "variance": 1.5,
-    "shrapnel": true,
-    "tracerColor": "skitternade",
     "tracerWidth": 0.125,
     "tracerLength": 0.6
   },
