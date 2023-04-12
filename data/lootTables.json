@@ -82,8 +82,8 @@
     "762mm": { "count": 60, "weight": 3 },
     "556mm": { "count": 60, "weight": 3 },
     "12gauge": { "count": 10, "weight": 3 },
-    "50AE": { "count": 24, "weight": 1 },
-    "308sub": { "count": 15, "weight": 1 },
+    "50AE": { "count": 21, "weight": 1 },
+    "308sub": { "count": 5, "weight": 1 },
     "flare": { "count": 1, "weight": 1 }
   },
   "tier_vending_soda": {
