@@ -3,7 +3,7 @@ import { InputType, MsgType, random, randomBoolean, SurvivBitStream } from "./ut
 import { Vec2 } from "planck";
 
 const config = {
-    address: "ws://127.0.0.1:8000/play",
+    address: "ws://127.0.0.1:8001/play",
     botCount: 79,
     joinDelay: 50
 };
