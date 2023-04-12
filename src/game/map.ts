@@ -237,7 +237,7 @@ export class Map {
 
     private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {
         let orientation;
-        if(setOrientation !== undefined) orientation = setOrientation;
+        if(setOrientation !== undefined && setOrientation != null) orientation = setOrientation;
         else orientation = random(0, 3);
 
         let position;
@@ -287,7 +287,7 @@ export class Map {
                         setLayer?: number,
                         debug = false): void {
         let orientation;
-        if(setOrientation !== undefined) orientation = setOrientation;
+        if(setOrientation !== undefined && setOrientation !== null) orientation = setOrientation;
         else if(typeString.startsWith("cache_")) orientation = 0;
         else orientation = random(0, 3);
         let layer;
@@ -509,13 +509,13 @@ export class Map {
     getRandomPositionFor(kind: ObjectKind,
                          object,
                          layer: number,
-                         orientation: number,
-                         scale: number,
+                         orientation = 0,
+                         scale = 1,
                          getPosition?: () => Vec2,
                          ignoreRivers?: boolean): Vec2 {
         const isBuilding =
             kind === ObjectKind.Building || kind === ObjectKind.Structure;
-        const thisBounds: any[] = [];
+        let thisBounds: any[] = [];
 
         switch(kind) {
             case ObjectKind.Obstacle:
@@ -537,35 +537,10 @@ export class Map {
                 thisBounds.push({ type: CollisionType.Circle, rad: 5 });
                 break;
             case ObjectKind.Building:
-                for(const obstacleBound of object.mapObstacleBounds) {
-                    const bound = deepCopy(obstacleBound);
-                    bound.originalMin = Vec2(bound.min);
-                    bound.originalMax = Vec2(bound.max);
-                    bound.type = CollisionType.Rectangle;
-                    thisBounds.push(bound);
-                }
+                thisBounds = thisBounds.concat(this.getBoundsForBuilding(object));
                 break;
             case ObjectKind.Structure:
-                for(let i = 0; i < object.layers.length; i++) {
-                    const building = Objects[object.layers[i].type];
-                    if(building.mapObstacleBounds && building.mapObstacleBounds.length > 0) {
-                        for(const obstacleBound of building.mapObstacleBounds) {
-                            const bound = deepCopy(obstacleBound);
-                            bound.originalMin = Vec2(bound.min);
-                            bound.originalMax = Vec2(bound.max);
-                            bound.type = CollisionType.Rectangle;
-                            thisBounds.push(bound);
-                        }
-                    } else if(building.ceiling.zoomRegions && building.ceiling.zoomRegions.length > 0) {
-                        for(const zoomRegion of building.ceiling.zoomRegions) {
-                            const bound = deepCopy(zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut);
-                            bound.originalMin = Vec2(bound.min);
-                            bound.originalMax = Vec2(bound.max);
-                            bound.type = CollisionType.Rectangle;
-                            thisBounds.push(bound);
-                        }
-                    }
-                }
+                thisBounds = thisBounds.concat(this.getBoundsForStructure(object));
                 break;
         }
 
@@ -609,20 +584,13 @@ export class Map {
 
             if(shouldContinue) continue;
 
-            for(const bound of thisBounds) {
-                if(bound.type === CollisionType.Rectangle) {
-                    const newBound = rotateRect(thisPos, bound.originalMin, bound.originalMax, scale, orientation);
-                    bound.min = newBound.min;
-                    bound.max = newBound.max;
+            for(const thisBound of thisBounds) {
+                if(thisBound.type === CollisionType.Rectangle) {
+                    const newBound = rotateRect(thisPos, thisBound.originalMin, thisBound.originalMax, scale, orientation);
+                    thisBound.min = newBound.min;
+                    thisBound.max = newBound.max;
                 }
-            }
-
-            for(const that of this.game.staticObjects) {
-
-                if(that instanceof Structure && kind === ObjectKind.Structure && distanceBetween(that.position, thisPos) < 30) {
-                    shouldContinue = true;
-                }
-                for(const thisBound of thisBounds) {
+                for(const that of this.game.staticObjects) {
                     if(that instanceof Building) {
                         // obstacles and players should still spawn on top of bunkers
                         if((kind === ObjectKind.Obstacle || kind === ObjectKind.Player) && that.layer === 1) continue;
@@ -631,7 +599,7 @@ export class Map {
                                 if(rectCollision(thatBound.min, thatBound.max, thisPos, thisBound.rad)) {
                                     shouldContinue = true;
                                 }
-                            } else if(thatBound.type === CollisionType.Rectangle) {
+                            } else if(thisBound.type === CollisionType.Rectangle) {
                                 if(rectRectCollision(thatBound.min, thatBound.max, thisBound.min, thisBound.max)) {
                                     shouldContinue = true;
                                 }
@@ -668,6 +636,44 @@ export class Map {
             foundPosition = true;
         }
         return thisPos;
+    }
+
+    getBoundsForBuilding(building: any, position = Vec2(0, 0), orientation = 0): any[] {
+        let bounds: any[] = [];
+        if(building.mapObstacleBounds && building.mapObstacleBounds.length > 0) {
+            for(const obstacleBound of building.mapObstacleBounds) {
+                const bound: any = rotateRect(position, obstacleBound.min, obstacleBound.max, 1, orientation);
+                bound.originalMin = bound.min;
+                bound.originalMax = bound.max;
+                bound.type = CollisionType.Rectangle;
+                bounds.push(bound);
+            }
+        } else if(building.ceiling.zoomRegions && building.ceiling.zoomRegions.length > 0) {
+            for(const zoomRegion of building.ceiling.zoomRegions) {
+                const rect = zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut;
+                const bound: any = rotateRect(position, rect.min, rect.max, 1, orientation);
+                bound.originalMin = bound.min;
+                bound.originalMax = bound.max;
+                bound.type = CollisionType.Rectangle;
+                bounds.push(bound);
+            }
+        }
+        for(const object of building.mapObjects) {
+            if(Objects[object.type]?.type === "building") {
+                bounds = bounds.concat(this.getBoundsForBuilding(Objects[object.type], object.pos, object.orientation));
+            } else if(Objects[object.type]?.type === "structure") {
+                bounds = bounds.concat(this.getBoundsForStructure(Objects[object.type], object.pos, object.orientation));
+            }
+        }
+        return bounds;
+    }
+
+    getBoundsForStructure(structure: any, position = Vec2(0, 0), orientation = 0): any[] {
+        let bounds: any[] = [];
+        for(const building of structure.layers) {
+            bounds = bounds.concat(this.getBoundsForBuilding(Objects[building.type], position, orientation));
+        }
+        return bounds;
     }
 }
 
