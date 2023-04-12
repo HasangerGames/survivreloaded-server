@@ -268,7 +268,8 @@ export class Map {
         this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
 
         for(const stairData of structureData.stairs) {
-            this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
+            if (!stairData.lootOnly)
+                this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
         }
     }
 
