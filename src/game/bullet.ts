@@ -52,6 +52,8 @@ export class Bullet {
 
     maxDistance: number;
 
+    dead = false;
+
     constructor(shooter: Player,
                 position: Vec2,
                 direction: Vec2,

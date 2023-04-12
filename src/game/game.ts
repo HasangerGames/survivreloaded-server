@@ -130,9 +130,11 @@ export class Game {
             const objectA: any = contact.getFixtureA().getUserData();
             const objectB: any = contact.getFixtureB().getUserData();
             //console.log(objectA.typeString, objectB.typeString);
-            if(objectA instanceof Bullet && objectA.distance <= objectA.maxDistance) {
+            if(objectA instanceof Bullet && objectA.distance <= objectA.maxDistance && !objectA.dead) {
+                objectA.dead = true;
                 this.damageRecords.add(new DamageRecord(objectB, objectA.shooter, objectA));
-            } else if(objectB instanceof Bullet && objectB.distance <= objectB.maxDistance) {
+            } else if(objectB instanceof Bullet && objectB.distance <= objectB.maxDistance && !objectB.dead) {
+                objectB.dead = true;
                 this.damageRecords.add(new DamageRecord(objectA, objectB.shooter, objectB));
             }
         });
