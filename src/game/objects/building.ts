@@ -15,6 +15,8 @@ export class Building extends GameObject {
     hasAddedDebugMarkers = false;
     minPos: Vec2;
     maxPos: Vec2;
+    zoomRadius: number = 28;
+    data: any;
 
     ceiling = {
         destructible: false,
@@ -37,6 +39,7 @@ export class Building extends GameObject {
                 data) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Building;
+        this.data = data;
 
         this.showOnMap = showOnMap;
 
@@ -109,12 +112,19 @@ export class Building extends GameObject {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     damage(amount: number, source): void {}
 
-    playerIsOnZoomArea(player: Player): boolean {
-        if(this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return false;
+    playerIsOnZoomArea(player: Player): number {
+        if(this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
+        for(const zoomRegion of this.zoomRegions) {
+            if(zoomRegion.zoom){
+                this.zoomRadius = zoomRegion;
+            } else {
+                this.zoomRadius = 28;
+            }
+        }
 
         for(const zoomRegion of this.zoomRegions) {
-            if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) return true;
+            if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) return this.zoomRadius;
         }
-        return false;
+        return 0;
     }
 }

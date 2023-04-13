@@ -241,7 +241,7 @@ export class Player extends GameObject {
     damageDealt = 0;
     damageTaken = 0;
 
-    _isInBuilding = false;
+    _isInBuilding = 0;
     wasInBuildingAsOfLastCheck = false;
 
     killedBy?: Player;
@@ -1088,25 +1088,30 @@ export class Player extends GameObject {
         }
     }
 
-    get isInBuilding(): boolean {
+    get isInBuilding(): number {
         return this._isInBuilding;
     }
 
-    set isInBuilding(value: boolean) {
+    set isInBuilding(value: number) {
         this._isInBuilding = value;
         //console.warn("executing isInBuilding setter");
         if(this.scope.typeString !== "1xscope") {
             this.scopeToResetTo = this.scope.typeString;
         }
         //console.warn(this.scopeToResetTo);
-        if(this._isInBuilding) {
-            this.setScope("1xscope", false);
+        if(this._isInBuilding != 0) {
+            this.zoom = this._isInBuilding;
         } else if(this.wasInBuildingAsOfLastCheck) {
-            this.setScope(this.scopeToResetTo, false);
+            if(this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[this.scopeToResetTo];
+            else this.zoom = Constants.scopeZoomRadius.desktop[this.scopeToResetTo];
         } else {
             //console.warn("not at all in building");
         }
-        this.wasInBuildingAsOfLastCheck = this._isInBuilding;
+        if(this._isInBuilding == 0){
+            this.wasInBuildingAsOfLastCheck = false;
+        } else {
+            this.wasInBuildingAsOfLastCheck = true;
+        }
     }
 
     serializePartial(stream: SurvivBitStream): void {

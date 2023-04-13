@@ -421,15 +421,15 @@ export class Game {
                     p.game.fullDirtyObjects.add(p);
                 }
                 //Logic for scopes and buildings
-                let playerIsOnBuilding = onStair;
+                let playerZoomFromBuilding = 0;
                 const nearObjects = this.visibleObjects[28][Math.round(p.position.x / 10) * 10][Math.round(p.position.y / 10) * 10];
                 for(const building of nearObjects) {
-                    if(building instanceof Building && building.playerIsOnZoomArea(p)) {
-                        playerIsOnBuilding = true;
+                    if(building instanceof Building && building.playerIsOnZoomArea(p) != 0) {
+                        playerZoomFromBuilding = building.playerIsOnZoomArea(p);
                         break;
                     }
                 }
-                p.isInBuilding = playerIsOnBuilding;
+                p.isInBuilding = playerZoomFromBuilding;
             }
 
             for(const explosion of this.explosions) {
