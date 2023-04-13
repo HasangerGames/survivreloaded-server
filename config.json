@@ -4,6 +4,11 @@
   "webSocketHost": "127.0.0.1",
   "webSocketPort": 8001,
   "webSocketAddress": "127.0.0.1:8001",
+  "webSocketRegions": {
+    "na": "resurviv.io:8443",
+    "eu": "eu.resurviv.io:8443",
+    "as": "as.resurviv.io:8443"
+  },
   "https": false,
   "webSocketHttps": false,
   "keyFile": "data/key.pem",
