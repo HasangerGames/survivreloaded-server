@@ -217,7 +217,8 @@ export class Player extends GameObject {
         duration: number
         useEnd: number
     };
-    scopeToResetTo: string = "1xscope";
+
+    scopeToResetTo = "1xscope";
 
     performActionAgain = false;
     lastActionType = 0;
@@ -430,7 +431,7 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
-        if(this.weapons[slot].typeId === 0 || (slot == 2 && this.loadout.melee === this.weapons[2].typeId)) return;
+        if(this.weapons[slot].typeId === 0 || (slot === 2 && this.loadout.melee === this.weapons[2].typeId)) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
@@ -628,13 +629,11 @@ export class Player extends GameObject {
                     if(objectCollision(object, position, radius).collided) {
                         if(object instanceof Player) {
                             setTimeout(() => {
-                                if(!object.dead)
-                                    object.damage(weapon.damage, this, this.activeWeapon);
+                                if(!object.dead) object.damage(weapon.damage, this, this.activeWeapon);
                             }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
                         } else {
                             setTimeout(() => {
-                                if(!object.dead && object.damageable)
-                                    object.damage(weapon.damage * weapon.obstacleDamage, this);
+                                if(!object.dead && object.damageable) object.damage(weapon.damage * weapon.obstacleDamage, this);
                             }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
                         }
                         if(object.interactable) (object as Obstacle).interact(this);
@@ -657,13 +656,11 @@ export class Player extends GameObject {
             if(closestObject) {
                 if(closestObject instanceof Player) {
                     setTimeout(() => {
-                        if(!closestObject.dead)
-                            closestObject.damage(weapon.damage, this, this.activeWeapon);
+                        if(!closestObject.dead) closestObject.damage(weapon.damage, this, this.activeWeapon);
                     }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
                 } else {
                     setTimeout(() => {
-                        if(!closestObject.dead && closestObject.damageable)
-                            closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
+                        if(!closestObject.dead && closestObject.damageable) closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
                     }, this.activeWeaponInfo.attack.damageTimes[0] * 1000);
                 }
                 if(closestObject.interactable) closestObject.interact(this);
@@ -1091,14 +1088,18 @@ export class Player extends GameObject {
         }
     }
 
+    get isInBuilding(): boolean {
+        return this._isInBuilding;
+    }
+
     set isInBuilding(value: boolean) {
         this._isInBuilding = value;
         //console.warn("executing isInBuilding setter");
-        if(this.scope.typeString !== "1xscope"){
+        if(this.scope.typeString !== "1xscope") {
             this.scopeToResetTo = this.scope.typeString;
         }
         //console.warn(this.scopeToResetTo);
-        if(this._isInBuilding){
+        if(this._isInBuilding) {
             this.setScope("1xscope", false);
         } else if(this.wasInBuildingAsOfLastCheck) {
             this.setScope(this.scopeToResetTo, false);

@@ -1,8 +1,9 @@
-import { ObjectKind, rotateRect, type SurvivBitStream } from "../../utils";
+import { ObjectKind, rotateRect, type SurvivBitStream, sameLayer, rectCollision } from "../../utils";
 import { GameObject } from "../gameObject";
-import { Vec2 } from "planck";
+import { type Vec2 } from "planck";
 import { type Game } from "../game";
 import { type Obstacle } from "./obstacle";
+import { type Player } from "./player";
 
 export class Building extends GameObject {
 
@@ -25,9 +26,7 @@ export class Building extends GameObject {
     };
 
     mapObstacleBounds: any[] = [];
-    zoomRegions: any;
-
-    data: any;
+    zoomRegions: any[] = [];
 
     constructor(game: Game,
                 typeString: string,
@@ -38,10 +37,14 @@ export class Building extends GameObject {
                 data) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Building;
-        this.zoomRegions = data.ceiling.zoomRegions;
-        this.data = data;
 
         this.showOnMap = showOnMap;
+
+        for(const zoomRegion of data.ceiling.zoomRegions) {
+            if(zoomRegion.zoomIn) {
+                this.zoomRegions.push(rotateRect(this.position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!));
+            }
+        }
 
         if(data.ceiling?.destroy) {
             this.ceiling.destructible = true;
@@ -106,43 +109,11 @@ export class Building extends GameObject {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     damage(amount: number, source): void {}
 
-    coordsAreInZoomArea(coords: Vec2, layer: number, onStairs: boolean): boolean {
-        let xMin = 0;
-        let yMin = 0;
-        let xMax = 0;
-        let yMax = 0;
-        if(this.data.ceiling && this.data.ceiling.zoomRegions.length > 0) {
-            for(let i = 0; i < this.data.ceiling.zoomRegions.length; i++){
-                if(this.data.ceiling.zoomRegions[i].zoomIn){
-                    xMin = this.position.x + this.data.ceiling.zoomRegions[i].zoomIn.min.x;
-                    yMin = this.position.y + this.data.ceiling.zoomRegions[i].zoomIn.min.y;
-                    xMax = this.position.x + this.data.ceiling.zoomRegions[i].zoomIn.max.x;
-                    yMax = this.position.y + this.data.ceiling.zoomRegions[i].zoomIn.max.y;
-                    this.minPos = new Vec2(xMin,yMin);
-                    this.maxPos = new Vec2(xMax,yMax);
-                    this.minPos = rotateRect(this.position, this.data.ceiling.zoomRegions[i].zoomIn.min, this.data.ceiling.zoomRegions[i].zoomIn.max, 1, this.orientation!).min;
-                    this.maxPos = rotateRect(this.position, this.data.ceiling.zoomRegions[i].zoomIn.min, this.data.ceiling.zoomRegions[i].zoomIn.max, 1, this.orientation!).max;
-                    xMin = this.minPos.x;
-                    yMin = this.minPos.y;
-                    xMax = this.maxPos.x;
-                    yMax = this.maxPos.y;
-                    if(!this.hasAddedDebugMarkers){
-                        this.hasAddedDebugMarkers = true;
-                    }
-                    if(!this.hasPrintedCoordsToConsole){
-                        console.warn(this.typeString);
-                        console.warn(xMin);
-                        console.warn(yMin);
-                        console.warn(xMax);
-                        console.warn(yMax);
-                        this.hasPrintedCoordsToConsole = true;
-                    }
+    playerIsOnZoomArea(player: Player): boolean {
+        if(this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return false;
 
-                    if (coords.x > xMin && coords.y > yMin && coords.x < xMax && coords.y < yMax && layer === this.layer || onStairs) {
-                        return true;
-                    }
-                }
-            }
+        for(const zoomRegion of this.zoomRegions) {
+            if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) return true;
         }
         return false;
     }

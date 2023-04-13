@@ -35,7 +35,7 @@ import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
 import { Explosion } from "./explosion";
 import { type Stair } from "./stair";
-import {Building} from "./objects/building";
+import { Building } from "./objects/building";
 
 export class Game {
 
@@ -110,8 +110,6 @@ export class Game {
     over = false; // Whether this game is over. This is set to true to stop the tick loop.
     started = false; // Whether there are more than 2 players, meaning the game has started.
     allowJoin = true; // Whether new players should be able to join
-
-    playerIteratedOverIsInBuilding = false;
 
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
@@ -409,7 +407,10 @@ export class Game {
                 let onStair = false;
                 const originalLayer = p.layer;
                 for(const stair of this.stairs) {
-                    if(stair.check(p)) onStair = true;
+                    if(stair.check(p)) {
+                        onStair = true;
+                        break;
+                    }
                 }
                 if(!onStair) {
                     if(p.layer === 2) p.layer = 0;
@@ -420,13 +421,15 @@ export class Game {
                     p.game.fullDirtyObjects.add(p);
                 }
                 //Logic for scopes and buildings
-                this.playerIteratedOverIsInBuilding = false;
-                for(const building of this.staticObjects){
-                    if(building instanceof Building && building.coordsAreInZoomArea(p.position, p.layer, onStair)){
-                        this.playerIteratedOverIsInBuilding = true;
+                let playerIsOnBuilding = onStair;
+                const nearObjects = this.visibleObjects[28][Math.round(p.position.x / 10) * 10][Math.round(p.position.y / 10) * 10];
+                for(const building of nearObjects) {
+                    if(building instanceof Building && building.playerIsOnZoomArea(p)) {
+                        playerIsOnBuilding = true;
+                        break;
                     }
                 }
-                p.isInBuilding = this.playerIteratedOverIsInBuilding;
+                p.isInBuilding = playerIsOnBuilding;
             }
 
             for(const explosion of this.explosions) {
