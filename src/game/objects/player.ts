@@ -913,14 +913,27 @@ export class Player extends GameObject {
             if(this.weapons[2].typeString !== this.loadout.meleeType) this.dropItemInSlot(2, this.weapons[2].typeString, true);
             for(const item in this.inventory) {
                 if(item === "1xscope") continue;
-                if(this.inventory[item] > 0) this.dropLoot(item);
+                if(this.inventory[item] > 0) {
+                    this.dropLoot(item);
+                    this.inventory[item] = 0;
+                }
             }
-            if(this.helmetLevel > 0) this.dropLoot(`helmet0${this.helmetLevel}`);
-            if(this.chestLevel > 0) this.dropLoot(`chest0${this.chestLevel}`);
-            if(this.backpackLevel > 0) this.dropLoot(`backpack0${this.backpackLevel}`);
+            if(this.helmetLevel > 0) {
+                this.dropLoot(`helmet0${this.helmetLevel}`);
+                this.helmetLevel = 0;
+            }
+            if(this.chestLevel > 0) {
+                this.dropLoot(`chest0${this.chestLevel}`);
+                this.chestLevel = 0;
+            }
+            if(this.backpackLevel > 0) {
+                this.dropLoot(`backpack0${this.backpackLevel}`);
+                this.backpackLevel = 0;
+            }
             this.selectedWeaponSlot = 2;
             this.weaponsDirty = true;
             this.inventoryDirty = true;
+            this.inventoryEmpty = true;
 
             // Remove from active players; send packets
             this.game.livingPlayers.delete(this);
