@@ -21,6 +21,7 @@
     "disableMapGeneration": false,
     "fixedSpawnLocation": [],
     "disableRedZone": false,
-    "disableStaticFileCache": true
+    "disableStaticFileCache": true,
+    "isDevelopment": true
   }
 }
