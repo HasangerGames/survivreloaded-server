@@ -392,14 +392,6 @@ export class Game {
                     p.shooting = false;
                 }
 
-                //Logic for scopes and buildings
-                this.playerIteratedOverIsInBuilding = false;
-                for(const building of this.staticObjects){
-                    if(building instanceof Building && building.coordsAreInZoomArea(p.position, p.layer)){
-                        this.playerIteratedOverIsInBuilding = true;
-                    }
-                }
-                p.isInBuilding = this.playerIteratedOverIsInBuilding;
                 // Animation logic
                 if(p.anim.active) p.anim.time++;
                 if(p.anim.time > p.anim.duration) {
@@ -427,6 +419,14 @@ export class Game {
                     p.fullDirtyObjects.add(p);
                     p.game.fullDirtyObjects.add(p);
                 }
+                //Logic for scopes and buildings
+                this.playerIteratedOverIsInBuilding = false;
+                for(const building of this.staticObjects){
+                    if(building instanceof Building && building.coordsAreInZoomArea(p.position, p.layer, onStair)){
+                        this.playerIteratedOverIsInBuilding = true;
+                    }
+                }
+                p.isInBuilding = this.playerIteratedOverIsInBuilding;
             }
 
             for(const explosion of this.explosions) {

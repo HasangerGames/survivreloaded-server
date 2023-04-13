@@ -106,7 +106,7 @@ export class Building extends GameObject {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     damage(amount: number, source): void {}
 
-    coordsAreInZoomArea(coords: Vec2, layer: number): boolean {
+    coordsAreInZoomArea(coords: Vec2, layer: number, onStairs: boolean): boolean {
         let xMin = 0;
         let yMin = 0;
         let xMax = 0;
@@ -138,7 +138,7 @@ export class Building extends GameObject {
                         this.hasPrintedCoordsToConsole = true;
                     }
 
-                    if (coords.x > xMin && coords.y > yMin && coords.x < xMax && coords.y < yMax && layer === this.layer) {
+                    if (coords.x > xMin && coords.y > yMin && coords.x < xMax && coords.y < yMax && layer === this.layer || onStairs) {
                         return true;
                     }
                 }
