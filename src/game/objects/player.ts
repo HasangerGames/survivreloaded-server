@@ -217,6 +217,7 @@ export class Player extends GameObject {
         duration: number
         useEnd: number
     };
+    scopeToResetTo: string = "1xscope";
 
     performActionAgain = false;
     lastActionType = 0;
@@ -238,6 +239,9 @@ export class Player extends GameObject {
     joinTime: number;
     damageDealt = 0;
     damageTaken = 0;
+
+    _isInBuilding = false;
+    wasInBuildingAsOfLastCheck = false;
 
     killedBy?: Player;
 
@@ -1085,6 +1089,23 @@ export class Player extends GameObject {
         } catch(e) {
             console.warn("Error sending packet. Details:", e);
         }
+    }
+
+    set isInBuilding(value: boolean) {
+        this._isInBuilding = value;
+        //console.warn("executing isInBuilding setter");
+        if(this.scope.typeString !== "1xscope"){
+            this.scopeToResetTo = this.scope.typeString;
+        }
+        //console.warn(this.scopeToResetTo);
+        if(this._isInBuilding){
+            this.setScope("1xscope", false);
+        } else if(this.wasInBuildingAsOfLastCheck) {
+            this.setScope(this.scopeToResetTo, false);
+        } else {
+            //console.warn("not at all in building");
+        }
+        this.wasInBuildingAsOfLastCheck = this._isInBuilding;
     }
 
     serializePartial(stream: SurvivBitStream): void {

@@ -404,7 +404,7 @@ export class Map {
         this.game.staticObjects.add(building);
     }
 
-    private placeDebugMarker(position: Vec2): void {
+    placeDebugMarker(position: Vec2): void {
         this.game.staticObjects.add(new Obstacle(
             this.game,
             "house_column_1",

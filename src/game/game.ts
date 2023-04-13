@@ -35,6 +35,7 @@ import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
 import { Explosion } from "./explosion";
 import { type Stair } from "./stair";
+import {Building} from "./objects/building";
 
 export class Game {
 
@@ -109,6 +110,8 @@ export class Game {
     over = false; // Whether this game is over. This is set to true to stop the tick loop.
     started = false; // Whether there are more than 2 players, meaning the game has started.
     allowJoin = true; // Whether new players should be able to join
+
+    playerIteratedOverIsInBuilding = false;
 
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
@@ -389,6 +392,14 @@ export class Game {
                     p.shooting = false;
                 }
 
+                //Logic for scopes and buildings
+                this.playerIteratedOverIsInBuilding = false;
+                for(const building of this.staticObjects){
+                    if(building instanceof Building && building.coordsAreInZoomArea(p.position, p.layer)){
+                        this.playerIteratedOverIsInBuilding = true;
+                    }
+                }
+                p.isInBuilding = this.playerIteratedOverIsInBuilding;
                 // Animation logic
                 if(p.anim.active) p.anim.time++;
                 if(p.anim.time > p.anim.duration) {
