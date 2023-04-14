@@ -18,6 +18,20 @@ export class Building extends GameObject {
     zoomRadius: number = 28;
     data: any;
 
+    puzzle: {
+        name: string
+        completeUseType: string // door to open when puzzle is completed
+        completeOffDelay: number
+        completeUseDelay: number
+        errorResetDelay: number
+        pieceResetDelay: number
+        order: string[]
+        inputOrder: string[]
+        solved: boolean
+        errorSeq: number
+        resetTimeoutId: any
+    };
+
     ceiling = {
         destructible: false,
         destroyed: false,
@@ -29,6 +43,10 @@ export class Building extends GameObject {
 
     mapObstacleBounds: any[] = [];
     zoomRegions: any[] = [];
+
+    doors: Obstacle[] = [];
+
+    puzzlePieces: Obstacle[] = [];
 
     constructor(game: Game,
                 typeString: string,
@@ -61,6 +79,23 @@ export class Building extends GameObject {
             this.ceiling.obstaclesToDestroy = data.ceiling.damage.obstacleCount;
         }
 
+        if (data.puzzle) {
+            this.hasPuzzle = true;
+            this.puzzle = {
+                name: data.puzzle.name,
+                completeUseType: data.puzzle.completeUseType,
+                completeOffDelay: data.puzzle.completeOffDelay,
+                completeUseDelay: data.puzzle.completeUseDelay,
+                errorResetDelay: data.puzzle.errorResetDelay,
+                pieceResetDelay: data.puzzle.pieceResetDelay,
+                order: data.puzzle.order,
+                inputOrder: [],
+                solved: false,
+                errorSeq: 0,
+                resetTimeoutId: 0
+            };
+        }
+
         if(data.mapObstacleBounds?.length) {
             for(const bounds of data.mapObstacleBounds) {
                 this.mapObstacleBounds.push(rotateRect(position, bounds.min, bounds.max, 1, this.orientation!));
@@ -81,6 +116,10 @@ export class Building extends GameObject {
         stream.writeBoolean(this.occupied);
         stream.writeBoolean(this.ceiling.damaged);
         stream.writeBoolean(this.hasPuzzle);
+        if(this.hasPuzzle) {
+            stream.writeBoolean(this.puzzle.solved);
+            stream.writeBits(this.puzzle.errorSeq, 7);
+        }
         stream.writeBits(0, 4); // Padding
     }
 
@@ -132,5 +171,45 @@ export class Building extends GameObject {
             }
         }
         return 0;
+    }
+
+    puzzlePieceToggled(piece: Obstacle): void {
+        this.puzzle.inputOrder.push(piece.puzzlePiece);
+        if(this.puzzle.resetTimeoutId) clearTimeout(this.puzzle.resetTimeoutId);
+
+        // hack to compare two arrays :boffy:
+        if(JSON.stringify(this.puzzle.inputOrder) === JSON.stringify(this.puzzle.order)) {
+            for(const door of this.doors) {
+                if(door.typeString === this.puzzle.completeUseType) {
+                    setTimeout(() => {
+                        door.toggleDoor();
+                    }, this.puzzle.completeUseDelay * 1000);
+                }
+            }
+            this.puzzle.solved = true;
+            setTimeout(this.resetPuzzle, this.puzzle.completeOffDelay * 1000, this);
+            this.game.partialDirtyObjects.add(this);
+        } else if (this.puzzle.inputOrder.length >= this.puzzle.order.length) {
+            this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle, this.puzzle.errorResetDelay * 1000, this);
+        } else {
+            this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle, this.puzzle.pieceResetDelay * 1000, this);
+        }
+    }
+
+    // this function is called inside a setTimeout so it needs the This argument because javascript is stupid
+    resetPuzzle(This: Building): void {
+        This.puzzle.inputOrder = [];
+        if(!This.puzzle.solved) {
+            This.puzzle.errorSeq++;
+            This.puzzle.errorSeq %= 2;
+        }
+        for(const piece of This.puzzlePieces) {
+            if(piece.isButton) {
+                piece.button.canUse = !This.puzzle.solved;
+                piece.button.onOff = false;
+                This.game.fullDirtyObjects.add(piece);
+            }
+        }
+        This.game.partialDirtyObjects.add(This);
     }
 }

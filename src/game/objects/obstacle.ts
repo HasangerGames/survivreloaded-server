@@ -45,11 +45,16 @@ export class Obstacle extends GameObject {
     teamId = 0;
 
     isPuzzlePiece = false;
+    puzzlePiece: string;
     isSkin = false;
     isButton = false;
     button: {
         onOff: boolean
         canUse: boolean
+        useType: string
+        useDelay: number
+        useOnce: boolean
+        useDir: Vec2
     };
 
     isDoor = false;
@@ -61,15 +66,15 @@ export class Obstacle extends GameObject {
         closedOrientation: number
         openOrientation: number
         openAltOrientation: number
-        openOneWay: number,
-        openOnce: boolean,
-        autoOpen: boolean,
-        autoClose: boolean,
-        autoCloseDelay: number,
-        slideToOpen: boolean,
-        slideOffset: number,
-        closedPosition: Vec2,
-        openPosition: Vec2,
+        openOneWay: number
+        openOnce: boolean
+        autoOpen: boolean
+        autoClose: boolean
+        autoCloseDelay: number
+        slideToOpen: boolean
+        slideOffset: number
+        closedPosition: Vec2
+        openPosition: Vec2
     };
 
     showOnMap: boolean;
@@ -101,7 +106,8 @@ export class Obstacle extends GameObject {
                 scale: number,
                 data,
                 parentBuilding?: Building,
-                bunkerWall = false) {
+                bunkerWall = false,
+                puzzlePiece?: string) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Obstacle;
 
@@ -154,8 +160,8 @@ export class Obstacle extends GameObject {
         if(this.isDoor) {
             this.door = {
                 open: false,
-                canUse: true, // TODO: Change to data.door.canUse after we add puzzles.
-                locked: false,
+                canUse: data.door.canUse,
+                locked: data.door.locked,
                 hinge: data.hinge,
                 closedOrientation: this.orientation,
                 openOrientation: 0,
@@ -172,6 +178,10 @@ export class Obstacle extends GameObject {
             };
             this.interactable = true;
             this.interactionRad = data.door.interactionRad;
+
+            if (this.parentBuilding) {
+                this.parentBuilding.doors.push(this);
+            }
 
             if(!this.door.slideToOpen) {
                 switch(orientation) {
@@ -222,11 +232,21 @@ export class Obstacle extends GameObject {
         if(this.isButton) {
             this.button = {
                 onOff: false,
-                canUse: data.button.canUse
+                canUse: true,
+                useOnce: data.button.useOnce,
+                useType: data.button.useType,
+                useDelay: data.button.useDelay,
+                useDir: Vec2(data.button.useDir)
             };
+            this.interactable = true;
+            this.interactionRad = data.button.interactionRad;
         }
 
-        this.isPuzzlePiece = false;
+        if (puzzlePiece) {
+            this.isPuzzlePiece = true;
+            this.puzzlePiece = puzzlePiece;
+            this.parentBuilding!.puzzlePieces.push(this);
+        }
 
         if(data.loot) {
             this.loot = [];
@@ -322,7 +342,7 @@ export class Obstacle extends GameObject {
                 let lootPosition = this.position.clone();
                 // TODO: add a "lootSpawnOffset" property for lockers and deposit boxes.
                 if(this.typeString.includes("locker") || this.typeString.includes("deposit_box")) {
-                    lootPosition = addAdjust(lootPosition, Vec2(0,-2), this.orientation!);
+                    lootPosition = addAdjust(lootPosition, Vec2(0, -2), this.orientation!);
                 }
                 const loot: Loot = new Loot(this.game, item.type, lootPosition, this.layer, item.count);
                 this.game.dynamicObjects.add(loot);
@@ -367,16 +387,41 @@ export class Obstacle extends GameObject {
         if (this.isDoor && this.door.canUse) {
             this.toggleDoor(p);
         }
+        if(this.isButton && this.button.canUse) {
+            this.useButton();
+        }
     }
 
-    toggleDoor(p?: Player) {
+    useButton(): void {
+        this.button.onOff = !this.button.onOff;
+
+        if(this.button.useOnce) {
+            this.button.canUse = false;
+        }
+        if(this.button.useType && this.parentBuilding) {
+            for(const door of this.parentBuilding.doors) {
+                if(door.typeString === this.button.useType) {
+                    setTimeout(() => {
+                        door.toggleDoor(undefined, this.button.useDir);
+                    }, this.button.useDelay * 1000);
+                }
+            }
+        }
+        if(this.button.onOff && this.isPuzzlePiece) {
+            this.parentBuilding!.puzzlePieceToggled(this);
+        }
+        this.game.fullDirtyObjects.add(this);
+    }
+
+    toggleDoor(p?: Player, useDir?: Vec2): void {
         this.door.open = !this.door.open;
         if (this.door.openOnce) {
             this.door.canUse = false;
         }
         if(!this.door.slideToOpen) {
             if(this.door.open) {
-                if(p && p.isOnOtherSide(this) && !this.door.openOneWay) {
+                if((p?.isOnOtherSide(this) && !this.door.openOneWay) ??
+                    useDir?.x === 1) {
                     this.orientation = this.door.openAltOrientation;
                     this.collision.min = this.collision.doorOpenAlt.min;
                     this.collision.max = this.collision.doorOpenAlt.max;
@@ -476,10 +521,13 @@ export class Obstacle extends GameObject {
         if(this.isButton) {
             stream.writeBoolean(this.button.onOff);
             stream.writeBoolean(this.button.canUse);
-            stream.writeBits(0, 6); // button seq
+            stream.writeBits(this.button.onOff ? 1 : 0, 6); // button seq
         }
 
         stream.writeBoolean(this.isPuzzlePiece);
+        if(this.isPuzzlePiece) {
+            stream.writeUint16(this.parentBuilding!.id);
+        }
 
         stream.writeBoolean(this.isSkin);
 

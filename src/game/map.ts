@@ -268,8 +268,7 @@ export class Map {
         this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
 
         for(const stairData of structureData.stairs) {
-            if (!stairData.lootOnly)
-                this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
+            if (!stairData.lootOnly) this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
         }
     }
 
@@ -337,7 +336,8 @@ export class Map {
                         mapObject.scale,
                         part,
                         building,
-                        mapObject.bunkerWall ?? false
+                        mapObject.bunkerWall ?? false,
+                        mapObject.puzzlePiece
                     );
                     break;
                 case "random": {
@@ -432,7 +432,8 @@ export class Map {
                         scale: number,
                         obstacleData: any,
                         parentBuilding?: Building,
-                        bunkerWall = false): Obstacle {
+                        bunkerWall = false,
+                        puzzlePice?: string): Obstacle {
         const obstacle = new Obstacle(
             this.game,
             typeString,
@@ -442,7 +443,8 @@ export class Map {
             scale,
             obstacleData,
             parentBuilding,
-            bunkerWall
+            bunkerWall,
+            puzzlePice
         );
         if(obstacle.door?.slideToOpen) this.game.dynamicObjects.add(obstacle);
         else this.game.staticObjects.add(obstacle);

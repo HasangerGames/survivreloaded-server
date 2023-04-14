@@ -20522,7 +20522,13 @@
       "completeOffDelay": 1,
       "completeUseDelay": 2,
       "errorResetDelay": 1,
-      "pieceResetDelay": 10
+      "pieceResetDelay": 10,
+      "order": [
+        "ichi",
+        "ni",
+        "san",
+        "shi"
+      ]
     },
     "mapObjects": [
       {
@@ -63773,7 +63779,16 @@
       "completeOffDelay": 1,
       "completeUseDelay": 2,
       "errorResetDelay": 1,
-      "pieceResetDelay": 10
+      "pieceResetDelay": 10,
+      "order": [
+        "red",
+        "orange",
+        "yellow",
+        "green",
+        "blue",
+        "indigo",
+        "violet"
+      ]
     },
     "mapObjects": [
       {
@@ -69140,7 +69155,13 @@
       "completeOffDelay": 1,
       "completeUseDelay": 2,
       "errorResetDelay": 1,
-      "pieceResetDelay": 10
+      "pieceResetDelay": 10,
+      "order": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
     },
     "mapObjects": [
       {
@@ -70320,7 +70341,10 @@
       "completeOffDelay": 1,
       "completeUseDelay": 2,
       "errorResetDelay": 1,
-      "pieceResetDelay": 10
+      "pieceResetDelay": 10,
+      "order": [
+        "1"
+      ]
     },
     "mapObjects": [
       {
@@ -71527,7 +71551,10 @@
       "outsideMaxDist": 10,
       "outsideVolume": 0.25,
       "undergroundVolume": 0.707,
-      "puzzle": "club_02"
+      "puzzle": "club_02",
+      "order": [
+        "1"
+      ]
     }
   },
   "club_complex_01": {
@@ -85106,7 +85133,15 @@
       "completeOffDelay": 1,
       "completeUseDelay": 2,
       "errorResetDelay": 1,
-      "pieceResetDelay": 2
+      "pieceResetDelay": 2,
+      "order": [
+        "egg",
+        "hydra",
+        "storm",
+        "conch",
+        "crossing",
+        "hatchet"
+      ]
     },
     "mapObjects": [
       {
@@ -85331,7 +85366,15 @@
       "completeOffDelay": 1,
       "completeUseDelay": 5.25,
       "errorResetDelay": 1,
-      "pieceResetDelay": 10
+      "pieceResetDelay": 10,
+      "order": [
+        "egg",
+        "hydra",
+        "storm",
+        "conch",
+        "crossing",
+        "hatchet"
+      ]
     },
     "mapObjects": [
       {
