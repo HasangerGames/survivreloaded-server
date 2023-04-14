@@ -1107,6 +1107,7 @@ export class Player extends GameObject {
 
     set isInBuilding(value: number) {
         this._isInBuilding = value;
+        console.warn(this._isInBuilding);
         //console.warn("executing isInBuilding setter");
         if(this.scope.typeString !== "1xscope") {
             this.scopeToResetTo = this.scope.typeString;

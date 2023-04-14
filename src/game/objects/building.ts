@@ -47,6 +47,13 @@ export class Building extends GameObject {
             if(zoomRegion.zoomIn) {
                 this.zoomRegions.push(rotateRect(this.position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!));
             }
+            if(zoomRegion.zoom){
+                this.zoomRegions.push(zoomRegion.zoom);
+                console.warn(zoomRegion.zoom);
+                for(let i = 0; i < this.zoomRegions.length; i++){
+                    console.warn(this.zoomRegions[i]);
+                }
+            }
         }
 
         if(data.ceiling?.destroy) {
@@ -114,16 +121,19 @@ export class Building extends GameObject {
 
     playerIsOnZoomArea(player: Player): number {
         if(this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
-        for(const zoomRegion of this.zoomRegions) {
-            if(zoomRegion.zoom){
-                this.zoomRadius = zoomRegion;
+        for(let i = 0; i < this.zoomRegions.length; i++) {
+            if(this.zoomRegions[i] == 48){
+                this.zoomRadius = 48;
+                break;
             } else {
                 this.zoomRadius = 28;
             }
         }
 
         for(const zoomRegion of this.zoomRegions) {
-            if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) return this.zoomRadius;
+            if(zoomRegion.min){
+                if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) return this.zoomRadius;
+            }
         }
         return 0;
     }
