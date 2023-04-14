@@ -49,10 +49,6 @@ export class Building extends GameObject {
             }
             if(zoomRegion.zoom){
                 this.zoomRegions.push(zoomRegion.zoom);
-                console.warn(zoomRegion.zoom);
-                for(let i = 0; i < this.zoomRegions.length; i++){
-                    console.warn(this.zoomRegions[i]);
-                }
             }
         }
 
