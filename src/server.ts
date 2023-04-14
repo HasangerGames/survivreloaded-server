@@ -139,7 +139,7 @@ process.on("SIGTERM", shutdownHandler);
 let lastDataReceivedTime = Date.now() + 30000;
 let webSocketProcess;
 function spawnWebSocketProcess(): void {
-    webSocketProcess = spawn("node", ["dist/webSocketServer.js"]);
+    webSocketProcess = spawn("node", ["--enable-source-maps", "dist/webSocketServer.js"]);
     webSocketProcess.stdout!.on("data", data => {
         lastDataReceivedTime = Date.now();
         process.stdout.write(data);
@@ -148,7 +148,7 @@ function spawnWebSocketProcess(): void {
 }
 setInterval(() => {
     if(Date.now() - lastDataReceivedTime > 10000) {
-        log("[WARNING] WebSocket process hasn't sent data in more than 10 seconds. Restarting...");
+        log("WebSocket process hasn't sent data in more than 10 seconds. Restarting...");
         lastDataReceivedTime = Date.now() + 30000;
         webSocketProcess.kill("SIGKILL");
         setTimeout(() => spawnWebSocketProcess(), 1000);

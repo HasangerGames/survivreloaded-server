@@ -497,7 +497,7 @@ export class Obstacle extends GameObject {
             p.body!.setPosition(newPosition);
         }
         this.body!.setPosition(addAdjust(this.position, this.door.hinge, this.orientation!));
-        this.body!.destroyFixture(this.body!.getFixtureList()!);
+        if(this.body!.getFixtureList() !== null) this.body!.destroyFixture(this.body!.getFixtureList()!);
         const flip: boolean = this.orientation !== this.door.closedOrientation;
         this.body!.createFixture({
             shape: Box(flip ? this.collision.halfHeight : this.collision.halfWidth, flip ? this.collision.halfWidth : this.collision.halfHeight),

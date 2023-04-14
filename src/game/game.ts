@@ -681,6 +681,8 @@ export class Game {
         p.shootHold = false;
         p.isSpectator = false;
         p.spectating = undefined;
+        p.actionType = p.actionSeq = 0;
+        p.anim.type = p.anim.seq = 0;
 
         this.livingPlayers.delete(p);
         this.connectedPlayers.delete(p);

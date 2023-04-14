@@ -405,7 +405,7 @@ export class Player extends GameObject {
 
     switchSlot(slot: number, skipSlots?: boolean): void {
         let chosenSlot = slot;
-        this.resetSpeedAfterShooting(this);
+        Player.resetSpeedAfterShooting(this);
         if(!this.weapons[chosenSlot]?.typeId && skipSlots) {
             const wrapSlots = (n: number): number => ((n % 4) + 4) % 4;
 
@@ -668,7 +668,7 @@ export class Player extends GameObject {
         }
     }
 
-    resetSpeedAfterShooting(player: Player): void {
+    static resetSpeedAfterShooting(player: Player): void {
         player.shooting = false;
         player.recalculateSpeed();
     }
@@ -680,7 +680,7 @@ export class Player extends GameObject {
             return;
         }
         const weapon = Weapons[this.activeWeapon.typeString];
-        setTimeout(() => this.resetSpeedAfterShooting(this), weapon.fireDelay * 700); //Since RecoilTime is 1000000 on every gun in the data, approximate it with 70% of the time between shots.
+        setTimeout(() => Player.resetSpeedAfterShooting(this), weapon.fireDelay * 700); //Since RecoilTime is 1000000 on every gun in the data, approximate it with 70% of the time between shots.
         this.cancelAction();
         this.shooting = true;
         this.recalculateSpeed();
@@ -831,6 +831,7 @@ export class Player extends GameObject {
     }
 
     damage(amount: number, source?, objectUsed?, damageType = DamageType.Player): void {
+        if(this._health < 0) this._health = 0;
         if(this._health === 0) return;
 
         let finalDamage: number = amount;
@@ -845,8 +846,10 @@ export class Player extends GameObject {
         this.healthDirty = true;
 
         if(this._health <= 0) {
-            this.boost = 0;
             this.dead = true;
+            this.boost = 0;
+            this.actionType = this.actionSeq = 0;
+            this.anim.type = this.anim.seq = 0;
 
             // Set killedBy
             if(source instanceof Player && source !== this) this.killedBy = source;
@@ -947,7 +950,9 @@ export class Player extends GameObject {
                     const lastManStanding: Player = [...this.game.livingPlayers][0];
 
                     // Send game over
-                    lastManStanding.sendPacket(new GameOverPacket(lastManStanding, true));
+                    const gameOverPacket = new GameOverPacket(lastManStanding, true);
+                    lastManStanding.sendPacket(gameOverPacket);
+                    for(const spectator of lastManStanding.spectators) spectator.sendPacket(gameOverPacket);
 
                     // End the game in 750ms
                     setTimeout(() => {
@@ -959,7 +964,7 @@ export class Player extends GameObject {
                 } else {
                     setTimeout(() => this.game.end(), 750);
                 }
-            } else {
+            } else if(this.spectators.size !== 0) {
                 let toSpectate;
                 if(source instanceof Player && source !== this) toSpectate = source;
                 else toSpectate = this.game.randomPlayer();
@@ -1112,7 +1117,7 @@ export class Player extends GameObject {
             this.scopeToResetTo = this.scope.typeString;
         }
         //console.warn(this.scopeToResetTo);
-        if(this._isInBuilding != 0) {
+        if(this._isInBuilding !== 0) {
             this.zoom = this._isInBuilding;
         } else if(this.wasInBuildingAsOfLastCheck) {
             if(this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[this.scopeToResetTo];
@@ -1120,7 +1125,7 @@ export class Player extends GameObject {
         } else {
             //console.warn("not at all in building");
         }
-        if(this._isInBuilding == 0){
+        if(this._isInBuilding === 0) {
             this.wasInBuildingAsOfLastCheck = false;
         } else {
             this.wasInBuildingAsOfLastCheck = true;
