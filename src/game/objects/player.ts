@@ -431,7 +431,7 @@ export class Player extends GameObject {
     }
 
     dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
-        if(this.weapons[slot].typeId === 0 || (slot === 2 && this.loadout.melee === this.weapons[2].typeId)) return;
+        if(this.weapons[slot].typeId === 0) return;
         // For guns
         if(this.weapons[slot].typeString === item) { // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
             const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
@@ -455,8 +455,8 @@ export class Player extends GameObject {
             }
             if(slot === ItemSlot.Melee) {
                 this.weapons[slot] = {
-                    typeString: this.loadout.meleeType,
-                    typeId: this.loadout.melee,
+                    typeString: "fists",
+                    typeId: TypeToId.fists,
                     ammo: 0,
                     cooldown: 0,
                     cooldownDuration: 250,
