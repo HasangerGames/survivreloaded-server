@@ -15,7 +15,7 @@ export class Building extends GameObject {
     hasAddedDebugMarkers = false;
     minPos: Vec2;
     maxPos: Vec2;
-    zoomRadius: number = 28;
+    zoomRadius = 28;
     data: any;
 
     puzzle: {
@@ -65,7 +65,7 @@ export class Building extends GameObject {
             if(zoomRegion.zoomIn) {
                 this.zoomRegions.push(rotateRect(this.position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!));
             }
-            if(zoomRegion.zoom){
+            if(zoomRegion.zoom) {
                 this.zoomRegions.push(zoomRegion.zoom);
             }
         }
@@ -157,7 +157,7 @@ export class Building extends GameObject {
     playerIsOnZoomArea(player: Player): number {
         if(this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
         for(let i = 0; i < this.zoomRegions.length; i++) {
-            if(this.zoomRegions[i] == 48){
+            if(this.zoomRegions[i] === 48) {
                 this.zoomRadius = 48;
                 break;
             } else {
@@ -166,7 +166,7 @@ export class Building extends GameObject {
         }
 
         for(const zoomRegion of this.zoomRegions) {
-            if(zoomRegion.min){
+            if(zoomRegion.min) {
                 if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) return this.zoomRadius;
             }
         }
@@ -190,19 +190,23 @@ export class Building extends GameObject {
             setTimeout(this.resetPuzzle, this.puzzle.completeOffDelay * 1000, this);
             this.game.partialDirtyObjects.add(this);
         } else if (this.puzzle.inputOrder.length >= this.puzzle.order.length) {
+            this.puzzle.errorSeq++;
+            this.puzzle.errorSeq %= 2;
+            this.game.partialDirtyObjects.add(this);
             this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle, this.puzzle.errorResetDelay * 1000, this);
         } else {
-            this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle, this.puzzle.pieceResetDelay * 1000, this);
+            this.puzzle.resetTimeoutId = setTimeout((This) => {
+                This.puzzle.errorSeq++;
+                This.puzzle.errorSeq %= 2;
+                This.game.partialDirtyObjects.add(This);
+                setTimeout(This.resetPuzzle, This.puzzle.errorResetDelay * 1000, This);
+            }, this.puzzle.pieceResetDelay * 1000, this);
         }
     }
 
     // this function is called inside a setTimeout so it needs the This argument because javascript is stupid
     resetPuzzle(This: Building): void {
         This.puzzle.inputOrder = [];
-        if(!This.puzzle.solved) {
-            This.puzzle.errorSeq++;
-            This.puzzle.errorSeq %= 2;
-        }
         for(const piece of This.puzzlePieces) {
             if(piece.isButton) {
                 piece.button.canUse = !This.puzzle.solved;

@@ -67,6 +67,8 @@ export class Obstacle extends GameObject {
         openOrientation: number
         openAltOrientation: number
         openOneWay: number
+        openDelay: number
+        openSeq: number
         openOnce: boolean
         autoOpen: boolean
         autoClose: boolean
@@ -166,6 +168,8 @@ export class Obstacle extends GameObject {
                 closedOrientation: this.orientation,
                 openOrientation: 0,
                 openAltOrientation: 0,
+                openDelay: data.door.openDelay,
+                openSeq: 0,
                 openOneWay: data.door.openOneWay,
                 openOnce: data.door.openOnce,
                 autoOpen: data.door.autoOpen,
@@ -385,7 +389,15 @@ export class Obstacle extends GameObject {
     interact(p: Player): void {
         if(this.dead) return;
         if (this.isDoor && this.door.canUse) {
-            this.toggleDoor(p);
+            this.door.openSeq++;
+            this.door.openSeq %= 2;
+            if (this.door.openOnce) {
+                this.door.canUse = false;
+            }
+            this.game.fullDirtyObjects.add(this);
+            setTimeout((This) => {
+                This.toggleDoor(p);
+            }, this.door.openDelay * 1000, this);
         }
         if(this.isButton && this.button.canUse) {
             this.useButton();
@@ -415,9 +427,7 @@ export class Obstacle extends GameObject {
 
     toggleDoor(p?: Player, useDir?: Vec2): void {
         this.door.open = !this.door.open;
-        if (this.door.openOnce) {
-            this.door.canUse = false;
-        }
+
         if(!this.door.slideToOpen) {
             if(this.door.open) {
                 if((p?.isOnOtherSide(this) && !this.door.openOneWay) ??
@@ -514,7 +524,7 @@ export class Obstacle extends GameObject {
             stream.writeBoolean(this.door.open);
             stream.writeBoolean(this.door.canUse);
             stream.writeBoolean(this.door.locked);
-            stream.writeBits(this.door.open ? 1 : 0, 5); // door seq
+            stream.writeBits(this.door.openSeq, 5); // door seq
         }
 
         stream.writeBoolean(this.isButton);
