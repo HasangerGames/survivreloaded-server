@@ -767,12 +767,11 @@ export class Player extends GameObject {
 
     useThrowable() {
         // Start throwing animation
-        if (!this.animActive) {
-            this.animActive = true;
-            this.animType = 2;
-            this.animSeq = 1;
-            this.animTime = 0;
-            this.fullDirtyObjects.add(this);
+        if (!this.anim.active) {
+            this.anim.active = true;
+            this.anim.type = Constants.Anim.Cook;
+            this.anim.seq = 1;
+            this.anim.time = 0;
             this.fullDirtyObjects.add(this);
         }
     }

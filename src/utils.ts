@@ -13,7 +13,7 @@ import { type HttpResponse } from "uWebSockets.js";
 export const Objects = readJson<JSONObjects.JSON>("data/objects.json");
 export const Maps = readJson<any>("data/maps.json");
 export const Items = readJson<any>("data/items.json");
-export const Weapons = Object.assign(readJson<any>("data/guns.json"), readJson<any>("data/melee.json"));
+export const Weapons = Object.assign(readJson<any>("data/guns.json"), readJson<any>("data/melee.json"), readJson<any>("data/throwables.json"));
 export const Bullets = readJson<any>("data/bullets.json");
 export const Explosions = readJson<any>("data/explosions.json");
 export const LootTables = readJson<any>("data/lootTables.json");
