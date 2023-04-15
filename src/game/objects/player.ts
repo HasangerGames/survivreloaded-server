@@ -68,14 +68,12 @@ export class Player extends GameObject {
     distanceToMouse: number;
     scale = 1;
 
-    approximateX: number;
-    approximateY: number;
-
     private _zoom: number;
     xCullDist: number;
     yCullDist: number;
 
     visibleObjects = new Set<GameObject>(); // Objects the player can see
+    nearObjects = new Set<GameObject>(); // Objects the player can see with a 1x scope
     partialDirtyObjects = new Set<GameObject>(); // Objects that need to be partially updated
     fullDirtyObjects = new Set<GameObject>(); // Objects that need to be fully updated
     deletedObjects = new Set<GameObject>(); // Objects that need to be deleted
@@ -244,7 +242,7 @@ export class Player extends GameObject {
     damageDealt = 0;
     damageTaken = 0;
 
-    _isInBuilding = 0;
+    _buildingZoom = 0;
     wasInBuildingAsOfLastCheck = false;
 
     killedBy?: Player;
@@ -967,7 +965,10 @@ export class Player extends GameObject {
 
     updateVisibleObjects(): void {
         this.movesSinceLastUpdate = 0;
-        const newVisibleObjects = new Set<GameObject>(this.game.visibleObjects[this.zoom][Math.round(this.position.x / 10) * 10][Math.round(this.position.y / 10) * 10]);
+        const approximateX = Math.round(this.position.x / 10) * 10, approximateY = Math.round(this.position.y / 10) * 10;
+        this.nearObjects = this.game.visibleObjects[28][approximateX][approximateY];
+        const visibleAtZoom = this.game.visibleObjects[this.zoom];
+        const newVisibleObjects = new Set<GameObject>(visibleAtZoom ? visibleAtZoom[approximateX][approximateY] : this.nearObjects);
         const minX = this.position.x - this.xCullDist,
           minY = this.position.y - this.yCullDist,
           maxX = this.position.x + this.xCullDist,
@@ -1062,26 +1063,26 @@ export class Player extends GameObject {
         }
     }
 
-    get isInBuilding(): number {
-        return this._isInBuilding;
+    get buildingZoom(): number {
+        return this._buildingZoom;
     }
 
-    set isInBuilding(value: number) {
-        this._isInBuilding = value;
+    set buildingZoom(value: number) {
+        this._buildingZoom = value;
         //console.warn("executing isInBuilding setter");
         if(this.scope.typeString !== "1xscope") {
             this.scopeToResetTo = this.scope.typeString;
         }
         //console.warn(this.scopeToResetTo);
-        if(this._isInBuilding !== 0) {
-            this.zoom = this._isInBuilding;
+        if(this._buildingZoom !== 0) {
+            this.zoom = this._buildingZoom;
         } else if(this.wasInBuildingAsOfLastCheck) {
             if(this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[this.scopeToResetTo];
             else this.zoom = Constants.scopeZoomRadius.desktop[this.scopeToResetTo];
         } else {
             //console.warn("not at all in building");
         }
-        if(this._isInBuilding === 0) {
+        if(this._buildingZoom === 0) {
             this.wasInBuildingAsOfLastCheck = false;
         } else {
             this.wasInBuildingAsOfLastCheck = true;
