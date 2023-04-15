@@ -1,4 +1,4 @@
-import { ObjectKind, rotateRect, type SurvivBitStream, sameLayer, rectCollision } from "../../utils";
+import { ObjectKind, rotateRect, type SurvivBitStream, sameLayer, rectCollision, Constants } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
@@ -63,10 +63,9 @@ export class Building extends GameObject {
 
         for(const zoomRegion of data.ceiling.zoomRegions) {
             if(zoomRegion.zoomIn) {
-                this.zoomRegions.push(rotateRect(this.position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!));
-            }
-            if(zoomRegion.zoom) {
-                this.zoomRegions.push(zoomRegion.zoom);
+                const rect: any = rotateRect(this.position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!);
+                rect.zoom = zoomRegion.zoom;
+                this.zoomRegions.push(rect);
             }
         }
 
@@ -156,18 +155,14 @@ export class Building extends GameObject {
 
     playerIsOnZoomArea(player: Player): number {
         if(this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
-        for(let i = 0; i < this.zoomRegions.length; i++) {
-            if(this.zoomRegions[i] === 48) {
-                this.zoomRadius = 48;
-                break;
-            } else {
-                this.zoomRadius = 28;
-            }
-        }
 
         for(const zoomRegion of this.zoomRegions) {
             if(zoomRegion.min) {
-                if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) return this.zoomRadius;
+                if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) {
+                    return zoomRegion.zoom !== undefined
+                    ? zoomRegion.zoom
+                    : Constants.scopeZoomRadius[player.isMobile ? "mobile" : "desktop"]["1xscope"];
+                }
             }
         }
         return 0;
