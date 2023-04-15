@@ -1095,9 +1095,9 @@ export class Player extends GameObject {
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
-        stream.writeGameType(TypeToId.backpack00 as number + this.backpackLevel);
-        stream.writeGameType(this.helmetLevel === 0 ? 0 : (TypeToId.helmet01 - 1) + this.helmetLevel); // Helmet
-        stream.writeGameType(this.chestLevel === 0 ? 0 : (TypeToId.chest01 - 1) + this.chestLevel); // Vest
+        stream.writeGameType(Constants.BasePack + this.backpackLevel);
+        stream.writeGameType(this.helmetLevel === 0 ? 0 : Constants.BaseHelmet + this.helmetLevel); // Helmet
+        stream.writeGameType(this.chestLevel === 0 ? 0 : Constants.BaseChest + this.chestLevel); // Vest
         stream.writeGameType(this.activeWeapon.typeId);
 
         stream.writeBits(this.layer, 2);
