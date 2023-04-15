@@ -68,15 +68,14 @@ export class Player extends GameObject {
     distanceToMouse: number;
     scale = 1;
 
+    approximateX: number;
+    approximateY: number;
+
     private _zoom: number;
     xCullDist: number;
     yCullDist: number;
 
-    visibleStaticObjects = new Set<GameObject>(); // Static objects the player can see
-    visibleDynamicObjects = new Set<GameObject>(); // Dynamic objects the player can see
-    nearStaticObjects = new Set<GameObject>(); // Nearby static objects (visible with 1x scope)
-    nearDynamicObjects = new Set<GameObject>(); // Nearby dynamic objects
-
+    visibleObjects = new Set<GameObject>(); // Objects the player can see
     partialDirtyObjects = new Set<GameObject>(); // Objects that need to be partially updated
     fullDirtyObjects = new Set<GameObject>(); // Objects that need to be fully updated
     deletedObjects = new Set<GameObject>(); // Objects that need to be deleted
@@ -610,8 +609,8 @@ export class Player extends GameObject {
 
         if(weapon.cleave) { // cleave allows weapon to damage multiple objects at once
             // Damage all objects within melee range
-            const damageObject = (object): void => {
-                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && ((object.interactable && object instanceof Obstacle) || object.damageable)) {
+            for(const object of this.visibleObjects) {
+                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && ((object.interactable && object instanceof Obstacle) ? true : object.damageable)) {
                     if(objectCollision(object, position, radius).collided) {
                         let attackTime: number;
                         if(this.activeWeaponInfo.attack) {
@@ -632,24 +631,20 @@ export class Player extends GameObject {
                         if(object.interactable) (object as Obstacle).interact(this);
                     }
                 }
-            };
-            for(const object of this.visibleStaticObjects) damageObject(object);
-            for(const object of this.visibleDynamicObjects) damageObject(object);
+            }
         } else {
             // Damage the closest object
             let minDist = Number.MAX_VALUE;
             let closestObject;
-            const checkObject = (object): void => {
-                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && ((object.interactable && object instanceof Obstacle) || object.damageable)) {
+            for(const object of this.visibleObjects) {
+                if(!object.dead && object !== this && sameLayer(this.layer, object.layer) && ((object.interactable && object instanceof Obstacle) ? true : object.damageable)) {
                     const record = objectCollision(object, position, radius);
                     if(record!.collided && record!.distance < minDist) {
                         minDist = record!.distance;
                         closestObject = object;
                     }
                 }
-            };
-            for(const object of this.visibleStaticObjects) checkObject(object);
-            for(const object of this.visibleDynamicObjects) checkObject(object);
+            }
             if(closestObject) {
                 let attackTime: number;
                 if(this.activeWeaponInfo.attack) {
@@ -956,64 +951,58 @@ export class Player extends GameObject {
     recalculateSpeed(): void {
         this.speed = Config.movementSpeed;
         this.diagonalSpeed = Config.diagonalSpeed;
-        if(this.usingItem) {
+        if (this.usingItem) {
             this.speed *= 0.5;
             this.diagonalSpeed *= 0.5;
         }
-        if(this.boost >= 50) {
+        if (this.boost >= 50) {
             this.speed *= 1.15;
             this.diagonalSpeed *= 1.15;
         }
-        if(this.shooting) {
+        if (this.shooting) {
             this.speed *= 0.5;
             this.diagonalSpeed *= 0.5;
         }
     }
 
-    updateStaticObjects(): void {
+    updateVisibleObjects(): void {
         this.movesSinceLastUpdate = 0;
-        const x = Math.round(this.position.x / 10) * 10, y = Math.round(this.position.y / 10) * 10;
-        this.visibleStaticObjects = new Set<GameObject>(this.game.visibleObjects[this.zoom][x][y]);
-        this.nearStaticObjects = new Set<GameObject>(this.game.visibleObjects[28][x][y]);
-    }
-
-    updateDynamicObjects(): void {
-        const newVisibleObjects = new Set<GameObject>();
+        const newVisibleObjects = new Set<GameObject>(this.game.visibleObjects[this.zoom][Math.round(this.position.x / 10) * 10][Math.round(this.position.y / 10) * 10]);
         const minX = this.position.x - this.xCullDist,
-            minY = this.position.y - this.yCullDist,
-            maxX = this.position.x + this.xCullDist,
-            maxY = this.position.y + this.yCullDist;
+          minY = this.position.y - this.yCullDist,
+          maxX = this.position.x + this.xCullDist,
+          maxY = this.position.y + this.yCullDist;
         for(const object of this.game.dynamicObjects) {
             if(this === object) continue;
             if(object.position.x > minX &&
-                object.position.x < maxX &&
-                object.position.y > minY &&
-                object.position.y < maxY) {
+              object.position.x < maxX &&
+              object.position.y > minY &&
+              object.position.y < maxY) {
                 newVisibleObjects.add(object);
-                if(!this.visibleDynamicObjects.has(object)) {
+                if(!this.visibleObjects.has(object)) {
                     this.fullDirtyObjects.add(object);
                 }
-                if(object instanceof Player && !object.visibleDynamicObjects.has(this)) {
-                    object.visibleDynamicObjects.add(this);
+                if(object instanceof Player && !object.visibleObjects.has(this)) {
+                    object.visibleObjects.add(this);
                     object.fullDirtyObjects.add(this);
                 }
             } else {
-                if(this.visibleDynamicObjects.has(object)) {
+                if(this.visibleObjects.has(object)) {
                     this.deletedObjects.add(object);
                 }
             }
         }
         for(const object of newVisibleObjects) {
-            if(!this.visibleDynamicObjects.has(object)) {
+            if(!this.visibleObjects.has(object)) {
                 this.fullDirtyObjects.add(object);
             }
         }
-        for(const object of this.visibleDynamicObjects) {
+        for(const object of this.visibleObjects) {
             if(!newVisibleObjects.has(object)) {
                 this.deletedObjects.add(object);
             }
         }
-        this.visibleDynamicObjects = newVisibleObjects;
+        this.visibleObjects = newVisibleObjects;
     }
 
     spectate(spectating?: Player): void {
@@ -1036,12 +1025,8 @@ export class Player extends GameObject {
         spectating.inventoryDirty = true;
         spectating.activePlayerIdDirty = true;
         spectating.spectatorCountDirty = true;
-        spectating.updateStaticObjects();
-        spectating.updateDynamicObjects();
-        for(const object of spectating.visibleStaticObjects) {
-            spectating.fullDirtyObjects.add(object);
-        }
-        for(const object of spectating.visibleDynamicObjects) {
+        spectating.updateVisibleObjects();
+        for(const object of spectating.visibleObjects) {
             spectating.fullDirtyObjects.add(object);
         }
         spectating.fullDirtyObjects.add(spectating);
@@ -1110,9 +1095,9 @@ export class Player extends GameObject {
 
     serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
-        stream.writeGameType(Constants.BasePack + this.backpackLevel);
-        stream.writeGameType(this.helmetLevel === 0 ? 0 : Constants.BaseHelmet + this.helmetLevel); // Helmet
-        stream.writeGameType(this.chestLevel === 0 ? 0 : Constants.BaseChest + this.chestLevel); // Vest
+        stream.writeGameType(TypeToId.backpack00 as number + this.backpackLevel);
+        stream.writeGameType(this.helmetLevel === 0 ? 0 : (TypeToId.helmet01 - 1) + this.helmetLevel); // Helmet
+        stream.writeGameType(this.chestLevel === 0 ? 0 : (TypeToId.chest01 - 1) + this.chestLevel); // Vest
         stream.writeGameType(this.activeWeapon.typeId);
 
         stream.writeBits(this.layer, 2);
