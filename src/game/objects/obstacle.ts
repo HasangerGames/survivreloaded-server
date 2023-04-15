@@ -66,7 +66,7 @@ export class Obstacle extends GameObject {
         closedOrientation: number
         openOrientation: number
         openAltOrientation: number
-        openOneWay: number
+        openOneWay: number | boolean
         openDelay: number
         openSeq: number
         openOnce: boolean
@@ -388,7 +388,7 @@ export class Obstacle extends GameObject {
 
     interact(p: Player): void {
         if(this.dead) return;
-        if (this.isDoor && this.door.canUse) {
+        if (this.isDoor && this.door.canUse && (p?.isOnOtherSide(this) || !(this.door.openOneWay === true))) {
             this.door.openSeq++;
             this.door.openSeq %= 2;
             if (this.door.openOnce) {
