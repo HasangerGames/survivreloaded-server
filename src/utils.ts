@@ -10,7 +10,7 @@ import { Loot } from "./game/objects/loot";
 export const Objects = readJson("data/objects.json");
 export const Maps = readJson("data/maps.json");
 export const Items = readJson("data/items.json");
-export const Weapons = readJson("data/weapons.json");
+export const Weapons = Object.assign(readJson("data/guns.json"), readJson("data/melee.json"));
 export const Bullets = readJson("data/bullets.json");
 export const Explosions = readJson("data/explosions.json");
 export const LootTables = readJson("data/lootTables.json");

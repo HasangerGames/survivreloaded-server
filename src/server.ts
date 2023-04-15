@@ -81,10 +81,9 @@ app.post("/api/user/get_user_prestige", (res) => {
     res.end('"0"');
 });
 
-// const addr: string = Config.webSocketAddress;
 app.post("/api/find_game", (res) => {
     readPostedJson(res, (body) => {
-        const addr: string = Config.debug.isDevelopment ? Config.webSocketAddress : Config.webSocketRegions[body?.region];
+        const addr: string = Config.useWebSocketDevAddress ? Config.webSocketDevAddress : Config.webSocketRegions[body?.region] ?? Config.webSocketRegions[Config.defaultRegion];
         res.writeHeader("Content-Type", "application/json");
         res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: "", useHttps: Config.useHttps, hosts: [addr], addrs: [addr] }] }));
     }, () => {

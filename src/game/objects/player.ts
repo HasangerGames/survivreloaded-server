@@ -845,7 +845,7 @@ export class Player extends GameObject {
         this._health -= finalDamage;
         this.healthDirty = true;
 
-        if(this._health <= 0) {
+        if(this._health === 0) {
             this.dead = true;
             this.boost = 0;
             this.actionType = this.actionSeq = 0;

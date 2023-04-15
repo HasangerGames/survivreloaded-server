@@ -1,18 +1,20 @@
 {
   "host": "127.0.0.1",
   "port": 8000,
+  "https": false,
   "webSocketHost": "127.0.0.1",
   "webSocketPort": 8001,
-  "webSocketAddress": "127.0.0.1:8001",
-  "webSocketRegions": {
-    "na": "resurviv.io:8443",
-    "eu": "eu.resurviv.io:8443",
-    "as": "as.resurviv.io:8443"
-  },
-  "https": false,
   "webSocketHttps": false,
-  "keyFile": "data/key.pem",
-  "certFile": "data/cert.pem",
+  "webSocketDevAddress": "127.0.0.1:8001",
+  "useWebSocketDevAddress": false,
+  "webSocketRegions": {
+    "na": "na.resurviv.io",
+    "eu": "eu.resurviv.io",
+    "as": "as.resurviv.io"
+  },
+  "defaultRegion": "na",
+  "keyFile": "key.pem",
+  "certFile": "cert.pem",
 
   "movementSpeed": 0.013,
   "botProtection": false,
@@ -21,7 +23,6 @@
     "disableMapGeneration": false,
     "fixedSpawnLocation": [],
     "disableRedZone": false,
-    "disableStaticFileCache": true,
-    "isDevelopment": true
+    "disableStaticFileCache": true
   }
 }

@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node --enable-source-maps dist/server.js",
     "dev": "tsc-watch --onSuccess \"nodemon --enable-source-maps --watch dist/ ./dist/server.js\"",
+    "webSocketServer": "node --enable-source-maps dist/webSocketServer.js",
     "stressTest": "tsc && node --enable-source-maps dist/stressTest.js",
     "lint": "eslint . --fix --ext .ts",
     "lint:ci": "eslint . --ext .ts"
