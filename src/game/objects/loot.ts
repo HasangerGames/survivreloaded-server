@@ -80,6 +80,9 @@ export class Loot extends GameObject {
         this.body.setLinearVelocity(Vec2(Math.cos(angle), Math.sin(angle)).mul(0.005));
 
         game.loot.add(this);
+        game.dynamicObjects.add(this);
+        game.fullDirtyObjects.add(this);
+        game.updateObjects = true;
     }
 
     get position(): Vec2 {
@@ -151,12 +154,12 @@ export class Loot extends GameObject {
                 p.weapons[0].typeString = gunTypeString;
                 p.weapons[0].typeId = TypeToId[gunTypeString];
                 slotSwitchingTo = 0;
-            } else if (canDualWield && p.weapons[1].typeId === this.typeId) {
+            } else if(canDualWield && p.weapons[1].typeId === this.typeId) {
                 const gunTypeString = Weapons[this.typeString]?.dualWieldType;
                 p.weapons[1].typeString = gunTypeString;
                 p.weapons[1].typeId = TypeToId[gunTypeString];
                 slotSwitchingTo = 1;
-            } else if (p.weapons[0].typeId === 0) {
+            } else if(p.weapons[0].typeId === 0) {
                 p.weapons[0].typeString = this.typeString;
                 p.weapons[0].typeId = this.typeId;
                 slotSwitchingTo = 0;
@@ -201,6 +204,31 @@ export class Loot extends GameObject {
         }
     }
 
+    canPickUpItem(p: Player): boolean {
+        if(this.typeString.endsWith("scope")) {
+            return p.inventory[this.typeString] === 0;
+        } else if(this.typeString.startsWith("backpack")) {
+            return this.canPickUpTieredItem("backpack", p);
+        } else if(this.typeString.startsWith("chest")) {
+            return this.canPickUpTieredItem("chest", p);
+        } else if(this.typeString.startsWith("helmet")) {
+            return this.canPickUpTieredItem("helmet", p);
+        } else if(Constants.bagSizes[this.typeString]) { // if it is ammo or a healing item
+            const currentCount: number = p.inventory[this.typeString];
+            const maxCapacity: number = Constants.bagSizes[this.typeString][p.backpackLevel];
+            return currentCount + 1 <= maxCapacity;
+        } else if(Weapons[this.typeString]?.type === "melee") {
+            return p.weapons[2].typeString !== this.typeString;
+        } else { // if it is a gun
+            const canDualWield = Boolean(Weapons[this.typeString]?.dualWieldType);
+            if((canDualWield && (p.weapons[0].typeId === this.typeId || p.weapons[1].typeId === this.typeId)) || p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0) {
+                return true;
+            } else if(p.selectedWeaponSlot === 0 || p.selectedWeaponSlot === 1) {
+                return p.activeWeapon.typeString !== this.typeString;
+            } else return false;
+        }
+    }
+
     private pickUpTieredItem(type: string, p: Player): PickupMsgType {
         const oldLevel: number = p[`${type}Level`];
         const newLevel: number = parseInt(this.typeString.charAt(this.typeString.length - 1)); // Last digit of the ID is the item level
@@ -210,13 +238,16 @@ export class Loot extends GameObject {
             p[`${type}Level`] = newLevel;
             if(oldLevel !== 0) { // If oldLevel === 0, the player didn't have an item of this type equipped, so don't drop loot
                 // Example: if type = helmet and p.helmetLevel = 1, typeString = helmet01
-                const oldItem: Loot = new Loot(this.game, `${type}0${oldLevel}`, this.position, this.layer, 1);
-                this.game.dynamicObjects.add(oldItem);
-                this.game.fullDirtyObjects.add(oldItem);
-                this.game.updateObjects = true;
+                new Loot(this.game, `${type}0${oldLevel}`, this.position, this.layer, 1);
             }
         }
         return PickupMsgType.Success;
+    }
+
+    private canPickUpTieredItem(type: string, p: Player): boolean {
+        const oldLevel: number = p[`${type}Level`];
+        const newLevel: number = parseInt(this.typeString.charAt(this.typeString.length - 1)); // Last digit of the ID is the item level
+        return newLevel > oldLevel;
     }
 
     serializePartial(stream: SurvivBitStream): void {
@@ -259,41 +290,26 @@ export function generateLooseLootFromArray(game: Game, loot: LooseLoot[], positi
                 lootItem.tier = selectedItem;
                 generateLooseLootFromArray(game, [lootItem], position, layer);
             } else {
-                const loot = new Loot(game, selectedItem, position, layer, lootTable[selectedItem].count);
-                game.dynamicObjects.add(loot);
-                game.fullDirtyObjects.add(loot);
-                game.updateObjects = true;
+                new Loot(game, selectedItem, position, layer, lootTable[selectedItem].count);
 
                 const weapon = Weapons[selectedItem];
                 if(weapon?.ammo) {
                     if(weapon.ammoSpawnCount === 1) {
-                        const ammo = new Loot(game, weapon.ammo, position, layer, 1);
-                        game.dynamicObjects.add(ammo);
-                        game.fullDirtyObjects.add(ammo);
-                        game.updateObjects = true;
+                        new Loot(game, weapon.ammo, position, layer, 1);
                     } else {
                         const count: number = weapon.ammoSpawnCount / 2;
-                        const ammo: Loot[] = [
-                            new Loot(game, weapon.ammo, Vec2.add(position, Vec2(-1.5, -1.5)), layer, count),
-                            new Loot(game, weapon.ammo, Vec2.add(position, Vec2(1.5, -1.5)), layer, count)
-                        ];
-                        for(const ammoItem of ammo) {
-                            game.dynamicObjects.add(ammoItem);
-                            game.fullDirtyObjects.add(ammoItem);
-                        }
-                        game.updateObjects = true;
+                        new Loot(game, weapon.ammo, Vec2.add(position, Vec2(-1.5, -1.5)), layer, count);
+                        new Loot(game, weapon.ammo, Vec2.add(position, Vec2(1.5, -1.5)), layer, count);
                     }
                 }
             }
         }
     }
 }
-export function splitUpLoot(player: Player, item: string, amount: number): Loot[] {
-    const loot: Loot[] = [];
+export function splitUpLoot(player: Player, item: string, amount: number): void {
     const dropCount = Math.floor(amount / 60);
     for(let i = 0; i < dropCount; i++) {
-        loot.push(new Loot(player.game, item, player.position, player.layer, 60));
+        new Loot(player.game, item, player.position, player.layer, 60);
     }
-    if(amount % 60 !== 0) loot.push(new Loot(player.game, item, player.position, player.layer, amount % 60));
-    return loot;
+    if(amount % 60 !== 0) new Loot(player.game, item, player.position, player.layer, amount % 60);
 }

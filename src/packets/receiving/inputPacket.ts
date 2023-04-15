@@ -63,60 +63,71 @@ export class InputPacket extends ReceivingPacket {
             const input = stream.readUint8();
             switch(input) { // TODO Remove redundant code
                 case InputType.Interact: {
-                    let minDist = Number.MAX_VALUE;
-                    let minDistObject;
-                    for(const object of p.visibleObjects) {
+                    let minDistInteractable = Number.MAX_VALUE, minDist = Number.MAX_VALUE;
+                    let minDistInteractableObject, minDistObject;
+                    const checkObject = (object): void => {
                         if(object.interactable && sameLayer(p.layer, object.layer)) {
+                            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
                             if(record?.collided) {
                                 if((object as any).isDoor) (object as Obstacle).interact(p);
                                 else if(record.distance < minDist) {
+                                    if(record.distance < minDistInteractable && (!(object instanceof Loot) || object.canPickUpItem(p))) {
+                                        minDistInteractable = record.distance;
+                                        minDistInteractableObject = object;
+                                    }
                                     minDist = record.distance;
                                     minDistObject = object;
                                 }
                             }
                         }
-                    }
-                    if(minDistObject) {
+                    };
+                    for(const object of p.nearStaticObjects) checkObject(object);
+                    for(const object of p.nearDynamicObjects) checkObject(object);
+                    if(minDistInteractableObject) {
+                        minDistInteractableObject.interact(p);
+                    } else if(minDistObject) {
                         minDistObject.interact(p);
                     }
                     break;
                 }
 
                 case InputType.Loot: {
-                    let minDist = Number.MAX_VALUE;
-                    let minDistObject;
-                    for(const object of p.visibleObjects) {
-                        if(object instanceof Loot && sameLayer(object.layer, p.layer)) {
-                            const record = objectCollision(object, p.position, p.scale);
+                    let minDistInteractable = Number.MAX_VALUE, minDist = Number.MAX_VALUE;
+                    let minDistInteractableObject, minDistObject;
+                    const checkObject = (object): void => {
+                        if(object instanceof Loot && object.interactable && sameLayer(p.layer, object.layer)) {
+                            const record = objectCollision(object, p.position, p.scale + object.interactionRad);
                             if(record?.collided && record.distance < minDist) {
+                                if(record.distance < minDistInteractable && object.canPickUpItem(p)) {
+                                    minDistInteractable = record.distance;
+                                    minDistInteractableObject = object;
+                                }
                                 minDist = record.distance;
                                 minDistObject = object;
                             }
                         }
-                    }
-                    if(minDistObject) {
+                    };
+                    for(const object of p.nearStaticObjects) checkObject(object);
+                    for(const object of p.nearDynamicObjects) checkObject(object);
+                    if(minDistInteractableObject) {
+                        minDistInteractableObject.interact(p);
+                    } else if(minDistObject) {
                         minDistObject.interact(p);
                     }
                     break;
                 }
 
                 case InputType.Use: {
-                    //let minDist = Number.MAX_VALUE;
-                    //let minDistObject;
-                    for(const object of p.visibleObjects) {
-                        if((object as any).isDoor && sameLayer(object.layer, p.layer)) {
+                    const checkObject = (object): void => {
+                        if(((object as any).isDoor || (object as any).isButton || (object as any).isPuzzlePiece) && sameLayer(object.layer, p.layer)) {
+                            // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
                             if(record?.collided) (object as Obstacle).interact(p);
-                            /*if(record?.collided && record.distance < minDist) {
-                                minDist = record.distance;
-                                minDistObject = object;
-                            }*/
                         }
-                    }
-                    /*if(minDistObject) {
-                        minDistObject.interact(p);
-                    }*/
+                    };
+                    for(const object of p.nearStaticObjects) checkObject(object);
+                    for(const object of p.nearDynamicObjects) checkObject(object);
                     break;
                 }
 

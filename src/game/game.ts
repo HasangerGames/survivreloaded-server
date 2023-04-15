@@ -15,11 +15,11 @@ import {
     randomPointInsideCircle,
     RedZoneStages,
     removeFrom,
+    sameLayer,
     SurvivBitStream,
     TypeToId,
     vecLerp,
-    WeaponType,
-    sameLayer
+    WeaponType
 } from "../utils";
 import { Map } from "./map";
 import { Player } from "./objects/player";
@@ -178,10 +178,10 @@ export class Game {
 
         this.map = new Map(this, "main");
 
-        // Prevent new players from joining after 4 minutes
+        // Prevent new players from joining after 5 minutes
         setInterval(() => {
             if(this.aliveCount > 1) this.allowJoin = false;
-        }, 240000);
+        }, 300000);
 
         this.tick(30);
     }
@@ -301,7 +301,7 @@ export class Game {
 
                 // Pick up nearby items if on mobile
                 if(p.isMobile) {
-                    for(const object of p.visibleObjects) {
+                    for(const object of p.nearDynamicObjects) {
                         if(object instanceof Loot &&
                             (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) &&
                             !object.isMelee &&
@@ -366,8 +366,8 @@ export class Game {
                     if(p.performActionAgain) {
                         p.lastActionItem = { ...p.actionItem };
                         p.lastActionType = p.actionType;
-                        p.cancelAction();
-                    } else p.cancelAction();
+                    }
+                    p.cancelAction();
                 }
 
                 // Weapon logic
@@ -422,9 +422,8 @@ export class Game {
                 }
                 //Logic for scopes and buildings
                 let playerZoomFromBuilding = 0;
-                const nearObjects = this.visibleObjects[28][Math.round(p.position.x / 10) * 10][Math.round(p.position.y / 10) * 10];
-                for(const building of nearObjects) {
-                    if(building instanceof Building && building.playerIsOnZoomArea(p) != 0) {
+                for(const building of p.nearStaticObjects) {
+                    if(building instanceof Building && building.playerIsOnZoomArea(p) !== 0) {
                         playerZoomFromBuilding = building.playerIsOnZoomArea(p);
                         break;
                     }
@@ -440,9 +439,12 @@ export class Game {
             for(const p of this.connectedPlayers) {
 
                 // Calculate visible objects
-                if(p.movesSinceLastUpdate > 8 || this.updateObjects) {
-                    p.updateVisibleObjects();
+                if(p.movesSinceLastUpdate > 8) {
+                    p.updateStaticObjects();
+                    if(!this.updateObjects) p.updateDynamicObjects();
                 }
+                if(this.updateObjects) p.updateDynamicObjects();
+                console.log(p.visibleStaticObjects.size, p.visibleDynamicObjects.size);
 
                 // Update role
                 if(p.roleLost) {
@@ -488,7 +490,7 @@ export class Game {
                 // Full objects
                 if(this.fullDirtyObjects.size) {
                     for(const object of this.fullDirtyObjects) {
-                        if(p.visibleObjects.has(object) && !p.fullDirtyObjects.has(object)) {
+                        if((p.visibleStaticObjects.has(object) || p.visibleDynamicObjects.has(object)) && !p.fullDirtyObjects.has(object)) {
                             p.fullDirtyObjects.add(object);
                         }
                     }
@@ -497,7 +499,7 @@ export class Game {
                 // Partial objects
                 if(this.partialDirtyObjects.size && !p.fullUpdate) {
                     for(const object of this.partialDirtyObjects) {
-                        if(p.visibleObjects.has(object) && !p.fullDirtyObjects.has(object)) {
+                        if((p.visibleStaticObjects.has(object) || p.visibleDynamicObjects.has(object)) && !p.fullDirtyObjects.has(object)) {
                             p.partialDirtyObjects.add(object);
                         }
                     }
@@ -603,7 +605,8 @@ export class Game {
             p.dead = true;
             p.spectate(this.randomPlayer());
         } else {
-            p.updateVisibleObjects();
+            p.updateStaticObjects();
+            p.updateDynamicObjects();
             this.livingPlayers.add(p);
             this.spectatablePlayers.push(p);
             p.fullDirtyObjects.add(p);

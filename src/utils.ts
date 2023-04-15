@@ -42,6 +42,9 @@ export class Item {
 }
 
 export const Constants = {
+    BasePack: TypeToId.backpack00 as number,
+    BaseHelmet: TypeToId.helmet01 - 1 as number,
+    BaseChest: TypeToId.chest01 - 1 as number,
     protocolVersion: 76,
     Input: {
         MoveLeft: 0,

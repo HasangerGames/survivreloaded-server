@@ -6,7 +6,7 @@
   "webSocketPort": 8001,
   "webSocketHttps": false,
   "webSocketDevAddress": "127.0.0.1:8001",
-  "useWebSocketDevAddress": false,
+  "useWebSocketDevAddress": true,
   "webSocketRegions": {
     "na": "na.resurviv.io",
     "eu": "eu.resurviv.io",

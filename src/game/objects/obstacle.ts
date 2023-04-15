@@ -348,10 +348,7 @@ export class Obstacle extends GameObject {
                 if(this.typeString.includes("locker") || this.typeString.includes("deposit_box")) {
                     lootPosition = addAdjust(lootPosition, Vec2(0, -2), this.orientation!);
                 }
-                const loot: Loot = new Loot(this.game, item.type, lootPosition, this.layer, item.count);
-                this.game.dynamicObjects.add(loot);
-                this.game.fullDirtyObjects.add(loot);
-                this.game.updateObjects = true;
+                new Loot(this.game, item.type, lootPosition, this.layer, item.count);
             }
             if(this.parentBuilding) {
                 this.parentBuilding.onObstacleDestroyed(this);
