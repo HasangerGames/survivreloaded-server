@@ -5,7 +5,7 @@ import {
     LootTables,
     ObjectKind, random,
     type SurvivBitStream,
-    TypeToId,
+    TypeToId, unitVecToRadians,
     Weapons,
     weightedRandom
 } from "../../utils";
@@ -188,19 +188,30 @@ export class Loot extends GameObject {
             p.sendPacket(new PickupPacket(this.typeString!, this.count, result!));
         }
         if(result! === PickupMsgType.Success && !ignore) {
-            if(deleteItem) {
-                this.game.dynamicObjects.delete(this);
-                this.game.loot.delete(this);
-                this.game.deletedObjects.add(this);
-                this.game.world.destroyBody(this.body!);
-                this.interactable = false;
-            }
             if(playerDirty) {
                 this.game?.fullDirtyObjects.add(p);
                 p.fullDirtyObjects.add(p);
             }
             p.inventoryDirty = true;
             p.inventoryEmpty = false;
+        } else if(!ignore) {
+            deleteItem = false;
+        }
+
+        // Delete the original loot item if it's not ignored
+        if(!ignore) {
+            this.game.dynamicObjects.delete(this);
+            this.game.loot.delete(this);
+            this.game.deletedObjects.add(this);
+            this.game.world.destroyBody(this.body!);
+            this.interactable = false;
+        }
+
+        // Create a new loot item, even if nothing was picked up
+        if(!deleteItem) {
+            const angle = unitVecToRadians(p.direction);
+            const invertedAngle = (angle + Math.PI) % (2 * Math.PI);
+            new Loot(this.game, this.typeString, this.position.add(Vec2(0.4 * Math.cos(invertedAngle), 0.4 * Math.sin(invertedAngle))), this.layer, this.count);
         }
     }
 

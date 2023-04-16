@@ -256,7 +256,7 @@ export class Obstacle extends GameObject {
             this.loot = [];
             for(const loot of data.loot) {
                 let count: number;
-                if(loot.type && loot.type !== "outfitRoyalFortune") { // Hack to prevent Royal Fortune from spawning
+                if(loot.type && loot.type !== "outfitRoyalFortune" && loot.type !== "outfitWaterElem") { // Hack to prevent skins from spawning
                     count = loot.count;
                     for(let i = 0; i < count; i++) this.addLoot(loot.type, count);
                 } else {

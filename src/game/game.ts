@@ -375,7 +375,7 @@ export class Game {
                     p.shootStart = false;
                     if(p.weaponCooldownOver()) {
                         p.activeWeapon.cooldown = Date.now();
-                        if(p.activeWeapon.weaponType === WeaponType.Melee) { // Melee logic
+                        if(p.activeWeapon.weaponType === WeaponType.Melee) {
                             p.useMelee();
                         } else if(p.activeWeapon.weaponType === WeaponType.Gun) {
                             p.shootGun();
@@ -404,6 +404,7 @@ export class Game {
                 }
                 p.moving = false;
 
+                // Stair logic
                 let onStair = false;
                 const originalLayer = p.layer;
                 for(const stair of this.stairs) {
@@ -420,16 +421,16 @@ export class Game {
                     p.fullDirtyObjects.add(p);
                     p.game.fullDirtyObjects.add(p);
                 }
-                //Logic for scopes and buildings
+
+                // Logic for scopes in buildings
                 let playerZoomFromBuilding = 0;
-                const nearObjects = this.visibleObjects[28][Math.round(p.position.x / 10) * 10][Math.round(p.position.y / 10) * 10];
-                for(const building of nearObjects) {
+                for(const building of p.nearObjects) {
                     if(building instanceof Building && building.playerIsOnZoomArea(p) !== 0) {
                         playerZoomFromBuilding = building.playerIsOnZoomArea(p);
                         break;
                     }
                 }
-                p.isInBuilding = playerZoomFromBuilding;
+                p.buildingZoom = playerZoomFromBuilding;
             }
 
             for(const explosion of this.explosions) {

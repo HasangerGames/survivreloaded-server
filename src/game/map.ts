@@ -112,8 +112,18 @@ export class Map {
             this.rivers.push(new River(16, 0, points));
 
             // Generate river obstacles
-            for(const river of this.rivers) {
-                for(const { x, y } of river.points) {
+            const riverIndex = random(0, this.rivers.length - 1);
+            for(let i = 0; i < this.rivers.length; i++) {
+                const river = this.rivers[i];
+                let pointIndex;
+                if(i === riverIndex) {
+                    pointIndex = random(0, river.points.length - 1);
+                }
+                for(let i2 = 0; i2 < river.points.length; i2++) {
+                    const { x, y } = river.points[i2];
+                    if(i2 === pointIndex) {
+                        this.genRiverObstacle(Vec2(x, y), 15, "chest_03"); // River chest
+                    }
                     if(x > 20 && x < 700) {
                         // 1 in 3 chance of obstacle not generating at a river point
                         if(!(random(1, 3) === 1)) this.genRiverObstacle(Vec2(x, y), 15, "stone_03");
@@ -180,6 +190,11 @@ export class Map {
             }
         } else {
             // Building/obstacle debug code goes here
+            new Loot(this.game, "762mm", Vec2(450, 150), 0, 180);
+            new Loot(this.game, "2xscope", Vec2(450, 150), 0, 1);
+            new Loot(this.game, "m870", Vec2(450, 150), 0, 1);
+            new Loot(this.game, "m1911", Vec2(450, 150), 0, 1);
+            new Loot(this.game, "m870", Vec2(450, 150), 0, 1);
         }
         log(`Map generation took ${Date.now() - mapStartTime}ms`);
 
@@ -268,7 +283,7 @@ export class Map {
         this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
 
         for(const stairData of structureData.stairs) {
-            if (!stairData.lootOnly) this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
+            if(!stairData.lootOnly) this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
         }
     }
 

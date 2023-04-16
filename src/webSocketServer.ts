@@ -27,6 +27,12 @@ const playerCounts = {};
 let connectionAttempts = {};
 const bannedIPs: string[] = [];
 
+app.get("/", (res) => {
+    res.writeStatus("302");
+    res.writeHeader("Location", "https://resurviv.io");
+    res.end();
+});
+
 // noinspection TypeScriptValidateJSTypes
 app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
