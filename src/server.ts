@@ -155,7 +155,7 @@ setInterval(() => {
 }, 10000);
 
 // Start the servers
-log("Surviv Reloaded v0.6.0");
+log("Surviv Reloaded v0.6.1");
 app.listen(Config.host, Config.port, () => {
     // noinspection HttpUrlsUsage
     log(`HTTP server listening on ${Config.host}:${Config.port}`);
