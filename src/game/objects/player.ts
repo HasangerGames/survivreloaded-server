@@ -797,7 +797,7 @@ export class Player extends GameObject {
 
     damage(amount: number, source?, objectUsed?, damageType = DamageType.Player): void {
         if(this._health < 0) this._health = 0;
-        if(this._health === 0 || this.dead) return;
+        if(this.dead) return;
 
         let finalDamage: number = amount;
         finalDamage -= finalDamage * Constants.chestDamageReductionPercentages[this.chestLevel];
