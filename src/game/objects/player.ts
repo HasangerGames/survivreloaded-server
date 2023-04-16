@@ -876,7 +876,7 @@ export class Player extends GameObject {
             // Drop loot
             this.dropItemInSlot(0, this.weapons[0].typeString, true);
             this.dropItemInSlot(1, this.weapons[1].typeString, true);
-            if(this.weapons[2].typeString !== this.loadout.meleeType) this.dropItemInSlot(2, this.weapons[2].typeString, true);
+            if(this.weapons[2].typeString !== "fists") this.dropItemInSlot(2, this.weapons[2].typeString, true);
             for(const item in this.inventory) {
                 if(item === "1xscope") continue;
                 if(this.inventory[item] > 0) {
