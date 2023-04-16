@@ -108,6 +108,8 @@ export class Player extends GameObject {
 
     damageable = true;
 
+    lastInteractionTime = 0;
+
     fullUpdate = true;
     playerStatusDirty = true;
     groupStatusDirty = false;
@@ -629,7 +631,7 @@ export class Player extends GameObject {
                                 if(!object.dead && object.damageable) object.damage(weapon.damage * weapon.obstacleDamage, this);
                             }, attackTime);
                         }
-                        if(object.interactable) (object as Obstacle).interact(this);
+                        if(object.interactable) this.interactWith(object as Obstacle);
                     }
                 }
             }
@@ -663,7 +665,7 @@ export class Player extends GameObject {
                         if(!closestObject.dead && closestObject.damageable) closestObject.damage(weapon.damage * weapon.obstacleDamage, this);
                     }, attackTime);
                 }
-                if(closestObject.interactable) closestObject.interact(this);
+                if(closestObject.interactable) this.interactWith(closestObject as Obstacle);
             }
         }
     }
@@ -1089,6 +1091,13 @@ export class Player extends GameObject {
             this.wasInBuildingAsOfLastCheck = false;
         } else {
             this.wasInBuildingAsOfLastCheck = true;
+        }
+    }
+
+    interactWith(object: Obstacle | Loot): void {
+        if(Date.now() - this.lastInteractionTime > 100) {
+            object.interact(this);
+            this.lastInteractionTime = Date.now();
         }
     }
 

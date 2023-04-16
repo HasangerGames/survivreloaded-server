@@ -69,7 +69,7 @@ export class InputPacket extends ReceivingPacket {
                         if(object.interactable && sameLayer(p.layer, object.layer)) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
                             if(record?.collided) {
-                                if((object as any).isDoor) (object as Obstacle).interact(p);
+                                if((object as any).isDoor) p.interactWith(object as Obstacle);
                                 else if(record.distance < minDist) {
                                     if(record.distance < minDistInteractable && (!(object instanceof Loot) || object.canPickUpItem(p))) {
                                         minDistInteractable = record.distance;
@@ -82,9 +82,9 @@ export class InputPacket extends ReceivingPacket {
                         }
                     }
                     if(minDistInteractableObject) {
-                        minDistInteractableObject.interact(p);
+                        p.interactWith(minDistInteractableObject);
                     } else if(minDistObject) {
-                        minDistObject.interact(p);
+                        p.interactWith(minDistObject);
                     }
                     break;
                 }
@@ -106,9 +106,9 @@ export class InputPacket extends ReceivingPacket {
                         }
                     }
                     if(minDistInteractableObject) {
-                        minDistInteractableObject.interact(p);
+                        p.interactWith(minDistInteractableObject);
                     } else if(minDistObject) {
-                        minDistObject.interact(p);
+                        p.interactWith(minDistObject);
                     }
                     break;
                 }
@@ -117,7 +117,7 @@ export class InputPacket extends ReceivingPacket {
                     for(const object of p.visibleObjects) {
                         if(((object as any).isDoor || (object as any).isButton || (object as any).isPuzzlePiece) && sameLayer(object.layer, p.layer)) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
-                            if(record?.collided) (object as Obstacle).interact(p);
+                            if(record?.collided) p.interactWith(object as Obstacle);
                         }
                     }
                     break;
