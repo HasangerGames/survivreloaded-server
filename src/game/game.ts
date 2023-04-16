@@ -19,6 +19,7 @@ import {
     SurvivBitStream,
     TypeToId,
     vecLerp,
+    Weapons,
     WeaponType
 } from "../utils";
 import { Map } from "./map";
@@ -303,7 +304,7 @@ export class Game {
                 if(p.isMobile) {
                     for(const object of p.visibleObjects) {
                         if(object instanceof Loot &&
-                            (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0)) &&
+                            (!object.isGun || (p.weapons[0].typeId === 0 || p.weapons[1].typeId === 0) || (Weapons[p.activeWeapon.typeString]?.dualWieldType && Weapons[object.typeString]?.dualWieldType && p.activeWeapon.typeId === object.typeId)) &&
                             !object.isMelee &&
                             distanceBetween(p.position, object.position) <= p.scale + Constants.player.touchLootRadMult) {
                             p.interactWith(object);
