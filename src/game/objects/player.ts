@@ -1073,17 +1073,14 @@ export class Player extends GameObject {
     }
 
     set buildingZoom(value: number) {
+        if(this._zoom === value) return;
         this._buildingZoom = value;
-        //console.warn("executing isInBuilding setter");
         this.scopeToResetTo = this.scope.typeString;
-        //console.warn(this.scopeToResetTo);
         if(this._buildingZoom !== 0) {
             this.zoom = this._buildingZoom;
         } else if(this.wasInBuildingAsOfLastCheck) {
             if(this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[this.scopeToResetTo];
             else this.zoom = Constants.scopeZoomRadius.desktop[this.scopeToResetTo];
-        } else {
-            //console.warn("not at all in building");
         }
         if(this._buildingZoom === 0) {
             this.wasInBuildingAsOfLastCheck = false;

@@ -113,6 +113,7 @@ export class UpdatePacket extends SendingPacket {
                 stream.writeBoolean(hasItem);
                 if(hasItem) stream.writeBits(value as number, 9);
             }
+            p.inventoryDirty = false;
         }
 
         // Weapons
