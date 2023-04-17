@@ -185,6 +185,7 @@ export class Player extends GameObject {
             ammo: 0,
             cooldown: 0,
             cooldownDuration: 0,
+            switchCooldown: 0,
             weaponType: WeaponType.Gun
         },
         {
@@ -193,6 +194,7 @@ export class Player extends GameObject {
             ammo: 0,
             cooldown: 0,
             cooldownDuration: 0,
+            switchCooldown: 0,
             weaponType: WeaponType.Gun
         },
         {
@@ -200,6 +202,7 @@ export class Player extends GameObject {
             typeId: TypeToId.fists,
             cooldown: 0,
             cooldownDuration: 250,
+            switchCooldown: 0,
             weaponType: WeaponType.Melee
         },
         {
@@ -208,6 +211,7 @@ export class Player extends GameObject {
             count: 0,
             cooldown: 0,
             cooldownDuration: 0,
+            switchCooldown: 0,
             weaponType: WeaponType.Throwable
         }
     ];
@@ -470,6 +474,8 @@ export class Player extends GameObject {
         else this.activeWeapon.cooldownDuration = this.activeWeaponInfo.fireDelay * 1000;
         if((chosenSlot === 0 || chosenSlot === 1) && this.activeWeapon.ammo === 0) this.reload();
 
+        this.activeWeapon.switchCooldown = Date.now();
+
         this.weaponsDirty = true;
         this.game!.fullDirtyObjects.add(this);
         this.fullDirtyObjects.add(this);
@@ -501,6 +507,7 @@ export class Player extends GameObject {
                     ammo: 0,
                     cooldown: 0,
                     cooldownDuration: 250,
+                    switchCooldown: 0,
                     weaponType: WeaponType.Melee
                 };
             } else {
@@ -510,6 +517,7 @@ export class Player extends GameObject {
                     ammo: 0,
                     cooldown: 0,
                     cooldownDuration: 0,
+                    switchCooldown: 0,
                     weaponType: WeaponType.Gun
                 };
             }
@@ -620,7 +628,9 @@ export class Player extends GameObject {
     }
 
     weaponCooldownOver(): boolean {
-        return Date.now() - this.activeWeapon.cooldown >= this.activeWeapon.cooldownDuration;
+        return Date.now() - this.activeWeapon.cooldown >= this.activeWeapon.cooldownDuration
+        && (this.activeWeaponInfo.weaponClass !== "sniper"
+        ? Date.now() - (this.activeWeaponInfo.switchDelay * 1000) >= this.activeWeapon.switchCooldown : true);
     }
 
     useMelee(): void {
