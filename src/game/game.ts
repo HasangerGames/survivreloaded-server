@@ -111,6 +111,7 @@ export class Game {
     over = false; // Whether this game is over. This is set to true to stop the tick loop.
     started = false; // Whether there are more than 2 players, meaning the game has started.
     allowJoin = true; // Whether new players should be able to join
+    spawnWithGoodies = false; // In late game, players spawn with ammo and healing items
 
     constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
@@ -179,10 +180,15 @@ export class Game {
 
         this.map = new Map(this, "main");
 
-        // Prevent new players from joining after 5 minutes
+        // Spawn players with ammo and healing items after 3 minutes
         setInterval(() => {
-            if(this.aliveCount > 1) this.allowJoin = false;
-        }, 300000);
+            if(this.aliveCount > 2) this.spawnWithGoodies = true;
+        }, 180000);
+
+        // Prevent new players from joining after 5 1/2 minutes
+        setInterval(() => {
+            if(this.aliveCount > 2) this.allowJoin = false;
+        }, 330000);
 
         this.tick(30);
     }

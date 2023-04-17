@@ -17,7 +17,7 @@ import {
     ItemSlot, log,
     MedTypes,
     objectCollision,
-    ObjectKind,
+    ObjectKind, random,
     randomFloat,
     removeFrom,
     sameLayer,
@@ -313,6 +313,38 @@ export class Player extends GameObject {
         this.weapons[1].typeString = "sv98";
         this.weapons[1].typeId = TypeToId.sv98;
         */
+
+        // Spawn w/ random ammo & healing items in late game
+        if(game.spawnWithGoodies) {
+            switch(random(1, 4)) {
+                case 1:
+                    this.inventory["9mm"] = 60;
+                    break;
+                case 2:
+                    this.inventory["12gauge"] = 10;
+                    break;
+                case 3:
+                    this.inventory["762mm"] = 60;
+                    break;
+                case 4:
+                    this.inventory["556mm"] = 60;
+                    break;
+            }
+            switch(random(1, 4)) {
+                case 1:
+                    this.inventory.bandage = 5;
+                    break;
+                case 2:
+                    this.inventory.healthkit = 1;
+                    break;
+                case 3:
+                    this.inventory.soda = 2;
+                    break;
+                case 4:
+                    this.inventory.painkiller = 1;
+                    break;
+            }
+        }
 
         // Init body
         this.body = game.world.createBody({
