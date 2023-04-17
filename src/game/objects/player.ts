@@ -1075,9 +1075,7 @@ export class Player extends GameObject {
     set buildingZoom(value: number) {
         this._buildingZoom = value;
         //console.warn("executing isInBuilding setter");
-        if(this.scope.typeString !== "1xscope") {
-            this.scopeToResetTo = this.scope.typeString;
-        }
+        this.scopeToResetTo = this.scope.typeString;
         //console.warn(this.scopeToResetTo);
         if(this._buildingZoom !== 0) {
             this.zoom = this._buildingZoom;
