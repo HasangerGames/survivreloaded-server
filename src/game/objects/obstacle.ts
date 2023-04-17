@@ -180,7 +180,7 @@ export class Obstacle extends GameObject {
                 closedPosition: this._position.clone(),
                 openPosition: Vec2()
             };
-            this.interactable = true;
+            this.interactable = this.door.canUse;
             this.interactionRad = data.door.interactionRad;
 
             if (this.parentBuilding) {
@@ -390,6 +390,7 @@ export class Obstacle extends GameObject {
             this.door.openSeq %= 2;
             if (this.door.openOnce) {
                 this.door.canUse = false;
+                this.interactable = false;
             }
             this.game.fullDirtyObjects.add(this);
             setTimeout((This) => {
@@ -406,6 +407,7 @@ export class Obstacle extends GameObject {
 
         if(this.button.useOnce) {
             this.button.canUse = false;
+            this.interactable = false;
         }
         if(this.button.useType && this.parentBuilding) {
             for(const door of this.parentBuilding.doors) {

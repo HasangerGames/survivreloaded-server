@@ -205,6 +205,7 @@ export class Building extends GameObject {
         for(const piece of This.puzzlePieces) {
             if(piece.isButton) {
                 piece.button.canUse = !This.puzzle.solved;
+                piece.interactable = piece.button.canUse;
                 piece.button.onOff = false;
                 This.game.fullDirtyObjects.add(piece);
             }
