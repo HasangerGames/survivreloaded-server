@@ -286,8 +286,7 @@ export class Emote {
 export enum ObjectKind {
     Invalid, Player, Obstacle, Loot,
     LootSpawner, DeadBody, Building, Structure,
-    Decal, Projectile, Smoke, Airdrop, Npc,
-    Skitternade
+    Decal, Projectile, Smoke, Airdrop
 }
 
 export enum MsgType {
@@ -314,7 +313,6 @@ export enum InputType {
 
 export enum DamageType {
     Player, Bleeding, Gas, Airdrop, Airstrike,
-    Freeze, Weather, Npc, Burning, Phoenix
 }
 
 export enum WeaponType {
