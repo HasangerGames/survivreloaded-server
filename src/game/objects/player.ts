@@ -108,7 +108,8 @@ export class Player extends GameObject {
 
     damageable = true;
 
-    lastInteractionTime = 0;
+    lastObstacleInteractionTime = 0;
+    lastLootInteractionTime = 0;
 
     fullUpdate = true;
     playerStatusDirty = true;
@@ -1134,9 +1135,12 @@ export class Player extends GameObject {
     }
 
     interactWith(object: Obstacle | Loot): void {
-        if(Date.now() - this.lastInteractionTime > 100) {
+        if(object instanceof Obstacle && Date.now() - this.lastObstacleInteractionTime > 100) {
             object.interact(this);
-            this.lastInteractionTime = Date.now();
+            this.lastObstacleInteractionTime = Date.now();
+        } else if(object instanceof Loot && Date.now() - this.lastLootInteractionTime > 25) {
+            object.interact(this);
+            this.lastLootInteractionTime = Date.now();
         }
     }
 
