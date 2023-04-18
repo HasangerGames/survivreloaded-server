@@ -441,6 +441,8 @@ export class Player extends GameObject {
 
         if(this.isMobile) this.zoom = Constants.scopeZoomRadius.mobile[scope];
         else this.zoom = Constants.scopeZoomRadius.desktop[scope];
+
+        this.inventoryDirty = true;
     }
 
     get activeWeapon(): any {
