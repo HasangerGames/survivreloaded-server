@@ -54,6 +54,9 @@ export class Bullet {
 
     dead = false;
 
+    hasSpecialFx = false;
+    shotAlt = false;
+
     constructor(shooter: Player,
                 position: Vec2,
                 direction: Vec2,

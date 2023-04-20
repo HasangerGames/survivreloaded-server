@@ -620,7 +620,7 @@ export class Game {
         this.fullDirtyObjects.add(p);
 
         p.sendPacket(new JoinedPacket(p));
-        const stream = SurvivBitStream.alloc(32768);
+        const stream = SurvivBitStream.alloc(65536);
         new MapPacket(p).serialize(stream);
         new UpdatePacket(this.allowJoin ? p : p.spectating!).serialize(stream);
         new AliveCountsPacket(this).serialize(stream);

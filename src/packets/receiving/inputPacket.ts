@@ -219,7 +219,7 @@ export class InputPacket extends ReceivingPacket {
                 break;
         }
 
-        stream.readBits(6); // Padding
+        stream.readBits(5); // Padding
     }
 
 }

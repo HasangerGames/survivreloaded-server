@@ -142,6 +142,7 @@ export class Player extends GameObject {
         meleeType: string
         heal: number
         boost: number
+        deathEffect: number
         emotes: number[]
     };
 
@@ -156,22 +157,36 @@ export class Player extends GameObject {
         "50AE": 0,
         "308sub": 0,
         flare: 0,
+        "40mm": 0,
         "45acp": 0,
+        mine: 0,
         frag: 0,
+        heart_frag: 0,
         smoke: 0,
         strobe: 0,
         mirv: 0,
         snowball: 0,
+        water_balloon: 0,
+        skitternade: 0,
+        antiFire: 0,
         potato: 0,
         bandage: 0,
         healthkit: 0,
         soda: 0,
+        chocolateBox: 0,
+        bottle: 0,
+        gunchilada: 0,
+        watermelon: 0,
+        nitroLace: 0,
+        flask: 0,
+        pulseBox: 0,
         painkiller: 0,
         "1xscope": 1,
         "2xscope": 0,
         "4xscope": 0,
         "8xscope": 0,
-        "15xscope": 0
+        "15xscope": 0,
+        rainbow_ammo: 0
     };
 
     scope = {
@@ -291,6 +306,7 @@ export class Player extends GameObject {
                 meleeType: loadout.melee,
                 heal: TypeToId[loadout.heal],
                 boost: TypeToId[loadout.boost],
+                deathEffect: 0,
                 emotes: []
             };
             for(const emote of loadout.emotes) {
@@ -304,6 +320,7 @@ export class Player extends GameObject {
                 meleeType: "fists",
                 heal: TypeToId.heal_basic,
                 boost: TypeToId.boost_basic,
+                deathEffect: 0,
                 emotes: [TypeToId.emote_happyface, TypeToId.emote_thumbsup, TypeToId.emote_surviv, TypeToId.emote_sadface, 0, 0]
             };
         }
@@ -961,7 +978,7 @@ export class Player extends GameObject {
                     const lastManStanding: Player = [...this.game.livingPlayers][0];
 
                     // Send game over
-                    const gameOverPacket = new GameOverPacket(lastManStanding, true);
+                    const gameOverPacket = new GameOverPacket(lastManStanding);
                     lastManStanding.sendPacket(gameOverPacket);
                     for(const spectator of lastManStanding.spectators) spectator.sendPacket(gameOverPacket);
 
@@ -1170,8 +1187,10 @@ export class Player extends GameObject {
         stream.writeBoolean(false); // Indoors
         stream.writeBoolean(false); // Gun loaded
         stream.writeBoolean(false); // Heal effect?
+        stream.writeBoolean(false); // another heal effect thing?
 
-        stream.writeBits(0, 2); // Unknown bits
+        stream.writeBoolean(true); // idk why but without this actions won't work
+        stream.writeBits(0, 6);
 
         stream.writeBoolean(this.actionItem.typeId !== 0);
         if(this.actionItem.typeId !== 0) {
@@ -1179,7 +1198,10 @@ export class Player extends GameObject {
         }
 
         stream.writeBoolean(false); // Scale dirty
+        stream.writeBoolean(false); // role dirty
         stream.writeBoolean(false); // Perks dirty
+
+        stream.writeBits(0, 4); // Event-specific effects
         stream.writeAlignToNextByte();
     }
 

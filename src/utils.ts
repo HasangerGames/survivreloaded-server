@@ -735,11 +735,11 @@ export class SurvivBitStream extends BitStream {
     }
 
     writeGameType(id): void {
-        this.writeBits(id, 10);
+        this.writeBits(id, 11);
     }
 
     readGameType(): number {
-        return this.readBits(10);
+        return this.readBits(11);
     }
 
     writeMapType(id): void {

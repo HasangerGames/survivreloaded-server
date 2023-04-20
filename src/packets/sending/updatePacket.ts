@@ -1,5 +1,5 @@
 import { SendingPacket } from "../sendingPacket";
-import { type Emote, MsgType, type SurvivBitStream } from "../../utils";
+import { type Emote, MsgType, type SurvivBitStream, Constants } from "../../utils";
 import { type Player } from "../../game/objects/player";
 import { type GameObject } from "../../game/gameObject";
 import { type Explosion } from "../../game/explosion";
@@ -89,6 +89,9 @@ export class UpdatePacket extends SendingPacket {
             p.boostDirty = false;
         }
 
+        // Misc
+        stream.writeBits(0, 3); // Misc dirty
+
         // Zoom
         stream.writeBoolean(p.zoomDirty);
         if(p.zoomDirty) {
@@ -157,7 +160,7 @@ export class UpdatePacket extends SendingPacket {
         // Red zone data
         if(game.gasDirty || p.fullUpdate) {
             stream.writeUint8(game.gas.mode);
-            stream.writeFloat32(game.gas.initialDuration);
+            stream.writeBits(game.gas.initialDuration, 8);
             stream.writeVec(game.gas.posOld, 0, 0, 1024, 1024, 16);
             stream.writeVec(game.gas.posNew, 0, 0, 1024, 1024, 16);
             stream.writeFloat(game.gas.radOld, 0, 2048, 16);
@@ -187,8 +190,17 @@ export class UpdatePacket extends SendingPacket {
                 stream.writeString(player.name); // Name
 
                 // Loadout
+                stream.writeGameType(player.loadout.outfit); // Outfit (skin)
                 stream.writeGameType(player.loadout.heal); // Healing particles
                 stream.writeGameType(player.loadout.boost); // Adrenaline particles
+                stream.writeGameType(player.loadout.melee); // Melee
+                stream.writeGameType(player.loadout.deathEffect); // Death effect
+                for(let i = 0; i < Constants.EmoteSlot.Count; i++) {
+                    stream.writeGameType(player.loadout.emotes[i]);
+                }
+                // Misc
+                stream.writeUint32(player.id); // User account ID
+                stream.writeBoolean(false); // Is unlinked (doesn't have account)
                 stream.writeAlignToNextByte(); // Padding
             }
         }
@@ -247,15 +259,15 @@ export class UpdatePacket extends SendingPacket {
                     stream.writeBits(bullet.reflectCount, 2);
                     stream.writeUint16(bullet.reflectObjId);
                 }
-                stream.writeBoolean(bullet.splinter);
-                if(bullet.splinter) {
-                    stream.writeBoolean(bullet.splinterSmall);
-                }
-                stream.writeBoolean(bullet.trailFx);
-                if(bullet.trailFx) {
+                stream.writeBoolean(bullet.hasSpecialFx);
+                if(bullet.hasSpecialFx) {
+                    stream.writeBoolean(bullet.shotAlt);
+                    stream.writeBoolean(bullet.splinter);
                     stream.writeBoolean(bullet.trailSaturated);
+                    stream.writeBoolean(bullet.splinterSmall);
                     stream.writeBoolean(bullet.trailThick);
                 }
+
             }
             stream.writeAlignToNextByte();
         }

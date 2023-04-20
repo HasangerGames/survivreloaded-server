@@ -272,7 +272,6 @@ export class Loot extends GameObject {
         stream.writeBoolean(false); // Is old
         stream.writeBoolean(false); // Is preloaded gun
         stream.writeBoolean(false); // Has owner
-        stream.writeBits(0, 1); // Padding
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function

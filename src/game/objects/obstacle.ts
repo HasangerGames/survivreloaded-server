@@ -515,10 +515,12 @@ export class Obstacle extends GameObject {
     serializeFull(stream: SurvivBitStream): void {
         stream.writeFloat(this.healthT, 0, 1, 8);
         stream.writeMapType(this.typeId);
+        stream.writeString(this.typeString);
         stream.writeBits(this.layer, 2);
         stream.writeBoolean(this.dead);
 
         stream.writeBoolean(this.isDoor);
+        stream.writeUint8(this.teamId);
         if(this.isDoor) {
             stream.writeBoolean(this.door.open);
             stream.writeBoolean(this.door.canUse);

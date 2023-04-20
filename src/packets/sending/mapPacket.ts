@@ -24,7 +24,7 @@ export class MapPacket extends SendingPacket {
 
         stream.writeUint8(p.map.rivers.length);
         for(const river of p.map.rivers) {
-            stream.writeFloat32(river.width);
+            stream.writeBits(river.width, 8);
             stream.writeUint8(river.looped);
 
             stream.writeUint8(river.points.length);
@@ -46,6 +46,7 @@ export class MapPacket extends SendingPacket {
             stream.writeFloat(obj.scale, 0.125, 2.5, 8);
             stream.writeMapType(obj.typeId);
             stream.writeBits(obj.orientation!, 2);
+            stream.writeString(obj.typeString);
             stream.writeBits(0, 2); // Padding
         }
 
