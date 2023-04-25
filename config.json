@@ -1,16 +1,16 @@
 {
-  "host": "127.0.0.1",
+  "host": "0.0.0.0",
   "port": 8000,
   "https": false,
-  "webSocketHost": "127.0.0.1",
+  "webSocketHost": "0.0.0.0",
   "webSocketPort": 8001,
   "webSocketHttps": false,
-  "webSocketDevAddress": "127.0.0.1:8001",
+  "webSocketDevAddress": "0.0.0.0",
   "useWebSocketDevAddress": true,
   "webSocketRegions": {
-    "na": "na.resurviv.io",
-    "eu": "eu.resurviv.io",
-    "as": "as.resurviv.io"
+    "na": "customsurviv.fly.dev",
+    "eu": "customsurviv.fly.dev",
+    "as": "customsurviv.fly.dev"
   },
   "defaultRegion": "na",
   "keyFile": "key.pem",
