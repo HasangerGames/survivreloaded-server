@@ -6,6 +6,7 @@ import { Explosion } from "../explosion";
 import { type Player } from "./player";
 
 export class Projectile extends GameObject {
+    kind = ObjectKind.Projectile;
 
     zPos = 2;
     direction: Vec2;
@@ -39,7 +40,6 @@ export class Projectile extends GameObject {
         player: Player
     ) {
         super(game, typeString, position, layer);
-        this.kind = ObjectKind.Projectile;
 
         this.direction = direction;
 

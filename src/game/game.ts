@@ -38,7 +38,7 @@ import { Explosion } from "./explosion";
 import { type Stair } from "./stair";
 import { Building } from "./objects/building";
 import { type Obstacle } from "./objects/obstacle";
-import { Projectile } from "./objects/projectile";
+import { type Projectile } from "./objects/projectile";
 
 export class Game {
     id: string; // The game ID. 16 hex characters, same as MD5

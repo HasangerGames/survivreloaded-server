@@ -4,6 +4,8 @@ import { Bullet } from "./bullet";
 import { Decal } from "./objects/decal";
 import { type Game } from "./game";
 import { type Gun, type Player } from "./objects/player";
+import { type Obstacle } from "./objects/obstacle";
+import { type Projectile } from "./objects/projectile";
 
 export class Explosion {
     position: Vec2;
@@ -11,13 +13,13 @@ export class Explosion {
     typeId: number;
     layer: number;
     source: Player;
-    objectUsed?: Gun;
+    objectUsed?: Gun | Projectile | Obstacle;
     constructor (
         position: Vec2,
         typeSting: string,
         layer: number,
         source: Player,
-        objectUsed?: Gun
+        objectUsed?: Gun | Projectile | Obstacle
     ) {
         this.position = position;
         this.typeId = TypeToId[typeSting];

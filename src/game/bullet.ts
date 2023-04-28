@@ -2,6 +2,8 @@ import { type Body, Circle, Vec2 } from "planck";
 import { Bullets, distanceBetween, randomFloat, TypeToId } from "../utils";
 import { type Game } from "./game";
 import { type Gun, type Player } from "./objects/player";
+import { type Obstacle } from "./objects/obstacle";
+import { type Projectile } from "./objects/projectile";
 
 // this class should probably extend GameObject
 export class Bullet {
@@ -35,7 +37,7 @@ export class Bullet {
     clipDistance = false;
 
     shotFx: boolean;
-    shotSource: Gun;
+    shotSource: Gun | Projectile | Obstacle;
     shotOffhand = false;
     lastShot = false;
 
@@ -58,7 +60,7 @@ export class Bullet {
                 position: Vec2,
                 direction: Vec2,
                 typeString: string,
-                shotSource: Gun,
+                shotSource: Gun | Projectile | Obstacle,
                 shotFx: boolean,
                 layer: number,
                 game: Game) {

@@ -548,7 +548,7 @@ export class Player extends GameObject {
                 this.weapons[slot] = {
                     typeString: "",
                     typeId: 0,
-                    ammo: 0,
+                    count: 0,
                     cooldown: 0,
                     cooldownDuration: 0,
                     switchCooldown: 0,
@@ -780,7 +780,7 @@ export class Player extends GameObject {
         }
          new Projectile(this.activeWeapon.typeString, this.game, this.position, this.layer, this.direction, this);
          this.inventory[this.activeWeapon.typeString]--;
-         this.activeWeapon.count = this.inventory[this.activeWeapon.typeString];
+         (this.activeWeapon as Throwable).count = this.inventory[this.activeWeapon.typeString];
          this.inventoryDirty = true;
     }
 

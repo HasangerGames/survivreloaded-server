@@ -361,8 +361,7 @@ export class Obstacle extends GameObject {
                     this.explosion,
                     this.layer,
                     source,
-                    // hack what?
-                    this as any
+                    this
                 );
                 this.game.explosions.add(explosion);
             }
