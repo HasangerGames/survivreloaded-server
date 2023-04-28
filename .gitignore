@@ -5,9 +5,9 @@ public
 # Compiled source
 dist/
 
-# Node stuff
+# Node modules
 node_modules/
-package-lock.json
+pnpm-lock.yaml
 
 # Misc
 surviv.js
