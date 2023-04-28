@@ -8,6 +8,7 @@ export abstract class GameObject {
     isObstacle?: boolean;
     isBullet?: boolean;
     isLoot?: boolean;
+    isProjectile?: boolean;
 
     abstract kind: ObjectKind;
 

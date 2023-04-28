@@ -24,7 +24,8 @@ export class Loot extends GameObject {
         player: false,
         obstacle: true,
         bullet: false,
-        loot: true
+        loot: true,
+        projectile: false
     };
 
     count: number;

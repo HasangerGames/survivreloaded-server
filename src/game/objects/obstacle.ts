@@ -33,7 +33,8 @@ export class Obstacle extends GameObject {
         player: true,
         obstacle: false,
         bullet: true,
-        loot: true
+        loot: true,
+        projectile: true
     };
 
     minScale: number;
@@ -103,6 +104,8 @@ export class Obstacle extends GameObject {
         halfWidth: number
     };
 
+    height: number;
+
     isWall: boolean;
     damageCeiling: boolean;
     parentBuilding: Building | undefined;
@@ -157,6 +160,7 @@ export class Obstacle extends GameObject {
         this.armorPlated = data.armorPlated;
         this.stonePlated = data.stonePlated;
 
+        this.height = data.height;
         // Broken windows, club bar, etc.
         if (data.height <= 0.2) {
             this.collidesWith.bullet = false;

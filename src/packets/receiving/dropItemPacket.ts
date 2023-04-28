@@ -20,9 +20,6 @@ export class DropItemPacket extends ReceivingPacket {
             case ItemSlot.Throwable:
                 this.p.dropItemInSlot(3, item);
                 break;
-            case ItemSlot.Throwable:
-                this.p.dropItemInSlot(3, item);
-                break;
             default:
                 break;
         }

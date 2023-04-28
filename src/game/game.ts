@@ -38,6 +38,7 @@ import { Explosion } from "./explosion";
 import { type Stair } from "./stair";
 import { Building } from "./objects/building";
 import { type Obstacle } from "./objects/obstacle";
+import { Projectile } from "./objects/projectile";
 
 export class Game {
     id: string; // The game ID. 16 hex characters, same as MD5
@@ -87,6 +88,8 @@ export class Game {
     kills = new Set<KillPacket>(); // All kills this tick
     roleAnnouncements = new Set<RoleAnnouncementPacket>(); // All role announcements this tick
     damageRecords = new Set<DamageRecord>(); // All records of damage by bullets this tick
+
+    projectiles = new Set<Projectile>(); // All projectiles that currently exist
 
     // Red zone
     readonly gas = {
@@ -172,10 +175,17 @@ export class Game {
                 return false;
             }
 
+            if (thisObject.isProjectile && (thatObject as Obstacle).collidesWith.projectile) {
+                return (thisObject as Projectile).zPos < (thatObject as Obstacle).height;
+            } else if (thatObject.isProjectile && (thisObject as Obstacle).collidesWith.projectile) {
+                return (thatObject as Projectile).zPos < (thisObject as Obstacle).height;
+            }
+
             if (thisObject.isPlayer) return (thatObject as Player).collidesWith.player;
             else if (thisObject.isObstacle) return (thatObject as Obstacle).collidesWith.obstacle;
             else if (thisObject.isBullet) return (thatObject as unknown as Bullet).collidesWith.bullet;
             else if (thisObject.isLoot) return (thatObject as Loot).collidesWith.loot;
+            else if (thisObject.isProjectile) return (thatObject as Projectile).collidesWith.projectile;
             else return false;
         };
 
@@ -212,7 +222,8 @@ export class Game {
                     player: true,
                     obstacle: false,
                     bullet: true,
-                    loot: false
+                    loot: false,
+                    projectile: true
                 }
             }
         });
@@ -442,6 +453,10 @@ export class Game {
                     }
                 }
                 p.buildingZoom = playerZoomFromBuilding;
+            }
+
+            for (const proj of this.projectiles) {
+                proj.update();
             }
 
             for (const explosion of this.explosions) {

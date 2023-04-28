@@ -42,6 +42,7 @@ import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import type { Explosion } from "../explosion";
 import { Obstacle } from "./obstacle";
+import { Projectile } from "./projectile";
 
 // import { Building } from "./building";
 
@@ -78,7 +79,8 @@ export class Player extends GameObject {
         player: false,
         obstacle: true,
         bullet: true,
-        loot: false
+        loot: false,
+        projectile: false
     };
 
     socket: WebSocket<unknown>;
@@ -549,6 +551,7 @@ export class Player extends GameObject {
                     ammo: 0,
                     cooldown: 0,
                     cooldownDuration: 0,
+                    switchCooldown: 0,
                     weaponType: WeaponType.Throwable
                 };
             }else {
@@ -765,15 +768,20 @@ export class Player extends GameObject {
         player.recalculateSpeed();
     }
 
-    useThrowable() {
+    useThrowable(): void {
+        if(this.inventory[this.activeWeapon.typeString] < 1) return;
         // Start throwing animation
         if (!this.anim.active) {
             this.anim.active = true;
-            this.anim.type = Constants.Anim.Cook;
+            this.anim.type = Constants.Anim.Throw;
             this.anim.seq = 1;
             this.anim.time = 0;
             this.fullDirtyObjects.add(this);
         }
+         new Projectile(this.activeWeapon.typeString, this.game, this.position, this.layer, this.direction, this);
+         this.inventory[this.activeWeapon.typeString]--;
+         this.activeWeapon.count = this.inventory[this.activeWeapon.typeString];
+         this.inventoryDirty = true;
     }
 
     shootGun (): void {
