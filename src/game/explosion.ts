@@ -3,20 +3,21 @@ import { distanceBetween, Explosions, objectCollision, randomFloat, sameLayer, T
 import { Bullet } from "./bullet";
 import { Decal } from "./objects/decal";
 import { type Game } from "./game";
+import { type Gun, type Player } from "./objects/player";
 
 export class Explosion {
     position: Vec2;
     typeString: string;
     typeId: number;
     layer: number;
-    source: any;
-    objectUsed: any;
+    source: Player;
+    objectUsed?: Gun;
     constructor(
         position: Vec2,
         typeSting: string,
         layer: number,
-        source: any,
-        objectUsed?: any
+        source: Player,
+        objectUsed?: Gun
     ) {
         this.position = position;
         this.typeId = TypeToId[typeSting];
@@ -32,6 +33,7 @@ export class Explosion {
 
         // TODO: check if the object / player is behind a wall, and better algorithm to calculate the damage
         const visibleObjects = game.visibleObjects[28][Math.round(this.position.x / 10) * 10][Math.round(this.position.y / 10) * 10];
+        //                  what is index 28??? <--||
         for(const object of visibleObjects) {
             if(object.damageable && !object.dead && sameLayer(this.layer, object.layer)) {
                 const record = objectCollision(object, this.position, radius);
@@ -71,12 +73,14 @@ export class Explosion {
         for(let i = 0; i < explosionData.shrapnelCount; i++) {
             const angle = randomFloat(0, Math.PI * 2);
             const direction = Vec2(Math.cos(angle), Math.sin(angle));
+            // You could use the random-point-in-circle function for this
             const bullet = new Bullet(
                 this.source,
                 this.position,
                 direction,
                 explosionData.shrapnelType,
-                this.objectUsed,
+                //!unsafe
+                this.objectUsed!,
                 false,
                 this.layer,
                 game

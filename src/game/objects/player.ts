@@ -45,6 +45,30 @@ import { Obstacle } from "./obstacle";
 
 // import { Building } from "./building";
 
+//hack this is temporary and should be replaced by something more rigorous
+export interface InventoryItem {
+    typeString: string
+    typeId: number
+    cooldown: number
+    cooldownDuration: number
+    switchCooldown: number
+    weaponType: WeaponType
+}
+
+export interface Gun extends InventoryItem {
+    ammo: number
+    weaponType: WeaponType.Gun
+}
+
+export interface Melee extends InventoryItem {
+    weaponType: WeaponType.Melee
+}
+
+export interface Throwable extends InventoryItem {
+    count: number
+    weaponType: WeaponType.Throwable
+}
+
 export class Player extends GameObject {
 
     isPlayer = true;
@@ -58,7 +82,7 @@ export class Player extends GameObject {
         loot: false
     };
 
-    socket: WebSocket<any>;
+    socket: WebSocket<unknown>;
     map: Map;
 
     name: string;
@@ -179,7 +203,7 @@ export class Player extends GameObject {
         typeId: TypeToId["1xscope"]
     };
 
-    weapons = [
+    weapons: [Gun, Gun, Melee, Throwable] = [
         {
             typeString: "",
             typeId: 0,
@@ -264,7 +288,9 @@ export class Player extends GameObject {
     spectatePrevious = false;
     spectateForce = false;
 
-    constructor(id: number, position: Vec2, socket: WebSocket<any>, game: Game, name: string, loadout) {
+    declare kind: ObjectKind.Player;
+
+    constructor(id: number, position: Vec2, socket: WebSocket<unknown>, game: Game, name: string, loadout: { outfit: string | number, melee: string, heal: string | number, boost: string | number, emotes: string | number[] }) {
         super(game, "", position, 0);
         this.kind = ObjectKind.Player;
 
@@ -396,12 +422,13 @@ export class Player extends GameObject {
         const spread = degreesToRadians(weapon.shotSpread);
         for(let i = 0; i < weapon.bulletCount; i++) {
             const angle = unitVecToRadians(this.direction) + randomFloat(-spread, spread);
-            const bullet: Bullet = new Bullet(
+            const bullet = new Bullet(
                 this,
                 Vec2(this.position.x + (offset * Math.cos(angle + Math.PI / 2)) + 1.0001 * Math.cos(angle), this.position.y + (offset * Math.sin(angle + Math.PI / 2)) + 1.0001 * Math.sin(angle)),
                 Vec2(Math.cos(angle), Math.sin(angle)),
                 weapon.bulletType,
-                this.activeWeapon,
+                //hack wtf?
+                this.activeWeapon as Gun,
                 shotFx,
                 this.layer,
                 this.game
@@ -417,11 +444,13 @@ export class Player extends GameObject {
             shotFx = false;
         }
         this.weaponsDirty = true;
-        this.activeWeapon.ammo--;
-        if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
-        if(this.activeWeapon.ammo === 0) {
-            this.shooting = false;
-            this.reload();
+        if ("ammo" in this.activeWeapon) {
+            this.activeWeapon.ammo--;
+            if(this.activeWeapon.ammo < 0) this.activeWeapon.ammo = 0;
+            if(this.activeWeapon.ammo === 0) {
+                this.shooting = false;
+                this.reload();
+            }
         }
     }
 
@@ -446,11 +475,13 @@ export class Player extends GameObject {
         this.inventoryDirty = true;
     }
 
-    get activeWeapon(): any {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    get activeWeapon() {
         return this.weapons[this.selectedWeaponSlot];
     }
 
-    get activeWeaponInfo(): any {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    get activeWeaponInfo() {
         return Weapons[this.activeWeapon.typeString];
     }
 
@@ -475,7 +506,7 @@ export class Player extends GameObject {
 
         if(chosenSlot === 2) this.activeWeapon.cooldownDuration = this.activeWeaponInfo.attack.cooldownTime * 1000;
         else this.activeWeapon.cooldownDuration = this.activeWeaponInfo.fireDelay * 1000;
-        if((chosenSlot === 0 || chosenSlot === 1) && this.activeWeapon.ammo === 0) this.reload();
+        if((chosenSlot === 0 || chosenSlot === 1) && (this.activeWeapon as Gun).ammo === 0) this.reload();
 
         this.activeWeapon.switchCooldown = Date.now();
 
@@ -490,10 +521,10 @@ export class Player extends GameObject {
         if(this.weapons[slot].typeString === item) {
             if(this.weapons[slot].typeId === 0) return;
             const isDualWielded = this.weapons[slot].typeString.endsWith("dual");
-            if(this.weapons[slot].ammo as number > 0) {
+            if((this.weapons[slot] as Gun).ammo as number > 0) {
                 // Put the ammo in the gun back in the inventory
-                const ammoType: string = Weapons[this.weapons[slot].typeString].ammo;
-                (this.inventory[ammoType] as number) += (this.weapons[slot].ammo as number); // TODO Make this.inventory a Map to prevent this mess
+                const ammoType: keyof Player["inventory"] = Weapons[this.weapons[slot].typeString].ammo;
+                this.inventory[ammoType] += (this.weapons[slot] as Gun).ammo; // TODO Make this.inventory a Map to prevent this mess
 
                 // If the new amount is more than the inventory can hold, drop the extra
                 const overAmount: number = this.inventory[ammoType] - Constants.bagSizes[ammoType][this.backpackLevel];
@@ -507,7 +538,6 @@ export class Player extends GameObject {
                 this.weapons[slot] = {
                     typeString: "fists",
                     typeId: TypeToId.fists,
-                    ammo: 0,
                     cooldown: 0,
                     cooldownDuration: 250,
                     switchCooldown: 0,
@@ -716,13 +746,14 @@ export class Player extends GameObject {
         }
     }
 
+    // why does this need to be static?
     static resetSpeedAfterShooting(player: Player): void {
         player.shooting = false;
         player.recalculateSpeed();
     }
 
     shootGun(): void {
-        if(this.activeWeapon.ammo === 0) {
+        if((this.activeWeapon as Gun).ammo === 0) {
             this.shooting = false;
             this.reload();
             return;
@@ -740,7 +771,7 @@ export class Player extends GameObject {
 
         // Fire the gun
         if(weapon.fireMode === "burst") {
-            const burstCount = Math.min(weapon.burstCount, this.activeWeapon.ammo); // Makes sure burst gun won't fire more bullets than ammo it currently has
+            const burstCount = Math.min(weapon.burstCount, (this.activeWeapon as Gun).ammo); // Makes sure burst gun won't fire more bullets than ammo it currently has
             const burstDelay = weapon.burstDelay;
             for(let i = 0; i < burstCount; i++) {
                 setTimeout(() => this.spawnBullet(offset, weaponTypeString), 1000 * i * burstDelay);
@@ -814,7 +845,7 @@ export class Player extends GameObject {
     reload(): void {
         if(this.shooting || !(this.selectedWeaponSlot === 0 || this.selectedWeaponSlot === 1)) return;
         const weaponInfo = this.activeWeaponInfo;
-        if(this.activeWeapon.ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
+        if((this.activeWeapon as Gun).ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
             this.doAction(this.activeWeapon.typeString, weaponInfo.reloadTime, Constants.Action.Reload, true);
         }
     }

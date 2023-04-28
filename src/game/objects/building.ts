@@ -1,9 +1,19 @@
-import { ObjectKind, rotateRect, type SurvivBitStream, sameLayer, rectCollision, Constants } from "../../utils";
+import {
+    ObjectKind,
+    rotateRect,
+    type SurvivBitStream,
+    sameLayer,
+    rectCollision,
+    Constants,
+    type Orientation,
+    type MinMax
+} from "../../utils";
 import { GameObject } from "../gameObject";
-import { type Vec2 } from "planck";
+import { Vec2 } from "planck";
 import { type Game } from "../game";
 import { type Obstacle } from "./obstacle";
 import { type Player } from "./player";
+import { type JSONObjects } from "../../jsonTypings";
 
 export class Building extends GameObject {
 
@@ -16,7 +26,7 @@ export class Building extends GameObject {
     minPos: Vec2;
     maxPos: Vec2;
     zoomRadius = 28;
-    data: any;
+    data: JSONObjects.Building;
 
     puzzle: {
         name: string
@@ -29,7 +39,7 @@ export class Building extends GameObject {
         inputOrder: string[]
         solved: boolean
         errorSeq: number
-        resetTimeoutId: any
+        resetTimeoutId: number
     };
 
     ceiling = {
@@ -41,20 +51,22 @@ export class Building extends GameObject {
         obstaclesToDestroy: 0
     };
 
-    mapObstacleBounds: any[] = [];
-    zoomRegions: any[] = [];
+    mapObstacleBounds: Array<MinMax<Vec2>> = [];
+    zoomRegions: Array<MinMax<Vec2> & { zoom?: number }> = [];
 
     doors: Obstacle[] = [];
 
     puzzlePieces: Obstacle[] = [];
 
+    declare kind: ObjectKind.Building;
+
     constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
-                orientation: number,
+                orientation: Orientation,
                 showOnMap: boolean,
-                data) {
+                data: JSONObjects.Building) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Building;
         this.data = data;
@@ -63,17 +75,25 @@ export class Building extends GameObject {
 
         for(const zoomRegion of data.ceiling.zoomRegions) {
             if(zoomRegion.zoomIn) {
-                const rect: any = rotateRect(this.position, zoomRegion.zoomIn.min, zoomRegion.zoomIn.max, 1, this.orientation!);
+                //!unsafe
+                const rect = rotateRect(
+                    this.position,
+                    Vec2(zoomRegion.zoomIn.min!),
+                    Vec2(zoomRegion.zoomIn.max!),
+                    1,
+                    this.orientation!
+                ) as MinMax<Vec2> & { zoom?: number };
                 rect.zoom = zoomRegion.zoom;
                 this.zoomRegions.push(rect);
             }
         }
 
-        if(data.ceiling?.destroy) {
+        if(data.ceiling.destroy) {
             this.ceiling.destructible = true;
-            this.ceiling.wallsToDestroy = data.ceiling.destroy.wallCount;
+            //!unsafe
+            this.ceiling.wallsToDestroy = data.ceiling.destroy.wallCount!;
         }
-        if(data.ceiling?.damage) {
+        if(data.ceiling.damage) {
             this.ceiling.damageable = true;
             this.ceiling.obstaclesToDestroy = data.ceiling.damage.obstacleCount;
         }
@@ -97,13 +117,24 @@ export class Building extends GameObject {
 
         if(data.mapObstacleBounds?.length) {
             for(const bounds of data.mapObstacleBounds) {
-                this.mapObstacleBounds.push(rotateRect(position, bounds.min, bounds.max, 1, this.orientation!));
+                this.mapObstacleBounds.push(rotateRect(position, Vec2(bounds.min), Vec2(bounds.max), 1, this.orientation!));
             }
         } else if(data.ceiling && data.ceiling.zoomRegions.length > 0) {
             // use the zoom regions as a fallback
             for(const zoomRegion of data.ceiling.zoomRegions) {
-                const rect = zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut;
-                this.mapObstacleBounds.push(rotateRect(position, rect.min, rect.max, 1, this.orientation!));
+                //!unsafe
+                const rect = zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut!;
+                this.mapObstacleBounds.push(
+                    rotateRect(
+                        position,
+                        //!unsafe
+                        Vec2(rect.min!),
+                        //!unsafe
+                        Vec2(rect.max!),
+                        1,
+                        this.orientation!
+                    )
+                );
             }
         } else {
             console.warn(`No obstacle bounds specified for building: ${typeString}`);
@@ -188,14 +219,14 @@ export class Building extends GameObject {
             this.puzzle.errorSeq++;
             this.puzzle.errorSeq %= 2;
             this.game.partialDirtyObjects.add(this);
-            this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle, this.puzzle.errorResetDelay * 1000, this);
+            this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle, this.puzzle.errorResetDelay * 1000, this) as unknown as number;
         } else {
             this.puzzle.resetTimeoutId = setTimeout((This) => {
                 This.puzzle.errorSeq++;
                 This.puzzle.errorSeq %= 2;
                 This.game.partialDirtyObjects.add(This);
                 setTimeout(This.resetPuzzle, This.puzzle.errorResetDelay * 1000, This);
-            }, this.puzzle.pieceResetDelay * 1000, this);
+            }, this.puzzle.pieceResetDelay * 1000, this) as unknown as number;
         }
     }
 

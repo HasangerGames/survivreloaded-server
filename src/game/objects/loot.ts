@@ -11,7 +11,7 @@ import {
 } from "../../utils";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
-import { type Player } from "./player";
+import { type Gun, type Player } from "./player";
 import { PickupMsgType, PickupPacket } from "../../packets/sending/pickupPacket";
 import { Circle, Vec2 } from "planck";
 
@@ -37,6 +37,8 @@ export class Loot extends GameObject {
     isAmmo = false;
 
     oldPos: Vec2;
+
+    declare kind: ObjectKind.Loot;
 
     constructor(game: Game,
                 typeString: string,
@@ -127,7 +129,7 @@ export class Loot extends GameObject {
             }
 
             // Reload active gun if the player picks up the correct ammo
-            if(p.activeWeapon.ammo === 0 && this.typeString === p.activeWeaponInfo.ammo) p.reload();
+            if((p.activeWeapon as Gun).ammo === 0 && this.typeString === p.activeWeaponInfo.ammo) p.reload();
         } else if(Weapons[this.typeString]?.type === "melee") {
             let slotSwitchingTo: number | undefined;
             if(p.weapons[2].typeString === this.typeString) {
@@ -280,7 +282,11 @@ export class Loot extends GameObject {
 
 }
 
-export interface LooseLoot { tier: string, min: number, max: number }
+export interface LooseLoot {
+    tier: string
+    min: number
+    max: number
+}
 
 export function generateLooseLootFromArray(game: Game, loot: LooseLoot[], position: Vec2, layer: number): void {
     for(let i = 0; i < loot.length; i++) {

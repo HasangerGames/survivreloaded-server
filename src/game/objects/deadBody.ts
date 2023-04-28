@@ -7,6 +7,8 @@ export class DeadBody extends GameObject {
 
     playerId: number;
 
+    declare kind: ObjectKind.DeadBody;
+
     constructor(game: Game, layer: number, position: Vec2, playerId: number) {
         super(game, "", position, layer, 0);
         this.kind = ObjectKind.DeadBody;

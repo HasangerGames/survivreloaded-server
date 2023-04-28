@@ -1,4 +1,4 @@
-import { ObjectKind, type SurvivBitStream } from "../../utils";
+import { ObjectKind, type Orientation, type SurvivBitStream } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
@@ -8,10 +8,12 @@ export class Structure extends GameObject {
 
     layerObjIds: number[];
 
+    declare kind: ObjectKind.Structure;
+
     constructor(game: Game,
                 typeString: string,
                 position: Vec2,
-                orientation: number,
+                orientation: Orientation,
                 layerObjIds: number[]) {
         super(game, typeString, position, 0, orientation);
         this.kind = ObjectKind.Structure;
