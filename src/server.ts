@@ -1,13 +1,15 @@
-import { App, SSLApp } from "uWebSockets.js";
+import { App, SSLApp, type TemplatedApp } from "uWebSockets.js";
 import cookie from "cookie";
 import fs from "fs";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Worker } from "node:worker_threads";
 
 import { Config, Debug, getContentType, log, readJson, readPostedJson } from "./utils";
-import { exec, spawn } from "child_process";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { type ChildProcessWithoutNullStreams, exec, spawn } from "child_process";
 
 // Initialize the server
-let app;
+let app: TemplatedApp;
 if(Config.https) {
     app = SSLApp({
         key_file_name: Config.keyFile,
@@ -18,7 +20,7 @@ if(Config.https) {
 }
 
 // Set up static files
-const staticFiles = {};
+const staticFiles: Record<string, Buffer> = {};
 function walk(dir: string, files: string[] = []): string[] {
     if(dir.includes(".git") || dir.includes("src") || dir.includes(".vscode") || dir.includes(".idea")) return files;
     const dirFiles = fs.readdirSync(dir);
@@ -36,6 +38,7 @@ for(const file of walk("public")) {
     staticFiles[file] = fs.readFileSync("public" + file);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 app.get("/*", async (res, req) => {
     const path: string = req.getUrl() === "/" ? "/index.html" : req.getUrl();
     let file: Buffer | undefined;
@@ -82,7 +85,7 @@ app.post("/api/user/get_user_prestige", (res) => {
 });
 
 app.post("/api/find_game", (res) => {
-    readPostedJson(res, (body) => {
+    readPostedJson(res, (body: { region: string | number, zones: any[] }) => {
         const addr: string = Config.useWebSocketDevAddress ? Config.webSocketDevAddress : Config.webSocketRegions[body?.region] ?? Config.webSocketRegions[Config.defaultRegion];
         res.writeHeader("Content-Type", "application/json");
         res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: "", useHttps: Config.useHttps, hosts: [addr], addrs: [addr] }] }));
@@ -92,7 +95,7 @@ app.post("/api/find_game", (res) => {
 });
 
 app.post("/api/user/profile", (res, req) => {
-    const loadout = readJson("json/profile.json");
+    const loadout = readJson<any>("json/profile.json");
     const cookies = cookie.parse(req.getHeader("cookie"));
     //console.log(cookies.loadout);
     if(cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
@@ -101,7 +104,7 @@ app.post("/api/user/profile", (res, req) => {
 });
 
 app.post("/api/user/loadout", (res) => {
-    readPostedJson(res, (body) => {
+    readPostedJson(res, (body: { loadout: any }) => {
         res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { path: "/", domain: "resurviv.io", maxAge: 2147483647 }));
         res.writeHeader("Content-Type", "application/json");
         res.end(JSON.stringify(body));
@@ -136,7 +139,7 @@ process.on("SIGTERM", shutdownHandler);
 
 // Code to handle the WebSocket server
 let lastDataReceivedTime = Date.now() + 30000;
-let webSocketProcess;
+let webSocketProcess: ChildProcessWithoutNullStreams;
 function spawnWebSocketProcess(): void {
     webSocketProcess = spawn("node", ["--enable-source-maps", "dist/webSocketServer.js"]);
     webSocketProcess.stdout!.on("data", data => {

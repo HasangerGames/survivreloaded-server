@@ -1,4 +1,4 @@
-import { App, DEDICATED_COMPRESSOR_256KB, SSLApp } from "uWebSockets.js";
+import { App, DEDICATED_COMPRESSOR_256KB, SSLApp, type TemplatedApp } from "uWebSockets.js";
 import cookie from "cookie";
 
 import { Config, log, MsgType, SurvivBitStream } from "./utils";
@@ -13,7 +13,7 @@ import { SpectatePacket } from "./packets/receiving/spectatePacket";
 let game = new Game();
 
 // Initialize the server
-let app;
+let app: TemplatedApp;
 if(Config.webSocketHttps) {
     app = SSLApp({
         key_file_name: Config.keyFile,
@@ -75,13 +75,15 @@ app.ws("/play", {
             );
         }
     },
-    open: (socket) => {
+    //todo add better typings here
+    open: (socket: any) => {
         let playerName: string = socket.cookies["player-name"];
         if(!playerName || playerName.length > 16) playerName = "Player";
         socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout ? JSON.parse(socket.cookies.loadout) : null);
         log(`${socket.player.name} joined the game`);
     },
-    message: (socket, message) => {
+    //todo add better typings here
+    message: (socket: any, message) => {
         const stream = new SurvivBitStream(message);
         try {
             const msgType = stream.readUint8();
@@ -106,7 +108,8 @@ app.ws("/play", {
             console.warn("Error parsing message:", e);
         }
     },
-    close: (socket) => {
+    //todo add better typings here
+    close: (socket: any) => {
         if(Config.botProtection) playerCounts[socket.ip]--;
         log(`${socket.player.name} left the game`);
         game.removePlayer(socket.player);

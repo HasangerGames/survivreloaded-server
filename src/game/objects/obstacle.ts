@@ -6,18 +6,20 @@ import {
     Item,
     LootTables,
     ObjectKind,
-    Objects,
     random,
     rectCollision,
     rotateRect,
     type SurvivBitStream,
     Weapons,
-    weightedRandom
+    weightedRandom,
+    Objects,
+    type Orientation,
+    type MinMax
 } from "../../utils";
 import { type Game } from "../game";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
-import { Box, Vec2 } from "planck";
+import { Box, type Shape, Vec2 } from "planck";
 import { Player } from "./player";
 import { Explosion } from "../explosion";
 import { type Building } from "./building";
@@ -63,9 +65,9 @@ export class Obstacle extends GameObject {
         canUse: boolean
         locked: boolean
         hinge: Vec2
-        closedOrientation: number
-        openOrientation: number
-        openAltOrientation: number
+        closedOrientation: Orientation
+        openOrientation: Orientation
+        openAltOrientation: Orientation
         openOneWay: number | boolean
         openDelay: number
         openSeq: number
@@ -89,7 +91,18 @@ export class Obstacle extends GameObject {
 
     loot: Item[] = [];
 
-    collision;
+    collision: {
+        type: CollisionType
+        rad: number
+        min: Vec2
+        max: Vec2
+        initialMin: Vec2
+        initialMax: Vec2
+        doorOpen: MinMax<Vec2>
+        doorOpenAlt: MinMax<Vec2>
+        halfHeight: number
+        halfWidth: number
+    };
 
     isWall: boolean;
     damageCeiling: boolean;
@@ -100,11 +113,13 @@ export class Obstacle extends GameObject {
     armorPlated = false;
     stonePlated = false;
 
+    declare kind: ObjectKind.Obstacle;
+
     constructor(game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
-                orientation: number,
+                orientation: Orientation,
                 scale: number,
                 data,
                 parentBuilding?: Building,
@@ -149,12 +164,14 @@ export class Obstacle extends GameObject {
         }
 
         this.collision = deepCopy(data.collision);
-        const collisionPos = this.isDoor ? addAdjust(position, data.hinge, this.orientation) : position;
+        //hack GameObject.orientation is marked as optional
+        const collisionPos = this.isDoor ? addAdjust(position, data.hinge, this.orientation ?? 0) : position;
         if(this.collidable) {
             this.body = bodyFromCollisionData(this.game.world, data.collision, collisionPos, orientation, scale, this);
         }
         if(this.collision.type === CollisionType.Rectangle) {
-            const rotatedRect = rotateRect(position, data.collision.min, data.collision.max, this.scale, this.orientation);
+            //hack GameObject.orientation is marked as optional
+            const rotatedRect = rotateRect(position, data.collision.min, data.collision.max, this.scale, this.orientation ?? 0);
             this.collision.min = this.collision.initialMin = rotatedRect.min;
             this.collision.max = this.collision.initialMax = rotatedRect.max;
         }
@@ -336,7 +353,14 @@ export class Obstacle extends GameObject {
                 this.game.updateObjects = true;
             }
             if(this.explosion) {
-                const explosion: Explosion = new Explosion(this.position, this.explosion, this.layer, source, this);
+                const explosion = new Explosion(
+                    this.position,
+                    this.explosion,
+                    this.layer,
+                    source,
+                    //hack what?
+                    this as any
+                );
                 this.game.explosions.add(explosion);
             }
             if(this.body) this.game.world.destroyBody(this.body!);
@@ -360,11 +384,11 @@ export class Obstacle extends GameObject {
             if(this.minScale < 1) this.scale = this.healthT * (this.maxScale - this.minScale) + this.minScale;
             const scaleFactor: number = this.scale / oldScale;
             if (this.body) {
-                const shape: any = this.body!.getFixtureList()!.getShape();
+                const shape = this.body!.getFixtureList()!.getShape() as Shape & { m_vertices: Vec2[] };
                 if(this.collision.type === CollisionType.Circle) {
                     shape.m_radius = shape.m_radius * scaleFactor;
                 } else if(this.collision.type === CollisionType.Rectangle) {
-                    for(let i = 0; i < shape.m_vertices.length; i++) {
+                    for(let i = 0, length = shape.m_vertices.length; i < length; i++) {
                         shape.m_vertices[i] = shape.m_vertices[i].clone().mul(scaleFactor);
                     }
                 }

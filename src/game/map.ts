@@ -19,7 +19,9 @@ import {
     TypeToId,
     weightedRandom,
     deepCopy,
-    log
+    log,
+    type Orientation,
+    type MinMax
 } from "../utils";
 import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
@@ -30,7 +32,13 @@ import { Vec2 } from "planck";
 import { generateLooseLootFromArray, Loot } from "./objects/loot";
 import { type GameObject } from "./gameObject";
 import { Stair } from "./stair";
+import { type JSONObjects } from "../jsonTypings";
 
+type ObjectBounds = MinMax<Vec2> & { originalMin: Vec2, originalMax: Vec2, type: CollisionType };
+type RectangleBound = ObjectBounds & { type: CollisionType.Rectangle };
+// type CircleBound = ObjectBounds & { type: CollisionType.Circle };
+
+// Potential naming collision with the native Map class
 export class Map {
     name: string;
     seed: number;
@@ -72,22 +80,22 @@ export class Map {
 
                 // Crossing bunker
                 if(x === 360) {
-                    this.genStructure("bunker_structure_05", Objects.bunker_structure_05, Vec2(x, y), 1);
+                    this.genStructure("bunker_structure_05", Objects.bunker_structure_05 as JSONObjects.Structure, Vec2(x, y), 1);
                 }
 
                 // River docks
                 if(x === 400) {
-                    this.genBuilding("dock_01", Objects.dock_01, Vec2(x, y - 13), 0, 0);
+                    this.genBuilding("dock_01", Objects.dock_01 as JSONObjects.Building, Vec2(x, y - 13), 0, 0);
                 }
 
                 // Fisherman's shacks
                 if(x === 300 || x === 500) {
-                    this.genBuilding("shack_03a", Objects.shack_03a, Vec2(x, y - 25), 0, 0);
+                    this.genBuilding("shack_03a", Objects.shack_03a as JSONObjects.Building, Vec2(x, y - 25), 0, 0);
                 }
 
                 // Large bridges
                 if(x === 200 || x === 600) {
-                    this.genBuilding("bridge_lg_01", Objects.bridge_lg_01, Vec2(x, y), 1, 0);
+                    this.genBuilding("bridge_lg_01", Objects.bridge_lg_01 as JSONObjects.Building, Vec2(x, y), 1, 0);
                 }
 
                 // Smaller river
@@ -100,7 +108,7 @@ export class Map {
                         points2.push(Vec2(x2, y2));
 
                         // Medium bridges
-                        if(steps === 5 || steps === 12) this.genBuilding("bridge_md_01", Objects.bridge_md_01, Vec2(x2, y2), 0, 0);
+                        if(steps === 5 || steps === 12) this.genBuilding("bridge_md_01", Objects.bridge_md_01 as JSONObjects.Building, Vec2(x2, y2), 0, 0);
                         else if(y2 < 660) {
                             if(randomBoolean()) this.genRiverObstacle(Vec2(x2, y2), 5, "stone_03");
                             if(randomBoolean()) this.genRiverObstacle(Vec2(x2, y2), 5, "bush_04");
@@ -168,7 +176,8 @@ export class Map {
                 generateLooseLootFromArray(
                     this.game,
                     [{ tier: "tier_world", min: 1, max: 1 }],
-                    this.getRandomPositionFor(ObjectKind.Loot, undefined, 0, 1),
+                                                                   //! ?????
+                    this.getRandomPositionFor(ObjectKind.Loot, undefined as any, 0, 1),
                     0
                 );
             }
@@ -220,8 +229,8 @@ export class Map {
 
                     for(const object of this.game.staticObjects) {
                         let isVisible = false;
-                        if((object as any).mapObstacleBounds) {
-                            for(const bounds of (object as any).mapObstacleBounds) {
+                        if((object as Building).mapObstacleBounds) {
+                            for(const bounds of (object as Building).mapObstacleBounds) {
                                 if(rectRectCollision(min, max, bounds.min, bounds.max)) {
                                     isVisible = true;
                                     break;
@@ -242,83 +251,75 @@ export class Map {
         log(`Calculating visible objects took ${Date.now() - visibleObjectsStartTime}ms`);
     }
 
-    private obstacleTest(type: string, position: Vec2, orientation = 0, scale = 1): void {
-        this.genObstacle(type, position, 0, orientation, scale, Objects[type]);
+    private obstacleTest(type: string, position: Vec2, orientation: Orientation = 0, scale = 1): void {
+        this.genObstacle(type, position, 0, orientation, scale, Objects[type] as JSONObjects.Obstacle);
     }
 
-    private genStructures(count: number, type: string, building: any): void {
+    private genStructures(count: number, type: string, building: JSONObjects.Structure): void {
         for(let i = 0; i < count; i++) this.genStructure(type, building);
     }
 
-    private genStructure(typeString: string, structureData: any, setPosition: Vec2 | null = null, setOrientation: number | null = null): void {
-        let orientation: number;
-        if(setOrientation !== undefined && setOrientation != null) orientation = setOrientation;
-        else orientation = random(0, 3);
-
-        let position: Vec2;
-        if(setPosition) position = setPosition;
-        else position = this.getRandomPositionFor(ObjectKind.Structure, structureData, orientation, 1);
+    private genStructure(typeString: string, structureData: JSONObjects.Structure, setPosition?: Vec2, setOrientation?: Orientation): void {
+        const orientation = setOrientation ?? random(0, 3) as Orientation;
+        const position = setPosition ?? this.getRandomPositionFor(ObjectKind.Structure, structureData, orientation, 1);
 
         const layerObjIds: number[] = [];
 
-        for(let layerId = 0; layerId < structureData.layers.length; layerId++) {
-            const layerObj = structureData.layers[layerId];
-            const layerType = layerObj.type;
-            const layer = Objects[layerType];
-            layerObjIds.push(TypeToId[layerType]);
+        if(structureData.layers) {
+            for(let layerId = 0, length = structureData.layers.length; layerId < length; layerId++) {
+                const layerObj = structureData.layers[layerId];
+                const layerType = layerObj.type;
+                const layer = Objects[layerType];
+                layerObjIds.push(TypeToId[layerType]);
 
-            let layerOrientation: number;
-            if(layerObj.inheritOri === false) layerOrientation = layerObj.orientation;
-            else layerOrientation = addOrientations(layerObj.ori, orientation);
-            const layerPosition = addAdjust(position, layerObj.pos, orientation);
+                let layerOrientation: Orientation;
+                if(layerObj.inheritOri === false) layerOrientation = layerObj.ori;
+                else layerOrientation = addOrientations(layerObj.ori, orientation);
+                const layerPosition = addAdjust(position, Vec2(layerObj.pos), orientation);
 
-            if(layer.type === "structure") {
-                this.genStructure(layerType, layer, layerPosition, layerOrientation);
-            } else if(layer.type === "building") {
-                this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
-            } else {
-                // console.warn(`Unsupported object type: ${layer.type}`);
+                if(layer.type === "structure") {
+                    this.genStructure(layerType, layer, layerPosition, layerOrientation);
+                } else if(layer.type === "building") {
+                    this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
+                } else {
+                    // console.warn(`Unsupported object type: ${layer.type}`);
+                }
             }
         }
         this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
 
-        for(const stairData of structureData.stairs) {
-            if(!stairData.lootOnly) this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
+        if ("stairs" in structureData && Array.isArray(structureData.stairs)) {
+            for(const stairData of structureData.stairs) {
+                if(!stairData.lootOnly) this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
+            }
         }
     }
 
-    private genBuildings(count: number, type: string, building: any): void {
+    private genBuildings(count: number, type: string, building: JSONObjects.Building): void {
         for(let i = 0; i < count; i++) this.genBuilding(type, building);
     }
 
-    private buildingTest(type: string, orientation: number): void {
-        this.genBuilding(type, Objects[type], Vec2(450, 150), orientation, undefined, true);
+    private buildingTest(type: string, orientation: Orientation): void {
+        this.genBuilding(type, Objects[type] as JSONObjects.Building, Vec2(450, 150), orientation, undefined, true);
     }
 
     private genBuilding(typeString: string,
-                        buildingData: any,
+                        buildingData: JSONObjects.Building,
                         setPosition?: Vec2,
-                        setOrientation?: number,
+                        setOrientation?: Orientation,
                         setLayer?: number,
                         debug = false): void {
-        let orientation: any;
-        if(setOrientation !== undefined && setOrientation !== null) orientation = setOrientation;
-        else if(typeString.startsWith("cache_")) orientation = 0;
-        else orientation = random(0, 3);
-        let layer: number;
-        if(setLayer !== undefined) layer = setLayer;
-        else layer = 0;
-        let position: Vec2;
-        if(setPosition) position = setPosition;
-        else position = this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1);
+        const orientation = setOrientation ?? typeString.startsWith("cache_") ? 0 : random(0, 3) as Orientation;
+        const layer = setLayer ?? 0;
+        const position = setPosition ?? this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1);
 
-        const building: Building = new Building(
+        const building = new Building(
             this.game,
             typeString,
             position,
-            setLayer !== undefined ? setLayer : 0,
+            setLayer ?? 0,
             orientation,
-            buildingData.map ? buildingData.map.display : false,
+            (buildingData.map as any)?.display ?? false,
             buildingData
         );
 
@@ -330,10 +331,10 @@ export class Map {
             }
             const part = Objects[partType];
 
-            let partOrientation: number;
+            let partOrientation: Orientation;
             if(mapObject.inheritOri === false) partOrientation = mapObject.ori;
             else partOrientation = addOrientations(mapObject.ori, orientation);
-            const partPosition = addAdjust(position, mapObject.pos, orientation);
+            const partPosition = addAdjust(position, Vec2(mapObject.pos), orientation);
 
             switch(part.type) {
                 case "structure":
@@ -358,7 +359,7 @@ export class Map {
                 case "random": {
                     const items = Object.keys(part.weights);
                     const weights = Object.values(part.weights);
-                    const randType = weightedRandom(items, weights as number[]);
+                    const randType = weightedRandom(items, weights);
                     if(randType !== "nothing") {
                         const data = Objects[randType];
                         switch(data.type) {
@@ -389,20 +390,22 @@ export class Map {
                 case "decal":
                     this.game.staticObjects.add(new Decal(partType, this.game, partPosition, layer, partOrientation, mapObject.scale));
                     break;
-                case "ignored":
+                // No such entry exists
+                // case "ignored":
                     // Ignored
-                    break;
+                    // break;
             }
         }
         if(buildingData.mapGroundPatches) {
             for(const groundPatch of buildingData.mapGroundPatches) {
                 this.groundPatches.push(new GroundPatch(
-                    addAdjust(position, groundPatch.bound.min, orientation),
-                    addAdjust(position, groundPatch.bound.max, orientation),
-                    groundPatch.color,
-                    groundPatch.roughness,
-                    groundPatch.offsetDist,
-                    groundPatch.order,
+                    //! all of these non-null assertions are unsafe
+                    addAdjust(position, Vec2(groundPatch.bound.min!), orientation),
+                    addAdjust(position, Vec2(groundPatch.bound.max!), orientation),
+                    groundPatch.color!,
+                    groundPatch.roughness!,
+                    groundPatch.offsetDist!,
+                    groundPatch.order!,
                     groundPatch.useAsMapShape ?? true
                 ));
             }
@@ -432,7 +435,8 @@ export class Map {
     }
 
     private genRiverObstacle(point: Vec2, riverWidth: number, typeString: string): void {
-        const obstacleData = Objects[typeString];
+        //hack This type-cast is unsafe!
+        const obstacleData = Objects[typeString] as unknown as JSONObjects.Obstacle;
         const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
         const position = this.getRandomPositionFor(ObjectKind.Obstacle, obstacleData, 0, scale, () => {
             return randomPointInsideCircle(Vec2(point.x, point.y), riverWidth);
@@ -443,9 +447,9 @@ export class Map {
     private genObstacle(typeString: string,
                         position: Vec2,
                         layer: number,
-                        orientation: number,
+                        orientation: Orientation,
                         scale: number,
-                        obstacleData: any,
+                        obstacleData: JSONObjects.Obstacle,
                         parentBuilding?: Building,
                         bunkerWall = false,
                         puzzlePice?: string): Obstacle {
@@ -453,7 +457,7 @@ export class Map {
             this.game,
             typeString,
             position,
-            layer !== undefined ? layer : 0,
+            layer,
             orientation,
             scale,
             obstacleData,
@@ -466,7 +470,7 @@ export class Map {
         return obstacle;
     }
 
-    private genObstacles(count: number, typeString: string, obstacleData: any): void {
+    private genObstacles(count: number, typeString: string, obstacleData: JSONObjects.Obstacle): void {
         for(let i = 0; i < count; i++) {
             const scale = randomFloat(obstacleData.scale.createMin, obstacleData.scale.createMax);
             this.genObstacle(
@@ -485,19 +489,36 @@ export class Map {
                        count: number,
                        shoreDist: number,
                        width: number,
-                       orientationOffset = 0,
+                       orientationOffset: Orientation = 0,
                        shoreEdgeDist = shoreDist): void {
         for(let i = 0; i < count; i++) {
-            const data = Objects[typeString];
-            const orientation = random(0, 3);
+            const data = Objects[typeString] as JSONObjects.Obstacle | JSONObjects.Building | JSONObjects.Structure;
+            const orientation = random(0, 3) as Orientation;
             const position = this.getPositionOnShore(kind, data, addOrientations(orientation, orientationOffset), 1, shoreDist, width, shoreEdgeDist);
-            if(kind === ObjectKind.Building) this.genBuilding(typeString, data, position, orientation);
-            else if(kind === ObjectKind.Obstacle) this.genObstacle(typeString, position, 0, (kind === ObjectKind.Obstacle) ? 0 : orientation, random(data.scale.createMin, data.scale.createMax), data);
-            else if(kind === ObjectKind.Structure) this.genStructure(typeString, data, position, orientation);
+
+            if(kind === ObjectKind.Building) {
+                this.genBuilding(
+                    typeString,
+                    data as JSONObjects.Building,
+                    position,
+                    orientation
+                );
+            } else if(kind === ObjectKind.Obstacle) {
+                this.genObstacle(
+                    typeString,
+                    position,
+                    0,
+                    (kind === ObjectKind.Obstacle) ? 0 : orientation,
+                    random((data as JSONObjects.Obstacle).scale.createMin, (data as JSONObjects.Obstacle).scale.createMax),
+                    data as JSONObjects.Obstacle
+                );
+            } else if(kind === ObjectKind.Structure) {
+                this.genStructure(typeString, data as JSONObjects.Structure, position, orientation);
+            }
         }
     }
 
-    private getPositionOnShore(kind: ObjectKind, data: any, orientation: number, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
+    private getPositionOnShore(kind: ObjectKind, data: JSONObjects.Obstacle | JSONObjects.Building | JSONObjects.Structure, orientation: Orientation, scale: number, shoreDist: number, width: number, shoreEdgeDist = shoreDist): Vec2 {
         return this.getRandomPositionFor(kind, data, orientation, scale, () => {
             let min: Vec2, max: Vec2;
             switch(orientation) {
@@ -517,47 +538,63 @@ export class Map {
                     min = Vec2(720 - shoreDist - width, 720 - shoreDist - width);
                     max = Vec2(720 - shoreDist + width, shoreDist + width);
                     break;
-                default:
-                    throw new Error("Invalid orientation");
             }
             return randomVec(min.x, max.x, min.y, max.y);
         });
     }
 
     getRandomPositionFor(kind: ObjectKind,
-                         object: any,
-                         orientation = 0,
+                         object: JSONObjects.Obstacle | JSONObjects.Structure | JSONObjects.Building,
+                         orientation: Orientation = 0,
                          scale = 1,
                          getPosition?: () => Vec2,
                          ignoreRivers?: boolean): Vec2 {
         const isBuilding =
             kind === ObjectKind.Building || kind === ObjectKind.Structure;
-        let thisBounds: any[] = [];
+        type Bound = ({
+            type: CollisionType.Rectangle
+            originalMin: Vec2
+            originalMax: Vec2
+        } | {
+            type: CollisionType.Circle
+            rad: number
+        }) & MinMax<Vec2>;
+        const thisBounds: Bound[] = [];
 
         switch(kind) {
             case ObjectKind.Obstacle:
             {
-                const bound = deepCopy(object.collision);
-                if(object.collision.type === CollisionType.Rectangle) {
-                    bound.originalMin = Vec2(bound.min);
-                    bound.originalMax = Vec2(bound.max);
+                //!unsafe
+                const bound = deepCopy((object as JSONObjects.Obstacle).collision) as unknown as Bound;
+
+                //!unsafe
+                if((object as JSONObjects.Obstacle).collision.type === CollisionType.Rectangle) {
+                    //@ts-expect-error; hack
+                    bound.originalMin = Vec2(bound.min!);
+                    //@ts-expect-error; hack
+                    bound.originalMax = Vec2(bound.max!);
                 } else {
+                    //@ts-expect-error; hack
                     bound.rad *= scale;
                 }
                 thisBounds.push(bound);
                 break;
             }
             case ObjectKind.Player:
+                //!unsafe
+                //@ts-expect-error; hack
                 thisBounds.push({ type: CollisionType.Circle, rad: 1 });
                 break;
             case ObjectKind.Loot:
+                //!unsafe
+                //@ts-expect-error; hack
                 thisBounds.push({ type: CollisionType.Circle, rad: 5 });
                 break;
             case ObjectKind.Building:
-                thisBounds = thisBounds.concat(this.getBoundsForBuilding(object));
+                thisBounds.push(...this.getBoundsForBuilding(object as JSONObjects.Building));
                 break;
             case ObjectKind.Structure:
-                thisBounds = thisBounds.concat(this.getBoundsForStructure(object));
+                thisBounds.push(...this.getBoundsForStructure(object as JSONObjects.Structure));
                 break;
         }
 
@@ -573,13 +610,12 @@ export class Map {
         }
 
         let foundPosition = false;
-        let thisPos;
+        let thisPos: Vec2;
         let attempts = 0;
         while(!foundPosition && attempts <= 200) {
             attempts++;
             if(attempts >= 200) {
-                console.warn("[WARNING] Maximum spawn attempts exceeded for: ");
-                console.warn(object);
+                console.warn("[WARNING] Maximum spawn attempts exceeded for: ", object);
             }
             thisPos = getPosition();
             let shouldContinue = false;
@@ -652,14 +688,15 @@ export class Map {
             if(shouldContinue) continue;
             foundPosition = true;
         }
-        return thisPos;
+        // This returns the spawn position of the last spawned object… why?
+        return thisPos!;
     }
 
-    getBoundsForBuilding(building: any, position = Vec2(0, 0), orientation = 0): any[] {
-        let bounds: any[] = [];
+    getBoundsForBuilding(building: JSONObjects.Building, position = Vec2(0, 0), orientation: Orientation = 0): RectangleBound[] {
+        const bounds: RectangleBound[] = [];
         if(building.mapObstacleBounds && building.mapObstacleBounds.length > 0) {
             for(const obstacleBound of building.mapObstacleBounds) {
-                const bound: any = rotateRect(position, obstacleBound.min, obstacleBound.max, 1, orientation);
+                const bound: RectangleBound = rotateRect(position, Vec2(obstacleBound.min), Vec2(obstacleBound.max), 1, orientation) as RectangleBound;
                 bound.originalMin = bound.min;
                 bound.originalMax = bound.max;
                 bound.type = CollisionType.Rectangle;
@@ -667,8 +704,10 @@ export class Map {
             }
         } else if(building.ceiling.zoomRegions && building.ceiling.zoomRegions.length > 0) {
             for(const zoomRegion of building.ceiling.zoomRegions) {
-                const rect = zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut;
-                const bound: any = rotateRect(position, rect.min, rect.max, 1, orientation);
+                //!unsafe
+                const rect = zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut!;
+                //!unsafe
+                const bound: RectangleBound = rotateRect(position, Vec2(rect.min!), Vec2(rect.max!), 1, orientation) as RectangleBound;
                 bound.originalMin = bound.min;
                 bound.originalMax = bound.max;
                 bound.type = CollisionType.Rectangle;
@@ -676,19 +715,20 @@ export class Map {
             }
         }
         for(const object of building.mapObjects) {
-            if(Objects[object.type]?.type === "building") {
-                bounds = bounds.concat(this.getBoundsForBuilding(Objects[object.type], object.pos, object.orientation));
-            } else if(Objects[object.type]?.type === "structure") {
-                bounds = bounds.concat(this.getBoundsForStructure(Objects[object.type], object.pos, object.orientation));
+            const objectType = Objects[object.type]?.type;
+            if(objectType === "building") {
+                bounds.push(...this.getBoundsForBuilding(Objects[object.type] as JSONObjects.Building, Vec2(object.pos), object.ori));
+            } else if(objectType === "structure") {
+                bounds.push(...this.getBoundsForStructure(Objects[object.type] as JSONObjects.Structure, Vec2(object.pos), object.ori));
             }
         }
         return bounds;
     }
 
-    getBoundsForStructure(structure: any, position = Vec2(0, 0), orientation = 0): any[] {
-        let bounds: any[] = [];
-        for(const building of structure.layers) {
-            bounds = bounds.concat(this.getBoundsForBuilding(Objects[building.type], position, orientation));
+    getBoundsForStructure(structure: JSONObjects.Structure, position = Vec2(0, 0), orientation: Orientation = 0): RectangleBound[] {
+        const bounds: RectangleBound[] = [];
+        for(const building of structure.layers ?? []) {
+            bounds.push(...this.getBoundsForBuilding(Objects[building.type] as JSONObjects.Building, position, orientation));
         }
         return bounds;
     }

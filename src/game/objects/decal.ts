@@ -1,4 +1,4 @@
-import { ObjectKind, type SurvivBitStream, TypeToId } from "../../utils";
+import { ObjectKind, type SurvivBitStream, TypeToId, type Orientation } from "../../utils";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
@@ -10,12 +10,14 @@ export class Decal extends GameObject {
     // club pool
     goreKills = 0;
 
+    declare kind: ObjectKind.Decal;
+
     constructor(
         type: string,
         game: Game,
         position: Vec2,
         layer: number,
-        orientation?: number,
+        orientation?: Orientation,
         scale?: number
     ) {
         super(game, "", position, layer, orientation);

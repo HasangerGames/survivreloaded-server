@@ -278,7 +278,7 @@ export class UpdatePacket extends SendingPacket {
             stream.writeUint8(p.emotes.size);
             for(const emote of p.emotes) {
                 stream.writeUint16(emote.playerId);
-                stream.writeGameType(emote.type);
+                stream.writeGameType(emote.type as any); //hack unsafe
                 stream.writeGameType(0); // Item type
                 stream.writeBoolean(emote.isPing);
                 if(emote.isPing) stream.writeVec(emote.position, 0, 0, 1024, 1024, 16);

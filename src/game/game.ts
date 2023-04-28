@@ -23,7 +23,7 @@ import {
     WeaponType
 } from "../utils";
 import { Map } from "./map";
-import { Player } from "./objects/player";
+import { type Gun, Player } from "./objects/player";
 import { AliveCountsPacket } from "../packets/sending/aliveCountsPacket";
 import { UpdatePacket } from "../packets/sending/updatePacket";
 import { JoinedPacket } from "../packets/sending/joinedPacket";
@@ -37,6 +37,7 @@ import { Bullet } from "./bullet";
 import { Explosion } from "./explosion";
 import { type Stair } from "./stair";
 import { Building } from "./objects/building";
+import { type Obstacle } from "./objects/obstacle";
 
 export class Game {
 
@@ -130,8 +131,10 @@ export class Game {
 
         // Handle bullet collisions
         this.world.on("begin-contact", contact => {
-            const objectA: any = contact.getFixtureA().getUserData();
-            const objectB: any = contact.getFixtureB().getUserData();
+            // planck.js' typings don't allow us to type getUserData in a generic manner, so this
+            // will have to do
+            const objectA = contact.getFixtureA().getUserData() as GameObject;
+            const objectB = contact.getFixtureB().getUserData() as GameObject;
             //console.log(objectA.typeString, objectB.typeString);
             if(objectA instanceof Bullet && objectA.distance <= objectA.maxDistance && !objectA.dead) {
                 objectA.dead = true;
@@ -158,23 +161,23 @@ export class Game {
         Fixture.prototype.shouldCollide = function(that): boolean {
 
             // Get the objects
-            const thisObject: any = this.getUserData();
-            const thatObject: any = that.getUserData();
+            const thisObject = this.getUserData() as GameObject;
+            const thatObject = that.getUserData() as GameObject;
 
             // Make sure the objects are on the same layer
             if(!sameLayer(thisObject.layer, thatObject.layer)) return false;
 
             // Prevents collision with invisible walls in bunker entrances
-            if(thisObject.isPlayer && thatObject.isObstacle && thisObject.layer & 0x2 && thatObject.bunkerWall) {
+            if(thisObject.isPlayer && thatObject.isObstacle && thisObject.layer & 0x2 && (thatObject as Obstacle).bunkerWall) {
                 return false;
-            } else if(thisObject.isObstacle && thatObject.isPlayer && thatObject.layer & 0x2 && thisObject.bunkerWall) {
+            } else if(thisObject.isObstacle && thatObject.isPlayer && thatObject.layer & 0x2 && (thisObject as Obstacle).bunkerWall) {
                 return false;
             }
 
-            if(thisObject.isPlayer) return thatObject.collidesWith.player;
-            else if(thisObject.isObstacle) return thatObject.collidesWith.obstacle;
-            else if(thisObject.isBullet) return thatObject.collidesWith.bullet;
-            else if(thisObject.isLoot) return thatObject.collidesWith.loot;
+            if(thisObject.isPlayer) return (thatObject as Player).collidesWith.player;
+            else if(thisObject.isObstacle) return (thatObject as Obstacle).collidesWith.obstacle;
+            else if(thisObject.isBullet) return (thatObject as unknown as Bullet).collidesWith.bullet;
+            else if(thisObject.isLoot) return (thatObject as Loot).collidesWith.loot;
             else return false;
         };
 
@@ -359,13 +362,13 @@ export class Game {
                         p.inventoryDirty = true;
                     } else if(p.actionType === Constants.Action.Reload) {
                         const weaponInfo = p.activeWeaponInfo;
-                        let difference: number = Math.min(p.inventory[weaponInfo.ammo], weaponInfo.maxClip - p.activeWeapon.ammo);
+                        let difference = Math.min(p.inventory[weaponInfo.ammo], weaponInfo.maxClip - (p.activeWeapon as Gun).ammo);
                         if(difference > weaponInfo.maxReload) {
                             difference = weaponInfo.maxReload;
                             p.performActionAgain = true;
                         }
 
-                        (p.activeWeapon.ammo as number) += difference;
+                        (p.activeWeapon as Gun).ammo += difference;
                         p.inventory[weaponInfo.ammo] -= difference;
                         p.weaponsDirty = true;
                         p.inventoryDirty = true;
@@ -595,7 +598,8 @@ export class Game {
         else {
             let foundPosition = false;
             while(!foundPosition) {
-                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined, 0, 1);
+                                                                                    //! unsafe
+                spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined as any, 0, 1);
                 if(!this.isInRedZone(spawnPosition)) foundPosition = true;
             }
         }

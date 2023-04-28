@@ -1,4 +1,4 @@
-import { BitStream } from "bit-buffer";
+import { BitStream, type BitView } from "bit-buffer";
 import fs from "fs";
 import { type Body, Box, Circle, Vec2, type World } from "planck";
 import { Obstacle } from "./game/objects/obstacle";
@@ -6,24 +6,27 @@ import { type GameObject } from "./game/gameObject";
 import { type Bullet } from "./game/bullet";
 import { Player } from "./game/objects/player";
 import { Loot } from "./game/objects/loot";
+import { type Point2D, type JSONObjects } from "./jsonTypings";
+import { type HttpResponse } from "uWebSockets.js";
 
-export const Objects = readJson("data/objects.json");
-export const Maps = readJson("data/maps.json");
-export const Items = readJson("data/items.json");
-export const Weapons = Object.assign(readJson("data/guns.json"), readJson("data/melee.json"));
-export const Bullets = readJson("data/bullets.json");
-export const Explosions = readJson("data/explosions.json");
-export const LootTables = readJson("data/lootTables.json");
-export const RedZoneStages = readJson("data/redZoneStages.json");
-export const AllowedSkins = readJson("data/allowedSkins.json");
-export const AllowedMelee = readJson("data/allowedMelee.json");
-export const AllowedEmotes = readJson("data/allowedEmotes.json");
-export const AllowedHeal = readJson("data/allowedHeal.json");
-export const AllowedBoost = readJson("data/allowedBoost.json");
-export const IdToMapType = readJson("data/idToMapType.json");
-export const IdToGameType = readJson("data/idToGameType.json");
-export const TypeToId = readJson("data/typeToId.json");
-export const Config = readJson("config.json");
+//todo Give all of these actual typings
+export const Objects = readJson<JSONObjects.JSON>("data/objects.json");
+export const Maps = readJson<any>("data/maps.json");
+export const Items = readJson<any>("data/items.json");
+export const Weapons = Object.assign(readJson<any>("data/guns.json"), readJson<any>("data/melee.json"));
+export const Bullets = readJson<any>("data/bullets.json");
+export const Explosions = readJson<any>("data/explosions.json");
+export const LootTables = readJson<any>("data/lootTables.json");
+export const RedZoneStages = readJson<any>("data/redZoneStages.json");
+export const AllowedSkins = readJson<any>("data/allowedSkins.json");
+export const AllowedMelee = readJson<any>("data/allowedMelee.json");
+export const AllowedEmotes = readJson<any>("data/allowedEmotes.json");
+export const AllowedHeal = readJson<any>("data/allowedHeal.json");
+export const AllowedBoost = readJson<any>("data/allowedBoost.json");
+export const IdToMapType = readJson<any>("data/idToMapType.json");
+export const IdToGameType = readJson<any>("data/idToGameType.json");
+export const TypeToId = readJson<any>("data/typeToId.json");
+export const Config = readJson<any>("config.json");
 Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
 export const Debug = Config.debug || {};
 
@@ -31,16 +34,24 @@ export const AmmoTypes = ["9mm", "762mm", "556mm", "12gauge", "50AE", "308sub", 
 export const MedTypes = ["bandage", "healthkit", "soda", "painkiller"];
 export const ScopeTypes = ["1xscope", "2xscope", "4xscope", "8xscope", "15xscope"];
 
+export type Orientation = 0 | 1 | 2 | 3;
+
+export interface MinMax<T> {
+    min: T
+    max: T
+}
+
 export class Item {
     type: string;
     count: number;
 
-    constructor(type, count) {
+    constructor(type: string, count: number) {
         this.type = type;
         this.count = count;
     }
 }
 
+// use enums?
 export const Constants = {
     BasePack: TypeToId.backpack00 as number,
     BaseHelmet: TypeToId.helmet01 - 1 as number,
@@ -213,6 +224,9 @@ export const Constants = {
             "15xscope": 88
         }
     },
+    // I know this is how surviv natively handles it,
+    // but for the sake of ease of extension, this system
+    // might be worth re-engineering
     bagSizes: {
         "9mm": [120, 240, 330, 420],
         "762mm": [90, 180, 240, 300],
@@ -328,6 +342,7 @@ export enum CollisionType {
 }
 
 export enum CollisionCategory {
+    // use bit shifts for added clarity + intent?
     Player = 2, Obstacle = 4, Loot = 8, Other = 16
 }
 
@@ -341,7 +356,7 @@ Game objects can belong to the following layers:
 Objects on the same layer should interact with one another.
 */
 export function sameLayer(a: number, b: number): boolean {
-    return Boolean((1 & a) === (1 & b) || (2 & a && 2 & b));
+    return !!((1 & a) === (1 & b) || (2 & a && 2 & b));
 }
 
 export function toGroundLayer(a: number): number {
@@ -352,10 +367,11 @@ export function toStairsLayer(a: number): number {
     return 2 | a;
 }
 
-export function removeFrom(array: any[], object: any): void {
+export function removeFrom<T>(array: T[], object: T): void {
     const index: number = array.indexOf(object);
     if(index !== -1) array.splice(index, 1);
 }
+
 export function log(message: string): void {
     const date: Date = new Date();
     console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
@@ -381,8 +397,8 @@ export function random(min: number, max: number): number { return Math.floor(ran
 export function randomVec(minX: number, maxX: number, minY: number, maxY: number): Vec2 { return Vec2(random(minX, maxX), random(minY, maxY)); }
 
 // https://stackoverflow.com/a/55671924/5905216
-export function weightedRandom(items: any[], weights: number[]): any {
-    let i;
+export function weightedRandom<T>(items: T[], weights: number[]): T {
+    let i: number;
     for(i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
 
     const random = Math.random() * weights[weights.length - 1];
@@ -394,9 +410,9 @@ export function randomBoolean(): boolean {
     return Math.random() < 0.5;
 }
 
-export function distanceBetween(v1: Vec2, v2: Vec2): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
+export function distanceBetween(v1: Point2D, v2: Point2D): number { return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2)); }
 
-export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number): boolean {
+export function circleCollision(pos1: Point2D, r1: number, pos2: Point2D, r2: number): boolean {
     const a = r1 + r2;
     const x = pos1.x - pos2.x;
     const y = pos1.y - pos2.y;
@@ -409,7 +425,7 @@ export function circleCollision(pos1: Vec2, r1: number, pos2: Vec2, r2: number):
     return distX * distX + distY * distY > circleRad * circleRad;
 }*/
 
-export function rectCollision(min: Vec2, max: Vec2, pos: Vec2, rad: number): boolean {
+export function rectCollision(min: Point2D, max: Point2D, pos: Vec2, rad: number): boolean {
     const cpt = Vec2(clamp(pos.x, min.x, max.x), clamp(pos.y, min.y, max.y));
     const dstSqr = Vec2.lengthSquared(Vec2.sub(pos, cpt));
     return (dstSqr < rad * rad) || (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y);
@@ -419,13 +435,13 @@ export function clamp(a: number, min: number, max: number): number {
     return a < max ? a > min ? a : min : max;
 }
 
-export function rectRectCollision(min1: Vec2, max1: Vec2, min2: Vec2, max2: Vec2): boolean {
+export function rectRectCollision(min1: Point2D, max1: Point2D, min2: Point2D, max2: Point2D): boolean {
     return min2.x < max1.x && min2.y < max1.y && min1.x < max2.x && min1.y < max2.y;
 }
 
 export interface CollisionRecord { collided: boolean, distance: number }
 
-export function distanceToCircle(pos1: Vec2, r1: number, pos2: Vec2, r2: number): CollisionRecord {
+export function distanceToCircle(pos1: Point2D, r1: number, pos2: Point2D, r2: number): CollisionRecord {
     const a = r1 + r2;
     const x = pos1.x - pos2.x;
     const y = pos1.y - pos2.y;
@@ -434,7 +450,7 @@ export function distanceToCircle(pos1: Vec2, r1: number, pos2: Vec2, r2: number)
     return { collided: a2 > xy, distance: a2 - xy };
 }
 
-export function distanceToRect(min: Vec2, max: Vec2, circlePos: Vec2, circleRad: number): CollisionRecord {
+export function distanceToRect(min: Point2D, max: Point2D, circlePos: Point2D, circleRad: number): CollisionRecord {
     const distX = Math.max(min.x, Math.min(max.x, circlePos.x)) - circlePos.x;
     const distY = Math.max(min.y, Math.min(max.y, circlePos.y)) - circlePos.y;
     const radSquared = circleRad * circleRad;
@@ -442,8 +458,8 @@ export function distanceToRect(min: Vec2, max: Vec2, circlePos: Vec2, circleRad:
     return { collided: distSquared < radSquared, distance: radSquared - distSquared };
 }
 
-export function objectCollision(object: GameObject, position: Vec2, radius: number): CollisionRecord {
-    let record;
+export function objectCollision(object: GameObject, position: Point2D, radius: number): CollisionRecord {
+    let record: CollisionRecord;
     if(object instanceof Obstacle) {
         if(object.collision.type === CollisionType.Circle) {
             record = distanceToCircle(object.position, object.collision.rad, position, radius);
@@ -455,16 +471,17 @@ export function objectCollision(object: GameObject, position: Vec2, radius: numb
     } else if(object instanceof Loot) {
         record = distanceToCircle(object.position, 0, position, radius);
     }
-    return record;
+    //bug this if-else chain isn't necessarily exhaustive
+    return record!;
 }
 
-export function addOrientations(n1: number, n2: number): number {
-    return (n1 + n2) % 4;
+export function addOrientations(n1: Orientation, n2: Orientation): Orientation {
+    return (n1 + n2) % 4 as Orientation;
 }
 
-export function addAdjust(position1: Vec2, position2: Vec2, orientation: number): Vec2 {
+export function addAdjust(position1: Vec2, position2: Vec2, orientation: Orientation): Vec2 {
     if(orientation === 0) return Vec2.add(position1, position2);
-    let xOffset, yOffset;
+    let xOffset: number, yOffset: number;
     switch(orientation) {
         case 1:
             xOffset = -position2.y;
@@ -481,10 +498,10 @@ export function addAdjust(position1: Vec2, position2: Vec2, orientation: number)
             yOffset = -position2.x;
             break;
     }
-    return Vec2.add(position1, Vec2(xOffset, yOffset));
+    return Vec2.add(position1, Vec2(xOffset!, yOffset!));
 }
 
-export function rotateRect(pos: Vec2, min: Vec2, max: Vec2, scale: number, orientation: number): { min: Vec2, max: Vec2 } {
+export function rotateRect(pos: Vec2, min: Vec2, max: Vec2, scale: number, orientation: Orientation): MinMax<Vec2> {
     min = Vec2.mul(min, scale);
     max = Vec2.mul(max, scale);
     if(orientation !== 0) {
@@ -511,11 +528,11 @@ export function rotateRect(pos: Vec2, min: Vec2, max: Vec2, scale: number, orien
     };
 }
 
-export function orientationToRad(orientation: number): number {
+export function orientationToRad(orientation: Orientation): number {
     return (orientation % 4) * 0.5 * Math.PI;
 }
 
-export function splitRect(rect: any, axis: Vec2): any {
+export function splitRect(rect: MinMax<Vec2>, axis: Vec2): [MinMax<Vec2>, MinMax<Vec2>] {
     const e = Vec2.mul(Vec2.sub(rect.max, rect.min), 0.5);
     const c = Vec2.add(rect.min, e);
     const left = {
@@ -539,8 +556,15 @@ export function splitRect(rect: any, axis: Vec2): any {
         : [left, right];
 }
 
-export function bodyFromCollisionData(world: World, data, position: Vec2, orientation = 0, scale = 1, obstacle: Obstacle): Body | null {
-    let body;
+export function bodyFromCollisionData(
+    world: World,
+    data: { type: CollisionType, rad: number, min: Vec2, max: Vec2 },
+    position: Vec2,
+    orientation: Orientation = 0,
+    scale = 1,
+    obstacle: Obstacle
+): Body | null {
+    let body: Body;
     if(data.type === CollisionType.Circle) {
         // noinspection TypeScriptValidateJSTypes
         body = world.createBody({
@@ -568,14 +592,15 @@ export function bodyFromCollisionData(world: World, data, position: Vec2, orient
             userData: obstacle
         });
     }
-    return body;
+    // this should use a switch statement because we're dealing with enums
+    return body!;
 }
 
-export function unitVecToRadians(v: Vec2): number {
+export function unitVecToRadians(v: Point2D): number {
     return Math.atan2(v.y, v.x);
 }
 
-export function vec2Rotate(v: Vec2, angle: number): Vec2 {
+export function vec2Rotate(v: Point2D, angle: number): Vec2 {
     const cos = Math.cos(angle), sin = Math.sin(angle);
     return Vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
 }
@@ -584,21 +609,25 @@ export function degreesToRadians(degrees: number): number {
     return degrees * Math.PI / 180;
 }
 
-export function readJson(path: string): any {
-    return JSON.parse(fs.readFileSync(path) as unknown as string);
+export function readJson<T>(path: string): T {
+    return JSON.parse(fs.readFileSync(path).toString()) as T;
 }
 
 /**
  * Helper function for reading a posted JSON body.
  * https://github.com/uNetworking/uWebSockets.js/blob/master/examples/JsonPost.js
  */
-export function readPostedJson(res, cb, err): any {
-    let buffer;
+export function readPostedJson<T>(
+    res: HttpResponse,
+    cb: (json: T) => void,
+    err: () => void
+): void {
+    let buffer: Buffer | Uint8Array;
     /* Register data cb */
     res.onData((ab, isLast) => {
         const chunk = Buffer.from(ab);
         if(isLast) {
-            let json;
+            let json: T;
             if(buffer) {
                 try {
                     // @ts-expect-error JSON.parse can accept a Buffer as an argument
@@ -634,7 +663,8 @@ export function readPostedJson(res, cb, err): any {
 }
 
 export function getContentType(filename: string): string {
-    let contentType;
+    // this should be done with a switch
+    let contentType: string;
     if(filename.endsWith(".svg")) contentType = "image/svg+xml";
     else if(filename.endsWith(".mp3")) contentType = "audio/mpeg";
     else if(filename.endsWith(".html")) contentType = "text/html; charset=UTF-8";
@@ -643,11 +673,30 @@ export function getContentType(filename: string): string {
     else if(filename.endsWith(".png")) contentType = "image/png";
     else if(filename.endsWith(".ico")) contentType = "image/vnd.microsoft.icon";
     else if(filename.endsWith(".jpg")) contentType = "image/jpeg";
-    return contentType;
+    return contentType!;
 }
 
 // https://stackoverflow.com/a/51727716/5905216
 export function randomPointInsideCircle(position: Vec2, radius: number): Vec2 {
+    /*
+        Easier method:
+
+        Use the Pythagorean theorem:
+        x*x + y*y = 1
+
+        Isolate y
+        y = ±√(1 - x*x)
+
+        So for some x, the expression above yields y coordinates
+        which lie on the unit circle
+        Thus,
+
+        const randomSign = () => Math.random() > 0.5 ? -1 : 1;
+        const x = randomSign() * Math.random();
+
+        return Vec2(x * radius, randomSign() * Math.sqrt(1 - x*x)).add(position);
+    */
+
     let x: number, y: number;
     do {
         x = 2 * Math.random() - 1.0; // range [-1, +1)
@@ -658,21 +707,21 @@ export function randomPointInsideCircle(position: Vec2, radius: number): Vec2 {
     return Vec2(x * radius + position.x, y * radius + position.y);
 }
 
-export function vecLerp(t, a, b): Vec2 {
+export function vecLerp(t: number, a: Vec2, b: Vec2): Vec2 {
     return Vec2.add(Vec2.mul(a, 1.0 - t), Vec2.mul(b, t));
 }
 
-export function lerp(t, a, b): number {
+export function lerp(t: number, a: number, b: number): number {
     return a * (1.0 - t) + b * t;
 }
 
-export function deepCopy(object): any {
+export function deepCopy<T>(object: T): T {
     return JSON.parse(JSON.stringify(object));
 }
 
 export class SurvivBitStream extends BitStream {
 
-    constructor(source, byteOffset = 0, byteLength = 0) {
+    constructor(source: ArrayBuffer | BitView, byteOffset = 0, byteLength = 0) {
         super(source, byteOffset, byteLength);
     }
 
@@ -680,11 +729,11 @@ export class SurvivBitStream extends BitStream {
         return new SurvivBitStream(Buffer.alloc(length));
     }
 
-    writeString(str): void { this.writeASCIIString(str); }
-    writeStringFixedLength(str, len): void { this.writeASCIIString(str, len); }
+    writeString(str: string): void { this.writeASCIIString(str); }
+    writeStringFixedLength(str: string, len?: number): void { this.writeASCIIString(str, len); }
     readString(): string { return this.readASCIIString(); }
 
-    readStringFixedLength(len): string { return this.readASCIIString(len); }
+    readStringFixedLength(len?: number): string { return this.readASCIIString(len); }
 
     writeFloat(val: number, min: number, max: number, bitCount: number): void {
         const range = (1 << bitCount) - 1,
@@ -707,11 +756,11 @@ export class SurvivBitStream extends BitStream {
         return Vec2(this.readFloat(minX, maxX, bitCount), this.readFloat(minY, maxY, bitCount));
     }
 
-    writeUnitVec(vec: Vec2, bitCount): void {
+    writeUnitVec(vec: Vec2, bitCount: number): void {
         this.writeVec(vec, -1, -1, 1, 1, bitCount);
     }
 
-    readUnitVec(bitCount): Vec2 {
+    readUnitVec(bitCount: number): Vec2 {
         return this.readVec(-1, -1, 1, 1, bitCount);
     }
 
@@ -734,7 +783,7 @@ export class SurvivBitStream extends BitStream {
         if(offset < 8) this.readBits(offset);
     }
 
-    writeGameType(id): void {
+    writeGameType(id: number): void {
         this.writeBits(id, 10);
     }
 
@@ -742,7 +791,7 @@ export class SurvivBitStream extends BitStream {
         return this.readBits(10);
     }
 
-    writeMapType(id): void {
+    writeMapType(id: number): void {
         this.writeBits(id, 12);
     }
 
