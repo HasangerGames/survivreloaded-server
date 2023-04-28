@@ -1,5 +1,5 @@
 import { Vec2 } from "planck";
-import { distanceBetween, Explosions, objectCollision, randomFloat, sameLayer, TypeToId } from "../utils";
+import { distanceBetween, Explosions, objectCollision, randomFloat, sameLayer, TypeToId, angleBetween } from "../utils";
 import { Bullet } from "./bullet";
 import { Decal } from "./objects/decal";
 import { type Game } from "./game";
@@ -66,6 +66,18 @@ export class Explosion {
                         damage *= damagePercent;
                     }
                     player.damage(damage, this.source, this.objectUsed);
+                }
+            }
+        }
+
+        for (const loot of game.loot) {
+            if (sameLayer(loot.layer, this.layer)) {
+                if (objectCollision(loot, this.position, explosionData.rad.max).collided) {
+                    const angle = angleBetween(loot.position, this.position);
+                    const distance = distanceBetween(loot.position, this.position);
+                    // it works, please don't ask questions
+                    loot.body!.setLinearVelocity(
+                        Vec2(Math.cos(angle), Math.sin(angle)).mul(explosionData.rad.max - distance).mul(0.005));
                 }
             }
         }

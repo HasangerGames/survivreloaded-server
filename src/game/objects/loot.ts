@@ -69,7 +69,8 @@ export class Loot extends GameObject {
         // Create the body
         this.body = game.world.createBody({
             type: "dynamic",
-            position
+            position,
+            linearDamping: 0.003
         });
         this.body.createFixture({
             shape: Circle(radius),

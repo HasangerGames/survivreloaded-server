@@ -555,6 +555,12 @@ export function splitRect (rect: MinMax<Vec2>, axis: Vec2): [MinMax<Vec2>, MinMa
         : [left, right];
 }
 
+export function angleBetween (a: Vec2, b: Vec2): number {
+    const dy = a.y - b.y;
+    const dx = a.x - b.x;
+    return Math.atan2(dy, dx);
+}
+
 export function bodyFromCollisionData (
     world: World,
     data: { type: CollisionType, rad: number, min: Vec2, max: Vec2 },
