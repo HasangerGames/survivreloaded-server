@@ -2,7 +2,7 @@ import { App, DEDICATED_COMPRESSOR_256KB, SSLApp, type TemplatedApp } from "uWeb
 import cookie from "cookie";
 
 import { Config, log, MsgType, SurvivBitStream } from "./utils";
-import { Game } from "./game/game.js";
+import { Game } from "./game/game";
 import { InputPacket } from "./packets/receiving/inputPacket";
 import { EmotePacket } from "./packets/receiving/emotePacket";
 import { JoinPacket } from "./packets/receiving/joinPacket";

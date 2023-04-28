@@ -6,11 +6,15 @@
   "scripts": {
     "build": "tsc",
     "start": "node --enable-source-maps dist/server.js",
-    "dev": "tsc-watch --sourceMap --incremental --onSuccess \"nodemon --enable-source-maps --watch dist/ ./dist/server.js\"",
-    "webSocketServer": "node --enable-source-maps dist/webSocketServer.js",
-    "stressTest": "tsc && node --enable-source-maps dist/stressTest.js",
+    "dev": "ts-node-dev --respawn src/server.ts",
+    "dev:ws": "node --enable-source-maps dist/webSocketServer.js",
+    "dev:test": "tsc && node --enable-source-maps dist/stressTest.js",
     "lint": "eslint . --fix --ext .ts",
     "lint:ci": "eslint . --ext .ts"
+  },
+  "engines": {
+    "node": ">=18.16.0",
+    "npm": ">=9.0.0"
   },
   "repository": {
     "type": "git",
@@ -26,7 +30,7 @@
     "bit-buffer": "^0.2.5",
     "cookie": "^0.5.0",
     "planck": "1.0.0-alpha.4",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.20.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.23.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
@@ -38,8 +42,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
-    "nodemon": "^2.0.22",
-    "tsc-watch": "^6.0.1",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.4"
   }
 }
