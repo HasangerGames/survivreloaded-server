@@ -212,6 +212,8 @@ export class Loot extends GameObject {
         if (!deleteItem) {
             const angle = unitVecToRadians(p.direction);
             const invertedAngle = (angle + Math.PI) % (2 * Math.PI);
+
+            /* eslint-disable-next-line no-new */
             new Loot(this.game, this.typeString, this.position.add(Vec2(0.4 * Math.cos(invertedAngle), 0.4 * Math.sin(invertedAngle))), this.layer, this.count);
         }
     }
@@ -250,6 +252,7 @@ export class Loot extends GameObject {
             p[`${type}Level`] = newLevel;
             if (oldLevel !== 0) { // If oldLevel === 0, the player didn't have an item of this type equipped, so don't drop loot
                 // Example: if type = helmet and p.helmetLevel = 1, typeString = helmet01
+                /* eslint-disable-next-line no-new */
                 new Loot(this.game, `${type}0${oldLevel}`, this.position, this.layer, 1);
             }
         }
@@ -305,6 +308,7 @@ export function generateLooseLootFromArray (game: Game, loot: LooseLoot[], posit
                 lootItem.tier = selectedItem;
                 generateLooseLootFromArray(game, [lootItem], position, layer);
             } else {
+                /* eslint-disable no-new */
                 new Loot(game, selectedItem, position, layer, lootTable[selectedItem].count);
 
                 const weapon = Weapons[selectedItem];
@@ -315,6 +319,7 @@ export function generateLooseLootFromArray (game: Game, loot: LooseLoot[], posit
                         const count: number = weapon.ammoSpawnCount / 2;
                         new Loot(game, weapon.ammo, Vec2.add(position, Vec2(-1.5, -1.5)), layer, count);
                         new Loot(game, weapon.ammo, Vec2.add(position, Vec2(1.5, -1.5)), layer, count);
+                        /* eslint-enable no-new */
                     }
                 }
             }
@@ -324,7 +329,10 @@ export function generateLooseLootFromArray (game: Game, loot: LooseLoot[], posit
 export function splitUpLoot (player: Player, item: string, amount: number): void {
     const dropCount = Math.floor(amount / 60);
     for (let i = 0; i < dropCount; i++) {
+        /* eslint-disable-next-line no-new */
         new Loot(player.game, item, player.position, player.layer, 60);
     }
+
+    /* eslint-disable-next-line no-new */
     if (amount % 60 !== 0) new Loot(player.game, item, player.position, player.layer, amount % 60);
 }

@@ -368,9 +368,9 @@ export class Obstacle extends GameObject {
             for (const item of this.loot) {
                 let lootPosition = this.position.clone();
                 // TODO: add a "lootSpawnOffset" property for lockers and deposit boxes.
-                if (this.typeString.includes("locker") || this.typeString.includes("deposit_box")) {
-                    lootPosition = addAdjust(lootPosition, Vec2(0, -2), this.orientation!);
-                }
+                if (this.typeString.includes("locker") || this.typeString.includes("deposit_box")) lootPosition = addAdjust(lootPosition, Vec2(0, -2), this.orientation!);
+
+                /* eslint-disable-next-line no-new */
                 new Loot(this.game, item.type, lootPosition, this.layer, item.count);
             }
             if (this.parentBuilding != null) {

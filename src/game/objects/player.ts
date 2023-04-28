@@ -559,10 +559,12 @@ export class Player extends GameObject {
             if (isDualWielded) {
                 const singleGun = item.substring(0, item.lastIndexOf("_"));
                 // TODO: Adjust gun positions to reduce overlap.
+                /* eslint-disable no-new */
                 new Loot(this.game, singleGun, this.position, this.layer, 1);
                 new Loot(this.game, singleGun, this.position, this.layer, 1);
             } else {
                 new Loot(this.game, item, this.position, this.layer, 1);
+                /* eslint-enable no-new */
             }
             this.game.updateObjects = true;
         }
@@ -580,6 +582,7 @@ export class Player extends GameObject {
                     const level = this.helmetLevel;
                     if (level === 0) return;
 
+                    /* eslint-disable-next-line no-new */
                     new Loot(this.game, `helmet0${this.helmetLevel}`, this.position, this.layer, 1);
                     this.helmetLevel = 0;
 
@@ -589,6 +592,7 @@ export class Player extends GameObject {
                     const level = this.chestLevel;
                     if (level === 0) return;
 
+                    /* eslint-disable-next-line no-new */
                     new Loot(this.game, `chest0${this.chestLevel}`, this.position, this.layer, 1);
                     this.chestLevel = 0;
 
@@ -615,6 +619,7 @@ export class Player extends GameObject {
                     this.inventoryDirty = true;
                     this.inventory[item] = 0;
 
+                    /* eslint-disable-next-line no-new */
                     new Loot(this.game, item, this.position, this.layer, 1);
                     if (this.scope.typeString === item) {
                         return this.setScope(scopeToSwitchTo);
@@ -1018,6 +1023,7 @@ export class Player extends GameObject {
     }
 
     private dropLoot (type: string): void {
+        /* eslint-disable-next-line no-new */
         new Loot(
           this.game,
           type,

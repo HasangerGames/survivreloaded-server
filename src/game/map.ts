@@ -197,11 +197,13 @@ export class Map {
             }
         } else {
             // Building/obstacle debug code goes here
+            /* eslint-disable no-new */
             new Loot(this.game, "762mm", Vec2(450, 150), 0, 180);
             new Loot(this.game, "2xscope", Vec2(450, 150), 0, 1);
             new Loot(this.game, "m870", Vec2(450, 150), 0, 1);
             new Loot(this.game, "m1911", Vec2(450, 150), 0, 1);
             new Loot(this.game, "m870", Vec2(450, 150), 0, 1);
+            /* eslint-enable-next-line no-new */
         }
         log(`Map generation took ${Date.now() - mapStartTime}ms`);
 
