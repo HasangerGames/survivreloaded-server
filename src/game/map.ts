@@ -309,10 +309,7 @@ export class Map {
                         setOrientation?: Orientation,
                         setLayer?: number,
                         debug = false): void {
-        let orientation: Orientation;
-        if(setOrientation !== undefined && setOrientation !== null) orientation = setOrientation;
-        else if(typeString.startsWith("cache_")) orientation = 0;
-        else orientation = random(0, 3) as Orientation;
+        const orientation = setOrientation ?? (typeString.startsWith("cache_") ? 0 : random(0, 3) as Orientation);
 
         const layer = setLayer ?? 0;
         const position = setPosition ?? this.getRandomPositionFor(ObjectKind.Building, buildingData, orientation, 1);
