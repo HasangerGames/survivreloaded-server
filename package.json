@@ -2,12 +2,12 @@
   "name": "survivreloaded",
   "version": "0.6.2",
   "description": "A community-made resurrection of the defunct online game surviv.io.",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node --enable-source-maps dist/server.js",
-    "dev": "tsc-watch --incremental --sourceMap --onSuccess \"nodemon --enable-source-maps --watch dist/ ./dist/server.js\"",
-    "dev:ws": "node --enable-source-maps dist/webSocketServer.js",
+    "start": "node --enable-source-maps dist/src/server.js",
+    "dev": "tsc-watch --incremental --sourceMap --onSuccess \"nodemon --enable-source-maps --watch dist/ ./dist/src/server.js\"",
+    "dev:ws": "node --enable-source-maps dist/src/webSocketServer.js",
     "dev:test": "tsc && node --enable-source-maps dist/stressTest.js",
     "lint": "eslint . --fix --ext .ts",
     "lint:ci": "eslint . --ext .ts"

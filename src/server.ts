@@ -134,7 +134,7 @@ process.on(`SIGTERM`, shutdownHandler);
  * Create a new game.
  */
 const spawnWebSocketProcess = (): void => {
-    webSocketProcess = spawn(`node`, [`--enable-source-maps`, `dist/webSocketServer.js`]);
+    webSocketProcess = spawn(`node`, [`--enable-source-maps`, `dist/src/webSocketServer.js`]);
     webSocketProcess.stdout.on(`data`, data => {
         lastDataReceivedTime = Date.now();
         process.stdout.write(data);
@@ -157,6 +157,8 @@ log(`Surviv Reloaded v${version}`);
 app.listen(Config.host, Config.port, () => {
     log(`HTTP server listening on ${Config.host}:${Config.port}`);
     log(`WebSocket server is starting...`);
+
+    spawnWebSocketProcess();
 });
 
 export {
