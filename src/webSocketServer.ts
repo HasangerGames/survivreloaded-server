@@ -112,14 +112,8 @@ app.ws(`/play`, {
      * @param socket The socket being opened.
      */
     open: (socket: Socket) => {
-        let playerName = socket.cookies[`player-name`];
-        if (
-            typeof playerName !== `string` ||
-            playerName.length < 0 ||
-            playerName.length > 16 ||
-            playerName === `` ||
-            playerName.length === playerName.split(` `).length
-        ) playerName = `Player`;
+        let playerName = socket.cookies[`player-name`]?.trim().substring(0, 16) ?? `Player`;
+        if (typeof playerName !== `string` || playerName.length < 1) playerName = `Player`;
 
         log(`"${playerName}" joined the game.`);
         socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout);
