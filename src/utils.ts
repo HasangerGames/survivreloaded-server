@@ -1,13 +1,17 @@
 import { BitStream, type BitView } from "bit-buffer";
-import fs from "fs";
 import { type Body, Box, Circle, Vec2, type World } from "planck";
+import type { HttpResponse } from "uWebSockets.js";
+
+import * as path from "path";
+import * as fs from "fs";
+
 import { Obstacle } from "./game/objects/obstacle";
-import { type GameObject } from "./game/gameObject";
-import { type Bullet } from "./game/bullet";
+import type { GameObject } from "./game/gameObject";
+import type { Bullet } from "./game/bullet";
 import { Player } from "./game/objects/player";
 import { Loot } from "./game/objects/loot";
-import { type Point2D, type JSONObjects } from "./jsonTypings";
-import { type HttpResponse } from "uWebSockets.js";
+
+import type { Point2D, JSONObjects } from "./jsonTypings";
 
 // todo Give all of these actual typings
 export const Objects = readJson<JSONObjects.JSON>("data/objects.json");
@@ -674,6 +678,23 @@ export function getContentType (filename: string): string {
     else if (filename.endsWith(".jpg")) contentType = "image/jpeg";
     return contentType!;
 }
+
+export const readDirectory = (dir: string): string[] => {
+    let results: string[] = [];
+    const files = fs.readdirSync(dir);
+
+    for (const file of files) {
+        const filePath = path.resolve(dir, file);
+        const stat = fs.statSync(filePath);
+
+        if (stat?.isDirectory()) {
+            const res = readDirectory(filePath);
+            results = results.concat(res);
+        } else results.push(filePath);
+    }
+
+    return results;
+};
 
 // https://stackoverflow.com/a/51727716/5905216
 export function randomPointInsideCircle (position: Vec2, radius: number): Vec2 {
