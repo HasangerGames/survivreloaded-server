@@ -118,11 +118,11 @@ export class Loot extends GameObject {
             playerDirty = true;
         } else if (Constants.bagSizes[this.typeString]) {
             // Throwables implementation [inside here cus it's tiered]
-            if (Weapons[this.typeString]?.type === "throwable") {
+            /*if (Weapons[this.typeString]?.type === "throwable") {
                 p.weapons[3].typeString = this.typeString;
                 p.weapons[3].typeId = this.typeId;
                 p.switchSlot(3);
-            }
+            }*/
             // if it is ammo or a healing item
             const currentCount: number = p.inventory[this.typeString];
             const maxCapacity: number = Constants.bagSizes[this.typeString][p.backpackLevel];
