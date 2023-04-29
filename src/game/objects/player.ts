@@ -42,6 +42,7 @@ import { Loot, splitUpLoot } from "./loot";
 import { Bullet } from "../bullet";
 import type { Explosion } from "../explosion";
 import { Obstacle } from "./obstacle";
+import { Projectile } from "./projectile";
 
 // import { Building } from "./building";
 
@@ -78,7 +79,8 @@ export class Player extends GameObject {
         player: false,
         obstacle: true,
         bullet: true,
-        loot: false
+        loot: false,
+        projectile: false
     };
 
     socket: WebSocket<unknown>;
@@ -542,6 +544,16 @@ export class Player extends GameObject {
                     switchCooldown: 0,
                     weaponType: WeaponType.Melee
                 };
+            } else if (slot === ItemSlot.Throwable) {
+                this.weapons[slot] = {
+                    typeString: "",
+                    typeId: 0,
+                    count: 0,
+                    cooldown: 0,
+                    cooldownDuration: 0,
+                    switchCooldown: 0,
+                    weaponType: WeaponType.Throwable
+                };
             } else {
                 this.weapons[slot] = {
                     typeString: "",
@@ -754,6 +766,24 @@ export class Player extends GameObject {
     static resetSpeedAfterShooting (player: Player): void {
         player.shooting = false;
         player.recalculateSpeed();
+    }
+
+    useThrowable (): void {
+        if (this.inventory[this.activeWeapon.typeString] < 1) return;
+        // Start throwing animation
+        if (!this.anim.active) {
+            this.anim.active = true;
+            this.anim.type = Constants.Anim.Throw;
+            this.anim.seq = 1;
+            this.anim.time = 0;
+            this.fullDirtyObjects.add(this);
+        }
+        const proj = new Projectile(this.activeWeapon.typeString, this.game, this.position, this.layer, this.direction, this);
+        this.game.dynamicObjects.add(proj);
+        this.game.projectiles.add(proj);
+        this.inventory[this.activeWeapon.typeString]--;
+        (this.activeWeapon as Throwable).count = this.inventory[this.activeWeapon.typeString];
+        this.inventoryDirty = true;
     }
 
     shootGun (): void {

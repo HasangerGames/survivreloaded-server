@@ -24,7 +24,8 @@ export class Loot extends GameObject {
         player: false,
         obstacle: true,
         bullet: false,
-        loot: true
+        loot: true,
+        projectile: false
     };
 
     count: number;
@@ -32,6 +33,7 @@ export class Loot extends GameObject {
     interactionRad = 1;
 
     isGun = false;
+    isThrowable = false;
     isMelee = false;
     isAmmo = false;
 
@@ -61,12 +63,14 @@ export class Loot extends GameObject {
         else if (this.isAmmo) radius = Constants.lootRadius.ammo;
         else radius = 1;
         this.interactionRad = radius;
+        this.isThrowable = Weapons[typeString]?.type === "throwable";
         this.oldPos = position;
 
         // Create the body
         this.body = game.world.createBody({
             type: "dynamic",
-            position
+            position,
+            linearDamping: 0.003
         });
         this.body.createFixture({
             shape: Circle(radius),
@@ -113,6 +117,12 @@ export class Loot extends GameObject {
             result = this.pickUpTieredItem("helmet", p);
             playerDirty = true;
         } else if (Constants.bagSizes[this.typeString]) {
+            // Throwables implementation [inside here cus it's tiered]
+            if (Weapons[this.typeString]?.type === "throwable") {
+                p.weapons[3].typeString = this.typeString;
+                p.weapons[3].typeId = this.typeId;
+                p.switchSlot(3);
+            }
             // if it is ammo or a healing item
             const currentCount: number = p.inventory[this.typeString];
             const maxCapacity: number = Constants.bagSizes[this.typeString][p.backpackLevel];

@@ -17,7 +17,7 @@ import type { Point2D, JSONObjects } from "./jsonTypings";
 export const Objects = readJson<JSONObjects.JSON>("data/objects.json");
 export const Maps = readJson<any>("data/maps.json");
 export const Items = readJson<any>("data/items.json");
-export const Weapons = Object.assign(readJson<any>("data/guns.json"), readJson<any>("data/melee.json"));
+export const Weapons = Object.assign(readJson<any>("data/guns.json"), readJson<any>("data/melee.json"), readJson<any>("data/throwables.json"));
 export const Bullets = readJson<any>("data/bullets.json");
 export const Explosions = readJson<any>("data/explosions.json");
 export const LootTables = readJson<any>("data/lootTables.json");
@@ -557,6 +557,12 @@ export function splitRect (rect: MinMax<Vec2>, axis: Vec2): [MinMax<Vec2>, MinMa
     return Vec2.dot(dir, axis) > 0.0
         ? [right, left]
         : [left, right];
+}
+
+export function angleBetween (a: Vec2, b: Vec2): number {
+    const dy = a.y - b.y;
+    const dx = a.x - b.x;
+    return Math.atan2(dy, dx);
 }
 
 export function bodyFromCollisionData (

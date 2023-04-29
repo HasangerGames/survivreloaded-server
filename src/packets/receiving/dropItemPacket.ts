@@ -17,6 +17,9 @@ export class DropItemPacket extends ReceivingPacket {
                 if (item === "fists") break;
                 this.p.dropItemInSlot(2, item);
                 break;
+            case ItemSlot.Throwable:
+                this.p.dropItemInSlot(3, item);
+                break;
             default:
                 break;
         }
