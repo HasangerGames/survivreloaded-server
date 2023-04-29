@@ -54,9 +54,8 @@ app.ws(`/play`, {
      * Upgrade the connection to WebSocket.
      */
     upgrade: (res, req, context) => {
-        res.onAborted(() => {
-            // Connection was dropped.
-        });
+        /* eslint-disable-next-line @typescript-eslint/no-empty-function */
+        res.onAborted(() => {});
 
         // Start a new game if the old one is over.
         if (game.over) game = new Game();
@@ -185,7 +184,7 @@ app.listen(Config.webSocketHost, Config.webSocketPort, () => {
 if (Config.botProtection) {
     setInterval(() => {
         connectionAttempts.clear();
-    }, 3e5);
+    }, 3e4);
 }
 
 export {
