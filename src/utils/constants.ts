@@ -221,7 +221,20 @@ export const Constants = {
         scope: 1,
         perk: 1.25,
         xp: 1
-    }
+    },
+    MapNameMaxLen: 24,
+    PlayerNameMaxLen: 16,
+    MouseMaxDist: 64,
+    SmokeMaxRad: 10,
+    ActionMaxDuration: 8.5,
+    AirstrikeZoneMaxRad: 256,
+    AirstrikeZoneMaxDuration: 60,
+    PlayerMinScale: 0.75,
+    PlayerMaxScale: 2,
+    MapObjectMinScale: 0.125,
+    MapObjectMaxScale: 2.5,
+    MaxPerks: 8,
+    MaxMapIndicators: 16
 };
 
 export type Orientation = 0 | 1 | 2 | 3;

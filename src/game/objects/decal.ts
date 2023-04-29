@@ -1,4 +1,4 @@
-import { ObjectKind, type Orientation } from "../../utils/constants";
+import { ObjectKind, type Orientation, Constants } from "../../utils/constants";
 import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
@@ -29,7 +29,7 @@ export class Decal extends GameObject {
     }
 
     serializeFull (stream: SurvivBitStream): void {
-        stream.writeFloat(this.scale, 0.125, 2.5, 8);
+        stream.writeFloat(this.scale, Constants.MapObjectMinScale, Constants.MapObjectMaxScale, 8);
         stream.writeMapType(this.typeId);
         stream.writeBits(this.orientation, 2);
         stream.writeBits(this.layer, 2);

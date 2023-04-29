@@ -1,4 +1,4 @@
-import { ObjectKind, type Orientation, CollisionType } from "../../utils/constants";
+import { ObjectKind, type Orientation, CollisionType, Constants } from "../../utils/constants";
 import { deepCopy, Item } from "../../utils/misc";
 import { LootTables, Weapons, Objects } from "../../utils/data";
 import type { SurvivBitStream } from "../../utils/survivBitStream";
@@ -528,7 +528,7 @@ export class Obstacle extends GameObject {
     serializePartial (stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeBits(this.orientation, 2);
-        stream.writeFloat(this.scale, 0.125, 2.5, 8);
+        stream.writeFloat(this.scale, Constants.MapObjectMinScale, Constants.MapObjectMaxScale, 8);
         stream.writeBits(0, 6); // Padding
     }
 

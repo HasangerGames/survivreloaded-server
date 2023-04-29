@@ -1,5 +1,5 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType } from "../../utils/constants";
+import { MsgType, Constants } from "../../utils/constants";
 import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { type Emote } from "../../utils/misc";
 import { type Player } from "../../game/objects/player";
@@ -100,8 +100,8 @@ export class UpdatePacket extends SendingPacket {
         // Action
         stream.writeBoolean(p.actionDirty);
         if (p.actionDirty) {
-            stream.writeFloat(p.actionItem.duration - ((p.actionItem.useEnd - Date.now()) / 1000), 0, 8.5, 8);
-            stream.writeFloat(p.actionItem.duration, 0, 8.5, 8);
+            stream.writeFloat(p.actionItem.duration - ((p.actionItem.useEnd - Date.now()) / 1000), 0, Constants.ActionMaxDuration, 8);
+            stream.writeFloat(p.actionItem.duration, 0, Constants.ActionMaxDuration, 8);
             stream.writeUint16(p.id); // Target ID (set to ID of the player being revived if reviving)
         }
 

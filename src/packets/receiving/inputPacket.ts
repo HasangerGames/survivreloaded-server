@@ -53,7 +53,7 @@ export class InputPacket extends ReceivingPacket {
             p.direction = direction;
             p.moving = true;
         }
-        p.distanceToMouse = stream.readFloat(0, 64, 8); // Distance to mouse
+        p.distanceToMouse = stream.readFloat(0, Constants.MouseMaxDist, 8); // Distance to mouse
 
         // Other inputs
         const inputCount = stream.readBits(4);
