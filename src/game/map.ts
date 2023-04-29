@@ -174,7 +174,7 @@ export class Map {
                 generateLooseLootFromArray(
                     this.game,
                     [{ tier: "tier_world", min: 1, max: 1 }],
-                                                                   //! ?????
+                    //! ?????
                     this.getRandomPositionFor(ObjectKind.Loot, undefined as any, 0, 1),
                     0
                 );
@@ -221,11 +221,11 @@ export class Map {
                     const visibleObjects = new Set<GameObject>();
 
                     const minX = (x * 10) - xCullDist;
-                          const minY = (y * 10) - yCullDist;
-                          const maxX = (x * 10) + xCullDist;
-                          const maxY = (y * 10) + yCullDist;
+                    const minY = (y * 10) - yCullDist;
+                    const maxX = (x * 10) + xCullDist;
+                    const maxY = (y * 10) + yCullDist;
                     const min = Vec2(minX, minY);
-                          const max = Vec2(maxX, maxY);
+                    const max = Vec2(maxX, maxY);
 
                     for (const object of this.game.staticObjects) {
                         let isVisible = false;
@@ -304,11 +304,11 @@ export class Map {
     }
 
     private genBuilding (typeString: string,
-                        buildingData: JSONObjects.Building,
-                        setPosition?: Vec2,
-                        setOrientation?: Orientation,
-                        setLayer?: number,
-                        debug = false): void {
+        buildingData: JSONObjects.Building,
+        setPosition?: Vec2,
+        setOrientation?: Orientation,
+        setLayer?: number,
+        debug = false): void {
         const orientation = setOrientation ?? (typeString.startsWith("cache_") ? 0 : random(0, 3) as Orientation);
 
         const layer = setLayer ?? 0;
@@ -446,14 +446,14 @@ export class Map {
     }
 
     private genObstacle (typeString: string,
-                        position: Vec2,
-                        layer: number,
-                        orientation: Orientation,
-                        scale: number,
-                        obstacleData: JSONObjects.Obstacle,
-                        parentBuilding?: Building,
-                        bunkerWall = false,
-                        puzzlePice?: string): Obstacle {
+        position: Vec2,
+        layer: number,
+        orientation: Orientation,
+        scale: number,
+        obstacleData: JSONObjects.Obstacle,
+        parentBuilding?: Building,
+        bunkerWall = false,
+        puzzlePice?: string): Obstacle {
         const obstacle = new Obstacle(
             this.game,
             typeString,
@@ -486,12 +486,12 @@ export class Map {
     }
 
     private genOnShore (kind: ObjectKind,
-                       typeString: string,
-                       count: number,
-                       shoreDist: number,
-                       width: number,
-                       orientationOffset: Orientation = 0,
-                       shoreEdgeDist = shoreDist): void {
+        typeString: string,
+        count: number,
+        shoreDist: number,
+        width: number,
+        orientationOffset: Orientation = 0,
+        shoreEdgeDist = shoreDist): void {
         for (let i = 0; i < count; i++) {
             const data = Objects[typeString] as JSONObjects.Obstacle | JSONObjects.Building | JSONObjects.Structure;
             const orientation = random(0, 3) as Orientation;
@@ -545,11 +545,11 @@ export class Map {
     }
 
     getRandomPositionFor (kind: ObjectKind,
-                         object: JSONObjects.Obstacle | JSONObjects.Structure | JSONObjects.Building,
-                         orientation: Orientation = 0,
-                         scale = 1,
-                         getPosition?: () => Vec2,
-                         ignoreRivers?: boolean): Vec2 {
+        object: JSONObjects.Obstacle | JSONObjects.Structure | JSONObjects.Building,
+        orientation: Orientation = 0,
+        scale = 1,
+        getPosition?: () => Vec2,
+        ignoreRivers?: boolean): Vec2 {
         const isBuilding =
             kind === ObjectKind.Building || kind === ObjectKind.Structure;
         type Bound = ({

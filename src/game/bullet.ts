@@ -57,13 +57,13 @@ export class Bullet {
     dead = false;
 
     constructor (shooter: Player,
-                position: Vec2,
-                direction: Vec2,
-                typeString: string,
-                shotSource: Gun | Projectile | Obstacle,
-                shotFx: boolean,
-                layer: number,
-                game: Game) {
+        position: Vec2,
+        direction: Vec2,
+        typeString: string,
+        shotSource: Gun | Projectile | Obstacle,
+        shotFx: boolean,
+        layer: number,
+        game: Game) {
         const bulletData = Bullets[typeString];
         this.shooter = shooter;
         this.initialPosition = position;

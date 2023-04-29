@@ -118,15 +118,15 @@ export class Obstacle extends GameObject {
     declare kind: ObjectKind.Obstacle;
 
     constructor (game: Game,
-                typeString: string,
-                position: Vec2,
-                layer: number,
-                orientation: Orientation,
-                scale: number,
-                data,
-                parentBuilding?: Building,
-                bunkerWall = false,
-                puzzlePiece?: string) {
+        typeString: string,
+        position: Vec2,
+        layer: number,
+        orientation: Orientation,
+        scale: number,
+        data,
+        parentBuilding?: Building,
+        bunkerWall = false,
+        puzzlePiece?: string) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Obstacle;
 
@@ -398,9 +398,9 @@ export class Obstacle extends GameObject {
                 this.collision.rad *= scaleFactor;
             } else if (this.collision.type === CollisionType.Rectangle) {
                 const rotatedRect = rotateRect(this.position,
-                            Vec2.sub(this.collision.min, this.position),
-                            Vec2.sub(this.collision.max, this.position),
-                            scaleFactor, 0);
+                    Vec2.sub(this.collision.min, this.position),
+                    Vec2.sub(this.collision.max, this.position),
+                    scaleFactor, 0);
                 this.collision.min = rotatedRect.min;
                 this.collision.max = rotatedRect.max;
             }

@@ -633,11 +633,9 @@ export class Player extends GameObject {
 
                     /* eslint-disable-next-line no-new */
                     new Loot(this.game, item, this.position, this.layer, 1);
-                    if (this.scope.typeString === item) {
-                        return this.setScope(scopeToSwitchTo);
-                    } else {
-                        return;
-                    }
+
+                    if (this.scope.typeString === item) this.setScope(scopeToSwitchTo);
+                    return;
                 }
 
                 let amountToDrop = Math.floor(inventoryCount / 2);
@@ -679,8 +677,8 @@ export class Player extends GameObject {
     weaponCooldownOver (): boolean {
         return Date.now() - this.activeWeapon.cooldown >= this.activeWeapon.cooldownDuration &&
         (this.activeWeaponInfo.weaponClass !== "sniper"
-        ? Date.now() - (this.activeWeaponInfo.switchDelay * 1000) >= this.activeWeapon.switchCooldown
-        : true);
+            ? Date.now() - (this.activeWeaponInfo.switchDelay * 1000) >= this.activeWeapon.switchCooldown
+            : true);
     }
 
     useMelee (): void {
@@ -1055,11 +1053,11 @@ export class Player extends GameObject {
     private dropLoot (type: string): void {
         /* eslint-disable-next-line no-new */
         new Loot(
-          this.game,
-          type,
-          this.deadPos,
-          this.layer,
-          this.inventory[type]
+            this.game,
+            type,
+            this.deadPos,
+            this.layer,
+            this.inventory[type]
         );
     }
 
@@ -1087,9 +1085,9 @@ export class Player extends GameObject {
         const visibleAtZoom = this.game.visibleObjects[this.zoom];
         const newVisibleObjects = new Set<GameObject>(visibleAtZoom ? visibleAtZoom[approximateX][approximateY] : this.nearObjects);
         const minX = this.position.x - this.xCullDist;
-          const minY = this.position.y - this.yCullDist;
-          const maxX = this.position.x + this.xCullDist;
-          const maxY = this.position.y + this.yCullDist;
+        const minY = this.position.y - this.yCullDist;
+        const maxX = this.position.x + this.xCullDist;
+        const maxY = this.position.y + this.yCullDist;
         for (const object of this.game.dynamicObjects) {
             if (this === object) continue;
             if (object.position.x > minX &&

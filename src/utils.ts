@@ -509,7 +509,7 @@ export function rotateRect (pos: Vec2, min: Vec2, max: Vec2, scale: number, orie
     max = Vec2.mul(max, scale);
     if (orientation !== 0) {
         const minX = min.x; const minY = min.y;
-              const maxX = max.x; const maxY = max.y;
+        const maxX = max.x; const maxY = max.y;
         switch (orientation) {
             case 1:
                 min = Vec2(minX, maxY);
@@ -783,8 +783,8 @@ export class SurvivBitStream extends BitStream {
 
     writeFloat (val: number, min: number, max: number, bitCount: number): void {
         const range = (1 << bitCount) - 1;
-            const x = val < max ? (val > min ? val : min) : max;
-            const t = (x - min) / (max - min);
+        const x = val < max ? (val > min ? val : min) : max;
+        const t = (x - min) / (max - min);
         this.writeBits(t * range + 0.5, bitCount);
     }
 

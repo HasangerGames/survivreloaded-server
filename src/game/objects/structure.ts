@@ -11,10 +11,10 @@ export class Structure extends GameObject {
     declare kind: ObjectKind.Structure;
 
     constructor (game: Game,
-                typeString: string,
-                position: Vec2,
-                orientation: Orientation,
-                layerObjIds: number[]) {
+        typeString: string,
+        position: Vec2,
+        orientation: Orientation,
+        layerObjIds: number[]) {
         super(game, typeString, position, 0, orientation);
         this.kind = ObjectKind.Structure;
         this.layerObjIds = layerObjIds;

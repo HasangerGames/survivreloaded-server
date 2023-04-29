@@ -35,10 +35,10 @@ export abstract class GameObject {
     body: Body | null;
 
     protected constructor (game: Game,
-                          typeString: string,
-                          position: Vec2,
-                          layer: number,
-                          orientation?: Orientation) {
+        typeString: string,
+        position: Vec2,
+        layer: number,
+        orientation?: Orientation) {
         this.id = game.nextObjectId;
         this.typeString = typeString;
         if (this.typeString) this.typeId = TypeToId[typeString];

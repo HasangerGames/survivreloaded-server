@@ -60,12 +60,12 @@ export class Building extends GameObject {
     declare kind: ObjectKind.Building;
 
     constructor (game: Game,
-                typeString: string,
-                position: Vec2,
-                layer: number,
-                orientation: Orientation,
-                showOnMap: boolean,
-                data: JSONObjects.Building) {
+        typeString: string,
+        position: Vec2,
+        layer: number,
+        orientation: Orientation,
+        showOnMap: boolean,
+        data: JSONObjects.Building) {
         super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Building;
         this.data = data;
@@ -189,8 +189,8 @@ export class Building extends GameObject {
             if (zoomRegion.min) {
                 if (rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) {
                     return zoomRegion.zoom !== undefined
-                    ? zoomRegion.zoom
-                    : Constants.scopeZoomRadius[player.isMobile ? "mobile" : "desktop"]["1xscope"];
+                        ? zoomRegion.zoom
+                        : Constants.scopeZoomRadius[player.isMobile ? "mobile" : "desktop"]["1xscope"];
                 }
             }
         }

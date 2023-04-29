@@ -205,15 +205,15 @@ export class UpdatePacket extends SendingPacket {
             // stream.writeUint8(dirtyStatusPlayers.length); // Player count
             stream.writeUint8(1);
             // for(const player of dirtyStatusPlayers) {
-                stream.writeBoolean(true); // Has data
+            stream.writeBoolean(true); // Has data
 
-                stream.writeVec(p.position, 0, 0, 1024, 1024, 11); // Position. Yes, 11 bits is correct!
-                stream.writeBoolean(true); // Visible
-                stream.writeBoolean(p.dead); // Dead
-                stream.writeBoolean(p.downed); // Downed
+            stream.writeVec(p.position, 0, 0, 1024, 1024, 11); // Position. Yes, 11 bits is correct!
+            stream.writeBoolean(true); // Visible
+            stream.writeBoolean(p.dead); // Dead
+            stream.writeBoolean(p.downed); // Downed
 
-                stream.writeBoolean(p.role !== 0); // Has role
-                if (p.role !== 0) stream.writeGameType(p.role);
+            stream.writeBoolean(p.role !== 0); // Has role
+            if (p.role !== 0) stream.writeGameType(p.role);
             // }
             stream.writeAlignToNextByte();
         }

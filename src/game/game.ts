@@ -278,7 +278,7 @@ export class Game {
                     } else {
                         damageRecord.damaged.damage(bulletData.damage * bulletData.obstacleDamage, damageRecord.damager);
                     }
-                 }
+                }
                 this.world.destroyBody(bullet.body);
                 this.bullets.delete(bullet);
             }
@@ -613,7 +613,7 @@ export class Game {
         else {
             let foundPosition = false;
             while (!foundPosition) {
-                                                                                    //! unsafe
+                //! unsafe
                 spawnPosition = this.map.getRandomPositionFor(ObjectKind.Player, undefined as any, 0, 1);
                 if (!this.isInRedZone(spawnPosition)) foundPosition = true;
             }
