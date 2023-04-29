@@ -599,6 +599,10 @@ export function bodyFromCollisionData (
     return body!;
 }
 
+/**
+ * Get the angle, in radians, formed by a vector.
+ * @param v The vector to calculate against.
+ */
 export function unitVecToRadians (v: Point2D): number {
     return Math.atan2(v.y, v.x);
 }
@@ -608,10 +612,18 @@ export function vec2Rotate (v: Point2D, angle: number): Vec2 {
     return Vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
 }
 
+/**
+ * Convert degrees to radians.
+ * @param degrees The angle, in degrees.
+ */
 export function degreesToRadians (degrees: number): number {
-    return degrees * Math.PI / 180;
+    return degrees * (Math.PI / 180);
 }
 
+/**
+ * Helper function for reading a JSON file.
+ * @param path The path to the JSON file.
+ */
 export function readJson<T> (path: string): T {
     return JSON.parse(fs.readFileSync(path).toString()) as T;
 }
@@ -665,6 +677,10 @@ export function readPostedJson<T> (
     res.onAborted(err);
 }
 
+/**
+ * Get the MIME type of a file.
+ * @param filename The name of the file.
+ */
 export function getContentType (filename: string): string {
     // this should be done with a switch
     let contentType: string;
@@ -679,6 +695,11 @@ export function getContentType (filename: string): string {
     return contentType!;
 }
 
+/**
+ * Recursively read a directory.
+ * @param dir The absolute path to the directory.
+ * @returns An array representation of the directory's contents.
+ */
 export const readDirectory = (dir: string): string[] => {
     let results: string[] = [];
     const files = fs.readdirSync(dir);
