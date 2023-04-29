@@ -29,7 +29,7 @@ let game = new Game();
 // Initialize the server.
 const app = Config.webSocketHttps
     ? SSLApp({
-        key_file_name: Config.keyfile,
+        key_file_name: Config.keyFile,
         cert_file_name: Config.certFile
     })
     : App();
