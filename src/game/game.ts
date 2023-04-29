@@ -584,14 +584,14 @@ export class Game {
             }
 
             // Record performance and start the next tick
-            const tickTime: number = Date.now() - tickStart;
-            this.tickTimes.push(tickTime);
+            const tickTime = Date.now() - tickStart;
+            this.tickTimes.push(tickTime + delay);
+
             if (this.tickTimes.length >= 200) {
-                let tickSum = 0;
-                for (const time of this.tickTimes) tickSum += time;
-                log(`Average ms/tick: ${tickSum / this.tickTimes.length}`);
+                log(`Average ms/tick: ${this.tickTimes.reduce((a, b) => a + b) / this.tickTimes.length}`);
                 this.tickTimes = [];
             }
+
             const newDelay: number = Math.max(0, 30 - tickTime);
             this.tick(newDelay);
         }, delay);
@@ -741,7 +741,7 @@ export class Game {
 
     assignKillLeader (p: Player): void {
         this.killLeaderDirty = true;
-        if (this.killLeader !== p || !p.dead) { // If the player isn't already the Kill Leader... //And isn't dead
+        if (this.killLeader !== p || !p.dead) { // If the player isn't already the Kill Leader, and isn't dead.
             p.role = TypeToId.kill_leader;
             this.killLeader = p;
             this.roleAnnouncements.add(new RoleAnnouncementPacket(p, true, false));
