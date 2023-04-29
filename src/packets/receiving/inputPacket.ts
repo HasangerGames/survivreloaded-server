@@ -2,12 +2,11 @@ import { ReceivingPacket } from "../receivingPacket";
 import {
     Constants,
     InputType,
-    objectCollision,
-    sameLayer,
-    ScopeTypes,
-    type SurvivBitStream,
-    TypeToId
-} from "../../utils";
+    ScopeTypes
+} from "../../utils/constants";
+import { objectCollision, sameLayer } from "../../utils/math";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
+import { TypeToId } from "../../utils/data";
 import { Vec2 } from "planck";
 import { type Obstacle } from "../../game/objects/obstacle";
 import { Loot } from "../../game/objects/loot";

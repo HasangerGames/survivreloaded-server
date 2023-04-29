@@ -1,5 +1,7 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, type SurvivBitStream, TypeToId } from "../../utils";
+import { MsgType } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
+import { TypeToId } from "../../utils/data";
 
 export class PickupPacket extends SendingPacket {
     readonly type: string;

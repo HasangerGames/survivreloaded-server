@@ -1,21 +1,16 @@
+import { ObjectKind, type Orientation, CollisionType } from "../../utils/constants";
+import { deepCopy, Item } from "../../utils/misc";
+import { LootTables, Weapons, Objects } from "../../utils/data";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import {
-    addAdjust,
-    bodyFromCollisionData,
-    CollisionType,
-    deepCopy,
-    Item,
-    LootTables,
-    ObjectKind,
     random,
-    rectCollision,
-    rotateRect,
-    type SurvivBitStream,
-    Weapons,
     weightedRandom,
-    Objects,
-    type Orientation,
-    type MinMax
-} from "../../utils";
+    type MinMax,
+    addAdjust,
+    rotateRect,
+    bodyFromCollisionData,
+    rectCollision
+} from "../../utils/math";
 import { type Game } from "../game";
 import { Loot } from "./loot";
 import { GameObject } from "../gameObject";
@@ -347,7 +342,7 @@ export class Obstacle extends GameObject {
                     this.destroyType,
                     this.position,
                     this.layer,
-                    this.orientation!,
+                    this.orientation,
                     1,
                     Objects[this.destroyType]
                 );
@@ -371,7 +366,7 @@ export class Obstacle extends GameObject {
             for (const item of this.loot) {
                 let lootPosition = this.position.clone();
                 // TODO: add a "lootSpawnOffset" property for lockers and deposit boxes.
-                if (this.typeString.includes("locker") || this.typeString.includes("deposit_box")) lootPosition = addAdjust(lootPosition, Vec2(0, -2), this.orientation!);
+                if (this.typeString.includes("locker") || this.typeString.includes("deposit_box")) lootPosition = addAdjust(lootPosition, Vec2(0, -2), this.orientation);
 
                 /* eslint-disable-next-line no-new */
                 new Loot(this.game, item.type, lootPosition, this.layer, item.count);
@@ -520,7 +515,7 @@ export class Obstacle extends GameObject {
             }
             p.body.setPosition(newPosition);
         }
-        this.body!.setPosition(addAdjust(this.position, this.door.hinge, this.orientation!));
+        this.body!.setPosition(addAdjust(this.position, this.door.hinge, this.orientation));
         if (this.body!.getFixtureList() !== null) this.body!.destroyFixture(this.body!.getFixtureList()!);
         const flip: boolean = this.orientation !== this.door.closedOrientation;
         this.body!.createFixture({
@@ -532,7 +527,7 @@ export class Obstacle extends GameObject {
 
     serializePartial (stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
-        stream.writeBits(this.orientation!, 2);
+        stream.writeBits(this.orientation, 2);
         stream.writeFloat(this.scale, 0.125, 2.5, 8);
         stream.writeBits(0, 6); // Padding
     }

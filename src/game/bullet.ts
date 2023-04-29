@@ -1,5 +1,6 @@
 import { type Body, Circle, Vec2 } from "planck";
-import { Bullets, distanceBetween, randomFloat, TypeToId } from "../utils";
+import { TypeToId, Bullets } from "../utils/data";
+import { randomFloat, distanceBetween } from "../utils/math";
 import { type Game } from "./game";
 import { type Gun, type Player } from "./objects/player";
 import { type Obstacle } from "./objects/obstacle";

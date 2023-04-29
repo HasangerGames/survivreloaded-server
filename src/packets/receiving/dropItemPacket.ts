@@ -1,5 +1,7 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { IdToGameType, ItemSlot, type SurvivBitStream } from "../../utils";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
+import { IdToGameType } from "../../utils/data";
+import { ItemSlot } from "../../utils/constants";
 
 export class DropItemPacket extends ReceivingPacket {
     deserialize (stream: SurvivBitStream): void {

@@ -1,13 +1,15 @@
 import {
     ObjectKind,
+    Constants,
+    type Orientation
+} from "../../utils/constants";
+import {
     rotateRect,
-    type SurvivBitStream,
     sameLayer,
     rectCollision,
-    Constants,
-    type Orientation,
     type MinMax
-} from "../../utils";
+} from "../../utils/math";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { GameObject } from "../gameObject";
 import { Vec2 } from "planck";
 import { type Game } from "../game";
@@ -80,7 +82,7 @@ export class Building extends GameObject {
                     Vec2(zoomRegion.zoomIn.min!),
                     Vec2(zoomRegion.zoomIn.max!),
                     1,
-                    this.orientation!
+                    this.orientation
                 ) as MinMax<Vec2> & { zoom?: number };
                 rect.zoom = zoomRegion.zoom;
                 this.zoomRegions.push(rect);
@@ -116,7 +118,7 @@ export class Building extends GameObject {
 
         if (data.mapObstacleBounds?.length) {
             for (const bounds of data.mapObstacleBounds) {
-                this.mapObstacleBounds.push(rotateRect(position, Vec2(bounds.min), Vec2(bounds.max), 1, this.orientation!));
+                this.mapObstacleBounds.push(rotateRect(position, Vec2(bounds.min), Vec2(bounds.max), 1, this.orientation));
             }
         } else if (data.ceiling && data.ceiling.zoomRegions.length > 0) {
             // use the zoom regions as a fallback
@@ -131,7 +133,7 @@ export class Building extends GameObject {
                         //! unsafe
                         Vec2(rect.max!),
                         1,
-                        this.orientation!
+                        this.orientation
                     )
                 );
             }
@@ -155,7 +157,7 @@ export class Building extends GameObject {
     serializeFull (stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeMapType(this.typeId);
-        stream.writeBits(this.orientation!, 2);
+        stream.writeBits(this.orientation, 2);
         stream.writeBits(this.layer, 2);
     }
 

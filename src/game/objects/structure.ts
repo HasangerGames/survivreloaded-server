@@ -1,4 +1,5 @@
-import { ObjectKind, type Orientation, type SurvivBitStream } from "../../utils";
+import { ObjectKind, type Orientation } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
@@ -26,7 +27,7 @@ export class Structure extends GameObject {
     serializeFull (stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeMapType(this.typeId);
-        stream.writeBits(this.orientation!, 2);
+        stream.writeBits(this.orientation, 2);
         stream.writeBoolean(true); // Interior sound enabled
         stream.writeBoolean(false); // Interior sound alt
         stream.writeUint16(this.layerObjIds[0]); // Layer 1 ID

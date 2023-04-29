@@ -1,34 +1,37 @@
 import { type WebSocket } from "uWebSockets.js";
 
 import {
-    AllowedBoost,
-    AllowedEmotes,
-    AllowedHeal,
-    AllowedMelee,
-    AllowedSkins,
-    AmmoTypes,
-    clamp,
-    Config,
     Constants,
-    DamageType,
-    deepCopy,
-    degreesToRadians,
-    Emote,
-    ItemSlot, log,
-    MedTypes,
-    objectCollision,
-    ObjectKind, random,
-    randomFloat,
-    removeFrom,
-    sameLayer,
+    ObjectKind,
+    WeaponType,
     ScopeTypes,
-    SurvivBitStream,
-    TypeToId,
-    unitVecToRadians,
-    vec2Rotate,
+    ItemSlot,
+    AmmoTypes,
+    MedTypes,
+    DamageType
+} from "../../utils/constants";
+import {
     Weapons,
-    WeaponType
-} from "../../utils";
+    TypeToId,
+    Config,
+    AllowedSkins,
+    AllowedMelee,
+    AllowedHeal,
+    AllowedBoost,
+    AllowedEmotes
+} from "../../utils/data";
+import {
+    random,
+    unitVecToRadians,
+    degreesToRadians,
+    randomFloat,
+    clamp,
+    sameLayer,
+    vec2Rotate,
+    objectCollision
+} from "../../utils/math";
+import { SurvivBitStream } from "../../utils/survivBitStream";
+import { deepCopy, log, Emote, removeFrom } from "../../utils/misc";
 import { DeadBody } from "./deadBody";
 import { type SendingPacket } from "../../packets/sendingPacket";
 import { KillPacket } from "../../packets/sending/killPacket";

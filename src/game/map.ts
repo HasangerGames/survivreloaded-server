@@ -1,28 +1,22 @@
+import { ObjectKind, CollisionType, type Orientation } from "../utils/constants";
+import { log, deepCopy } from "../utils/misc";
+import { TypeToId, Debug, Maps, Objects } from "../utils/data";
 import {
-    addAdjust,
-    addOrientations,
-    circleCollision,
-    CollisionType,
-    Debug,
-    distanceBetween,
-    Maps,
-    ObjectKind,
-    Objects,
+    type MinMax,
     random,
-    randomBoolean,
-    randomFloat,
-    randomPointInsideCircle,
-    randomVec,
+    distanceBetween,
+    rotateRect,
     rectCollision,
     rectRectCollision,
-    rotateRect,
-    TypeToId,
+    circleCollision,
+    addOrientations,
+    addAdjust,
     weightedRandom,
-    deepCopy,
-    log,
-    type Orientation,
-    type MinMax
-} from "../utils";
+    randomFloat,
+    randomVec,
+    randomPointInsideCircle,
+    randomBoolean
+} from "../utils/math";
 import { type Game } from "./game";
 import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";

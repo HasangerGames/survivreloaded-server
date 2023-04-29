@@ -10,7 +10,8 @@ import { type ChildProcessWithoutNullStreams, spawn } from "child_process";
 import * as path from "path";
 import * as fs from "fs";
 
-import { Config, Debug, getContentType, log, readDirectory, readPostedJson } from "./utils";
+import { Config, Debug } from "./utils/data";
+import { getContentType, log, readDirectory, readPostedJson } from "./utils/misc";
 
 // Initialize the server.
 const app = Config.webSocketHttps
