@@ -31,7 +31,7 @@ export class Projectile extends GameObject {
         projectile: false
     };
 
-    constructor(
+    constructor (
         typeString: string,
         game: Game,
         position: Vec2,
@@ -66,23 +66,20 @@ export class Projectile extends GameObject {
         setTimeout(() => {
             this.explode();
         }, this.data.fuseTime * 1000);
-
-        this.game.dynamicObjects.add(this);
-        this.game.projectiles.add(this);
     }
 
-    update(): void {
+    update (): void {
         if (this.zPos > 0) {
             this.zPos -= 0.05;
             this.game.partialDirtyObjects.add(this);
         }
-        if(this.position.x !== this.body.getPosition().x || this.position.y !== this.body.getPosition().y) {
+        if (this.position.x !== this.body.getPosition().x || this.position.y !== this.body.getPosition().y) {
             this._position = this.body.getPosition().clone();
             this.game.partialDirtyObjects.add(this);
         }
     }
 
-    explode(): void {
+    explode (): void {
         this.game.explosions.add(new Explosion(this.position, this.data.explosionType, this.layer, this.player, this));
         this.game.projectiles.delete(this);
         this.game.dynamicObjects.delete(this);
@@ -90,18 +87,18 @@ export class Projectile extends GameObject {
         this.game.world.destroyBody(this.body);
     }
 
-    serializePartial(stream: SurvivBitStream): void {
+    serializePartial (stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeFloat(this.zPos, 0, Constants.projectile.maxHeight, 10);
         stream.writeUnitVec(this.direction, 7);
     }
 
-    serializeFull(stream: SurvivBitStream): void {
+    serializeFull (stream: SurvivBitStream): void {
         stream.writeGameType(this.typeId);
         stream.writeBits(this.layer, 2);
         stream.writeBits(0, 4); // padding
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage(amount: number, source): void {}
+    damage (amount: number, source): void {}
 }

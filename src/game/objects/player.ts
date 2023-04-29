@@ -544,7 +544,7 @@ export class Player extends GameObject {
                     switchCooldown: 0,
                     weaponType: WeaponType.Melee
                 };
-            } else if(slot === ItemSlot.Throwable) {
+            } else if (slot === ItemSlot.Throwable) {
                 this.weapons[slot] = {
                     typeString: "",
                     typeId: 0,
@@ -554,7 +554,7 @@ export class Player extends GameObject {
                     switchCooldown: 0,
                     weaponType: WeaponType.Throwable
                 };
-            }else {
+            } else {
                 this.weapons[slot] = {
                     typeString: "",
                     typeId: 0,
@@ -768,8 +768,8 @@ export class Player extends GameObject {
         player.recalculateSpeed();
     }
 
-    useThrowable(): void {
-        if(this.inventory[this.activeWeapon.typeString] < 1) return;
+    useThrowable (): void {
+        if (this.inventory[this.activeWeapon.typeString] < 1) return;
         // Start throwing animation
         if (!this.anim.active) {
             this.anim.active = true;
@@ -778,10 +778,12 @@ export class Player extends GameObject {
             this.anim.time = 0;
             this.fullDirtyObjects.add(this);
         }
-         new Projectile(this.activeWeapon.typeString, this.game, this.position, this.layer, this.direction, this);
-         this.inventory[this.activeWeapon.typeString]--;
-         (this.activeWeapon as Throwable).count = this.inventory[this.activeWeapon.typeString];
-         this.inventoryDirty = true;
+        const proj = new Projectile(this.activeWeapon.typeString, this.game, this.position, this.layer, this.direction, this);
+        this.game.dynamicObjects.add(proj);
+        this.game.projectiles.add(proj);
+        this.inventory[this.activeWeapon.typeString]--;
+        (this.activeWeapon as Throwable).count = this.inventory[this.activeWeapon.typeString];
+        this.inventoryDirty = true;
     }
 
     shootGun (): void {

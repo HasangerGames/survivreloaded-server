@@ -116,7 +116,7 @@ export class Loot extends GameObject {
         } else if (this.typeString.startsWith("helmet")) {
             result = this.pickUpTieredItem("helmet", p);
             playerDirty = true;
-        } else if(Constants.bagSizes[this.typeString]) {
+        } else if (Constants.bagSizes[this.typeString]) {
             // Throwables implementation [inside here cus it's tiered]
             if (Weapons[this.typeString]?.type === "throwable") {
                 p.weapons[3].typeString = this.typeString;
