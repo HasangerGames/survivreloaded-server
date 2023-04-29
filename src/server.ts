@@ -80,7 +80,7 @@ app.post(`/api/find_game`, res => {
 });
 
 app.post(`/api/user/profile`, (res, req) => {
-    const loadout = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../json/profile.json`), `utf-8`));
+    const loadout = JSON.parse(fs.readFileSync(path.resolve(__dirname, `../../json/profile.json`), `utf-8`));
     const cookies = cookie.parse(req.getHeader(`cookie`));
 
     if (cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
@@ -114,7 +114,7 @@ app.post(`/api/user/load_previous_offers`, res => {
 
 app.post(`/api/user/get_pass`, res => {
     res.writeHeader(`Content-Type`, `application/json`);
-    res.end(fs.readFileSync(path.resolve(__dirname, `../json/get_pass.json`)));
+    res.end(fs.readFileSync(path.resolve(__dirname, `../../json/get_pass.json`)));
 });
 
 let lastDataReceivedTime = Date.now() + 3e4;
