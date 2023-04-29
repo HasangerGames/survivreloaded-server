@@ -50,7 +50,7 @@ app.get(`/*`, (res, req) => {
 
 app.get(`/api/site_info`, res => {
     res.writeHeader(`Content-Type`, `application/json`);
-    res.end(fs.readFileSync(path.resolve(__dirname, `../json/site_info.json`)));
+    res.end(fs.readFileSync(path.resolve(__dirname, `../../json/site_info.json`)));
 });
 
 app.get(`/api/games_modes`, res => {
@@ -60,7 +60,7 @@ app.get(`/api/games_modes`, res => {
 
 app.get(`/api/prestige_battle_modes`, res => {
     res.writeHeader(`Content-Type`, `application/json`);
-    res.end(fs.readFileSync(path.resolve(__dirname, `../json/prestige_battle_modes.json`)));
+    res.end(fs.readFileSync(path.resolve(__dirname, `../../json/prestige_battle_modes.json`)));
 });
 
 app.post(`/api/user/get_user_prestige`, res => {
