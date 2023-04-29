@@ -10,7 +10,7 @@ import { type ChildProcessWithoutNullStreams, exec, spawn } from "child_process"
 
 // Initialize the server
 let app: TemplatedApp;
-if(Config.https) {
+if (Config.https) {
     app = SSLApp({
         key_file_name: Config.keyFile,
         cert_file_name: Config.certFile
@@ -21,12 +21,12 @@ if(Config.https) {
 
 // Set up static files
 const staticFiles: Record<string, Buffer> = {};
-function walk(dir: string, files: string[] = []): string[] {
-    if(dir.includes(".git") || dir.includes("src") || dir.includes(".vscode") || dir.includes(".idea")) return files;
+function walk (dir: string, files: string[] = []): string[] {
+    if (dir.includes(".git") || dir.includes("src") || dir.includes(".vscode") || dir.includes(".idea")) return files;
     const dirFiles = fs.readdirSync(dir);
-    for(const f of dirFiles) {
+    for (const f of dirFiles) {
         const stat = fs.lstatSync(dir + "/" + f);
-        if(stat.isDirectory()) {
+        if (stat.isDirectory()) {
             walk(dir + "/" + f, files);
         } else {
             files.push(dir.slice(6) + "/" + f);
@@ -34,7 +34,7 @@ function walk(dir: string, files: string[] = []): string[] {
     }
     return files;
 }
-for(const file of walk("public")) {
+for (const file of walk("public")) {
     staticFiles[file] = fs.readFileSync("public" + file);
 }
 
@@ -42,10 +42,10 @@ for(const file of walk("public")) {
 app.get("/*", async (res, req) => {
     const path: string = req.getUrl() === "/" ? "/index.html" : req.getUrl();
     let file: Buffer | undefined;
-    if(Debug.disableStaticFileCache) {
+    if (Debug.disableStaticFileCache) {
         try {
             file = fs.readFileSync("public" + path);
-        } catch(e) {
+        } catch (e) {
             file = undefined;
         }
     } else {
@@ -55,7 +55,7 @@ app.get("/*", async (res, req) => {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     res.onAborted(() => {});
 
-    if(file === undefined) {
+    if (file === undefined) {
         res.writeStatus("404 Not Found");
         res.end(`<!DOCTYPE html><html lang="en"><body><pre>404 Not Found: ${req.getUrl()}</pre></body></html>`);
         return;
@@ -97,8 +97,8 @@ app.post("/api/find_game", (res) => {
 app.post("/api/user/profile", (res, req) => {
     const loadout = readJson<any>("json/profile.json");
     const cookies = cookie.parse(req.getHeader("cookie"));
-    //console.log(cookies.loadout);
-    if(cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
+    // console.log(cookies.loadout);
+    if (cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
     res.writeHeader("Content-Type", "application/json");
     res.end(JSON.stringify(loadout));
 });
@@ -140,16 +140,16 @@ process.on("SIGTERM", shutdownHandler);
 // Code to handle the WebSocket server
 let lastDataReceivedTime = Date.now() + 30000;
 let webSocketProcess: ChildProcessWithoutNullStreams;
-function spawnWebSocketProcess(): void {
+function spawnWebSocketProcess (): void {
     webSocketProcess = spawn("node", ["--enable-source-maps", "dist/webSocketServer.js"]);
-    webSocketProcess.stdout!.on("data", data => {
+    webSocketProcess.stdout.on("data", data => {
         lastDataReceivedTime = Date.now();
         process.stdout.write(data);
     });
-    webSocketProcess.stderr!.on("data", data => process.stderr.write(data));
+    webSocketProcess.stderr.on("data", data => process.stderr.write(data));
 }
 setInterval(() => {
-    if(Date.now() - lastDataReceivedTime > 10000) {
+    if (Date.now() - lastDataReceivedTime > 10000) {
         log("WebSocket process hasn't sent data in more than 10 seconds. Restarting...");
         lastDataReceivedTime = Date.now() + 30000;
         webSocketProcess.kill("SIGKILL");

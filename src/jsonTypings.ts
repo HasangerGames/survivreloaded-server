@@ -267,4 +267,4 @@ export namespace JSONObjects {
     export type JSON = Record<string, Random | Obstacle | Wall | Building | Structure | LootTier | Decal>;
 }
 
-//todo all the other json files
+// todo all the other json files

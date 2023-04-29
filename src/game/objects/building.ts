@@ -16,7 +16,6 @@ import { type Player } from "./player";
 import { type JSONObjects } from "../../jsonTypings";
 
 export class Building extends GameObject {
-
     showOnMap: boolean;
 
     occupied = false;
@@ -60,7 +59,7 @@ export class Building extends GameObject {
 
     declare kind: ObjectKind.Building;
 
-    constructor(game: Game,
+    constructor (game: Game,
                 typeString: string,
                 position: Vec2,
                 layer: number,
@@ -73,9 +72,9 @@ export class Building extends GameObject {
 
         this.showOnMap = showOnMap;
 
-        for(const zoomRegion of data.ceiling.zoomRegions) {
-            if(zoomRegion.zoomIn) {
-                //!unsafe
+        for (const zoomRegion of data.ceiling.zoomRegions) {
+            if (zoomRegion.zoomIn) {
+                //! unsafe
                 const rect = rotateRect(
                     this.position,
                     Vec2(zoomRegion.zoomIn.min!),
@@ -88,12 +87,12 @@ export class Building extends GameObject {
             }
         }
 
-        if(data.ceiling.destroy) {
+        if (data.ceiling.destroy != null) {
             this.ceiling.destructible = true;
-            //!unsafe
+            //! unsafe
             this.ceiling.wallsToDestroy = data.ceiling.destroy.wallCount!;
         }
-        if(data.ceiling.damage) {
+        if (data.ceiling.damage != null) {
             this.ceiling.damageable = true;
             this.ceiling.obstaclesToDestroy = data.ceiling.damage.obstacleCount;
         }
@@ -115,21 +114,21 @@ export class Building extends GameObject {
             };
         }
 
-        if(data.mapObstacleBounds?.length) {
-            for(const bounds of data.mapObstacleBounds) {
+        if (data.mapObstacleBounds?.length) {
+            for (const bounds of data.mapObstacleBounds) {
                 this.mapObstacleBounds.push(rotateRect(position, Vec2(bounds.min), Vec2(bounds.max), 1, this.orientation!));
             }
-        } else if(data.ceiling && data.ceiling.zoomRegions.length > 0) {
+        } else if (data.ceiling && data.ceiling.zoomRegions.length > 0) {
             // use the zoom regions as a fallback
-            for(const zoomRegion of data.ceiling.zoomRegions) {
-                //!unsafe
+            for (const zoomRegion of data.ceiling.zoomRegions) {
+                //! unsafe
                 const rect = zoomRegion.zoomIn ? zoomRegion.zoomIn : zoomRegion.zoomOut!;
                 this.mapObstacleBounds.push(
                     rotateRect(
                         position,
-                        //!unsafe
+                        //! unsafe
                         Vec2(rect.min!),
-                        //!unsafe
+                        //! unsafe
                         Vec2(rect.max!),
                         1,
                         this.orientation!
@@ -141,55 +140,54 @@ export class Building extends GameObject {
         }
     }
 
-    serializePartial(stream: SurvivBitStream): void {
+    serializePartial (stream: SurvivBitStream): void {
         stream.writeBoolean(this.ceiling.destroyed);
         stream.writeBoolean(this.occupied);
         stream.writeBoolean(this.ceiling.damaged);
         stream.writeBoolean(this.hasPuzzle);
-        if(this.hasPuzzle) {
+        if (this.hasPuzzle) {
             stream.writeBoolean(this.puzzle.solved);
             stream.writeBits(this.puzzle.errorSeq, 7);
         }
         stream.writeBits(0, 4); // Padding
     }
 
-    serializeFull(stream: SurvivBitStream): void {
+    serializeFull (stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeMapType(this.typeId);
         stream.writeBits(this.orientation!, 2);
         stream.writeBits(this.layer, 2);
     }
 
-    onObstacleDestroyed(obstacle: Obstacle): void {
+    onObstacleDestroyed (obstacle: Obstacle): void {
         const ceiling = this.ceiling;
-        if(ceiling.destructible && obstacle.isWall && !ceiling.destroyed) {
+        if (ceiling.destructible && obstacle.isWall && !ceiling.destroyed) {
             ceiling.wallsToDestroy--;
-            if(ceiling.wallsToDestroy <= 0) {
+            if (ceiling.wallsToDestroy <= 0) {
                 ceiling.destroyed = true;
                 this.game.partialDirtyObjects.add(this);
                 this.game.updateObjects = true;
             }
         }
-        if(ceiling.damageable && obstacle.damageCeiling && !ceiling.damaged) {
+        if (ceiling.damageable && obstacle.damageCeiling && !ceiling.damaged) {
             ceiling.obstaclesToDestroy--;
-            if(ceiling.obstaclesToDestroy-- <= 0) {
+            if (ceiling.obstaclesToDestroy-- <= 0) {
                 ceiling.damaged = true;
                 this.game.partialDirtyObjects.add(this);
                 this.game.updateObjects = true;
             }
         }
-
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage(amount: number, source): void {}
+    damage (amount: number, source): void {}
 
-    playerIsOnZoomArea(player: Player): number {
-        if(this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
+    playerIsOnZoomArea (player: Player): number {
+        if (this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
 
-        for(const zoomRegion of this.zoomRegions) {
-            if(zoomRegion.min) {
-                if(rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) {
+        for (const zoomRegion of this.zoomRegions) {
+            if (zoomRegion.min) {
+                if (rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) {
                     return zoomRegion.zoom !== undefined
                     ? zoomRegion.zoom
                     : Constants.scopeZoomRadius[player.isMobile ? "mobile" : "desktop"]["1xscope"];
@@ -199,14 +197,14 @@ export class Building extends GameObject {
         return 0;
     }
 
-    puzzlePieceToggled(piece: Obstacle): void {
+    puzzlePieceToggled (piece: Obstacle): void {
         this.puzzle.inputOrder.push(piece.puzzlePiece);
-        if(this.puzzle.resetTimeoutId) clearTimeout(this.puzzle.resetTimeoutId);
+        if (this.puzzle.resetTimeoutId) clearTimeout(this.puzzle.resetTimeoutId);
 
         // hack to compare two arrays :boffy:
-        if(JSON.stringify(this.puzzle.inputOrder) === JSON.stringify(this.puzzle.order)) {
-            for(const door of this.doors) {
-                if(door.typeString === this.puzzle.completeUseType) {
+        if (JSON.stringify(this.puzzle.inputOrder) === JSON.stringify(this.puzzle.order)) {
+            for (const door of this.doors) {
+                if (door.typeString === this.puzzle.completeUseType) {
                     setTimeout(() => {
                         door.toggleDoor();
                     }, this.puzzle.completeUseDelay * 1000);
@@ -231,10 +229,10 @@ export class Building extends GameObject {
     }
 
     // this function is called inside a setTimeout so it needs the This argument because javascript is stupid
-    resetPuzzle(This: Building): void {
+    resetPuzzle (This: Building): void {
         This.puzzle.inputOrder = [];
-        for(const piece of This.puzzlePieces) {
-            if(piece.isButton) {
+        for (const piece of This.puzzlePieces) {
+            if (piece.isButton) {
                 piece.button.canUse = !This.puzzle.solved;
                 piece.interactable = piece.button.canUse;
                 piece.button.onOff = false;

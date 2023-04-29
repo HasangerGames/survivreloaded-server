@@ -13,10 +13,9 @@ import { type Obstacle } from "../../game/objects/obstacle";
 import { Loot } from "../../game/objects/loot";
 
 export class InputPacket extends ReceivingPacket {
-
-    deserialize(stream: SurvivBitStream): void {
+    deserialize (stream: SurvivBitStream): void {
         const p = this.p;
-        if(p.dead) return;
+        if (p.dead) return;
 
         stream.readUint8(); // Discard second byte (this.seq)
 
@@ -34,15 +33,15 @@ export class InputPacket extends ReceivingPacket {
         // Mobile stuff
         stream.readBoolean(); // Portrait
         const touchMoveActive = stream.readBoolean();
-        if(touchMoveActive) {
-            if(!p.isMobile) {
+        if (touchMoveActive) {
+            if (!p.isMobile) {
                 p.isMobile = true;
                 p.zoom = Constants.scopeZoomRadius.mobile["1xscope"];
             }
             p.touchMoveDir = stream.readUnitVec(8);
 
             // Detect when the player isn't moving
-            if(p.touchMoveDir.x === 1 && p.touchMoveDir.y > 0 && p.touchMoveDir.y < 0.01) {
+            if (p.touchMoveDir.x === 1 && p.touchMoveDir.y > 0 && p.touchMoveDir.y < 0.01) {
                 p.touchMoveDir = Vec2(0, 0);
             }
 
@@ -51,7 +50,7 @@ export class InputPacket extends ReceivingPacket {
 
         // Direction
         const direction = stream.readUnitVec(10);
-        if(p.direction !== direction) {
+        if (p.direction !== direction) {
             p.direction = direction;
             p.moving = true;
         }
@@ -59,19 +58,19 @@ export class InputPacket extends ReceivingPacket {
 
         // Other inputs
         const inputCount = stream.readBits(4);
-        for(let i = 0; i < inputCount; i++) {
+        for (let i = 0; i < inputCount; i++) {
             const input = stream.readUint8();
-            switch(input) { // TODO Remove redundant code
+            switch (input) { // TODO Remove redundant code
                 case InputType.Interact: {
-                    let minDistInteractable = Number.MAX_VALUE, minDist = Number.MAX_VALUE;
+                    let minDistInteractable = Number.MAX_VALUE; let minDist = Number.MAX_VALUE;
                     let minDistInteractableObject, minDistObject;
-                    for(const object of p.visibleObjects) {
-                        if(object.interactable && sameLayer(p.layer, object.layer)) {
+                    for (const object of p.visibleObjects) {
+                        if (object.interactable && sameLayer(p.layer, object.layer)) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
-                            if(record?.collided) {
-                                if((object as any).isDoor) p.interactWith(object as Obstacle);
-                                else if(record.distance < minDist) {
-                                    if(record.distance < minDistInteractable && (!(object instanceof Loot) || object.canPickUpItem(p))) {
+                            if (record?.collided) {
+                                if ((object as any).isDoor) p.interactWith(object as Obstacle);
+                                else if (record.distance < minDist) {
+                                    if (record.distance < minDistInteractable && (!(object instanceof Loot) || object.canPickUpItem(p))) {
                                         minDistInteractable = record.distance;
                                         minDistInteractableObject = object;
                                     }
@@ -81,22 +80,22 @@ export class InputPacket extends ReceivingPacket {
                             }
                         }
                     }
-                    if(minDistInteractableObject) {
+                    if (minDistInteractableObject) {
                         p.interactWith(minDistInteractableObject);
-                    } else if(minDistObject) {
+                    } else if (minDistObject) {
                         p.interactWith(minDistObject);
                     }
                     break;
                 }
 
                 case InputType.Loot: {
-                    let minDistInteractable = Number.MAX_VALUE, minDist = Number.MAX_VALUE;
+                    let minDistInteractable = Number.MAX_VALUE; let minDist = Number.MAX_VALUE;
                     let minDistInteractableObject, minDistObject;
-                    for(const object of p.visibleObjects) {
-                        if(object instanceof Loot && object.interactable && sameLayer(p.layer, object.layer)) {
+                    for (const object of p.visibleObjects) {
+                        if (object instanceof Loot && object.interactable && sameLayer(p.layer, object.layer)) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
-                            if(record?.collided && record.distance < minDist) {
-                                if(record.distance < minDistInteractable && object.canPickUpItem(p)) {
+                            if (record?.collided && record.distance < minDist) {
+                                if (record.distance < minDistInteractable && object.canPickUpItem(p)) {
                                     minDistInteractable = record.distance;
                                     minDistInteractableObject = object;
                                 }
@@ -105,19 +104,19 @@ export class InputPacket extends ReceivingPacket {
                             }
                         }
                     }
-                    if(minDistInteractableObject) {
+                    if (minDistInteractableObject) {
                         p.interactWith(minDistInteractableObject);
-                    } else if(minDistObject) {
+                    } else if (minDistObject) {
                         p.interactWith(minDistObject);
                     }
                     break;
                 }
 
                 case InputType.Use: {
-                    for(const object of p.visibleObjects) {
-                        if(((object as any).isDoor || (object as any).isButton || (object as any).isPuzzlePiece) && sameLayer(object.layer, p.layer)) {
+                    for (const object of p.visibleObjects) {
+                        if (((object as any).isDoor || (object as any).isButton || (object as any).isPuzzlePiece) && sameLayer(object.layer, p.layer)) {
                             const record = objectCollision(object, p.position, p.scale + object.interactionRad);
-                            if(record?.collided) p.interactWith(object as Obstacle);
+                            if (record?.collided) p.interactWith(object as Obstacle);
                         }
                     }
                     break;
@@ -145,9 +144,9 @@ export class InputPacket extends ReceivingPacket {
                     break;
 
                 case InputType.EquipOtherGun:
-                    if(p.weapons[0]?.typeId && p.weapons[1]?.typeId) p.switchSlot(p.selectedWeaponSlot === 0 ? 1 : 0);
-                    else if(p.selectedWeaponSlot === 2 && p.weapons[0]?.typeId) p.switchSlot(0);
-                    else if(p.selectedWeaponSlot === 2 && p.weapons[1]?.typeId) p.switchSlot(1);
+                    if (p.weapons[0]?.typeId && p.weapons[1]?.typeId) p.switchSlot(p.selectedWeaponSlot === 0 ? 1 : 0);
+                    else if (p.selectedWeaponSlot === 2 && p.weapons[0]?.typeId) p.switchSlot(0);
+                    else if (p.selectedWeaponSlot === 2 && p.weapons[1]?.typeId) p.switchSlot(1);
                     else p.switchSlot(2);
                     break;
                 case InputType.EquipLastWeap:
@@ -189,7 +188,7 @@ export class InputPacket extends ReceivingPacket {
         }
 
         // Item use logic
-        switch(stream.readGameType()) {
+        switch (stream.readGameType()) {
             case TypeToId.bandage:
                 p.useBandage();
                 break;
@@ -221,5 +220,4 @@ export class InputPacket extends ReceivingPacket {
 
         stream.readBits(6); // Padding
     }
-
 }
