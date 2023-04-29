@@ -54,56 +54,57 @@ app.ws(`/play`, {
      * Upgrade the connection to WebSocket.
      */
     upgrade: (res, req, context) => {
+        res.onAborted(() => {
+            // Connection was dropped.
+        });
+
         // Start a new game if the old one is over.
         if (game.over) game = new Game();
 
         if (Config.botProtection) {
             const ip = req.getHeader(`cf-connecting-ip`);
-            if (ip !== undefined) {
-                if (bannedIPs.includes(ip)) return res.endWithoutBody(0, true);
+            if (ip !== undefined && ip.length > 0) {
+                if (!bannedIPs.includes(ip)) return res.endWithoutBody(0, true);
 
                 const playerIPCount = playerCounts.get(ip);
                 const recentIPCount = connectionAttempts.get(ip);
-
-                if (playerIPCount === undefined) playerCounts.set(ip, 1);
-                if (recentIPCount === undefined) playerCounts.set(ip, 1);
 
                 if (playerIPCount !== undefined && recentIPCount !== undefined) {
                     if (bannedIPs.includes(ip) || playerIPCount > 5 || recentIPCount > 40) {
                         if (!bannedIPs.includes(ip)) bannedIPs.push(ip);
 
                         log(`[IP BLOCK]: ${ip}`);
-                        res.endWithoutBody(0, true);
-                    } else {
-                        playerCounts.set(ip, playerIPCount + 1);
-                        connectionAttempts.set(ip, recentIPCount + 1);
-
-                        log(`[${ip}] Concurrent connections: ${playerCounts.get(ip)}.`);
-                        log(`[${ip}] Connections in last 30 seconds: ${connectionAttempts.get(ip)}.`);
-
-                        res.upgrade(
-                            {
-                                cookies: cookie.parse(req.getHeader(`cookie`)),
-                                ip
-                            },
-                            req.getHeader(`sec-websocket-key`),
-                            req.getHeader(`sec-websocket-protocol`),
-                            req.getHeader(`sec-weboscket-extensions`),
-                            context
-                        );
+                        return res.endWithoutBody(0, true);
                     }
                 }
-            } else {
-                res.upgrade(
-                    {
-                        cookies: cookie.parse(req.getHeader(`cookie`))
-                    },
-                    req.getHeader(`sec-websocket-key`),
-                    req.getHeader(`sec-websocket-protocol`),
-                    req.getHeader(`sec-websocket-extensions`),
-                    context
-                );
+
+                playerCounts.set(ip, (playerIPCount ?? 0) + 1);
+                connectionAttempts.set(ip, (recentIPCount ?? 0) + 1);
+
+                log(`[${ip}] Concurrent connections: ${playerCounts.get(ip)}.`);
+                log(`[${ip}] Connections in last 30 seconds: ${connectionAttempts.get(ip)}.`);
             }
+
+            res.upgrade(
+                {
+                    cookies: cookie.parse(req.getHeader(`cookie`)),
+                    ip
+                },
+                req.getHeader(`sec-websocket-key`),
+                req.getHeader(`sec-websocket-protocol`),
+                req.getHeader(`sec-weboscket-extensions`),
+                context
+            );
+        } else {
+            res.upgrade(
+                {
+                    cookies: cookie.parse(req.getHeader(`cookie`))
+                },
+                req.getHeader(`sec-websocket-key`),
+                req.getHeader(`sec-websocket-protocol`),
+                req.getHeader(`sec-websocket-extensions`),
+                context
+            );
         }
     },
 
@@ -121,7 +122,7 @@ app.ws(`/play`, {
             playerName.length === playerName.split(` `).length
         ) playerName = `Player`;
 
-        log(`"${socket.player.name}" joined the game.`);
+        log(`"${playerName}" joined the game.`);
         socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout);
     },
 
