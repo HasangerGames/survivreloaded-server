@@ -19,7 +19,7 @@ import { Config, log, MsgType, SurvivBitStream } from "./utils";
 
 interface Socket extends WebSocket<Record<string, never>> {
     ip: string
-    cookies: ReturnType<typeof cookie[`parse`]>
+    cookies: ReturnType<typeof cookie["parse"]>
     player: Player
 }
 
@@ -40,13 +40,13 @@ const connectionAttempts = new Map<string, number>();
 
 const bannedIPs: string[] = [];
 
-app.get(`/`, (res) => {
-    res.writeStatus(`302`);
-    res.writeHeader(`Location`, `https://resurviv.io`);
+app.get("/", (res) => {
+    res.writeStatus("302");
+    res.writeHeader("Location", "https://resurviv.io");
     res.end();
 });
 
-app.ws(`/play`, {
+app.ws("/play", {
     compression: DEDICATED_COMPRESSOR_256KB,
     idleTimeout: 30,
 
@@ -61,7 +61,7 @@ app.ws(`/play`, {
         if (game.over) game = new Game();
 
         if (Config.botProtection) {
-            const ip = req.getHeader(`cf-connecting-ip`);
+            const ip = req.getHeader("cf-connecting-ip");
             if (ip !== undefined && ip.length > 0) {
                 if (!bannedIPs.includes(ip)) return res.endWithoutBody(0, true);
 
@@ -86,22 +86,22 @@ app.ws(`/play`, {
 
             res.upgrade(
                 {
-                    cookies: cookie.parse(req.getHeader(`cookie`)),
+                    cookies: cookie.parse(req.getHeader("cookie")),
                     ip
                 },
-                req.getHeader(`sec-websocket-key`),
-                req.getHeader(`sec-websocket-protocol`),
-                req.getHeader(`sec-weboscket-extensions`),
+                req.getHeader("sec-websocket-key"),
+                req.getHeader("sec-websocket-protocol"),
+                req.getHeader("sec-weboscket-extensions"),
                 context
             );
         } else {
             res.upgrade(
                 {
-                    cookies: cookie.parse(req.getHeader(`cookie`))
+                    cookies: cookie.parse(req.getHeader("cookie"))
                 },
-                req.getHeader(`sec-websocket-key`),
-                req.getHeader(`sec-websocket-protocol`),
-                req.getHeader(`sec-websocket-extensions`),
+                req.getHeader("sec-websocket-key"),
+                req.getHeader("sec-websocket-protocol"),
+                req.getHeader("sec-websocket-extensions"),
                 context
             );
         }
@@ -112,8 +112,8 @@ app.ws(`/play`, {
      * @param socket The socket being opened.
      */
     open: (socket: Socket) => {
-        let playerName = socket.cookies[`player-name`]?.trim().substring(0, 16) ?? `Player`;
-        if (typeof playerName !== `string` || playerName.length < 1) playerName = `Player`;
+        let playerName = socket.cookies["player-name"]?.trim().substring(0, 16) ?? "Player";
+        if (typeof playerName !== "string" || playerName.length < 1) playerName = "Player";
 
         log(`"${playerName}" joined the game.`);
         socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout);
@@ -146,7 +146,7 @@ app.ws(`/play`, {
                     break;
             }
         } catch (e) {
-            console.warn(`Error parsing message:`, e);
+            console.warn("Error parsing message:", e);
         }
     },
 
@@ -162,8 +162,8 @@ app.ws(`/play`, {
     }
 });
 
-process.stdout.on(`end`, () => {
-    log(`WebSocket server shutting down...`);
+process.stdout.on("end", () => {
+    log("WebSocket server shutting down...");
 
     game?.end();
     process.exit();
@@ -171,7 +171,7 @@ process.stdout.on(`end`, () => {
 
 app.listen(Config.webSocketHost, Config.webSocketPort, () => {
     log(`WebSocket server listening on ${Config.webSocketHost as string}:${Config.webSocketPort as string}`);
-    log(`Press Ctrl+C to exit.`);
+    log("Press Ctrl+C to exit.");
 });
 
 // Clear connection attempts every 30 seconds.

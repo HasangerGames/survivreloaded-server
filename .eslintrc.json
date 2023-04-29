@@ -20,7 +20,7 @@
     "rules": {
         "@typescript-eslint/indent": [1, 4, { "SwitchCase": 1 }],
         "@typescript-eslint/semi": [2, "always"],
-        "@typescript-eslint/quotes": [1, "double", { "avoidEscape": true, "allowTemplateLiterals": true }],
+        "@typescript-eslint/quotes": [1, "double", { "avoidEscape": true }],
         "no-use-before-define": 0,
         "no-unused-vars": 0,
         "@typescript-eslint/no-use-before-define": 2,
