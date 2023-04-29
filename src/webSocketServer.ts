@@ -80,8 +80,8 @@ app.ws(`/play`, {
                 playerCounts.set(ip, (playerIPCount ?? 0) + 1);
                 connectionAttempts.set(ip, (recentIPCount ?? 0) + 1);
 
-                log(`[${ip}] Concurrent connections: ${playerCounts.get(ip)}.`);
-                log(`[${ip}] Connections in last 30 seconds: ${connectionAttempts.get(ip)}.`);
+                log(`[${ip}] Concurrent connections: ${playerCounts.get(ip) ?? 0}.`);
+                log(`[${ip}] Connections in last 30 seconds: ${connectionAttempts.get(ip) ?? 0}.`);
             }
 
             res.upgrade(
@@ -170,7 +170,7 @@ process.stdout.on(`end`, () => {
 });
 
 app.listen(Config.webSocketHost, Config.webSocketPort, () => {
-    log(`WebSocket server listening on ${Config.webSocketHost}:${Config.webSocketPort}`);
+    log(`WebSocket server listening on ${Config.webSocketHost as string}:${Config.webSocketPort as string}`);
     log(`Press Ctrl+C to exit.`);
 });
 

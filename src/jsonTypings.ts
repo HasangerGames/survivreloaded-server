@@ -20,7 +20,6 @@ export type Collider = ({
     height: number
 };
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace JSONObjects {
     export interface Random {
         type: "random"
