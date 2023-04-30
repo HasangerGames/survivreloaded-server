@@ -149,7 +149,7 @@ setInterval(() => {
         lastDataReceivedTime = Date.now() + 3e4;
         webSocketProcess.kill("SIGKILL");
 
-        setTimeout(() => spawnWebSocketProcess, 1e3);
+        setTimeout(spawnWebSocketProcess, 1e3);
     }
 }, 1e4);
 
