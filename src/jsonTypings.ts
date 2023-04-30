@@ -269,6 +269,7 @@ export namespace JSONObjects {
 
 export namespace JSONConfig {
 
+    type Region = "na" | "eu" | "as";
     interface ServerConfig {
         host: string
         port: number
@@ -278,12 +279,8 @@ export namespace JSONConfig {
         webSocketHttps: boolean
         webSocketDevAddress: string
         useWebSocketDevAddress: boolean
-        webSocketRegions: {
-            na: string
-            eu: string
-            as: string
-        }
-        defaultRegion: string
+        webSocketRegions: Record<Region, string>
+        defaultRegion: Region
         keyFile: string
         certFile: string
         movementSpeed: number
