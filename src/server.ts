@@ -74,7 +74,7 @@ app.post("/api/find_game", res => {
         const addr: string = Config.useWebSocketDevAddress ? Config.webSocketDevAddress : (Config.webSocketRegions[body?.region] ?? Config.webSocketRegions[Config.defaultRegion]);
 
         res.writeHeader("Content-Type", "application/json");
-        res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: "", useHttps: Config.useHttps, hosts: [addr], addrs: [addr] }] }));
+        res.end(JSON.stringify({ res: [{ zone: body.zones[0], gameId: "", useHttps: Config.https, hosts: [addr], addrs: [addr] }] }));
     }, () => {
         log("/api/find_game: Error retrieving body");
     });
@@ -156,7 +156,7 @@ setInterval(() => {
 
 log(`Surviv Reloaded v${version}`);
 app.listen(Config.host, Config.port, () => {
-    log(`HTTP server listening on ${Config.host as string}:${Config.port as string}`);
+    log(`HTTP server listening on ${Config.host}:${Config.port}`);
     log("WebSocket server is starting...");
 
     spawnWebSocketProcess();
