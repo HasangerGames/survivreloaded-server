@@ -79,8 +79,10 @@ export class Explosion {
                     const angle = angleBetween(loot.position, this.position);
                     const distance = distanceBetween(loot.position, this.position);
                     // it works, please don't ask questions
-                    loot.body!.setLinearVelocity(
-                        Vec2(Math.cos(angle), Math.sin(angle)).mul(explosionData.rad.max - distance).mul(0.005));
+                    const velocity = loot.body!.getLinearVelocity()
+                        .add(Vec2(Math.cos(angle), Math.sin(angle))
+                            .mul(explosionData.rad.max - distance).mul(0.006));
+                    loot.body!.setLinearVelocity(velocity);
                 }
             }
         }
