@@ -156,7 +156,7 @@ setInterval(() => {
 
 log(`Surviv Reloaded v${version}`);
 app.listen(Config.host, Config.port, () => {
-    log(`HTTP server listening on ${Config.host as string}:${Config.port as string}`);
+    log(`HTTP server listening on ${Config.host}:${Config.port}`);
     log("WebSocket server is starting...");
 
     spawnWebSocketProcess();

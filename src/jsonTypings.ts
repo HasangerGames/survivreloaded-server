@@ -267,4 +267,40 @@ export namespace JSONObjects {
     export type JSON = Record<string, Random | Obstacle | Wall | Building | Structure | LootTier | Decal>;
 }
 
+
+export namespace JSONConfig {
+
+    interface ServerConfig {
+        host: string
+        port: number
+        https: boolean
+        webSocketHost: string
+        webSocketPort: number
+        webSocketHttps: boolean
+        webSocketDevAddress: string
+        useWebSocketDevAddress: boolean
+        webSocketRegions: {
+            na: string
+            eu: string
+            as: string
+        }
+        defaultRegion: string
+        keyFile: string
+        certFile: string
+        movementSpeed: number
+        botProtection: boolean
+        stopServerOnGameEnd: boolean
+        debug: {
+            disableMapGeneration: boolean
+            fixedSpawnLocation: number[]
+            disableRedZone: boolean
+            disableStaticFileCache: boolean
+        }
+        diagonalSpeed: number
+    }
+
+    export type JSON = ServerConfig;
+
+}
+
 // todo all the other json files

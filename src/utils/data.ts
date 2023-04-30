@@ -1,5 +1,5 @@
 import { readJSON } from "./misc";
-import { type JSONObjects } from "../jsonTypings";
+import type { JSONConfig, JSONObjects } from "../jsonTypings";
 
 // todo Give all of these actual typings
 export const Objects = readJSON<JSONObjects.JSON>("data/objects.json");
@@ -18,7 +18,7 @@ export const AllowedBoost = readJSON<any>("data/allowedBoost.json");
 export const IdToMapType = readJSON<any>("data/idToMapType.json");
 export const IdToGameType = readJSON<any>("data/idToGameType.json");
 export const TypeToId = readJSON<any>("data/typeToId.json");
-export const Config = readJSON<any>("config.json");
+export const Config = readJSON<JSONConfig.JSON>("config.json");
 
 export const Debug = Config.debug ?? {};
 
