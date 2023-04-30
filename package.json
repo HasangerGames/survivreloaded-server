@@ -2,15 +2,18 @@
   "name": "survivreloaded",
   "version": "0.6.2",
   "description": "A community-made resurrection of the defunct online game surviv.io.",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node --enable-source-maps dist/server.js",
-    "dev": "tsc-watch --onSuccess \"nodemon --enable-source-maps --watch dist/ ./dist/server.js\"",
-    "webSocketServer": "node --enable-source-maps dist/webSocketServer.js",
-    "stressTest": "tsc && node --enable-source-maps dist/stressTest.js",
-    "lint": "eslint . --fix --ext .ts",
-    "lint:ci": "eslint . --ext .ts"
+    "start": "node --enable-source-maps dist/src/server.js",
+    "dev": "tsc-watch --incremental --sourceMap --onSuccess \"nodemon --enable-source-maps --watch dist/ ./dist/src/server.js\"",
+    "dev:ws": "node --enable-source-maps dist/src/webSocketServer.js",
+    "dev:test": "tsc && node --enable-source-maps dist/stressTest.js",
+    "lint": "eslint . --fix --ext .ts,.js",
+    "lint:ci": "eslint . --ext .ts,.js"
+  },
+  "engines": {
+    "node": ">=18.16.0"
   },
   "repository": {
     "type": "git",
@@ -25,21 +28,22 @@
   "dependencies": {
     "bit-buffer": "^0.2.5",
     "cookie": "^0.5.0",
-    "planck": "^1.0.0-alpha.4",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.20.0",
+    "planck": "1.0.0-alpha.4",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.23.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
-    "@types/node": "^18.14.2",
-    "@typescript-eslint/eslint-plugin": "^5.54.0",
-    "@typescript-eslint/parser": "^5.54.0",
-    "eslint": "^8.35.0",
-    "eslint-config-standard-with-typescript": "^34.0.0",
+    "@types/cookie": "^0.5.1",
+    "@types/node": "^18.16.2",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "eslint": "^8.39.0",
+    "eslint-config-standard-with-typescript": "^34.0.1",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
     "nodemon": "^2.0.22",
-    "tsc-watch": "^6.0.0",
-    "typescript": "^4.9.5"
+    "tsc-watch": "^6.0.1",
+    "typescript": "^5.0.4"
   }
 }

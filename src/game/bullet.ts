@@ -1,10 +1,13 @@
 import { type Body, Circle, Vec2 } from "planck";
-import { Bullets, distanceBetween, randomFloat, TypeToId } from "../utils";
+import { TypeToId, Bullets } from "../utils/data";
+import { randomFloat, distanceBetween } from "../utils/math";
 import { type Game } from "./game";
-import { type Player } from "./objects/player";
+import { type Gun, type Player } from "./objects/player";
+import { type Obstacle } from "./objects/obstacle";
+import { type Projectile } from "./objects/projectile";
 
+// this class should probably extend GameObject
 export class Bullet {
-
     isPlayer = false;
     isObstacle = false;
     isBullet = true;
@@ -35,7 +38,7 @@ export class Bullet {
     clipDistance = false;
 
     shotFx: boolean;
-    shotSource: any;
+    shotSource: Gun | Projectile | Obstacle;
     shotOffhand = false;
     lastShot = false;
 
@@ -54,14 +57,14 @@ export class Bullet {
 
     dead = false;
 
-    constructor(shooter: Player,
-                position: Vec2,
-                direction: Vec2,
-                typeString: string,
-                shotSource: number,
-                shotFx: boolean,
-                layer: number,
-                game: Game) {
+    constructor (shooter: Player,
+        position: Vec2,
+        direction: Vec2,
+        typeString: string,
+        shotSource: Gun | Projectile | Obstacle,
+        shotFx: boolean,
+        layer: number,
+        game: Game) {
         const bulletData = Bullets[typeString];
         this.shooter = shooter;
         this.initialPosition = position;
@@ -95,12 +98,11 @@ export class Bullet {
         this.body.setLinearVelocity(direction.clone().mul((bulletData.speed / 1000) * (this.varianceT + 1)));
     }
 
-    get position(): Vec2 {
+    get position (): Vec2 {
         return this.initialPosition;
     }
 
-    get distance(): number {
+    get distance (): number {
         return distanceBetween(this.initialPosition, this.body.getPosition());
     }
-
 }

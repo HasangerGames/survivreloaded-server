@@ -1,9 +1,8 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { type SurvivBitStream } from "../../utils";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 
 export class SpectatePacket extends ReceivingPacket {
-
-    deserialize(stream: SurvivBitStream): void {
+    deserialize (stream: SurvivBitStream): void {
         const p = this.p;
         p.spectateBegin = stream.readBoolean(); // Spectate begin
         p.spectateNext = stream.readBoolean(); // Spectate next

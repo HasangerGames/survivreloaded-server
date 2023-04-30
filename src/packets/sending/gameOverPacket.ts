@@ -1,19 +1,19 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, type SurvivBitStream } from "../../utils";
+import { MsgType } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { type Player } from "../../game/objects/player";
 
 export class GameOverPacket extends SendingPacket {
-
     readonly won;
 
-    constructor(p: Player, won = false) {
+    constructor (p: Player, won = false) {
         super(p);
         this.won = won;
         this.msgType = MsgType.GameOver;
         this.allocBytes = 32;
     }
 
-    serialize(stream: SurvivBitStream): void {
+    serialize (stream: SurvivBitStream): void {
         super.serialize(stream);
         const p = this.p!;
 
@@ -31,5 +31,4 @@ export class GameOverPacket extends SendingPacket {
         stream.writeUint16(p.damageDealt); // Damage dealt
         stream.writeUint16(p.damageTaken); // Damage taken
     }
-
 }

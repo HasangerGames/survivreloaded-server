@@ -1,5 +1,7 @@
 import { WebSocket } from "ws";
-import { InputType, MsgType, random, randomBoolean, SurvivBitStream } from "./utils";
+import { InputType, MsgType } from "./utils/constants";
+import { random, randomBoolean } from "./utils/math";
+import { SurvivBitStream } from "./utils/survivBitStream";
 import { Vec2 } from "planck";
 
 const config = {
@@ -8,15 +10,15 @@ const config = {
     joinDelay: 50
 };
 
-for(let i = 0; i < config.botCount; i++) {
+for (let i = 0; i < config.botCount; i++) {
     setTimeout(() => {
-        let movingUp = false,
-            movingDown = false,
-            movingLeft = false,
-            movingRight = false,
-            shootStart = false,
-            shootHold = false,
-            interact = false;
+        let movingUp = false;
+        let movingDown = false;
+        let movingLeft = false;
+        let movingRight = false;
+        let shootStart = false;
+        let shootHold = false;
+        let interact = false;
         const ws = new WebSocket(config.address);
         ws.on("error", console.error);
         ws.on("open", () => {
@@ -37,7 +39,7 @@ for(let i = 0; i < config.botCount; i++) {
                 stream.writeUnitVec(Vec2(0, 0), 10); // To mouse dir
                 stream.writeFloat(0, 0, 64, 8); // Distance to mouse
                 // Extra inputs
-                if(interact) {
+                if (interact) {
                     stream.writeBits(1, 4); // Input count
                     stream.writeUint8(InputType.Interact);
                 } else {
@@ -57,7 +59,7 @@ for(let i = 0; i < config.botCount; i++) {
             shootHold = randomBoolean();
             interact = randomBoolean();
             const direction: number = random(1, 8);
-            switch(direction) {
+            switch (direction) {
                 case 1:
                     movingUp = true;
                     break;

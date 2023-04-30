@@ -1,3 +1,6 @@
 # Public directories
 public/
 reference/
+
+# Compiled source
+dist/

@@ -1,9 +1,8 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { type SurvivBitStream } from "../../utils";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 
 export class JoinPacket extends ReceivingPacket {
-
-    deserialize(stream: SurvivBitStream): void {
+    deserialize (stream: SurvivBitStream): void {
         stream.readUint32(); // Protocol
 
         stream.readString(); // matchPriv
@@ -20,5 +19,4 @@ export class JoinPacket extends ReceivingPacket {
         stream.readBoolean(); // Is bot
         stream.readAlignToNextByte(); // Padding
     }
-
 }
