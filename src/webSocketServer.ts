@@ -15,7 +15,10 @@ import { JoinPacket } from "./packets/receiving/joinPacket";
 import { DropItemPacket } from "./packets/receiving/dropItemPacket";
 import { SpectatePacket } from "./packets/receiving/spectatePacket";
 
-import { Config, log, MsgType, SurvivBitStream } from "./utils";
+import { log } from "./utils/misc";
+import { MsgType } from "./utils/constants";
+import { Config } from "./utils/data";
+import { SurvivBitStream } from "./utils/survivBitStream";
 
 interface Socket extends WebSocket<Record<string, never>> {
     ip: string

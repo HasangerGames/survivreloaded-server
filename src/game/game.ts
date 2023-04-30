@@ -1,27 +1,9 @@
 import crypto from "crypto";
-import {
-    Bullets,
-    Config,
-    Constants,
-    DamageRecord,
-    DamageType,
-    Debug,
-    distanceBetween,
-    type Emote,
-    lerp,
-    log,
-    ObjectKind,
-    random,
-    randomPointInsideCircle,
-    RedZoneStages,
-    removeFrom,
-    sameLayer,
-    SurvivBitStream,
-    TypeToId,
-    vecLerp,
-    Weapons,
-    WeaponType
-} from "../utils";
+import { Constants, ObjectKind, DamageType, WeaponType } from "../utils/constants";
+import { log, DamageRecord, type Emote, removeFrom } from "../utils/misc";
+import { Weapons, Bullets, TypeToId, Debug, RedZoneStages, Config } from "../utils/data";
+import { SurvivBitStream } from "../utils/survivBitStream";
+import { random, sameLayer, vecLerp, lerp, distanceBetween, randomPointInsideCircle } from "../utils/math";
 import { Map } from "./map";
 import { type Gun, Player } from "./objects/player";
 import { AliveCountsPacket } from "../packets/sending/aliveCountsPacket";

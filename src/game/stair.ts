@@ -1,13 +1,12 @@
 import {
-    Constants,
-    type Orientation,
     distanceToRect,
     orientationToRad,
     rotateRect,
     splitRect,
     vec2Rotate,
     type MinMax
-} from "../utils";
+} from "../utils/math";
+import { Constants, type Orientation } from "../utils/constants";
 import { Vec2 } from "planck";
 import { type GameObject } from "./gameObject";
 import { type JSONObjects } from "../jsonTypings";

@@ -1,5 +1,6 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, type SurvivBitStream } from "../../utils";
+import { MsgType } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { type Player } from "../../game/objects/player";
 
 export class MapPacket extends SendingPacket {
@@ -44,7 +45,7 @@ export class MapPacket extends SendingPacket {
             stream.writeVec(obj.position, 0, 0, 1024, 1024, 16);
             stream.writeFloat(obj.scale, 0.125, 2.5, 8);
             stream.writeMapType(obj.typeId);
-            stream.writeBits(obj.orientation!, 2);
+            stream.writeBits(obj.orientation, 2);
             stream.writeBits(0, 2); // Padding
         }
 

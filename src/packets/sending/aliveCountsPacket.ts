@@ -1,5 +1,6 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, type SurvivBitStream } from "../../utils";
+import { MsgType } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { type Game } from "../../game/game";
 
 export class AliveCountsPacket extends SendingPacket {

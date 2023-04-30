@@ -1,14 +1,8 @@
-import {
-    Constants, deepCopy,
-    Items,
-    log,
-    LootTables,
-    ObjectKind, random,
-    type SurvivBitStream,
-    TypeToId, unitVecToRadians,
-    Weapons,
-    weightedRandom
-} from "../../utils";
+import { Constants, ObjectKind } from "../../utils/constants";
+import { deepCopy, log } from "../../utils/misc";
+import { Items, LootTables, Weapons, TypeToId } from "../../utils/data";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
+import { random, unitVecToRadians, weightedRandom } from "../../utils/math";
 import { type Game } from "../game";
 import { GameObject } from "../gameObject";
 import { type Gun, type Player } from "./player";

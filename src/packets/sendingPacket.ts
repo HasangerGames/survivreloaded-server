@@ -1,4 +1,5 @@
-import { type MsgType, type SurvivBitStream } from "../utils";
+import type { MsgType } from "../utils/constants";
+import type { SurvivBitStream } from "../utils/survivBitStream";
 import { type Player } from "../game/objects/player";
 
 export abstract class SendingPacket {

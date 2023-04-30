@@ -1,5 +1,6 @@
 import { type LooseLoot } from "./game/objects/loot";
-import { type MinMax, type Orientation } from "./utils";
+import { type MinMax } from "./utils/math";
+import { type Orientation } from "./utils/constants";
 
 export interface Point2D {
     x: number

@@ -1,4 +1,5 @@
-import { ObjectKind, type SurvivBitStream } from "../../utils";
+import { ObjectKind } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
@@ -9,7 +10,7 @@ export class DeadBody extends GameObject {
     declare kind: ObjectKind.DeadBody;
 
     constructor (game: Game, layer: number, position: Vec2, playerId: number) {
-        super(game, "", position, layer, 0);
+        super(game, "", position, layer);
         this.kind = ObjectKind.DeadBody;
         this.playerId = playerId;
     }

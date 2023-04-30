@@ -1,5 +1,6 @@
 import { SendingPacket } from "../sendingPacket";
-import { MsgType, type SurvivBitStream } from "../../utils";
+import { MsgType } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { type Player } from "../../game/objects/player";
 import { type GameObject } from "../../game/gameObject";
 

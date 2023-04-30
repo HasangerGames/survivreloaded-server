@@ -1,5 +1,6 @@
 import { ReceivingPacket } from "../receivingPacket";
-import { Emote, type SurvivBitStream } from "../../utils";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
+import { Emote } from "../../utils/misc";
 
 export class EmotePacket extends ReceivingPacket {
     deserialize (stream: SurvivBitStream): void {

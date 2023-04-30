@@ -1,28 +1,26 @@
-import { ObjectKind, type SurvivBitStream, TypeToId, type Orientation } from "../../utils";
+import { ObjectKind, type Orientation, Constants } from "../../utils/constants";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { GameObject } from "../gameObject";
 import { type Vec2 } from "planck";
 import { type Game } from "../game";
 
 // TODO: decal life time
 export class Decal extends GameObject {
-    type: number;
-
     // club pool
     goreKills = 0;
 
     declare kind: ObjectKind.Decal;
 
     constructor (
-        type: string,
+        typeString: string,
         game: Game,
         position: Vec2,
         layer: number,
         orientation?: Orientation,
         scale?: number
     ) {
-        super(game, "", position, layer, orientation);
+        super(game, typeString, position, layer, orientation);
         this.kind = ObjectKind.Decal;
-        this.type = TypeToId[type];
         this.scale = scale ?? 1;
     }
 
@@ -31,9 +29,9 @@ export class Decal extends GameObject {
     }
 
     serializeFull (stream: SurvivBitStream): void {
-        stream.writeFloat(this.scale, 0.125, 2.5, 8);
-        stream.writeMapType(this.type);
-        stream.writeBits(this.orientation!, 2);
+        stream.writeFloat(this.scale, Constants.MapObjectMinScale, Constants.MapObjectMaxScale, 8);
+        stream.writeMapType(this.typeId);
+        stream.writeBits(this.orientation, 2);
         stream.writeBits(this.layer, 2);
         stream.writeUint8(this.goreKills);
     }

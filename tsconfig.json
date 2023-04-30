@@ -8,8 +8,7 @@
         "outDir": "dist",
         "allowJs": true,
         "resolveJsonModule": true,
-        "strictNullChecks": true,
-        "skipLibCheck": true
+        "strictNullChecks": true
     },
     "exclude": [
         "node_modules",

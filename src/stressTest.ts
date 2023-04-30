@@ -1,5 +1,7 @@
 import { WebSocket } from "ws";
-import { InputType, MsgType, random, randomBoolean, SurvivBitStream } from "./utils";
+import { InputType, MsgType } from "./utils/constants";
+import { random, randomBoolean } from "./utils/math";
+import { SurvivBitStream } from "./utils/survivBitStream";
 import { Vec2 } from "planck";
 
 const config = {

@@ -1,4 +1,6 @@
-import { ObjectKind, type SurvivBitStream, Constants, Weapons } from "../../utils";
+import { Constants, ObjectKind } from "../../utils/constants";
+import { Weapons } from "../../utils/data";
+import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { GameObject } from "../gameObject";
 import { type Vec2, type Body, Circle } from "planck";
 import { type Game } from "../game";
