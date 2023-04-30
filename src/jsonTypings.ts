@@ -268,7 +268,6 @@ export namespace JSONObjects {
 }
 
 export namespace JSONConfig {
-
     type Region = "na" | "eu" | "as";
     interface ServerConfig {
         host: string
