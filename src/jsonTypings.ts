@@ -267,7 +267,6 @@ export namespace JSONObjects {
     export type JSON = Record<string, Random | Obstacle | Wall | Building | Structure | LootTier | Decal>;
 }
 
-
 export namespace JSONConfig {
 
     interface ServerConfig {
