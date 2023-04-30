@@ -19,12 +19,16 @@ export const IdToMapType = readJSON<any>("data/idToMapType.json");
 export const IdToGameType = readJSON<any>("data/idToGameType.json");
 export const TypeToId = readJSON<any>("data/typeToId.json");
 export const Config = readJSON<any>("config.json");
-Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
-export const Debug = Config.debug || {};
 
+export const Debug = Config.debug ?? {};
+
+Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
+
+/**
+ * Return the type assigned to an ID.
+ * @param id The ID to check for.
+ */
 export function IdToType (id: number): string {
-    for (const type in TypeToId) {
-        if (TypeToId[type] === id) return type;
-    }
+    for (const type in TypeToId) if (TypeToId[type] === id) return type;
     return "";
 }

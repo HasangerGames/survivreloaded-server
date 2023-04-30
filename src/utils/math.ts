@@ -28,6 +28,11 @@ export function toStairsLayer (a: number): number {
     return 2 | a;
 }
 
+/**
+ * Generate a random floating-point value.
+ * @param min The minimum value that can be generated.
+ * @param max The maximum value that can be generated.
+ */
 export function randomFloat (min: number, max: number): number {
     return (Math.random() * (max - min) + min);
 }
@@ -41,15 +46,32 @@ export interface MinMax<T> {
     max: T
 }
 
+/**
+ * Generate a random integer.
+ * @param min The minimum value that can be generated.
+ * @param max The maximum value that can be generated.
+ */
 export function random (min: number, max: number): number {
     return Math.floor(randomFloat(min, max + 1));
 }
 
+/**
+ * Generate a vector of random direction and magnitude.
+ * @param minX The minimum length in the x-direction.
+ * @param maxX The maximum length in the x-direction.
+ * @param minY The minimum length in the y-direction.
+ * @param maxY The maximum length in the y-direction.
+ */
 export function randomVec (minX: number, maxX: number, minY: number, maxY: number): Vec2 {
     return Vec2(random(minX, maxX), random(minY, maxY));
 }
 
 // https://stackoverflow.com/a/55671924/5905216
+/**
+ * Pick a random element from a weighted series of elements.
+ * @param items The elements to choose from.
+ * @param weights A legend of the elements' relative weight.
+ */
 export function weightedRandom<T> (items: T[], weights: number[]): T {
     let i: number;
     for (i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
@@ -59,14 +81,29 @@ export function weightedRandom<T> (items: T[], weights: number[]): T {
     return items[i];
 }
 
+/**
+ * Generate a random boolean value.
+ */
 export function randomBoolean (): boolean {
     return Math.random() < 0.5;
 }
 
+/**
+ * Calculate the distance between two points.
+ * @param v1 The first point.
+ * @param v2 The second point.
+ */
 export function distanceBetween (v1: Point2D, v2: Point2D): number {
     return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2));
 }
 
+/**
+ * Check whether two circles collide.
+ * @param pos1 The center of the first circle.
+ * @param r1 The radius of the first circle.
+ * @param pos2 The center of the second circle.
+ * @param r2 Thge radius of the second circle.
+ */
 export function circleCollision (pos1: Point2D, r1: number, pos2: Point2D, r2: number): boolean {
     const a = r1 + r2;
     const x = pos1.x - pos2.x;
@@ -86,6 +123,12 @@ export function rectCollision (min: Point2D, max: Point2D, pos: Vec2, rad: numbe
     return (dstSqr < rad * rad) || (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y);
 }
 
+/**
+ * Conform a number to specified bounds.
+ * @param a The number to conform.
+ * @param min The minimum value the number can hold.
+ * @param max The maximum value the number can hold.
+ */
 export function clamp (a: number, min: number, max: number): number {
     return a < max ? a > min ? a : min : max;
 }
@@ -96,6 +139,14 @@ export function rectRectCollision (min1: Point2D, max1: Point2D, min2: Point2D, 
 
 export interface CollisionRecord { collided: boolean, distance: number }
 
+/**
+ * Determine the distance between two circles.
+ * @param pos1 The center of the first circle.
+ * @param r1 The radius of the first circle.
+ * @param pos2 The center of the second circle.
+ * @param r2 The radius of the second circle.
+ * @returns An object representation of whether the circles collide and the distance between their closest vertices.
+ */
 export function distanceToCircle (pos1: Point2D, r1: number, pos2: Point2D, r2: number): CollisionRecord {
     const a = r1 + r2;
     const x = pos1.x - pos2.x;
@@ -211,6 +262,12 @@ export function splitRect (rect: MinMax<Vec2>, axis: Vec2): [MinMax<Vec2>, MinMa
         : [left, right];
 }
 
+/**
+ * Calculate the angle between two vectors.
+ * @param a The first vector.
+ * @param b The second vector.
+ * @returns The angle, in radians, between the two vectors.
+ */
 export function angleBetween (a: Vec2, b: Vec2): number {
     const dy = a.y - b.y;
     const dx = a.x - b.x;
@@ -278,7 +335,13 @@ export function degreesToRadians (degrees: number): number {
     return degrees * (Math.PI / 180);
 }
 
-// https://stackoverflow.com/a/51727716/5905216
+/**
+ * Generate a random point inside of a circle.
+ * @link https://stackoverflow.com/a/51727716/5905216
+ * @param position The center of the circle.
+ * @param radius The radius of the circle.
+ * A vector representation of the randomized point.
+ */
 export function randomPointInsideCircle (position: Vec2, radius: number): Vec2 {
     /*
         Easier method:
