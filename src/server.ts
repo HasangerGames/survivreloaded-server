@@ -11,7 +11,7 @@ import * as path from "path";
 import * as fs from "fs";
 
 import { Config, Debug } from "./utils/data";
-import { getContentType, log, readDirectory, readPostedJson } from "./utils/misc";
+import { getContentType, log, readDirectory, readPostedJSON } from "./utils/misc";
 
 // Initialize the server.
 const app = Config.webSocketHttps
@@ -70,7 +70,7 @@ app.post("/api/user/get_user_prestige", res => {
 });
 
 app.post("/api/find_game", res => {
-    readPostedJson(res, (body: { region: string | number, zones: any[] }) => {
+    readPostedJSON(res, (body: { region: string | number, zones: any[] }) => {
         const addr: string = Config.useWebSocketDevAddress ? Config.webSocketDevAddress : (Config.webSocketRegions[body?.region] ?? Config.webSocketRegions[Config.defaultRegion]);
 
         res.writeHeader("Content-Type", "application/json");
@@ -94,7 +94,7 @@ app.post("/api/user/profile", (res, req) => {
 });
 
 app.post("/api/user/loadout", res => {
-    readPostedJson(res, (body: { loadout: any }) => {
+    readPostedJSON(res, (body: { loadout: any }) => {
         res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { path: "/", domain: "resurviv.io", maxAge: 2147483647 }));
         res.writeHeader("Content-Type", "application/json");
         res.end(JSON.stringify(body));

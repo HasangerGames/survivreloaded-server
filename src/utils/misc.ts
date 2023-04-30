@@ -52,18 +52,19 @@ export function log (message: string): void {
 }
 
 /**
- * Helper function for reading a JSON file.
+ * Read a JSON file.
  * @param path The path to the JSON file.
  */
-export function readJson<T> (path: string): T {
-    return JSON.parse(fs.readFileSync(path).toString()) as T;
-}
+export const readJSON = <T>(path: string): T => JSON.parse(fs.readFileSync(path, "utf-8")) as T;
 
 /**
- * Helper function for reading a posted JSON body.
- * https://github.com/uNetworking/uWebSockets.js/blob/master/examples/JsonPost.js
+ * Read the body of a POST request.
+ * @link https://github.com/uNetworking/uWebSockets.js/blob/master/examples/JsonPost.js
+ * @param res The response from the client.
+ * @param cb A callback containing the request body.
+ * @param err A callback invoked whenever the request cannot be retrieved.
  */
-export function readPostedJson<T> (
+export function readPostedJSON<T> (
     res: HttpResponse,
     cb: (json: T) => void,
     err: () => void
