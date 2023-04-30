@@ -276,42 +276,44 @@ export function angleBetween (a: Vec2, b: Vec2): number {
 
 export function bodyFromCollisionData (
     world: World,
-    data: { type: CollisionType, rad: number, min: Vec2, max: Vec2 },
+    data: { type: CollisionType, rad: number, min: Vec2, max: Vec2, pos: Vec2 },
     position: Vec2,
     orientation: Orientation = 0,
     scale = 1,
     obstacle: Obstacle
 ): Body | null {
     let body: Body;
-    if (data.type === CollisionType.Circle) {
-        // noinspection TypeScriptValidateJSTypes
-        body = world.createBody({
-            type: "static",
-            position,
-            fixedRotation: true
-        });
-        body.createFixture({
-            shape: Circle(data.rad * scale),
-            userData: obstacle
-        });
-    } else if (data.type === CollisionType.Rectangle) {
-        const rect = rotateRect(position, data.min, data.max, scale, orientation);
-        const width = (rect.max.x - rect.min.x) / 2; const height = (rect.max.y - rect.min.y) / 2;
-        if (width === 0 || height === 0) return null;
-        obstacle.collision.halfWidth = width;
-        obstacle.collision.halfHeight = height;
-        body = world.createBody({
-            type: "static",
-            position,
-            fixedRotation: true
-        });
-        body.createFixture({
-            shape: Box(width, height),
-            userData: obstacle
-        });
+    switch (data.type) {
+        case CollisionType.Circle:
+            body = world.createBody({
+                type: "static",
+                position: addAdjust(position, data.pos, orientation),
+                fixedRotation: true
+            });
+            body.createFixture({
+                shape: Circle(data.rad * scale),
+                userData: obstacle
+            });
+            break;
+        case CollisionType.Rectangle: {
+            const rect = rotateRect(position, data.min, data.max, scale, orientation);
+            const width = (rect.max.x - rect.min.x) / 2;
+            const height = (rect.max.y - rect.min.y) / 2;
+            if (width === 0 || height === 0) return null;
+            obstacle.collision.halfWidth = width;
+            obstacle.collision.halfHeight = height;
+            body = world.createBody({
+                type: "static",
+                position,
+                fixedRotation: true
+            });
+            body.createFixture({
+                shape: Box(width, height),
+                userData: obstacle
+            });
+        }
     }
-    // this should use a switch statement because we're dealing with enums
-    return body!;
+    return body;
 }
 
 /**
