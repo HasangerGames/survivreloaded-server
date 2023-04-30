@@ -173,7 +173,7 @@ process.stdout.on("end", () => {
 });
 
 app.listen(Config.webSocketHost, Config.webSocketPort, () => {
-    log(`WebSocket server listening on ${Config.webSocketHost as string}:${Config.webSocketPort as string}`);
+    log(`WebSocket server listening on ${Config.webSocketHost}:${Config.webSocketPort}`);
     log("Press Ctrl+C to exit.");
 });
 
