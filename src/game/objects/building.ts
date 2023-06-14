@@ -213,34 +213,33 @@ export class Building extends GameObject {
                 }
             }
             this.puzzle.solved = true;
-            setTimeout(this.resetPuzzle, this.puzzle.completeOffDelay * 1000, this);
+            setTimeout(this.resetPuzzle.bind(this), this.puzzle.completeOffDelay * 1000);
             this.game.partialDirtyObjects.add(this);
         } else if (this.puzzle.inputOrder.length >= this.puzzle.order.length) {
             this.puzzle.errorSeq++;
             this.puzzle.errorSeq %= 2;
             this.game.partialDirtyObjects.add(this);
-            this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle, this.puzzle.errorResetDelay * 1000, this) as unknown as number;
+            this.puzzle.resetTimeoutId = setTimeout(this.resetPuzzle.bind(this), this.puzzle.errorResetDelay * 1000) as unknown as number;
         } else {
-            this.puzzle.resetTimeoutId = setTimeout((This) => {
-                This.puzzle.errorSeq++;
-                This.puzzle.errorSeq %= 2;
-                This.game.partialDirtyObjects.add(This);
-                setTimeout(This.resetPuzzle, This.puzzle.errorResetDelay * 1000, This);
-            }, this.puzzle.pieceResetDelay * 1000, this) as unknown as number;
+            this.puzzle.resetTimeoutId = setTimeout(() => {
+                this.puzzle.errorSeq++;
+                this.puzzle.errorSeq %= 2;
+                this.game.partialDirtyObjects.add(this);
+                setTimeout(this.resetPuzzle.bind(this), this.puzzle.errorResetDelay * 1000, this);
+            }, this.puzzle.pieceResetDelay * 1000) as unknown as number;
         }
     }
 
-    // this function is called inside a setTimeout so it needs the This argument because javascript is stupid
-    resetPuzzle (This: Building): void {
-        This.puzzle.inputOrder = [];
-        for (const piece of This.puzzlePieces) {
+    resetPuzzle (): void {
+        this.puzzle.inputOrder = [];
+        for (const piece of this.puzzlePieces) {
             if (piece.isButton) {
-                piece.button.canUse = !This.puzzle.solved;
+                piece.button.canUse = !this.puzzle.solved;
                 piece.interactable = piece.button.canUse;
                 piece.button.onOff = false;
-                This.game.fullDirtyObjects.add(piece);
+                this.game.fullDirtyObjects.add(piece);
             }
         }
-        This.game.partialDirtyObjects.add(This);
+        this.game.partialDirtyObjects.add(this);
     }
 }
