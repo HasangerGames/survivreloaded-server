@@ -61,7 +61,6 @@ export class Map {
         this.shoreInset = 48;
         this.grassInset = 18;
 
-
         // Create world boundaries
         this.createWorldBoundary(this.width / 2, 0, this.width / 2, 0);
         this.createWorldBoundary(0, this.height / 2, 0, this.height / 2);
