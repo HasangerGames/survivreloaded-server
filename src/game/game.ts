@@ -12,7 +12,7 @@ import { JoinedPacket } from "../packets/sending/joinedPacket";
 import { MapPacket } from "../packets/sending/mapPacket";
 import { type KillPacket } from "../packets/sending/killPacket";
 import { type GameObject } from "./gameObject";
-import { Box, Fixture, Settings, Vec2, World } from "planck";
+import { Fixture, Settings, Vec2, World } from "planck";
 import { RoleAnnouncementPacket } from "../packets/sending/roleAnnouncementPacket";
 import { Loot } from "./objects/loot";
 import { Bullet } from "./bullet";
@@ -107,12 +107,6 @@ export class Game {
         });
         Settings.maxTranslation = 5.0; // Allows bullets to travel fast
 
-        // Create world boundaries
-        this.createWorldBoundary(360, -0.25, 360, 0);
-        this.createWorldBoundary(-0.25, 360, 0, 360);
-        this.createWorldBoundary(360, 720.25, 360, 0);
-        this.createWorldBoundary(720.25, 360, 0, 360);
-
         // Handle bullet collisions
         this.world.on("begin-contact", contact => {
             // planck.js' typings don't allow us to type getUserData in a generic manner, so this
@@ -184,31 +178,6 @@ export class Game {
         }, 330000);
 
         this.tick(30);
-    }
-
-    private createWorldBoundary (x: number, y: number, width: number, height: number): void {
-        const boundary = this.world.createBody({
-            type: "static",
-            position: Vec2(x, y)
-        });
-        boundary.createFixture({
-            shape: Box(width, height),
-            userData: {
-                kind: ObjectKind.Obstacle,
-                layer: 0,
-                isPlayer: false,
-                isObstacle: true,
-                isBullet: false,
-                isLoot: false,
-                collidesWith: {
-                    player: true,
-                    obstacle: false,
-                    bullet: true,
-                    loot: false,
-                    projectile: true
-                }
-            }
-        });
     }
 
     tickTimes: number[] = [];

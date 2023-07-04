@@ -22,7 +22,7 @@ import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Decal } from "./objects/decal";
-import { Vec2 } from "planck";
+import { Vec2, Box } from "planck";
 import { generateLooseLootFromArray, Loot } from "./objects/loot";
 import { type GameObject } from "./gameObject";
 import { Stair } from "./stair";
@@ -60,6 +60,13 @@ export class Map {
         this.height = mapInfo.height;
         this.shoreInset = 48;
         this.grassInset = 18;
+
+
+        // Create world boundaries
+        this.createWorldBoundary(this.width / 2, 0, this.width / 2, 0);
+        this.createWorldBoundary(0, this.height / 2, 0, this.height / 2);
+        this.createWorldBoundary(this.width / 2, this.height, this.width / 2, 0);
+        this.createWorldBoundary(this.width, this.height / 2, 0, this.height / 2);
 
         // TODO Better river generation
         this.rivers = [];
@@ -518,20 +525,20 @@ export class Map {
             let min: Vec2, max: Vec2;
             switch (orientation) {
                 case 0:
-                    min = Vec2(shoreDist - width, 720 - shoreDist - width);
-                    max = Vec2(720 - shoreDist + width, 720 - shoreDist + width);
+                    min = Vec2(shoreDist - width, this.height - shoreDist - width);
+                    max = Vec2(this.width - shoreDist + width, this.height - shoreDist + width);
                     break;
                 case 1:
-                    min = Vec2(shoreDist - width, 720 - shoreDist - width);
+                    min = Vec2(shoreDist - width, this.height - shoreDist - width);
                     max = Vec2(shoreDist + width, shoreDist + width);
                     break;
                 case 2:
                     min = Vec2(shoreDist - width, shoreDist - width);
-                    max = Vec2(720 - shoreDist + width, shoreDist + width);
+                    max = Vec2(this.width - shoreDist + width, shoreDist + width);
                     break;
                 case 3:
-                    min = Vec2(720 - shoreDist - width, 720 - shoreDist - width);
-                    max = Vec2(720 - shoreDist + width, shoreDist + width);
+                    min = Vec2(this.width - shoreDist - width, this.height - shoreDist - width);
+                    max = Vec2(this.width - shoreDist + width, shoreDist + width);
                     break;
             }
             return randomVec(min.x, max.x, min.y, max.y);
@@ -726,6 +733,31 @@ export class Map {
             bounds.push(...this.getBoundsForBuilding(Objects[building.type] as JSONObjects.Building, position, orientation));
         }
         return bounds;
+    }
+
+    private createWorldBoundary (x: number, y: number, width: number, height: number): void {
+        const boundary = this.game.world.createBody({
+            type: "static",
+            position: Vec2(x, y)
+        });
+        boundary.createFixture({
+            shape: Box(width, height),
+            userData: {
+                kind: ObjectKind.Obstacle,
+                layer: 0,
+                isPlayer: false,
+                isObstacle: true,
+                isBullet: false,
+                isLoot: false,
+                collidesWith: {
+                    player: true,
+                    obstacle: false,
+                    bullet: true,
+                    loot: false,
+                    projectile: true
+                }
+            }
+        });
     }
 }
 
