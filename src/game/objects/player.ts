@@ -310,7 +310,10 @@ export class Player extends GameObject {
 
         // Set loadout
         if (AllowedSkins.includes(loadout.outfit)) this.loadout.outfit = TypeToId[loadout.outfit];
-        if (AllowedMelee.includes(loadout.melee)) this.loadout.melee = TypeToId[loadout.melee];
+        if (AllowedMelee.includes(loadout.melee)) {
+            this.loadout.melee = TypeToId[loadout.melee];
+            this.loadout.meleeType = loadout.melee;
+        }
         if (AllowedHeal.includes(loadout.heal)) this.loadout.heal = TypeToId[loadout.heal];
         if (AllowedBoost.includes(loadout.boost)) this.loadout.boost = TypeToId[loadout.boost];
 
