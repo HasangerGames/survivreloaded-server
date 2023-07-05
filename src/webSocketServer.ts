@@ -45,7 +45,7 @@ const bannedIPs: string[] = [];
 
 app.get("/", (res) => {
     res.writeStatus("302");
-    res.writeHeader("Location", "https://resurviv.io");
+    res.writeHeader("Location", `http${Config.https ? "s" : ""}://${Config.host}`);
     res.end();
 });
 

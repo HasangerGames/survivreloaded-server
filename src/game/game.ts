@@ -569,8 +569,7 @@ export class Game {
                 if (!this.isInRedZone(spawnPosition)) foundPosition = true;
             }
         }
-
-        const p = new Player(this.nextObjectId, spawnPosition, socket, this, name, loadout);
+        const p = new Player(spawnPosition, socket, this, name, loadout);
         this.players.add(p);
         this.connectedPlayers.add(p);
         this.newPlayers.add(p);

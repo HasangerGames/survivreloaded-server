@@ -294,7 +294,7 @@ export class Player extends GameObject {
 
     declare kind: ObjectKind.Player;
 
-    constructor (id: number, position: Vec2, socket: WebSocket<unknown>, game: Game, name: string, loadout: { outfit: string | number, melee: string, heal: string | number, boost: string | number, emotes: string | number[] }) {
+    constructor (position: Vec2, socket: WebSocket<unknown>, game: Game, name: string, loadout: { outfit: string | number, melee: string, heal: string | number, boost: string | number, emotes: string | number[] }) {
         super(game, "", position, 0);
         this.kind = ObjectKind.Player;
 

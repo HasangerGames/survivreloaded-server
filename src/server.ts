@@ -95,7 +95,7 @@ app.post("/api/user/profile", (res, req) => {
 
 app.post("/api/user/loadout", res => {
     readPostedJSON(res, (body: { loadout: any }) => {
-        res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { path: "/", domain: "resurviv.io", maxAge: 2147483647 }));
+        res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { path: "/", domain: Config.host, maxAge: 2147483647 }));
         res.writeHeader("Content-Type", "application/json");
         res.end(JSON.stringify(body));
     }, () => {
