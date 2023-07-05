@@ -164,13 +164,13 @@ export class Player extends GameObject {
 
     body: Body; // The player's Planck.js Body
 
-    loadout: {
-        outfit: number
-        melee: number
-        meleeType: string
-        heal: number
-        boost: number
-        emotes: number[]
+    loadout = {
+        outfit: TypeToId.outfitBase,
+        melee: TypeToId.fists,
+        meleeType: "fists",
+        heal: TypeToId.heal_basic,
+        boost: TypeToId.boost_basic,
+        emotes: [TypeToId.emote_happyface, TypeToId.emote_thumbsup, TypeToId.emote_surviv, TypeToId.emote_sadface, 0, 0]
     };
 
     backpackLevel = 0;
@@ -309,33 +309,18 @@ export class Player extends GameObject {
         this.joinTime = Date.now();
 
         // Set loadout
-        if (AllowedSkins.includes(loadout?.outfit) &&
-          AllowedMelee.includes(loadout.melee) &&
-          AllowedHeal.includes(loadout.heal) &&
-          AllowedBoost.includes(loadout.boost) &&
-          loadout.emotes &&
-          loadout.emotes.length === 6) {
-            this.loadout = {
-                outfit: TypeToId[loadout.outfit],
-                melee: TypeToId[loadout.melee],
-                meleeType: loadout.melee,
-                heal: TypeToId[loadout.heal],
-                boost: TypeToId[loadout.boost],
-                emotes: []
-            };
-            for (const emote of loadout.emotes) {
-                if (AllowedEmotes.includes(emote)) this.loadout.emotes.push(TypeToId[emote]);
-                else this.loadout.emotes.push(TypeToId.emote_happyface);
+        if (AllowedSkins.includes(loadout.outfit)) this.loadout.outfit = TypeToId[loadout.outfit];
+        if (AllowedMelee.includes(loadout.melee)) this.loadout.melee = TypeToId[loadout.melee];
+        if (AllowedHeal.includes(loadout.heal)) this.loadout.heal = TypeToId[loadout.heal];
+        if (AllowedBoost.includes(loadout.boost)) this.loadout.boost = TypeToId[loadout.boost];
+
+        if (loadout.emotes) {
+            for (let i = 0; i < 6; i++) {
+                const emote = loadout.emotes[i];
+                if (AllowedEmotes.includes(emote)) {
+                    this.loadout.emotes[i] = TypeToId[emote];
+                }
             }
-        } else {
-            this.loadout = {
-                outfit: TypeToId.outfitBase,
-                melee: TypeToId.fists,
-                meleeType: "fists",
-                heal: TypeToId.heal_basic,
-                boost: TypeToId.boost_basic,
-                emotes: [TypeToId.emote_happyface, TypeToId.emote_thumbsup, TypeToId.emote_surviv, TypeToId.emote_sadface, 0, 0]
-            };
         }
         this.weapons[2].typeString = this.loadout.meleeType;
         this.weapons[2].typeId = this.loadout.melee;

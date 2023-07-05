@@ -84,7 +84,11 @@ app.post("/api/user/profile", (res, req) => {
     const loadout = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../json/profile.json"), "utf-8"));
     const cookies = cookie.parse(req.getHeader("cookie"));
 
-    if (cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
+    try {
+        if (cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
+    } catch {
+        log("/api/user/profile: Player tried to send invalid loadout");
+    }
 
     /**
      * @note JSON.stringify() is slow.
