@@ -190,9 +190,7 @@ export class Building extends GameObject {
         for (const zoomRegion of this.zoomRegions) {
             if (zoomRegion.min) {
                 if (rectCollision(zoomRegion.min, zoomRegion.max, player.position, 1)) {
-                    return zoomRegion.zoom !== undefined
-                        ? zoomRegion.zoom
-                        : Constants.scopeZoomRadius[player.isMobile ? "mobile" : "desktop"]["1xscope"];
+                    return zoomRegion.zoom ?? Constants.scopeZoomRadius[player.isMobile ? "mobile" : "desktop"]["1xscope"];
                 }
             }
         }
