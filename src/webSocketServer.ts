@@ -119,7 +119,7 @@ app.ws("/play", {
         if (typeof playerName !== "string" || playerName.length < 1) playerName = "Player";
 
         log(`"${playerName}" joined the game.`);
-        socket.player = game.addPlayer(socket, playerName, socket.cookies.loadout);
+        socket.player = game.addPlayer(socket, playerName, JSON.parse(socket.cookies.loadout));
     },
 
     /**
