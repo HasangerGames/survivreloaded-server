@@ -4,13 +4,13 @@ import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { type Player } from "../../game/objects/player";
 
 export class MapPacket extends SendingPacket {
-    constructor (p: Player) {
+    constructor(p: Player) {
         super(p);
         this.msgType = MsgType.Map;
         this.allocBytes = 16384;
     }
 
-    serialize (stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
 
         const p: Player = this.p!;

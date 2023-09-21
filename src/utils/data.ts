@@ -28,7 +28,7 @@ Config.diagonalSpeed = Config.movementSpeed / Math.SQRT2;
  * Return the type assigned to an ID.
  * @param id The ID to check for.
  */
-export function IdToType (id: number): string {
+export function IdToType(id: number): string {
     for (const type in TypeToId) if (TypeToId[type] === id) return type;
     return "";
 }

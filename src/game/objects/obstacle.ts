@@ -112,7 +112,7 @@ export class Obstacle extends GameObject {
 
     declare kind: ObjectKind.Obstacle;
 
-    constructor (game: Game,
+    constructor(game: Game,
         typeString: string,
         position: Vec2,
         layer: number,
@@ -282,7 +282,7 @@ export class Obstacle extends GameObject {
         }
     }
 
-    private getLoot (tier: string): void {
+    private getLoot(tier: string): void {
         const lootTable = LootTables[tier];
         if (!lootTable) {
             // console.warn(`Warning: Loot table not found: ${tier}`);
@@ -301,7 +301,7 @@ export class Obstacle extends GameObject {
         }
     }
 
-    private addLoot (type: string, count: number): void {
+    private addLoot(type: string, count: number): void {
         if (type === "8xscope") this.game.has8x = true;
         else if (type === "15xscope") this.game.has15x = true;
         if (type === "nothing") return;
@@ -318,11 +318,11 @@ export class Obstacle extends GameObject {
         }
     }
 
-    get position (): Vec2 {
+    get position(): Vec2 {
         return this._position;
     }
 
-    damage (amount: number, source): void {
+    damage(amount: number, source): void {
         if (this.health === 0) return;
         if (this.armorPlated && source instanceof Player && source.activeWeaponInfo.armorPiercing) {
             this.health -= amount;
@@ -403,7 +403,7 @@ export class Obstacle extends GameObject {
         }
     }
 
-    interact (p: Player): void {
+    interact(p: Player): void {
         if (this.dead) return;
         if (this.isDoor && this.door.canUse && (p?.isOnOtherSide(this) || !(this.door.openOneWay === true))) {
             this.door.openSeq++;
@@ -422,7 +422,7 @@ export class Obstacle extends GameObject {
         }
     }
 
-    useButton (): void {
+    useButton(): void {
         this.button.onOff = !this.button.onOff;
 
         if (this.button.useOnce) {
@@ -444,7 +444,7 @@ export class Obstacle extends GameObject {
         this.game.fullDirtyObjects.add(this);
     }
 
-    toggleDoor (p?: Player, useDir?: Vec2): void {
+    toggleDoor(p?: Player, useDir?: Vec2): void {
         this.door.open = !this.door.open;
 
         if (!this.door.slideToOpen) {
@@ -525,14 +525,14 @@ export class Obstacle extends GameObject {
         this.game.fullDirtyObjects.add(this);
     }
 
-    serializePartial (stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeBits(this.orientation, 2);
         stream.writeFloat(this.scale, Constants.MapObjectMinScale, Constants.MapObjectMaxScale, 8);
         stream.writeBits(0, 6); // Padding
     }
 
-    serializeFull (stream: SurvivBitStream): void {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeFloat(this.healthT, 0, 1, 8);
         stream.writeMapType(this.typeId);
         stream.writeBits(this.layer, 2);

@@ -98,7 +98,7 @@ export class Game {
     allowJoin = true; // Whether new players should be able to join
     spawnWithGoodies = false; // In late game, players spawn with ammo and healing items
 
-    constructor () {
+    constructor() {
         this.id = crypto.createHash("md5").update(crypto.randomBytes(512)).digest("hex");
 
         // Create the Planck.js World
@@ -136,7 +136,7 @@ export class Game {
         // - Players should collide with obstacles, but not with each other or with loot.
         // - Bullets should collide with players and obstacles, but not with each other or with loot.
         // - Loot should only collide with obstacles and other loot.
-        Fixture.prototype.shouldCollide = function (that): boolean {
+        Fixture.prototype.shouldCollide = function(that): boolean {
             // Get the objects
             const thisObject = this.getUserData() as GameObject;
             const thatObject = that.getUserData() as GameObject;
@@ -182,7 +182,7 @@ export class Game {
 
     tickTimes: number[] = [];
 
-    tick (delay: number): void {
+    tick(delay: number): void {
         setTimeout(() => {
             const tickStart = Date.now();
 
@@ -548,15 +548,15 @@ export class Game {
         }, delay);
     }
 
-    isInRedZone (position: Vec2): boolean {
+    isInRedZone(position: Vec2): boolean {
         return distanceBetween(position, this.gas.currentPos) >= this.gas.currentRad;
     }
 
-    get aliveCount (): number {
+    get aliveCount(): number {
         return this.livingPlayers.size;
     }
 
-    addPlayer (socket, name, loadout): Player {
+    addPlayer(socket, name, loadout): Player {
         let spawnPosition;
         if (!this.allowJoin) spawnPosition = Vec2(360, 360);
         if (Debug.fixedSpawnLocation.length) spawnPosition = Vec2(Debug.fixedSpawnLocation[0], Debug.fixedSpawnLocation[1]);
@@ -603,7 +603,7 @@ export class Game {
         return p;
     }
 
-    static advanceRedZone (game: Game): void {
+    static advanceRedZone(game: Game): void {
         if (Debug.disableRedZone) return;
         const currentStage = RedZoneStages[game.gas.stage + 1];
         if (!currentStage) return;
@@ -634,7 +634,7 @@ export class Game {
         }
     }
 
-    removePlayer (p: Player): void {
+    removePlayer(p: Player): void {
         if (this.aliveCount > 0) {
             const randomPlayer = this.randomPlayer();
             for (const spectator of p.spectators) {
@@ -684,12 +684,12 @@ export class Game {
         }
     }
 
-    randomPlayer (): Player | undefined {
+    randomPlayer(): Player | undefined {
         if (this.aliveCount === 0) return;
         return [...this.livingPlayers][random(0, this.livingPlayers.size - 1)];
     }
 
-    assignKillLeader (p: Player): void {
+    assignKillLeader(p: Player): void {
         this.killLeaderDirty = true;
         if (this.killLeader !== p || !p.dead) { // If the player isn't already the Kill Leader, and isn't dead.
             p.role = TypeToId.kill_leader;
@@ -698,7 +698,7 @@ export class Game {
         }
     }
 
-    end (): void {
+    end(): void {
         log("Game ending");
         if (Config.stopServerOnGameEnd) process.exit(1);
         this.over = true;
@@ -711,12 +711,12 @@ export class Game {
         }
     }
 
-    get nextObjectId (): number {
+    get nextObjectId(): number {
         this._nextObjectId++;
         return this._nextObjectId;
     }
 
-    get nextGroupId (): number {
+    get nextGroupId(): number {
         this._nextGroupId++;
         return this._nextGroupId;
     }

@@ -13,7 +13,7 @@ export class Structure extends GameObject {
 
     altSound = false;
 
-    constructor (game: Game,
+    constructor(game: Game,
         typeString: string,
         position: Vec2,
         orientation: Orientation,
@@ -24,9 +24,9 @@ export class Structure extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    serializePartial (stream: SurvivBitStream): void { }
+    serializePartial(stream: SurvivBitStream): void { }
 
-    serializeFull (stream: SurvivBitStream): void {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeMapType(this.typeId);
         stream.writeBits(this.orientation, 2);
@@ -37,5 +37,5 @@ export class Structure extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage (amount: number, source): void { }
+    damage(amount: number, source): void { }
 }

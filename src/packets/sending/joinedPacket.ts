@@ -4,12 +4,12 @@ import type { SurvivBitStream } from "../../utils/survivBitStream";
 import type { Player } from "../../game/objects/player";
 
 export class JoinedPacket extends SendingPacket {
-    constructor (p: Player) {
+    constructor(p: Player) {
         super(p);
         this.allocBytes = 512;
     }
 
-    serialize (stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         stream.writeUint8(MsgType.Joined);
         stream.writeUint8(1); // Team mode
         stream.writeUint16(this.p!.id); // Player ID

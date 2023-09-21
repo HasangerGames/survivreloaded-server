@@ -8,7 +8,7 @@ export class KillPacket extends SendingPacket {
     readonly killer?;
     readonly killedWith?;
 
-    constructor (p: Player, damageType, killer?, killedWith?) {
+    constructor(p: Player, damageType, killer?, killedWith?) {
         super(p);
         this.damageType = damageType;
         this.killer = killer;
@@ -17,7 +17,7 @@ export class KillPacket extends SendingPacket {
         this.allocBytes = 32;
     }
 
-    serialize (stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
         stream.writeUint8(this.damageType); // Damage type
         stream.writeGameType((this.killedWith && !this.killedWith.isObstacle) ? this.killedWith.typeId : 0); // Item source type

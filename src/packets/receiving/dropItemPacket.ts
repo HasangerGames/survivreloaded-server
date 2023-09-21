@@ -4,7 +4,7 @@ import { IdToGameType } from "../../utils/data";
 import { ItemSlot } from "../../utils/constants";
 
 export class DropItemPacket extends ReceivingPacket {
-    deserialize (stream: SurvivBitStream): void {
+    deserialize(stream: SurvivBitStream): void {
         const itemId = stream.readGameType();
         const itemSlot = stream.readUint8();
         const item: string = IdToGameType[String(itemId)];

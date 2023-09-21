@@ -12,7 +12,7 @@ export class Item {
     type: string;
     count: number;
 
-    constructor (type: string, count: number) {
+    constructor(type: string, count: number) {
         this.type = type;
         this.count = count;
     }
@@ -23,7 +23,7 @@ export class DamageRecord {
     damager: Player;
     bullet: Bullet;
 
-    constructor (damaged: GameObject, damager: Player, bullet: Bullet) {
+    constructor(damaged: GameObject, damager: Player, bullet: Bullet) {
         this.damaged = damaged;
         this.damager = damager;
         this.bullet = bullet;
@@ -36,7 +36,7 @@ export class Emote {
     type: number;
     isPing: boolean;
 
-    constructor (playerId: number, position: Vec2, type: number, isPing: boolean) {
+    constructor(playerId: number, position: Vec2, type: number, isPing: boolean) {
         this.playerId = playerId;
         this.position = position;
         this.type = type;
@@ -49,7 +49,7 @@ export class Emote {
  * @param array The array to iterate over.
  * @param value The value to check for.
  */
-export function removeFrom<T> (array: T[], value: T): void {
+export function removeFrom<T>(array: T[], value: T): void {
     const index: number = array.indexOf(value);
     if (index !== -1) array.splice(index, 1);
 }
@@ -58,7 +58,7 @@ export function removeFrom<T> (array: T[], value: T): void {
  * Log a message to the console.
  * @param message The content to print.
  */
-export function log (message: string): void {
+export function log(message: string): void {
     const date: Date = new Date();
     console.log(`[${date.toLocaleDateString("en-US")} ${date.toLocaleTimeString("en-US")}] ${message}`);
 }
@@ -76,7 +76,7 @@ export const readJSON = <T>(path: string): T => JSON.parse(fs.readFileSync(path,
  * @param cb A callback containing the request body.
  * @param err A callback invoked whenever the request cannot be retrieved.
  */
-export function readPostedJSON<T> (
+export function readPostedJSON<T>(
     res: HttpResponse,
     cb: (json: T) => void,
     err: () => void
@@ -125,7 +125,7 @@ export function readPostedJSON<T> (
  * Get the MIME type of a file.
  * @param file The name or path to the file.
  */
-export function getContentType (file: string): string {
+export function getContentType(file: string): string {
     // this should be done with a switch
     let contentType = "";
 
@@ -185,6 +185,6 @@ export const readDirectory = (dir: string): string[] => {
  * Perform a deep copy of an object.
  * @param object The object to copy.
  */
-export function deepCopy<T> (object: T): T {
+export function deepCopy<T>(object: T): T {
     return JSON.parse(JSON.stringify(object));
 }

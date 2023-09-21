@@ -294,7 +294,7 @@ export class Player extends GameObject {
 
     declare kind: ObjectKind.Player;
 
-    constructor (position: Vec2, socket: WebSocket<unknown>, game: Game, name: string, loadout: { outfit: string | number, melee: string, heal: string | number, boost: string | number, emotes: string | number[] }) {
+    constructor(position: Vec2, socket: WebSocket<unknown>, game: Game, name: string, loadout: { outfit: string | number, melee: string, heal: string | number, boost: string | number, emotes: string | number[] }) {
         super(game, "", position, 0);
         this.kind = ObjectKind.Player;
 
@@ -384,7 +384,7 @@ export class Player extends GameObject {
         });
     }
 
-    setVelocity (xVel: number, yVel: number): void {
+    setVelocity(xVel: number, yVel: number): void {
         this.body.setLinearVelocity(Vec2(xVel, yVel));
         if (xVel !== 0 || yVel !== 0) {
             this.moving = true;
@@ -392,22 +392,22 @@ export class Player extends GameObject {
         }
     }
 
-    get position (): Vec2 {
+    get position(): Vec2 {
         return this.deadPos ? this.deadPos : this.body.getPosition();
     }
 
-    get zoom (): number {
+    get zoom(): number {
         return this._zoom;
     }
 
-    set zoom (zoom: number) {
+    set zoom(zoom: number) {
         this._zoom = zoom;
         this.xCullDist = this._zoom * 1.5;
         this.yCullDist = this._zoom * 1.25;
         this.zoomDirty = true;
     }
 
-    spawnBullet (offset = 0, weaponTypeString: string): void {
+    spawnBullet(offset = 0, weaponTypeString: string): void {
         if (this.activeWeapon.typeString !== weaponTypeString) return;
         let shotFx = true;
         const weapon = Weapons[weaponTypeString];
@@ -446,7 +446,7 @@ export class Player extends GameObject {
         }
     }
 
-    setScope (scope: string, skipScope?: boolean): void {
+    setScope(scope: string, skipScope?: boolean): void {
         if (this.scope.typeString !== scope && skipScope && scope) {
             const direction = ScopeTypes.indexOf(scope) > ScopeTypes.indexOf(this.scope.typeString) ? 1 : -1;
             while (!this.inventory[scope]) {
@@ -468,16 +468,16 @@ export class Player extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    get activeWeapon () {
+    get activeWeapon() {
         return this.weapons[this.selectedWeaponSlot];
     }
 
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    get activeWeaponInfo () {
+    get activeWeaponInfo() {
         return Weapons[this.activeWeapon.typeString];
     }
 
-    switchSlot (slot: number, skipSlots?: boolean): void {
+    switchSlot(slot: number, skipSlots?: boolean): void {
         let chosenSlot = slot;
         Player.resetSpeedAfterShooting(this);
         if (!this.weapons[chosenSlot]?.typeId && skipSlots) {
@@ -507,7 +507,7 @@ export class Player extends GameObject {
         this.fullDirtyObjects.add(this);
     }
 
-    dropItemInSlot (slot: number, item: string, skipItemSwitch?: boolean): void {
+    dropItemInSlot(slot: number, item: string, skipItemSwitch?: boolean): void {
         // For guns:
         // Only drop the gun if it's the same as the one we have, AND it's in the selected slot
         if (this.weapons[slot].typeString === item) {
@@ -651,7 +651,7 @@ export class Player extends GameObject {
         }
     }
 
-    swapWeaponSlots (): void {
+    swapWeaponSlots(): void {
         const primary = deepCopy(this.weapons[0]);
         this.weapons[0] = deepCopy(this.weapons[1]);
         this.weapons[1] = primary;
@@ -665,14 +665,14 @@ export class Player extends GameObject {
         this.lastWeaponSlot = lastWeapon;
     }
 
-    weaponCooldownOver (): boolean {
+    weaponCooldownOver(): boolean {
         return Date.now() - this.activeWeapon.cooldown >= this.activeWeapon.cooldownDuration &&
         (this.activeWeaponInfo.weaponClass !== "sniper"
             ? Date.now() - (this.activeWeaponInfo.switchDelay * 1000) >= this.activeWeapon.switchCooldown
             : true);
     }
 
-    useMelee (): void {
+    useMelee(): void {
         // Start punching animation
         if (!this.anim.active) {
             this.anim.active = true;
@@ -752,12 +752,12 @@ export class Player extends GameObject {
     }
 
     // why does this need to be static?
-    static resetSpeedAfterShooting (player: Player): void {
+    static resetSpeedAfterShooting(player: Player): void {
         player.shooting = false;
         player.recalculateSpeed();
     }
 
-    useThrowable (): void {
+    useThrowable(): void {
         if (this.inventory[this.activeWeapon.typeString] < 1) return;
         // Start throwing animation
         if (!this.anim.active) {
@@ -775,7 +775,7 @@ export class Player extends GameObject {
         this.inventoryDirty = true;
     }
 
-    shootGun (): void {
+    shootGun(): void {
         if ((this.activeWeapon as Gun).ammo === 0) {
             this.shooting = false;
             this.reload();
@@ -810,31 +810,31 @@ export class Player extends GameObject {
         }
     }
 
-    useBandage (): void {
+    useBandage(): void {
         if (this.health === 100 || this.inventory.bandage === 0 || MedTypes.includes(this.actionItem.typeString)) return;
         this.cancelAction();
         this.doAction("bandage", 3);
     }
 
-    useMedkit (): void {
+    useMedkit(): void {
         if (this.health === 100 || this.inventory.healthkit === 0 || MedTypes.includes(this.actionItem.typeString)) return;
         this.cancelAction();
         this.doAction("healthkit", 6);
     }
 
-    useSoda (): void {
+    useSoda(): void {
         if (this.boost === 100 || this.inventory.soda === 0 || MedTypes.includes(this.actionItem.typeString)) return;
         this.cancelAction();
         this.doAction("soda", 3);
     }
 
-    usePills (): void {
+    usePills(): void {
         if (this.boost === 100 || this.inventory.painkiller === 0 || MedTypes.includes(this.actionItem.typeString)) return;
         this.cancelAction();
         this.doAction("painkiller", 5);
     }
 
-    doAction (typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
+    doAction(typeString: string, duration: number, actionType?: number, skipRecalculateSpeed?: boolean): void {
         if (this.actionDirty || (actionType === Constants.Action.Reload && !(this.selectedWeaponSlot === 0 || this.selectedWeaponSlot === 1))) return;
         this.actionItem.typeString = typeString;
         this.actionItem.typeId = TypeToId[typeString];
@@ -851,7 +851,7 @@ export class Player extends GameObject {
         this.fullDirtyObjects.add(this);
     }
 
-    cancelAction (): void {
+    cancelAction(): void {
         if (this.actionType === Constants.Action.UseItem) {
             this.usingItem = false;
             this.recalculateSpeed();
@@ -865,7 +865,7 @@ export class Player extends GameObject {
         this.fullDirtyObjects.add(this);
     }
 
-    reload (): void {
+    reload(): void {
         if (this.shooting || !(this.selectedWeaponSlot === 0 || this.selectedWeaponSlot === 1)) return;
         const weaponInfo = this.activeWeaponInfo;
         if ((this.activeWeapon as Gun).ammo !== weaponInfo.maxClip && this.inventory[weaponInfo.ammo] !== 0) { // ammo here refers to the TYPE of ammo used by the gun, not the quantity
@@ -873,29 +873,29 @@ export class Player extends GameObject {
         }
     }
 
-    get health (): number {
+    get health(): number {
         return this._health;
     }
 
-    set health (health: number) {
+    set health(health: number) {
         this._health = health;
         if (this._health > 100) this._health = 100;
         if (this._health < 0) this._health = 0;
         this.healthDirty = true;
     }
 
-    get boost (): number {
+    get boost(): number {
         return this._boost;
     }
 
-    set boost (boost: number) {
+    set boost(boost: number) {
         this._boost = boost;
         if (this._boost > 100) this._boost = 100;
         if (this._boost < 0) this._boost = 0;
         this.boostDirty = true;
     }
 
-    damage (amount: number, source?, objectUsed?, damageType = DamageType.Player): void {
+    damage(amount: number, source?, objectUsed?, damageType = DamageType.Player): void {
         if (this._health < 0) this._health = 0;
         if (this.dead) return;
 
@@ -1041,7 +1041,7 @@ export class Player extends GameObject {
         }
     }
 
-    private dropLoot (type: string): void {
+    private dropLoot(type: string): void {
         /* eslint-disable-next-line no-new */
         new Loot(
             this.game,
@@ -1052,7 +1052,7 @@ export class Player extends GameObject {
         );
     }
 
-    recalculateSpeed (): void {
+    recalculateSpeed(): void {
         this.speed = Config.movementSpeed;
         this.diagonalSpeed = Config.diagonalSpeed;
         if (this.usingItem) {
@@ -1069,7 +1069,7 @@ export class Player extends GameObject {
         }
     }
 
-    updateVisibleObjects (): void {
+    updateVisibleObjects(): void {
         this.movesSinceLastUpdate = 0;
         const approximateX = Math.round(this.position.x / 10) * 10; const approximateY = Math.round(this.position.y / 10) * 10;
         this.nearObjects = this.game.visibleObjects[28][approximateX][approximateY];
@@ -1112,7 +1112,7 @@ export class Player extends GameObject {
         this.visibleObjects = newVisibleObjects;
     }
 
-    spectate (spectating?: Player): void {
+    spectate(spectating?: Player): void {
         if (spectating == null) {
             this.socket.close();
             this.game.removePlayer(this);
@@ -1141,7 +1141,7 @@ export class Player extends GameObject {
         spectating.fullUpdate = true;
     }
 
-    isOnOtherSide (door): boolean {
+    isOnOtherSide(door): boolean {
         switch (door.orientation) {
             case 0: return this.position.x < door.position.x;
             case 1: return this.position.y < door.position.y;
@@ -1151,7 +1151,7 @@ export class Player extends GameObject {
         return false;
     }
 
-    sendPacket (packet: SendingPacket): void {
+    sendPacket(packet: SendingPacket): void {
         const stream = SurvivBitStream.alloc(packet.allocBytes);
         try {
             packet.serialize(stream);
@@ -1161,7 +1161,7 @@ export class Player extends GameObject {
         this.sendData(stream);
     }
 
-    sendData (stream: SurvivBitStream): void {
+    sendData(stream: SurvivBitStream): void {
         try {
             this.socket.send(stream.buffer.subarray(0, Math.ceil(stream.index / 8)), true, true);
         } catch (e) {
@@ -1169,11 +1169,11 @@ export class Player extends GameObject {
         }
     }
 
-    get buildingZoom (): number {
+    get buildingZoom(): number {
         return this._buildingZoom;
     }
 
-    set buildingZoom (value: number) {
+    set buildingZoom(value: number) {
         if (this._zoom === value) return;
         this._buildingZoom = value;
         this.scopeToResetTo = this.scope.typeString;
@@ -1190,7 +1190,7 @@ export class Player extends GameObject {
         }
     }
 
-    interactWith (object: Obstacle | Loot): void {
+    interactWith(object: Obstacle | Loot): void {
         if (object instanceof Obstacle && Date.now() - this.lastObstacleInteractionTime > 100) {
             object.interact(this);
             this.lastObstacleInteractionTime = Date.now();
@@ -1200,12 +1200,12 @@ export class Player extends GameObject {
         }
     }
 
-    serializePartial (stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeUnitVec(this.direction, 8);
     }
 
-    serializeFull (stream: SurvivBitStream): void {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.loadout.outfit);
         stream.writeGameType(Constants.BasePack + this.backpackLevel);
         stream.writeGameType(this.helmetLevel === 0 ? 0 : Constants.BaseHelmet + this.helmetLevel); // Helmet

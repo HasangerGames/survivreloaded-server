@@ -8,7 +8,7 @@ export class PickupPacket extends SendingPacket {
     readonly count: number;
     readonly message: PickupMsgType;
 
-    constructor (type: string, count: number, message: PickupMsgType) {
+    constructor(type: string, count: number, message: PickupMsgType) {
         super();
         this.msgType = MsgType.Pickup;
         this.allocBytes = 5;
@@ -18,7 +18,7 @@ export class PickupPacket extends SendingPacket {
         this.message = message;
     }
 
-    serialize (stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
         stream.writeUint8(this.message);
         stream.writeGameType(TypeToId[this.type]);

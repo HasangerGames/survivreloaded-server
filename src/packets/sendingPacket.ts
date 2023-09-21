@@ -8,11 +8,11 @@ export abstract class SendingPacket {
 
     p?: Player;
 
-    protected constructor (p?: Player) {
+    protected constructor(p?: Player) {
         this.p = p;
     }
 
-    serialize (stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         stream.writeUint8(this.msgType);
     }
 }

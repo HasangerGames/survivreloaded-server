@@ -36,7 +36,7 @@ export abstract class GameObject {
 
     body: Body | null;
 
-    protected constructor (game: Game,
+    protected constructor(game: Game,
         typeString: string,
         position: Vec2,
         layer: number,
@@ -50,12 +50,12 @@ export abstract class GameObject {
         this.game = game;
     }
 
-    get position (): Vec2 {
+    get position(): Vec2 {
         return this._position;
     }
 
-    abstract serializePartial (stream: SurvivBitStream): void;
-    abstract serializeFull (stream: SurvivBitStream): void;
+    abstract serializePartial(stream: SurvivBitStream): void;
+    abstract serializeFull(stream: SurvivBitStream): void;
 
-    abstract damage (amount: number, source): void;
+    abstract damage(amount: number, source): void;
 }

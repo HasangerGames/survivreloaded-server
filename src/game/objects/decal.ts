@@ -11,7 +11,7 @@ export class Decal extends GameObject {
 
     declare kind: ObjectKind.Decal;
 
-    constructor (
+    constructor(
         typeString: string,
         game: Game,
         position: Vec2,
@@ -24,11 +24,11 @@ export class Decal extends GameObject {
         this.scale = scale ?? 1;
     }
 
-    serializePartial (stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
     }
 
-    serializeFull (stream: SurvivBitStream): void {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeFloat(this.scale, Constants.MapObjectMinScale, Constants.MapObjectMaxScale, 8);
         stream.writeMapType(this.typeId);
         stream.writeBits(this.orientation, 2);
@@ -37,5 +37,5 @@ export class Decal extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage (amount: number, source): void {}
+    damage(amount: number, source): void {}
 }

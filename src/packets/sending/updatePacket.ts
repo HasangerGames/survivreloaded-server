@@ -7,13 +7,13 @@ import { type GameObject } from "../../game/gameObject";
 import { type Explosion } from "../../game/explosion";
 
 export class UpdatePacket extends SendingPacket {
-    constructor (p: Player) {
+    constructor(p: Player) {
         super(p);
         this.msgType = MsgType.Update;
         this.allocBytes = 16384;
     }
 
-    serialize (stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         super.serialize(stream);
         const p = this.p!;
         const game = p.game;

@@ -9,7 +9,7 @@ export class RoleAnnouncementPacket extends SendingPacket {
     readonly killed: boolean;
     readonly killer?: GameObject;
 
-    constructor (p: Player, assigned: boolean, killed: boolean, killer?: GameObject) {
+    constructor(p: Player, assigned: boolean, killed: boolean, killer?: GameObject) {
         super(p);
         this.assigned = assigned;
         this.killed = killed;
@@ -18,7 +18,7 @@ export class RoleAnnouncementPacket extends SendingPacket {
         this.allocBytes = 8;
     }
 
-    serialize (stream: SurvivBitStream): void {
+    serialize(stream: SurvivBitStream): void {
         const p = this.p!;
 
         super.serialize(stream);

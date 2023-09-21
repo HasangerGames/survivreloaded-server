@@ -57,7 +57,7 @@ export class Bullet {
 
     dead = false;
 
-    constructor (shooter: Player,
+    constructor(shooter: Player,
         position: Vec2,
         direction: Vec2,
         typeString: string,
@@ -98,11 +98,11 @@ export class Bullet {
         this.body.setLinearVelocity(direction.clone().mul((bulletData.speed / 1000) * (this.varianceT + 1)));
     }
 
-    get position (): Vec2 {
+    get position(): Vec2 {
         return this.initialPosition;
     }
 
-    get distance (): number {
+    get distance(): number {
         return distanceBetween(this.initialPosition, this.body.getPosition());
     }
 }

@@ -15,7 +15,7 @@ export class Explosion {
     layer: number;
     source: Player;
     objectUsed?: Gun | Projectile | Obstacle;
-    constructor (
+    constructor(
         position: Vec2,
         typeSting: string,
         layer: number,
@@ -30,7 +30,7 @@ export class Explosion {
         this.objectUsed = objectUsed;
     }
 
-    explode (game: Game): void {
+    explode(game: Game): void {
         if (this.position.x < 0 || this.position.x > game.map.width || this.position.y < 0 || this.position.y > game.map.height) return;
         const explosionData = Explosions[this.typeString];
         const radius = explosionData.rad.max;

@@ -35,7 +35,7 @@ export class Loot extends GameObject {
 
     declare kind: ObjectKind.Loot;
 
-    constructor (game: Game,
+    constructor(game: Game,
         typeString: string,
         position: Vec2,
         layer: number,
@@ -84,11 +84,11 @@ export class Loot extends GameObject {
         game.updateObjects = true;
     }
 
-    get position (): Vec2 {
+    get position(): Vec2 {
         return this.body!.getPosition();
     }
 
-    interact (p: Player): void {
+    interact(p: Player): void {
         let result: PickupMsgType = PickupMsgType.Success;
         let deleteItem = true;
         let playerDirty = false;
@@ -222,7 +222,7 @@ export class Loot extends GameObject {
         }
     }
 
-    canPickUpItem (p: Player): boolean {
+    canPickUpItem(p: Player): boolean {
         if (this.typeString.endsWith("scope")) {
             return p.inventory[this.typeString] === 0;
         } else if (this.typeString.startsWith("backpack")) {
@@ -247,7 +247,7 @@ export class Loot extends GameObject {
         }
     }
 
-    private pickUpTieredItem (type: string, p: Player): PickupMsgType {
+    private pickUpTieredItem(type: string, p: Player): PickupMsgType {
         const oldLevel: number = p[`${type}Level`];
         const newLevel: number = parseInt(this.typeString.charAt(this.typeString.length - 1)); // Last digit of the ID is the item level
         if (newLevel < oldLevel) return PickupMsgType.BetterItemEquipped;
@@ -263,17 +263,17 @@ export class Loot extends GameObject {
         return PickupMsgType.Success;
     }
 
-    private canPickUpTieredItem (type: string, p: Player): boolean {
+    private canPickUpTieredItem(type: string, p: Player): boolean {
         const oldLevel: number = p[`${type}Level`];
         const newLevel: number = parseInt(this.typeString.charAt(this.typeString.length - 1)); // Last digit of the ID is the item level
         return newLevel > oldLevel;
     }
 
-    serializePartial (stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
     }
 
-    serializeFull (stream: SurvivBitStream): void {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeGameType(this.typeId);
         stream.writeUint8(this.count);
         stream.writeBits(this.layer, 2);
@@ -284,7 +284,7 @@ export class Loot extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage (amount: number, source): void {}
+    damage(amount: number, source): void {}
 }
 
 export interface LooseLoot {
@@ -293,7 +293,7 @@ export interface LooseLoot {
     max: number
 }
 
-export function generateLooseLootFromArray (game: Game, loot: LooseLoot[], position: Vec2, layer: number): void {
+export function generateLooseLootFromArray(game: Game, loot: LooseLoot[], position: Vec2, layer: number): void {
     for (let i = 0; i < loot.length; i++) {
         for (let j = 0; j < random(loot[i].min, loot[i].max); j++) {
             const lootTable = LootTables[loot[i].tier];
@@ -330,7 +330,7 @@ export function generateLooseLootFromArray (game: Game, loot: LooseLoot[], posit
         }
     }
 }
-export function splitUpLoot (player: Player, item: string, amount: number): void {
+export function splitUpLoot(player: Player, item: string, amount: number): void {
     const dropCount = Math.floor(amount / 60);
     for (let i = 0; i < dropCount; i++) {
         /* eslint-disable-next-line no-new */

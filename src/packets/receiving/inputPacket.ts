@@ -12,7 +12,7 @@ import { type Obstacle } from "../../game/objects/obstacle";
 import { Loot } from "../../game/objects/loot";
 
 export class InputPacket extends ReceivingPacket {
-    deserialize (stream: SurvivBitStream): void {
+    deserialize(stream: SurvivBitStream): void {
         const p = this.p;
         if (p.dead) return;
 

@@ -20,7 +20,7 @@ export class Stair {
     downCollider: MinMax<Vec2>;
     upCollider: MinMax<Vec2>;
 
-    constructor (position: Vec2, orientation: Orientation, data: (JSONObjects.Structure["stairs"] & unknown[])[number]) {
+    constructor(position: Vec2, orientation: Orientation, data: (JSONObjects.Structure["stairs"] & unknown[])[number]) {
         this.orientation = orientation;
         this.collision = rotateRect(position, Vec2(data.collision.min!), Vec2(data.collision.max!), 1, this.orientation);
 
@@ -29,7 +29,7 @@ export class Stair {
         [this.downCollider, this.upCollider] = splitRect(this.collision, this.downDir);
     }
 
-    check (object: GameObject): boolean {
+    check(object: GameObject): boolean {
         const collides = distanceToRect(this.collision.min, this.collision.max, object.position, Constants.player.radius).collided;
         if (collides) {
             const collidesUp = distanceToRect(this.upCollider.min, this.upCollider.max, object.position, Constants.player.radius).collided;

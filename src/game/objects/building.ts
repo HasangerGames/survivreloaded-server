@@ -64,7 +64,7 @@ export class Building extends GameObject {
 
     declare kind: ObjectKind.Building;
 
-    constructor (game: Game,
+    constructor(game: Game,
         typeString: string,
         position: Vec2,
         layer: number,
@@ -145,7 +145,7 @@ export class Building extends GameObject {
         }
     }
 
-    serializePartial (stream: SurvivBitStream): void {
+    serializePartial(stream: SurvivBitStream): void {
         stream.writeBoolean(this.ceiling.destroyed);
         stream.writeBoolean(this.occupied);
         stream.writeBoolean(this.ceiling.damaged);
@@ -157,14 +157,14 @@ export class Building extends GameObject {
         stream.writeBits(0, 4); // Padding
     }
 
-    serializeFull (stream: SurvivBitStream): void {
+    serializeFull(stream: SurvivBitStream): void {
         stream.writeVec(this.position, 0, 0, 1024, 1024, 16);
         stream.writeMapType(this.typeId);
         stream.writeBits(this.orientation, 2);
         stream.writeBits(this.layer, 2);
     }
 
-    onObstacleDestroyed (obstacle: Obstacle): void {
+    onObstacleDestroyed(obstacle: Obstacle): void {
         const ceiling = this.ceiling;
         if (ceiling.destructible && obstacle.isWall && !ceiling.destroyed) {
             ceiling.wallsToDestroy--;
@@ -185,9 +185,9 @@ export class Building extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage (amount: number, source): void { }
+    damage(amount: number, source): void { }
 
-    playerIsOnZoomArea (player: Player): number {
+    playerIsOnZoomArea(player: Player): number {
         if (this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
 
         for (const zoomRegion of this.zoomRegions) {
@@ -200,7 +200,7 @@ export class Building extends GameObject {
         return 0;
     }
 
-    puzzlePieceToggled (piece: Obstacle): void {
+    puzzlePieceToggled(piece: Obstacle): void {
         this.puzzle.inputOrder.push(piece.puzzlePiece);
         if (this.puzzle.resetTimeoutId) clearTimeout(this.puzzle.resetTimeoutId);
 
@@ -235,7 +235,7 @@ export class Building extends GameObject {
         }
     }
 
-    resetPuzzle (): void {
+    resetPuzzle(): void {
         this.puzzle.inputOrder = [];
         for (const piece of this.puzzlePieces) {
             if (piece.isButton) {

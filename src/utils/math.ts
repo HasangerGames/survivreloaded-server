@@ -16,15 +16,15 @@ Game objects can belong to the following layers:
 Objects on the same layer should interact with one another.
 */
 
-export function sameLayer (a: number, b: number): boolean {
+export function sameLayer(a: number, b: number): boolean {
     return !!((1 & a) === (1 & b) || (2 & a && 2 & b));
 }
 
-export function toGroundLayer (a: number): number {
+export function toGroundLayer(a: number): number {
     return 1 & a;
 }
 
-export function toStairsLayer (a: number): number {
+export function toStairsLayer(a: number): number {
     return 2 | a;
 }
 
@@ -33,11 +33,11 @@ export function toStairsLayer (a: number): number {
  * @param min The minimum value that can be generated.
  * @param max The maximum value that can be generated.
  */
-export function randomFloat (min: number, max: number): number {
+export function randomFloat(min: number, max: number): number {
     return (Math.random() * (max - min) + min);
 }
 
-export function randomFloatSpecial (min: number, max: number): number {
+export function randomFloatSpecial(min: number, max: number): number {
     return (Math.random() < 0.5) ? randomFloat(min, max) : -randomFloat(min, max);
 }
 
@@ -51,7 +51,7 @@ export interface MinMax<T> {
  * @param min The minimum value that can be generated.
  * @param max The maximum value that can be generated.
  */
-export function random (min: number, max: number): number {
+export function random(min: number, max: number): number {
     return Math.floor(randomFloat(min, max + 1));
 }
 
@@ -62,7 +62,7 @@ export function random (min: number, max: number): number {
  * @param minY The minimum length in the y-direction.
  * @param maxY The maximum length in the y-direction.
  */
-export function randomVec (minX: number, maxX: number, minY: number, maxY: number): Vec2 {
+export function randomVec(minX: number, maxX: number, minY: number, maxY: number): Vec2 {
     return Vec2(random(minX, maxX), random(minY, maxY));
 }
 
@@ -72,7 +72,7 @@ export function randomVec (minX: number, maxX: number, minY: number, maxY: numbe
  * @param items The elements to choose from.
  * @param weights A legend of the elements' relative weight.
  */
-export function weightedRandom<T> (items: T[], weights: number[]): T {
+export function weightedRandom<T>(items: T[], weights: number[]): T {
     let i: number;
     for (i = 1; i < weights.length; i++) weights[i] += weights[i - 1];
 
@@ -84,7 +84,7 @@ export function weightedRandom<T> (items: T[], weights: number[]): T {
 /**
  * Generate a random boolean value.
  */
-export function randomBoolean (): boolean {
+export function randomBoolean(): boolean {
     return Math.random() < 0.5;
 }
 
@@ -93,7 +93,7 @@ export function randomBoolean (): boolean {
  * @param v1 The first point.
  * @param v2 The second point.
  */
-export function distanceBetween (v1: Point2D, v2: Point2D): number {
+export function distanceBetween(v1: Point2D, v2: Point2D): number {
     return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2));
 }
 
@@ -104,7 +104,7 @@ export function distanceBetween (v1: Point2D, v2: Point2D): number {
  * @param pos2 The center of the second circle.
  * @param r2 Thge radius of the second circle.
  */
-export function circleCollision (pos1: Point2D, r1: number, pos2: Point2D, r2: number): boolean {
+export function circleCollision(pos1: Point2D, r1: number, pos2: Point2D, r2: number): boolean {
     const a = r1 + r2;
     const x = pos1.x - pos2.x;
     const y = pos1.y - pos2.y;
@@ -117,7 +117,7 @@ export function circleCollision (pos1: Point2D, r1: number, pos2: Point2D, r2: n
     return distX * distX + distY * distY > circleRad * circleRad;
 } */
 
-export function rectCollision (min: Point2D, max: Point2D, pos: Vec2, rad: number): boolean {
+export function rectCollision(min: Point2D, max: Point2D, pos: Vec2, rad: number): boolean {
     const cpt = Vec2(clamp(pos.x, min.x, max.x), clamp(pos.y, min.y, max.y));
     const dstSqr = Vec2.lengthSquared(Vec2.sub(pos, cpt));
     return (dstSqr < rad * rad) || (pos.x >= min.x && pos.x <= max.x && pos.y >= min.y && pos.y <= max.y);
@@ -129,11 +129,11 @@ export function rectCollision (min: Point2D, max: Point2D, pos: Vec2, rad: numbe
  * @param min The minimum value the number can hold.
  * @param max The maximum value the number can hold.
  */
-export function clamp (a: number, min: number, max: number): number {
+export function clamp(a: number, min: number, max: number): number {
     return a < max ? a > min ? a : min : max;
 }
 
-export function rectRectCollision (min1: Point2D, max1: Point2D, min2: Point2D, max2: Point2D): boolean {
+export function rectRectCollision(min1: Point2D, max1: Point2D, min2: Point2D, max2: Point2D): boolean {
     return min2.x < max1.x && min2.y < max1.y && min1.x < max2.x && min1.y < max2.y;
 }
 
@@ -147,7 +147,7 @@ export interface CollisionRecord { collided: boolean, distance: number }
  * @param r2 The radius of the second circle.
  * @returns An object representation of whether the circles collide and the distance between their closest vertices.
  */
-export function distanceToCircle (pos1: Point2D, r1: number, pos2: Point2D, r2: number): CollisionRecord {
+export function distanceToCircle(pos1: Point2D, r1: number, pos2: Point2D, r2: number): CollisionRecord {
     const a = r1 + r2;
     const x = pos1.x - pos2.x;
     const y = pos1.y - pos2.y;
@@ -156,7 +156,7 @@ export function distanceToCircle (pos1: Point2D, r1: number, pos2: Point2D, r2: 
     return { collided: a2 > xy, distance: a2 - xy };
 }
 
-export function distanceToRect (min: Point2D, max: Point2D, circlePos: Point2D, circleRad: number): CollisionRecord {
+export function distanceToRect(min: Point2D, max: Point2D, circlePos: Point2D, circleRad: number): CollisionRecord {
     const distX = Math.max(min.x, Math.min(max.x, circlePos.x)) - circlePos.x;
     const distY = Math.max(min.y, Math.min(max.y, circlePos.y)) - circlePos.y;
     const radSquared = circleRad * circleRad;
@@ -164,7 +164,7 @@ export function distanceToRect (min: Point2D, max: Point2D, circlePos: Point2D, 
     return { collided: distSquared < radSquared, distance: radSquared - distSquared };
 }
 
-export function objectCollision (object: GameObject, position: Point2D, radius: number): CollisionRecord {
+export function objectCollision(object: GameObject, position: Point2D, radius: number): CollisionRecord {
     let record: CollisionRecord;
     if (object instanceof Obstacle) {
         if (object.collision.type === CollisionType.Circle) {
@@ -181,11 +181,11 @@ export function objectCollision (object: GameObject, position: Point2D, radius: 
     return record!;
 }
 
-export function addOrientations (n1: Orientation, n2: Orientation): Orientation {
+export function addOrientations(n1: Orientation, n2: Orientation): Orientation {
     return (n1 + n2) % 4 as Orientation;
 }
 
-export function addAdjust (position1: Vec2, position2: Vec2, orientation: Orientation): Vec2 {
+export function addAdjust(position1: Vec2, position2: Vec2, orientation: Orientation): Vec2 {
     if (orientation === 0) return Vec2.add(position1, position2);
     let xOffset: number, yOffset: number;
     switch (orientation) {
@@ -207,7 +207,7 @@ export function addAdjust (position1: Vec2, position2: Vec2, orientation: Orient
     return Vec2.add(position1, Vec2(xOffset!, yOffset!));
 }
 
-export function rotateRect (pos: Vec2, min: Vec2, max: Vec2, scale: number, orientation: Orientation): MinMax<Vec2> {
+export function rotateRect(pos: Vec2, min: Vec2, max: Vec2, scale: number, orientation: Orientation): MinMax<Vec2> {
     min = Vec2.mul(min, scale);
     max = Vec2.mul(max, scale);
     if (orientation !== 0) {
@@ -234,11 +234,11 @@ export function rotateRect (pos: Vec2, min: Vec2, max: Vec2, scale: number, orie
     };
 }
 
-export function orientationToRad (orientation: Orientation): number {
+export function orientationToRad(orientation: Orientation): number {
     return (orientation % 4) * 0.5 * Math.PI;
 }
 
-export function splitRect (rect: MinMax<Vec2>, axis: Vec2): [MinMax<Vec2>, MinMax<Vec2>] {
+export function splitRect(rect: MinMax<Vec2>, axis: Vec2): [MinMax<Vec2>, MinMax<Vec2>] {
     const e = Vec2.mul(Vec2.sub(rect.max, rect.min), 0.5);
     const c = Vec2.add(rect.min, e);
     const left = {
@@ -268,13 +268,13 @@ export function splitRect (rect: MinMax<Vec2>, axis: Vec2): [MinMax<Vec2>, MinMa
  * @param b The second vector.
  * @returns The angle, in radians, between the two vectors.
  */
-export function angleBetween (a: Vec2, b: Vec2): number {
+export function angleBetween(a: Vec2, b: Vec2): number {
     const dy = a.y - b.y;
     const dx = a.x - b.x;
     return Math.atan2(dy, dx);
 }
 
-export function bodyFromCollisionData (
+export function bodyFromCollisionData(
     world: World,
     data: { type: CollisionType, rad: number, min: Vec2, max: Vec2, pos: Vec2 },
     position: Vec2,
@@ -320,11 +320,11 @@ export function bodyFromCollisionData (
  * Get the angle, in radians, formed by a vector.
  * @param v The vector to calculate against.
  */
-export function unitVecToRadians (v: Point2D): number {
+export function unitVecToRadians(v: Point2D): number {
     return Math.atan2(v.y, v.x);
 }
 
-export function vec2Rotate (v: Point2D, angle: number): Vec2 {
+export function vec2Rotate(v: Point2D, angle: number): Vec2 {
     const cos = Math.cos(angle); const sin = Math.sin(angle);
     return Vec2(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
 }
@@ -333,7 +333,7 @@ export function vec2Rotate (v: Point2D, angle: number): Vec2 {
  * Convert degrees to radians.
  * @param degrees The angle, in degrees.
  */
-export function degreesToRadians (degrees: number): number {
+export function degreesToRadians(degrees: number): number {
     return degrees * (Math.PI / 180);
 }
 
@@ -344,7 +344,7 @@ export function degreesToRadians (degrees: number): number {
  * @param radius The radius of the circle.
  * A vector representation of the randomized point.
  */
-export function randomPointInsideCircle (position: Vec2, radius: number): Vec2 {
+export function randomPointInsideCircle(position: Vec2, radius: number): Vec2 {
     /*
         Easier method:
 
@@ -374,10 +374,10 @@ export function randomPointInsideCircle (position: Vec2, radius: number): Vec2 {
     return Vec2(x * radius + position.x, y * radius + position.y);
 }
 
-export function vecLerp (t: number, a: Vec2, b: Vec2): Vec2 {
+export function vecLerp(t: number, a: Vec2, b: Vec2): Vec2 {
     return Vec2.add(Vec2.mul(a, 1.0 - t), Vec2.mul(b, t));
 }
 
-export function lerp (t: number, a: number, b: number): number {
+export function lerp(t: number, a: number, b: number): number {
     return a * (1.0 - t) + b * t;
 }
