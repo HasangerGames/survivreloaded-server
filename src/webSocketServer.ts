@@ -45,7 +45,7 @@ const bannedIPs: string[] = [];
 
 app.get("/", (res) => {
     res.writeStatus("302");
-    res.writeHeader("Location", "https://resurviv.io");
+    res.writeHeader("Location", `http${Config.https ? "s" : ""}://${Config.host}`);
     res.end();
 });
 
@@ -119,7 +119,13 @@ app.ws("/play", {
         if (typeof playerName !== "string" || playerName.length < 1) playerName = "Player";
 
         log(`"${playerName}" joined the game.`);
-        socket.player = game.addPlayer(socket, playerName, JSON.parse(socket.cookies.loadout));
+        let loadout = {};
+        try {
+            loadout = JSON.parse(socket.cookies.loadout);
+        } catch {
+            loadout = {};
+        }
+        socket.player = game.addPlayer(socket, playerName, loadout);
     },
 
     /**

@@ -84,7 +84,11 @@ app.post("/api/user/profile", (res, req) => {
     const loadout = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../json/profile.json"), "utf-8"));
     const cookies = cookie.parse(req.getHeader("cookie"));
 
-    if (cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
+    try {
+        if (cookies.loadout) loadout.loadout = JSON.parse(cookies.loadout);
+    } catch {
+        log("/api/user/profile: Player tried to send invalid loadout");
+    }
 
     /**
      * @note JSON.stringify() is slow.
@@ -95,7 +99,7 @@ app.post("/api/user/profile", (res, req) => {
 
 app.post("/api/user/loadout", res => {
     readPostedJSON(res, (body: { loadout: any }) => {
-        res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { path: "/", domain: "resurviv.io", maxAge: 2147483647 }));
+        res.writeHeader("Set-Cookie", cookie.serialize("loadout", JSON.stringify(body.loadout), { path: "/", domain: Config.host, maxAge: 2147483647 }));
         res.writeHeader("Content-Type", "application/json");
         res.end(JSON.stringify(body));
     }, () => {

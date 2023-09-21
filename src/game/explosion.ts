@@ -31,6 +31,7 @@ export class Explosion {
     }
 
     explode (game: Game): void {
+        if (this.position.x < 0 || this.position.x > game.map.width || this.position.y < 0 || this.position.y > game.map.height) return;
         const explosionData = Explosions[this.typeString];
         const radius = explosionData.rad.max;
 

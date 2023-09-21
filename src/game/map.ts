@@ -1,6 +1,6 @@
 import { ObjectKind, CollisionType, type Orientation } from "../utils/constants";
 import { log, deepCopy } from "../utils/misc";
-import { TypeToId, Debug, Maps, Objects } from "../utils/data";
+import { Debug, Maps, Objects } from "../utils/data";
 import {
     type MinMax,
     random,
@@ -22,7 +22,7 @@ import { Obstacle } from "./objects/obstacle";
 import { Structure } from "./objects/structure";
 import { Building } from "./objects/building";
 import { Decal } from "./objects/decal";
-import { Vec2 } from "planck";
+import { Vec2, Box } from "planck";
 import { generateLooseLootFromArray, Loot } from "./objects/loot";
 import { type GameObject } from "./gameObject";
 import { Stair } from "./stair";
@@ -60,6 +60,12 @@ export class Map {
         this.height = mapInfo.height;
         this.shoreInset = 48;
         this.grassInset = 18;
+
+        // Create world boundaries
+        this.createWorldBoundary(this.width / 2, 0, this.width / 2, 0);
+        this.createWorldBoundary(0, this.height / 2, 0, this.height / 2);
+        this.createWorldBoundary(this.width / 2, this.height, this.width / 2, 0);
+        this.createWorldBoundary(this.width, this.height / 2, 0, this.height / 2);
 
         // TODO Better river generation
         this.rivers = [];
@@ -232,9 +238,9 @@ export class Map {
                             }
                         } else {
                             isVisible = object.position.x > minX &&
-                                        object.position.x < maxX &&
-                                        object.position.y > minY &&
-                                        object.position.y < maxY;
+                                object.position.x < maxX &&
+                                object.position.y > minY &&
+                                object.position.y < maxY;
                         }
                         if (isVisible) visibleObjects.add(object);
                     }
@@ -253,18 +259,18 @@ export class Map {
         for (let i = 0; i < count; i++) this.genStructure(type, building);
     }
 
-    private genStructure (typeString: string, structureData: JSONObjects.Structure, setPosition?: Vec2, setOrientation?: Orientation): void {
+    private genStructure (typeString: string, structureData: JSONObjects.Structure, setPosition?: Vec2, setOrientation?: Orientation): Structure {
+        // TODO proper structure bounds, structures are being deleted from the client when they should still be visible
         const orientation = setOrientation ?? random(0, 3) as Orientation;
         const position = setPosition ?? this.getRandomPositionFor(ObjectKind.Structure, structureData, orientation, 1);
 
-        const layerObjIds: number[] = [];
+        const layerObjs: GameObject[] = [];
 
         if (structureData.layers != null) {
             for (let layerId = 0, length = structureData.layers.length; layerId < length; layerId++) {
                 const layerObj = structureData.layers[layerId];
                 const layerType = layerObj.type;
                 const layer = Objects[layerType];
-                layerObjIds.push(TypeToId[layerType]);
 
                 let layerOrientation: Orientation;
                 if (layerObj.inheritOri === false) layerOrientation = layerObj.ori;
@@ -272,21 +278,29 @@ export class Map {
                 const layerPosition = addAdjust(position, Vec2(layerObj.pos), orientation);
 
                 if (layer.type === "structure") {
-                    this.genStructure(layerType, layer, layerPosition, layerOrientation);
+                    const object = this.genStructure(layerType, layer, layerPosition, layerOrientation);
+                    layerObjs.push(object);
                 } else if (layer.type === "building") {
-                    this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
+                    const object = this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
+                    layerObjs.push(object);
                 } else {
                     // console.warn(`Unsupported object type: ${layer.type}`);
                 }
             }
         }
-        this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
+        const structure = new Structure(this.game, typeString, position, orientation, layerObjs.map(object => object.id));
+        this.game.staticObjects.add(structure);
+
+        for (const object of layerObjs) {
+            if (object instanceof Building) object.parentStructure = structure;
+        }
 
         if ("stairs" in structureData && Array.isArray(structureData.stairs)) {
             for (const stairData of structureData.stairs) {
                 if (!stairData.lootOnly) this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
             }
         }
+        return structure;
     }
 
     private genBuildings (count: number, type: string, building: JSONObjects.Building): void {
@@ -302,7 +316,7 @@ export class Map {
         setPosition?: Vec2,
         setOrientation?: Orientation,
         setLayer?: number,
-        debug = false): void {
+        debug = false): Building {
         const orientation = setOrientation ?? (typeString.startsWith("cache_") ? 0 : random(0, 3) as Orientation);
 
         const layer = setLayer ?? 0;
@@ -387,8 +401,8 @@ export class Map {
                     break;
                 // No such entry exists
                 // case "ignored":
-                    // Ignored
-                    // break;
+                // Ignored
+                // break;
             }
         }
         if (buildingData.mapGroundPatches != null) {
@@ -415,6 +429,7 @@ export class Map {
             }
         }
         this.game.staticObjects.add(building);
+        return building;
     }
 
     placeDebugMarker (position: Vec2): void {
@@ -518,20 +533,20 @@ export class Map {
             let min: Vec2, max: Vec2;
             switch (orientation) {
                 case 0:
-                    min = Vec2(shoreDist - width, 720 - shoreDist - width);
-                    max = Vec2(720 - shoreDist + width, 720 - shoreDist + width);
+                    min = Vec2(shoreDist - width, this.height - shoreDist - width);
+                    max = Vec2(this.width - shoreDist + width, this.height - shoreDist + width);
                     break;
                 case 1:
-                    min = Vec2(shoreDist - width, 720 - shoreDist - width);
+                    min = Vec2(shoreDist - width, this.height - shoreDist - width);
                     max = Vec2(shoreDist + width, shoreDist + width);
                     break;
                 case 2:
                     min = Vec2(shoreDist - width, shoreDist - width);
-                    max = Vec2(720 - shoreDist + width, shoreDist + width);
+                    max = Vec2(this.width - shoreDist + width, shoreDist + width);
                     break;
                 case 3:
-                    min = Vec2(720 - shoreDist - width, 720 - shoreDist - width);
-                    max = Vec2(720 - shoreDist + width, shoreDist + width);
+                    min = Vec2(this.width - shoreDist - width, this.height - shoreDist - width);
+                    max = Vec2(this.width - shoreDist + width, shoreDist + width);
                     break;
             }
             return randomVec(min.x, max.x, min.y, max.y);
@@ -726,6 +741,31 @@ export class Map {
             bounds.push(...this.getBoundsForBuilding(Objects[building.type] as JSONObjects.Building, position, orientation));
         }
         return bounds;
+    }
+
+    private createWorldBoundary (x: number, y: number, width: number, height: number): void {
+        const boundary = this.game.world.createBody({
+            type: "static",
+            position: Vec2(x, y)
+        });
+        boundary.createFixture({
+            shape: Box(width, height),
+            userData: {
+                kind: ObjectKind.Obstacle,
+                layer: 0,
+                isPlayer: false,
+                isObstacle: true,
+                isBullet: false,
+                isLoot: false,
+                collidesWith: {
+                    player: true,
+                    obstacle: false,
+                    bullet: true,
+                    loot: false,
+                    projectile: true
+                }
+            }
+        });
     }
 }
 
