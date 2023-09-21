@@ -16,6 +16,7 @@ import { type Game } from "../game";
 import { type Obstacle } from "./obstacle";
 import { type Player } from "./player";
 import { type JSONObjects } from "../../jsonTypings";
+import { type Structure } from "./structure";
 
 export class Building extends GameObject {
     showOnMap: boolean;
@@ -58,6 +59,8 @@ export class Building extends GameObject {
     doors: Obstacle[] = [];
 
     puzzlePieces: Obstacle[] = [];
+
+    parentStructure?: Structure;
 
     declare kind: ObjectKind.Building;
 
@@ -182,7 +185,7 @@ export class Building extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage (amount: number, source): void {}
+    damage (amount: number, source): void { }
 
     playerIsOnZoomArea (player: Player): number {
         if (this.ceiling.destroyed || !sameLayer(this.layer, player.layer)) return 0;
@@ -211,6 +214,10 @@ export class Building extends GameObject {
                 }
             }
             this.puzzle.solved = true;
+            if (this.parentStructure) {
+                this.parentStructure.altSound = true;
+                this.game.fullDirtyObjects.add(this.parentStructure);
+            }
             setTimeout(this.resetPuzzle.bind(this), this.puzzle.completeOffDelay * 1000);
             this.game.partialDirtyObjects.add(this);
         } else if (this.puzzle.inputOrder.length >= this.puzzle.order.length) {

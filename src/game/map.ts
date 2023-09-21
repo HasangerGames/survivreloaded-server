@@ -1,6 +1,6 @@
 import { ObjectKind, CollisionType, type Orientation } from "../utils/constants";
 import { log, deepCopy } from "../utils/misc";
-import { TypeToId, Debug, Maps, Objects } from "../utils/data";
+import { Debug, Maps, Objects } from "../utils/data";
 import {
     type MinMax,
     random,
@@ -238,9 +238,9 @@ export class Map {
                             }
                         } else {
                             isVisible = object.position.x > minX &&
-                                        object.position.x < maxX &&
-                                        object.position.y > minY &&
-                                        object.position.y < maxY;
+                                object.position.x < maxX &&
+                                object.position.y > minY &&
+                                object.position.y < maxY;
                         }
                         if (isVisible) visibleObjects.add(object);
                     }
@@ -259,18 +259,18 @@ export class Map {
         for (let i = 0; i < count; i++) this.genStructure(type, building);
     }
 
-    private genStructure (typeString: string, structureData: JSONObjects.Structure, setPosition?: Vec2, setOrientation?: Orientation): void {
+    private genStructure (typeString: string, structureData: JSONObjects.Structure, setPosition?: Vec2, setOrientation?: Orientation): Structure {
+        // TODO proper structure bounds, structures are being deleted from the client when they should still be visible
         const orientation = setOrientation ?? random(0, 3) as Orientation;
         const position = setPosition ?? this.getRandomPositionFor(ObjectKind.Structure, structureData, orientation, 1);
 
-        const layerObjIds: number[] = [];
+        const layerObjs: GameObject[] = [];
 
         if (structureData.layers != null) {
             for (let layerId = 0, length = structureData.layers.length; layerId < length; layerId++) {
                 const layerObj = structureData.layers[layerId];
                 const layerType = layerObj.type;
                 const layer = Objects[layerType];
-                layerObjIds.push(TypeToId[layerType]);
 
                 let layerOrientation: Orientation;
                 if (layerObj.inheritOri === false) layerOrientation = layerObj.ori;
@@ -278,21 +278,29 @@ export class Map {
                 const layerPosition = addAdjust(position, Vec2(layerObj.pos), orientation);
 
                 if (layer.type === "structure") {
-                    this.genStructure(layerType, layer, layerPosition, layerOrientation);
+                    const object = this.genStructure(layerType, layer, layerPosition, layerOrientation);
+                    layerObjs.push(object);
                 } else if (layer.type === "building") {
-                    this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
+                    const object = this.genBuilding(layerType, layer, layerPosition, layerOrientation, layerId);
+                    layerObjs.push(object);
                 } else {
                     // console.warn(`Unsupported object type: ${layer.type}`);
                 }
             }
         }
-        this.game.staticObjects.add(new Structure(this.game, typeString, position, orientation, layerObjIds));
+        const structure = new Structure(this.game, typeString, position, orientation, layerObjs.map(object => object.id));
+        this.game.staticObjects.add(structure);
+
+        for (const object of layerObjs) {
+            if (object instanceof Building) object.parentStructure = structure;
+        }
 
         if ("stairs" in structureData && Array.isArray(structureData.stairs)) {
             for (const stairData of structureData.stairs) {
                 if (!stairData.lootOnly) this.game.stairs.add(new Stair(position, orientation ?? 0, stairData));
             }
         }
+        return structure;
     }
 
     private genBuildings (count: number, type: string, building: JSONObjects.Building): void {
@@ -308,7 +316,7 @@ export class Map {
         setPosition?: Vec2,
         setOrientation?: Orientation,
         setLayer?: number,
-        debug = false): void {
+        debug = false): Building {
         const orientation = setOrientation ?? (typeString.startsWith("cache_") ? 0 : random(0, 3) as Orientation);
 
         const layer = setLayer ?? 0;
@@ -393,8 +401,8 @@ export class Map {
                     break;
                 // No such entry exists
                 // case "ignored":
-                    // Ignored
-                    // break;
+                // Ignored
+                // break;
             }
         }
         if (buildingData.mapGroundPatches != null) {
@@ -421,6 +429,7 @@ export class Map {
             }
         }
         this.game.staticObjects.add(building);
+        return building;
     }
 
     placeDebugMarker (position: Vec2): void {
