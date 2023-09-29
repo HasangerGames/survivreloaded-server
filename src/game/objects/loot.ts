@@ -1,6 +1,6 @@
 import { Constants, ObjectKind } from "../../utils/constants";
 import { deepCopy, log } from "../../utils/misc";
-import { Items, LootTables, Weapons, TypeToId } from "../../utils/data";
+import { Items, LootTables, Weapons, TypeToId, IdToGameType } from "../../utils/data";
 import type { SurvivBitStream } from "../../utils/survivBitStream";
 import { random, unitVecToRadians, weightedRandom } from "../../utils/math";
 import { type Game } from "../game";
@@ -110,6 +110,14 @@ export class Loot extends GameObject {
         } else if (this.typeString.startsWith("helmet")) {
             result = this.pickUpTieredItem("helmet", p);
             playerDirty = true;
+        } else if (this.typeString.startsWith("outfit")) {
+            if (p.loadout.outfit === this.typeId) {
+                result = PickupMsgType.AlreadyOwned;
+            } else {
+                this.game.dynamicObjects.add(new Loot(this.game, IdToGameType[p.loadout.outfit], this.position, p.layer, 1));
+                p.loadout.outfit = this.typeId;
+                playerDirty = true;
+            }
         } else if (Constants.bagSizes[this.typeString]) {
             // Throwables implementation [inside here cus it's tiered]
             /* if (Weapons[this.typeString]?.type === "throwable") {
@@ -284,7 +292,7 @@ export class Loot extends GameObject {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    damage(amount: number, source): void {}
+    damage(amount: number, source): void { }
 }
 
 export interface LooseLoot {
